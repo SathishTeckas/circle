@@ -2,12 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
-import { Globe } from 'lucide-react';
+import { Globe, Check } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import SignInModal from '@/components/auth/SignInModal';
+import { motion } from 'framer-motion';
+
+const LANGUAGES = [
+  { code: 'en', name: 'English', nativeName: 'English' },
+  { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
+  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
+  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
+  { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
+  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
+  { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
+  { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
+  { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം' },
+  { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
+];
 
 export default function Welcome() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState('');
+  const [showLanguages, setShowLanguages] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [showSignIn, setShowSignIn] = useState(false);
 
   useEffect(() => {
     // Update time
@@ -70,7 +89,10 @@ export default function Welcome() {
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{currentTime}</span>
         </div>
-        <button className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+        <button 
+          onClick={() => setShowLanguages(true)}
+          className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-colors"
+        >
           <Globe className="w-5 h-5 text-white" />
         </button>
       </div>
@@ -87,14 +109,14 @@ export default function Welcome() {
         {/* CTA Buttons */}
         <div className="space-y-3">
           <Button
-            onClick={() => base44.auth.redirectToLogin(createPageUrl('RoleSelection'))}
+            onClick={() => window.location.href = createPageUrl('RoleSelection')}
             className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white text-base font-medium rounded-full shadow-lg transition-all"
           >
             Get started
           </Button>
           
           <Button
-            onClick={() => base44.auth.redirectToLogin()}
+            onClick={() => setShowSignIn(true)}
             variant="outline"
             className="w-full h-14 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border-white/30 text-base font-medium rounded-full transition-all"
           >
@@ -115,6 +137,39 @@ export default function Welcome() {
           <div className="w-32 h-1 bg-white/30 rounded-full" />
         </div>
       </div>
+
+      {/* Language Selector Sheet */}
+      <Sheet open={showLanguages} onOpenChange={setShowLanguages}>
+        <SheetContent side="bottom" className="h-[70vh] rounded-t-3xl">
+          <SheetHeader className="mb-6">
+            <SheetTitle className="text-xl">Select Language</SheetTitle>
+          </SheetHeader>
+          
+          <div className="space-y-2">
+            {LANGUAGES.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => {
+                  setSelectedLanguage(lang.code);
+                  setShowLanguages(false);
+                }}
+                className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-slate-50 transition-colors"
+              >
+                <div className="text-left">
+                  <p className="font-medium text-slate-900">{lang.name}</p>
+                  <p className="text-sm text-slate-500">{lang.nativeName}</p>
+                </div>
+                {selectedLanguage === lang.code && (
+                  <Check className="w-5 h-5 text-violet-600" />
+                )}
+              </button>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Sign In Modal */}
+      <SignInModal isOpen={showSignIn} onClose={() => setShowSignIn(false)} />
     </div>
   );
 }
