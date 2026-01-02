@@ -21,9 +21,9 @@ export default function Welcome() {
     const checkAuth = async () => {
       try {
         const auth = await base44.auth.isAuthenticated();
-        setIsAuthenticated(auth);
         if (auth) {
           const user = await base44.auth.me();
+          // Only redirect if user has completed onboarding
           if (user.onboarding_completed) {
             if (user.user_role === 'companion') {
               window.location.href = createPageUrl('CompanionDashboard');
@@ -32,14 +32,11 @@ export default function Welcome() {
             } else {
               window.location.href = createPageUrl('Discover');
             }
-          } else if (user.user_role) {
-            window.location.href = createPageUrl('Onboarding');
-          } else {
-            window.location.href = createPageUrl('RoleSelection');
+            return;
           }
         }
       } catch (e) {
-        setIsAuthenticated(false);
+        // Not authenticated, show welcome page
       }
       setLoading(false);
     };
