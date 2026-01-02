@@ -145,7 +145,7 @@ export default function Welcome() {
             <SheetTitle className="text-xl">Select Language</SheetTitle>
           </SheetHeader>
           
-          <div className="space-y-2">
+          <div className="overflow-y-auto space-y-2 pb-6" style={{ maxHeight: 'calc(70vh - 100px)' }}>
             {LANGUAGES.map((lang) => (
               <button
                 key={lang.code}
