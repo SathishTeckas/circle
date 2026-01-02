@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Calendar, Clock, DollarSign, Star, TrendingUp, Bell, 
+  Calendar, Clock, IndianRupee, Star, TrendingUp, Bell, 
   ChevronRight, Plus, Users, CheckCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -101,7 +101,7 @@ export default function CompanionDashboard() {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
-              <DollarSign className="w-5 h-5 mb-1 text-white/80" />
+              <IndianRupee className="w-5 h-5 mb-1 text-white/80" />
               <p className="text-2xl font-bold">₹{totalEarnings.toFixed(0)}</p>
               <p className="text-xs text-white/70">Total Earned</p>
             </Card>
