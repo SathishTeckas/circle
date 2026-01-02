@@ -52,6 +52,10 @@ export default function Welcome() {
               window.location.href = createPageUrl('Discover');
             }
             return;
+          } else {
+            // User is authenticated but hasn't completed onboarding
+            window.location.href = createPageUrl('RoleSelection');
+            return;
           }
         }
       } catch (e) {
