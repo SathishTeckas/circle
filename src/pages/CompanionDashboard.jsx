@@ -102,7 +102,7 @@ export default function CompanionDashboard() {
           <div className="grid grid-cols-3 gap-3">
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
               <DollarSign className="w-5 h-5 mb-1 text-white/80" />
-              <p className="text-2xl font-bold">${totalEarnings.toFixed(0)}</p>
+              <p className="text-2xl font-bold">₹{totalEarnings.toFixed(0)}</p>
               <p className="text-xs text-white/70">Total Earned</p>
             </Card>
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
@@ -169,7 +169,7 @@ export default function CompanionDashboard() {
                         {booking.date ? format(new Date(booking.date), 'MMM d') : 'TBD'} • {booking.start_time}
                       </p>
                     </div>
-                    <span className="text-lg font-bold text-emerald-600">${booking.base_price}</span>
+                    <span className="text-lg font-bold text-emerald-600">₹{booking.base_price}</span>
                   </div>
                 </Link>
               ))}
@@ -239,7 +239,7 @@ export default function CompanionDashboard() {
 
           <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-4 text-white">
             <p className="text-emerald-100 text-sm mb-1">Available Balance</p>
-            <p className="text-3xl font-bold mb-2">${(user?.wallet_balance || 0).toFixed(2)}</p>
+            <p className="text-3xl font-bold mb-2">₹{(user?.wallet_balance || 0).toFixed(2)}</p>
             <p className="text-emerald-100 text-sm">
               {completedBookings.length} completed meetups
             </p>
