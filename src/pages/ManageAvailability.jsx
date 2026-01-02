@@ -133,13 +133,15 @@ export default function ManageAvailability() {
               {/* Date Selection */}
               <div>
                 <Label className="mb-2 block">Select Date</Label>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  disabled={(date) => date < new Date()}
-                  className="rounded-xl border mx-auto"
-                />
+                <div className="flex justify-center">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    disabled={(date) => date < new Date()}
+                    className="rounded-xl border"
+                  />
+                </div>
               </div>
 
               {/* Time Selection */}
