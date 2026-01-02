@@ -11,6 +11,10 @@ import CompanionDashboard from './pages/CompanionDashboard';
 import ManageAvailability from './pages/ManageAvailability';
 import Wallet from './pages/Wallet';
 import ChatList from './pages/ChatList';
+import Profile from './pages/Profile';
+import GroupEvents from './pages/GroupEvents';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
 import __Layout from './Layout.jsx';
 
 
@@ -28,6 +32,10 @@ export const PAGES = {
     "ManageAvailability": ManageAvailability,
     "Wallet": Wallet,
     "ChatList": ChatList,
+    "Profile": Profile,
+    "GroupEvents": GroupEvents,
+    "AdminDashboard": AdminDashboard,
+    "AdminUsers": AdminUsers,
 }
 
 export const pagesConfig = {
