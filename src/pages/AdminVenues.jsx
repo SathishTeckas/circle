@@ -1,0 +1,290 @@
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Switch } from '@/components/ui/switch';
+import { 
+  Building, Plus, MapPin, Shield, Camera, Trash2,
+  ArrowLeft, CheckCircle, XCircle
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const CITIES = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'San Francisco'];
+const AREAS = ['Downtown', 'Midtown', 'Uptown', 'Westside', 'Eastside', 'Central'];
+
+export default function AdminVenues() {
+  const queryClient = useQueryClient();
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    address: '',
+    city: '',
+    area: '',
+    type: 'restaurant',
+    has_cctv: false,
+    capacity: ''
+  });
+
+  const { data: venues = [], isLoading } = useQuery({
+    queryKey: ['admin-venues'],
+    queryFn: () => base44.entities.Venue.list('-created_date', 100)
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      await base44.entities.Venue.create({
+        ...formData,
+        capacity: parseInt(formData.capacity) || 0,
+        verified: false
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-venues'] });
+      setShowForm(false);
+      setFormData({ name: '', address: '', city: '', area: '', type: 'restaurant', has_cctv: false, capacity: '' });
+    }
+  });
+
+  const verifyMutation = useMutation({
+    mutationFn: async ({ venueId, verified }) => {
+      await base44.entities.Venue.update(venueId, { verified });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-venues'] });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (venueId) => {
+      await base44.entities.Venue.delete(venueId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-venues'] });
+    }
+  });
+
+  const canSubmit = formData.name && formData.address && formData.city;
+
+  return (
+    <div className="min-h-screen bg-slate-50 pb-24">
+      {/* Header */}
+      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+        <div className="px-4 py-4 max-w-4xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => window.history.back()}
+                className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+              >
+                <ArrowLeft className="w-5 h-5 text-slate-700" />
+              </button>
+              <div>
+                <h1 className="text-xl font-bold text-slate-900">Venue Management</h1>
+                <p className="text-sm text-slate-600">{venues.length} registered venues</p>
+              </div>
+            </div>
+
+            <Sheet open={showForm} onOpenChange={setShowForm}>
+              <SheetTrigger asChild>
+                <Button className="bg-violet-600 hover:bg-violet-700 rounded-xl">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Venue
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:max-w-md">
+                <SheetHeader>
+                  <SheetTitle>Add New Venue</SheetTitle>
+                </SheetHeader>
+
+                <div className="space-y-4 mt-6">
+                  <div>
+                    <Label>Venue Name</Label>
+                    <Input
+                      placeholder="e.g., The Coffee House"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Address</Label>
+                    <Input
+                      placeholder="Full address"
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label>City</Label>
+                    <Select value={formData.city} onValueChange={(v) => setFormData({ ...formData, city: v })}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select city" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CITIES.map(city => (
+                          <SelectItem key={city} value={city}>{city}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>Area</Label>
+                    <Select value={formData.area} onValueChange={(v) => setFormData({ ...formData, area: v })}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select area" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {AREAS.map(area => (
+                          <SelectItem key={area} value={area}>{area}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>Venue Type</Label>
+                    <Select value={formData.type} onValueChange={(v) => setFormData({ ...formData, type: v })}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="restaurant">Restaurant</SelectItem>
+                        <SelectItem value="cafe">Cafe</SelectItem>
+                        <SelectItem value="lounge">Lounge</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>Capacity</Label>
+                    <Input
+                      type="number"
+                      placeholder="Maximum guests"
+                      value={formData.capacity}
+                      onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <Camera className="w-5 h-5 text-slate-600" />
+                      <div>
+                        <p className="font-medium text-slate-900">Has CCTV</p>
+                        <p className="text-sm text-slate-600">Safety monitoring available</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={formData.has_cctv}
+                      onCheckedChange={(checked) => setFormData({ ...formData, has_cctv: checked })}
+                    />
+                  </div>
+
+                  <Button
+                    onClick={() => createMutation.mutate()}
+                    disabled={!canSubmit || createMutation.isPending}
+                    className="w-full h-12 bg-violet-600 hover:bg-violet-700 rounded-xl"
+                  >
+                    {createMutation.isPending ? 'Adding...' : 'Add Venue'}
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 py-6 max-w-4xl mx-auto">
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="bg-white rounded-2xl h-32 animate-pulse" />
+            ))}
+          </div>
+        ) : venues.length === 0 ? (
+          <div className="text-center py-16">
+            <Building className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <h3 className="font-semibold text-slate-900 mb-2">No venues yet</h3>
+            <p className="text-slate-600">Add verified venues for safe meetups</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {venues.map((venue, idx) => (
+              <motion.div
+                key={venue.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.02 }}
+              >
+                <Card className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-slate-900">{venue.name}</h3>
+                        <Badge variant="outline" className="capitalize">{venue.type}</Badge>
+                        {venue.verified ? (
+                          <Badge className="bg-emerald-100 text-emerald-700">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Verified
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-amber-100 text-amber-700">Pending</Badge>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-2 text-sm text-slate-600 mb-1">
+                        <MapPin className="w-4 h-4" />
+                        {venue.address}
+                      </div>
+                      
+                      <p className="text-sm text-slate-500">
+                        {venue.area}, {venue.city} • Capacity: {venue.capacity || 'N/A'}
+                      </p>
+
+                      {venue.has_cctv && (
+                        <Badge className="mt-2 bg-blue-100 text-blue-700">
+                          <Camera className="w-3 h-3 mr-1" />
+                          CCTV Monitored
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2">
+                      {!venue.verified && (
+                        <Button
+                          size="sm"
+                          onClick={() => verifyMutation.mutate({ venueId: venue.id, verified: true })}
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                        >
+                          Verify
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => deleteMutation.mutate(venue.id)}
+                        className="border-red-200 text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -15,6 +15,9 @@ import Profile from './pages/Profile';
 import GroupEvents from './pages/GroupEvents';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
+import AdminVenues from './pages/AdminVenues';
+import AdminGroups from './pages/AdminGroups';
+import AdminSettings from './pages/AdminSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -36,6 +39,9 @@ export const PAGES = {
     "GroupEvents": GroupEvents,
     "AdminDashboard": AdminDashboard,
     "AdminUsers": AdminUsers,
+    "AdminVenues": AdminVenues,
+    "AdminGroups": AdminGroups,
+    "AdminSettings": AdminSettings,
 }
 
 export const pagesConfig = {
