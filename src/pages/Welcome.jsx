@@ -109,14 +109,14 @@ export default function Welcome() {
         {/* CTA Buttons */}
         <div className="space-y-3">
           <Button
-            onClick={() => base44.auth.redirectToLogin(createPageUrl('RoleSelection'))}
+            onClick={() => window.location.href = createPageUrl('RoleSelection')}
             className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white text-base font-medium rounded-full shadow-lg transition-all"
           >
             Get started
           </Button>
           
           <Button
-            onClick={() => setShowSignIn(true)}
+            onClick={() => base44.auth.redirectToLogin(createPageUrl('Profile'))}
             variant="outline"
             className="w-full h-14 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border-white/30 text-base font-medium rounded-full transition-all"
           >
