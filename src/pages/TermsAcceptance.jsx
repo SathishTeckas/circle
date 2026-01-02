@@ -119,7 +119,7 @@ export default function TermsAcceptance() {
                     </div>
                     <Checkbox 
                       checked={accepted[term.id]}
-                      className="mt-1"
+                      className="mt-1 border-2 border-slate-300 data-[state=checked]:bg-violet-600 data-[state=checked]:border-violet-600"
                     />
                   </div>
                 </div>
