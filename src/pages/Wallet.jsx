@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Wallet as WalletIcon, ArrowDownLeft, ArrowUpRight, 
-  DollarSign, TrendingUp, ArrowLeft, CreditCard
+  IndianRupee, TrendingUp, ArrowLeft, CreditCard
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -95,11 +95,11 @@ export default function Wallet() {
           <Card className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-4 h-4 text-violet-600" />
+                <IndianRupee className="w-4 h-4 text-violet-600" />
               </div>
               <span className="text-sm text-slate-600">All Time</span>
             </div>
-            <p className="text-2xl font-bold text-slate-900">${totalEarnings.toFixed(0)}</p>
+            <p className="text-2xl font-bold text-slate-900">₹{totalEarnings.toFixed(0)}</p>
             <p className="text-xs text-slate-500">{completedBookings.length} total meetups</p>
           </Card>
         </div>
@@ -134,7 +134,7 @@ export default function Wallet() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-emerald-600">+${booking.companion_payout?.toFixed(2)}</p>
+                    <p className="font-semibold text-emerald-600">+₹{booking.companion_payout?.toFixed(2)}</p>
                     <p className="text-xs text-slate-500">{booking.duration_hours}h meetup</p>
                   </div>
                 </motion.div>
@@ -147,7 +147,7 @@ export default function Wallet() {
         <Card className="p-4 bg-slate-50 border-slate-200">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
-              <DollarSign className="w-5 h-5 text-slate-600" />
+              <IndianRupee className="w-5 h-5 text-slate-600" />
             </div>
             <div>
               <h4 className="font-medium text-slate-900">Platform Fee</h4>
