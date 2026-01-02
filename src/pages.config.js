@@ -7,6 +7,10 @@ import Discover from './pages/Discover';
 import BookingDetails from './pages/BookingDetails';
 import MyBookings from './pages/MyBookings';
 import BookingView from './pages/BookingView';
+import CompanionDashboard from './pages/CompanionDashboard';
+import ManageAvailability from './pages/ManageAvailability';
+import Wallet from './pages/Wallet';
+import ChatList from './pages/ChatList';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +24,10 @@ export const PAGES = {
     "BookingDetails": BookingDetails,
     "MyBookings": MyBookings,
     "BookingView": BookingView,
+    "CompanionDashboard": CompanionDashboard,
+    "ManageAvailability": ManageAvailability,
+    "Wallet": Wallet,
+    "ChatList": ChatList,
 }
 
 export const pagesConfig = {
