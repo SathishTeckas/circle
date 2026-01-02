@@ -99,17 +99,7 @@ export default function RoleSelection() {
                     </div>
                   </div>
                   <p className="text-sm text-slate-500 mb-3">{role.subtitle}</p>
-                  <p className="text-sm text-slate-600 mb-4">{role.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {role.features.map((feature) => (
-                      <span 
-                        key={feature}
-                        className="text-xs px-3 py-1 bg-slate-100 text-slate-600 rounded-full"
-                      >
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
+                  <p className="text-sm text-slate-600">{role.description}</p>
                 </div>
               </div>
             </motion.button>
