@@ -18,13 +18,13 @@ const INTERESTS = [
 ];
 
 const LANGUAGES = [
-  'English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese',
-  'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi', 'Russian'
+  'English', 'Hindi', 'Bengali', 'Telugu', 'Marathi', 'Tamil',
+  'Gujarati', 'Kannada', 'Malayalam', 'Punjabi', 'Odia', 'Urdu'
 ];
 
 const CITIES = [
-  'New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix',
-  'San Francisco', 'Miami', 'Seattle', 'Boston', 'Austin'
+  'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata',
+  'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kochi'
 ];
 
 export default function Onboarding() {
