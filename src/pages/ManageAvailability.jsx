@@ -17,8 +17,15 @@ import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-const AREAS = ['Downtown', 'Midtown', 'Uptown', 'Westside', 'Eastside', 'Central'];
-const CITIES = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'San Francisco'];
+const AREAS = [
+  'Andheri', 'Bandra', 'Powai', 'Colaba', 'Juhu', 'Versova',
+  'Koramangala', 'Indiranagar', 'Whitefield', 'HSR Layout', 'MG Road', 'Jayanagar',
+  'Connaught Place', 'Hauz Khas', 'Saket', 'Dwarka', 'Rohini', 'Vasant Kunj',
+  'Banjara Hills', 'Jubilee Hills', 'HITEC City', 'Gachibowli', 'Madhapur', 'Kondapur',
+  'Anna Nagar', 'T Nagar', 'Adyar', 'Velachery', 'Nungambakkam', 'OMR',
+  'Park Street', 'Salt Lake', 'New Town', 'Ballygunge', 'Alipore', 'Rajarhat'
+];
+const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kochi'];
 const TIME_SLOTS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
 
 export default function ManageAvailability() {
@@ -124,12 +131,22 @@ export default function ManageAvailability() {
               Add Availability
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl">
-            <SheetHeader className="mb-6">
+          <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl flex flex-col">
+            <SheetHeader className="mb-6 flex-shrink-0">
               <SheetTitle>Create Availability</SheetTitle>
             </SheetHeader>
 
-            <div className="space-y-6 overflow-y-auto pb-24">
+            <div className="space-y-6 overflow-y-auto flex-1 pb-24 pr-2">
+              <style>{`
+                .rdp-day_selected {
+                  background-color: rgb(124 58 237) !important;
+                  color: white !important;
+                }
+                .rdp-day_selected:hover {
+                  background-color: rgb(109 40 217) !important;
+                  color: white !important;
+                }
+              `}</style>
               {/* Date Selection */}
               <div>
                 <Label className="mb-2 block">Select Date</Label>
@@ -215,10 +232,10 @@ export default function ManageAvailability() {
 
               {/* Price */}
               <div>
-                <Label className="mb-2 block">Price per Hour ($)</Label>
+                <Label className="mb-2 block">Price per Hour (₹)</Label>
                 <Input
                   type="number"
-                  placeholder="50"
+                  placeholder="500"
                   value={formData.price_per_hour}
                   onChange={(e) => setFormData({ ...formData, price_per_hour: e.target.value })}
                   className="h-12 rounded-xl"
@@ -227,7 +244,7 @@ export default function ManageAvailability() {
             </div>
 
             {/* Submit Button */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100">
+            <div className="flex-shrink-0 p-4 bg-white border-t border-slate-100">
               <Button
                 onClick={() => createMutation.mutate()}
                 disabled={!canSubmit || createMutation.isPending}
