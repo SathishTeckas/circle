@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Camera, ArrowRight, ArrowLeft, Plus, X, User, Phone, Globe, Heart, MapPin } from 'lucide-react';
+import { Camera, ArrowRight, ArrowLeft, Plus, X, User, Phone, Globe, Heart, MapPin, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -31,6 +31,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
   const [userData, setUserData] = useState({
     phone: '',
     date_of_birth: '',
@@ -59,6 +60,7 @@ export default function Onboarding() {
           interests: user.interests || [],
           languages: user.languages || []
         }));
+        setPhoneVerified(user.phone_verified || false);
       } catch (e) {
         console.error(e);
       }
@@ -125,7 +127,7 @@ export default function Onboarding() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return userData.phone && userData.date_of_birth && userData.gender;
+        return phoneVerified && userData.phone && userData.date_of_birth && userData.gender;
       case 2:
         return userData.profile_photos.length > 0;
       case 3:
@@ -193,16 +195,39 @@ export default function Onboarding() {
 
               <div className="space-y-4">
                 <div>
-                  <Label className="text-slate-700 mb-2 block">Phone Number</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                    <Input
-                      type="tel"
-                      placeholder="+1 (555) 000-0000"
-                      value={userData.phone}
-                      onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
-                      className="h-14 pl-12 rounded-xl border-slate-200"
-                    />
+                  <Label className="text-slate-700 mb-2 flex items-center gap-2">
+                    Phone Number
+                    {phoneVerified && (
+                      <CheckCircle className="w-4 h-4 text-emerald-600" />
+                    )}
+                  </Label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <div className="absolute left-12 top-1/2 -translate-y-1/2 text-slate-600 font-medium">
+                        +91
+                      </div>
+                      <Input
+                        type="tel"
+                        placeholder="10 digit number"
+                        value={userData.phone}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          setUserData({ ...userData, phone: value });
+                        }}
+                        disabled={phoneVerified}
+                        className="h-14 pl-20 rounded-xl border-slate-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                        maxLength={10}
+                      />
+                    </div>
+                    {!phoneVerified && userData.phone.length === 10 && (
+                      <Button
+                        onClick={() => setPhoneVerified(true)}
+                        className="h-14 px-6 rounded-xl bg-violet-600 hover:bg-violet-700 whitespace-nowrap"
+                      >
+                        OTP Verification
+                      </Button>
+                    )}
                   </div>
                 </div>
 
