@@ -88,7 +88,7 @@ export default function Wallet() {
               </div>
               <span className="text-sm text-slate-600">This Month</span>
             </div>
-            <p className="text-2xl font-bold text-slate-900">${thisMonthEarnings.toFixed(0)}</p>
+            <p className="text-2xl font-bold text-slate-900">₹{thisMonthEarnings.toFixed(0)}</p>
             <p className="text-xs text-slate-500">{thisMonth.length} meetups</p>
           </Card>
           
