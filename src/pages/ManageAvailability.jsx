@@ -298,7 +298,7 @@ export default function ManageAvailability() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-slate-900">${slot.price_per_hour}/hr</p>
+                          <p className="text-lg font-bold text-slate-900">₹{slot.price_per_hour}/hr</p>
                           <Button
                             variant="ghost"
                             size="icon"
