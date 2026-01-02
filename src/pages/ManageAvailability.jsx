@@ -17,8 +17,15 @@ import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-const AREAS = ['Downtown', 'Midtown', 'Uptown', 'Westside', 'Eastside', 'Central'];
-const CITIES = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'San Francisco'];
+const AREAS = [
+  'Andheri', 'Bandra', 'Powai', 'Colaba', 'Juhu', 'Versova',
+  'Koramangala', 'Indiranagar', 'Whitefield', 'HSR Layout', 'MG Road', 'Jayanagar',
+  'Connaught Place', 'Hauz Khas', 'Saket', 'Dwarka', 'Rohini', 'Vasant Kunj',
+  'Banjara Hills', 'Jubilee Hills', 'HITEC City', 'Gachibowli', 'Madhapur', 'Kondapur',
+  'Anna Nagar', 'T Nagar', 'Adyar', 'Velachery', 'Nungambakkam', 'OMR',
+  'Park Street', 'Salt Lake', 'New Town', 'Ballygunge', 'Alipore', 'Rajarhat'
+];
+const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kochi'];
 const TIME_SLOTS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
 
 export default function ManageAvailability() {
@@ -124,112 +131,123 @@ export default function ManageAvailability() {
               Add Availability
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl">
-            <SheetHeader className="mb-6">
+          <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl overflow-hidden flex flex-col">
+            <SheetHeader className="mb-4 flex-shrink-0">
               <SheetTitle>Create Availability</SheetTitle>
             </SheetHeader>
 
-            <div className="space-y-6 overflow-y-auto pb-24">
+            <div className="space-y-6 overflow-y-auto flex-1 px-1">
               {/* Date Selection */}
               <div>
-                <Label className="mb-2 block">Select Date</Label>
+                <Label className="mb-3 block text-base font-semibold">Select Date</Label>
                 <div className="flex justify-center">
                   <Calendar
                     mode="single"
                     selected={selectedDate}
                     onSelect={setSelectedDate}
                     disabled={(date) => date < new Date()}
-                    className="rounded-xl border"
+                    className="rounded-xl border shadow-sm"
                   />
                 </div>
               </div>
 
               {/* Time Selection */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="mb-2 block">Start Time</Label>
-                  <Select 
-                    value={formData.start_time} 
-                    onValueChange={(v) => setFormData({ ...formData, start_time: v })}
-                  >
-                    <SelectTrigger className="h-12 rounded-xl">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TIME_SLOTS.map(time => (
-                        <SelectItem key={time} value={time}>{time}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="mb-2 block">End Time</Label>
-                  <Select 
-                    value={formData.end_time} 
-                    onValueChange={(v) => setFormData({ ...formData, end_time: v })}
-                  >
-                    <SelectTrigger className="h-12 rounded-xl">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TIME_SLOTS.filter(t => t > formData.start_time).map(time => (
-                        <SelectItem key={time} value={time}>{time}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <div>
+                <Label className="mb-3 block text-base font-semibold">Select Time</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="mb-2 block text-sm text-slate-600">Start Time</Label>
+                    <Select 
+                      value={formData.start_time} 
+                      onValueChange={(v) => setFormData({ ...formData, start_time: v })}
+                    >
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TIME_SLOTS.map(time => (
+                          <SelectItem key={time} value={time}>{time}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="mb-2 block text-sm text-slate-600">End Time</Label>
+                    <Select 
+                      value={formData.end_time} 
+                      onValueChange={(v) => setFormData({ ...formData, end_time: v })}
+                    >
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TIME_SLOTS.filter(t => t > formData.start_time).map(time => (
+                          <SelectItem key={time} value={time}>{time}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
 
               {/* Location */}
               <div>
-                <Label className="mb-2 block">City</Label>
-                <Select 
-                  value={formData.city} 
-                  onValueChange={(v) => setFormData({ ...formData, city: v })}
-                >
-                  <SelectTrigger className="h-12 rounded-xl">
-                    <SelectValue placeholder="Select city" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CITIES.map(city => (
-                      <SelectItem key={city} value={city}>{city}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <Label className="mb-3 block text-base font-semibold">Location</Label>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="mb-2 block text-sm text-slate-600">City</Label>
+                    <Select 
+                      value={formData.city} 
+                      onValueChange={(v) => setFormData({ ...formData, city: v })}
+                    >
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue placeholder="Select city" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CITIES.map(city => (
+                          <SelectItem key={city} value={city}>{city}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div>
-                <Label className="mb-2 block">Preferred Area</Label>
-                <Select 
-                  value={formData.area} 
-                  onValueChange={(v) => setFormData({ ...formData, area: v })}
-                >
-                  <SelectTrigger className="h-12 rounded-xl">
-                    <SelectValue placeholder="Select area" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AREAS.map(area => (
-                      <SelectItem key={area} value={area}>{area}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <div>
+                    <Label className="mb-2 block text-sm text-slate-600">Preferred Area</Label>
+                    <Select 
+                      value={formData.area} 
+                      onValueChange={(v) => setFormData({ ...formData, area: v })}
+                    >
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue placeholder="e.g. Anna Nagar, Koramangala" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px]">
+                        {AREAS.map(area => (
+                          <SelectItem key={area} value={area}>{area}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
 
               {/* Price */}
-              <div>
-                <Label className="mb-2 block">Price per Hour ($)</Label>
-                <Input
-                  type="number"
-                  placeholder="50"
-                  value={formData.price_per_hour}
-                  onChange={(e) => setFormData({ ...formData, price_per_hour: e.target.value })}
-                  className="h-12 rounded-xl"
-                />
+              <div className="pb-6">
+                <Label className="mb-3 block text-base font-semibold">Pricing</Label>
+                <div>
+                  <Label className="mb-2 block text-sm text-slate-600">Price per Hour (₹)</Label>
+                  <Input
+                    type="number"
+                    placeholder="500"
+                    value={formData.price_per_hour}
+                    onChange={(e) => setFormData({ ...formData, price_per_hour: e.target.value })}
+                    className="h-12 rounded-xl"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Submit Button */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100">
+            <div className="flex-shrink-0 p-4 bg-white border-t border-slate-100">
               <Button
                 onClick={() => createMutation.mutate()}
                 disabled={!canSubmit || createMutation.isPending}
