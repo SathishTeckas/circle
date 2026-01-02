@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Camera, ArrowRight, ArrowLeft, Plus, X, User, Phone, Globe, Heart, MapPin, CheckCircle } from 'lucide-react';
+import { Camera, ArrowRight, ArrowLeft, Plus, X, User, Phone, Globe, Heart, MapPin, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -32,6 +32,7 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
+  const [ageError, setAgeError] = useState('');
   const [userData, setUserData] = useState({
     phone: '',
     date_of_birth: '',
@@ -127,7 +128,7 @@ export default function Onboarding() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return phoneVerified && userData.phone && userData.date_of_birth && userData.gender;
+        return phoneVerified && userData.phone && userData.date_of_birth && !ageError && userData.gender;
       case 2:
         return userData.profile_photos.length > 0;
       case 3:
@@ -236,9 +237,40 @@ export default function Onboarding() {
                   <Input
                     type="date"
                     value={userData.date_of_birth}
-                    onChange={(e) => setUserData({ ...userData, date_of_birth: e.target.value })}
-                    className="h-14 rounded-xl border-slate-200"
+                    max={new Date().toISOString().split('T')[0]}
+                    onChange={(e) => {
+                      const dob = e.target.value;
+                      setUserData({ ...userData, date_of_birth: dob });
+                      
+                      // Check if user is 18+
+                      if (dob) {
+                        const birthDate = new Date(dob);
+                        const today = new Date();
+                        let age = today.getFullYear() - birthDate.getFullYear();
+                        const monthDiff = today.getMonth() - birthDate.getMonth();
+                        
+                        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                          age--;
+                        }
+                        
+                        if (age < 18) {
+                          setAgeError('You must be at least 18 years old to use this platform');
+                        } else {
+                          setAgeError('');
+                        }
+                      }
+                    }}
+                    className={cn(
+                      "h-14 rounded-xl border-slate-200",
+                      ageError && "border-red-500"
+                    )}
                   />
+                  {ageError && (
+                    <div className="flex items-center gap-2 mt-2 text-red-600">
+                      <AlertCircle className="w-4 h-4" />
+                      <p className="text-sm">{ageError}</p>
+                    </div>
+                  )}
                 </div>
 
                 <div>
