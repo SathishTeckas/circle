@@ -69,10 +69,10 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 px-4 pt-8 pb-12">
-        <div className="max-w-4xl mx-auto">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 px-4 md:px-8 pt-8 pb-12">
+        <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-2 mb-2">
             <Shield className="w-6 h-6 text-violet-400" />
             <span className="text-violet-400 font-medium">Admin Panel</span>
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="px-4 -mt-6 max-w-4xl mx-auto space-y-6">
+      <div className="px-4 md:px-8 -mt-6 max-w-7xl mx-auto space-y-6">
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {stats.map((stat, idx) => (
