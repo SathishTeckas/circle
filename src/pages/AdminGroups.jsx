@@ -271,7 +271,7 @@ export default function AdminGroups() {
         </div>
       </div>
 
-      <div className="px-4 py-6 max-w-4xl mx-auto">
+      <div className="px-4 md:px-8 py-6 max-w-7xl mx-auto">
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (

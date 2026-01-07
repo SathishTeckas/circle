@@ -72,22 +72,14 @@ export default function AdminVenues() {
   const canSubmit = formData.name && formData.address && formData.city;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
-        <div className="px-4 py-4 max-w-4xl mx-auto">
+        <div className="px-4 md:px-8 py-4 max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => window.history.back()}
-                className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
-              >
-                <ArrowLeft className="w-5 h-5 text-slate-700" />
-              </button>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900">Venue Management</h1>
-                <p className="text-sm text-slate-600">{venues.length} registered venues</p>
-              </div>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Venue Management</h1>
+              <p className="text-sm text-slate-600">{venues.length} registered venues</p>
             </div>
 
             <Sheet open={showForm} onOpenChange={setShowForm}>
@@ -204,7 +196,7 @@ export default function AdminVenues() {
         </div>
       </div>
 
-      <div className="px-4 py-6 max-w-4xl mx-auto">
+      <div className="px-4 md:px-8 py-6 max-w-7xl mx-auto">
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
