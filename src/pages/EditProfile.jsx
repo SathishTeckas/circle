@@ -58,14 +58,13 @@ export default function EditProfile() {
   const updateMutation = useMutation({
     mutationFn: async () => {
       // Update full_name using User entity (built-in field)
-      if (formData.full_name !== user.full_name) {
-        await base44.entities.User.update(user.id, { full_name: formData.full_name });
-      }
+      await base44.entities.User.update(user.id, { full_name: formData.full_name });
       // Update other fields using updateMe
       const { full_name, ...otherFields } = formData;
       await base44.auth.updateMe(otherFields);
     },
     onSuccess: () => {
+      // Force reload to get updated user data
       window.location.href = createPageUrl('Profile');
     }
   });
