@@ -199,7 +199,7 @@ export default function ChatView() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col pb-20">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="sticky top-0 bg-white border-b border-slate-100 z-20">
         <div className="px-4 py-4 max-w-lg mx-auto flex items-center gap-4">
@@ -280,7 +280,7 @@ export default function ChatView() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 max-w-lg mx-auto w-full space-y-3 mb-20">
+      <div className="px-4 py-4 max-w-lg mx-auto w-full space-y-3 pb-28">
         <AnimatePresence>
           {messages.map((msg) => (
             <motion.div
@@ -313,22 +313,24 @@ export default function ChatView() {
       </div>
 
       {/* Input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4 py-4 z-30">
-        <div className="max-w-lg mx-auto flex gap-2">
-          <Input
-            placeholder="Type a message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            className="h-12 rounded-xl"
-          />
-          <Button
-            onClick={handleSendMessage}
-            disabled={!message.trim() || sendMessageMutation.isPending}
-            className="h-12 w-12 rounded-xl bg-violet-600 hover:bg-violet-700 flex-shrink-0"
-          >
-            <Send className="w-5 h-5" />
-          </Button>
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-50">
+        <div className="px-4 py-3 max-w-lg mx-auto">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Type a message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              className="h-12 rounded-xl flex-1"
+            />
+            <Button
+              onClick={handleSendMessage}
+              disabled={!message.trim() || sendMessageMutation.isPending}
+              className="h-12 w-12 rounded-xl bg-violet-600 hover:bg-violet-700 flex-shrink-0"
+            >
+              <Send className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
