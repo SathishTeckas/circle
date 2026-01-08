@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   User, Settings, Shield, Star, Heart, Globe, MapPin,
-  ChevronRight, LogOut, Camera, Edit, Bell, HelpCircle
+  ChevronRight, LogOut, Camera, Edit, Bell, HelpCircle, Video, Sparkles
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import SafetyBadge from '@/components/ui/SafetyBadge';
@@ -138,6 +138,23 @@ export default function Profile() {
           </div>
         </Card>
 
+        {/* Video Introduction */}
+        {user.video_intro_url && (
+          <Card className="p-4">
+            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+              <Video className="w-5 h-5 text-violet-600" />
+              Video Introduction
+            </h3>
+            <div className="aspect-video bg-slate-100 rounded-xl overflow-hidden">
+              <video 
+                src={user.video_intro_url} 
+                controls 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </Card>
+        )}
+
         {/* Interests */}
         {user.interests?.length > 0 && (
           <Card className="p-4">
@@ -147,8 +164,42 @@ export default function Profile() {
             </h3>
             <div className="flex flex-wrap gap-2">
               {user.interests.map((interest, idx) => (
-                <Badge key={idx} variant="secondary" className="bg-slate-100">
+                <Badge key={idx} variant="secondary" className="bg-violet-100 text-violet-700">
                   {interest}
+                </Badge>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Hobbies */}
+        {user.hobbies?.length > 0 && (
+          <Card className="p-4">
+            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+              <Heart className="w-5 h-5 text-emerald-500" />
+              Hobbies
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {user.hobbies.map((hobby, idx) => (
+                <Badge key={idx} variant="secondary" className="bg-emerald-100 text-emerald-700">
+                  {hobby}
+                </Badge>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Personality Traits */}
+        {user.personality_traits?.length > 0 && (
+          <Card className="p-4">
+            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-fuchsia-500" />
+              Personality
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {user.personality_traits.map((trait, idx) => (
+                <Badge key={idx} variant="secondary" className="bg-fuchsia-100 text-fuchsia-700">
+                  {trait}
                 </Badge>
               ))}
             </div>

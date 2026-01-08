@@ -16,6 +16,8 @@ import { motion } from 'framer-motion';
 const INTERESTS = ['Movies', 'Music', 'Travel', 'Food', 'Sports', 'Art', 'Reading', 'Gaming', 'Photography', 'Fitness'];
 const LANGUAGES = ['English', 'Hindi', 'Tamil', 'Telugu', 'Bengali', 'Marathi', 'Gujarati', 'Kannada', 'Malayalam', 'Punjabi'];
 const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata', 'Ahmedabad'];
+const HOBBIES = ['Reading', 'Writing', 'Painting', 'Drawing', 'Photography', 'Cooking', 'Baking', 'Gardening', 'Hiking', 'Cycling'];
+const PERSONALITY_TRAITS = ['Outgoing', 'Introverted', 'Adventurous', 'Calm', 'Spontaneous', 'Organized', 'Creative', 'Logical', 'Empathetic', 'Confident'];
 
 export default function EditProfile() {
   const [user, setUser] = useState(null);
@@ -27,6 +29,9 @@ export default function EditProfile() {
     city: '',
     interests: [],
     languages: [],
+    hobbies: [],
+    personality_traits: [],
+    video_intro_url: '',
     profile_photos: []
   });
 
@@ -40,6 +45,9 @@ export default function EditProfile() {
         city: userData.city || '',
         interests: userData.interests || [],
         languages: userData.languages || [],
+        hobbies: userData.hobbies || [],
+        personality_traits: userData.personality_traits || [],
+        video_intro_url: userData.video_intro_url || '',
         profile_photos: userData.profile_photos || []
       });
       setLoading(false);
@@ -259,6 +267,70 @@ export default function EditProfile() {
               </Badge>
             ))}
           </div>
+        </Card>
+
+        {/* Hobbies */}
+        <Card className="p-4">
+          <Label className="mb-3 block">Hobbies</Label>
+          <div className="flex flex-wrap gap-2">
+            {HOBBIES.map((hobby) => (
+              <Badge
+                key={hobby}
+                onClick={() => setFormData({
+                  ...formData,
+                  hobbies: formData.hobbies.includes(hobby)
+                    ? formData.hobbies.filter(h => h !== hobby)
+                    : [...formData.hobbies, hobby]
+                })}
+                className={
+                  formData.hobbies.includes(hobby)
+                    ? 'bg-emerald-600 text-white cursor-pointer'
+                    : 'bg-slate-100 text-slate-700 cursor-pointer hover:bg-slate-200'
+                }
+              >
+                {hobby}
+              </Badge>
+            ))}
+          </div>
+        </Card>
+
+        {/* Personality Traits */}
+        <Card className="p-4">
+          <Label className="mb-3 block">Personality Traits</Label>
+          <div className="flex flex-wrap gap-2">
+            {PERSONALITY_TRAITS.map((trait) => (
+              <Badge
+                key={trait}
+                onClick={() => setFormData({
+                  ...formData,
+                  personality_traits: formData.personality_traits.includes(trait)
+                    ? formData.personality_traits.filter(t => t !== trait)
+                    : [...formData.personality_traits, trait]
+                })}
+                className={
+                  formData.personality_traits.includes(trait)
+                    ? 'bg-fuchsia-600 text-white cursor-pointer'
+                    : 'bg-slate-100 text-slate-700 cursor-pointer hover:bg-slate-200'
+                }
+              >
+                {trait}
+              </Badge>
+            ))}
+          </div>
+        </Card>
+
+        {/* Video Introduction */}
+        <Card className="p-4">
+          <Label className="mb-2 block">Video Introduction URL</Label>
+          <Input
+            placeholder="https://your-video-url.com"
+            value={formData.video_intro_url}
+            onChange={(e) => setFormData({ ...formData, video_intro_url: e.target.value })}
+            className="h-12 rounded-xl"
+          />
+          <p className="text-xs text-slate-500 mt-2">
+            Upload a short video introduction (30-60 seconds recommended)
+          </p>
         </Card>
 
         {/* Save Button */}

@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
-import { MapPin, Clock, Globe, Heart } from 'lucide-react';
+import { MapPin, Clock, Globe, Heart, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import SafetyBadge from '@/components/ui/SafetyBadge';
 import RatingStars from '@/components/ui/RatingStars';
 import { cn } from '@/lib/utils';
 
-export default function CompanionCard({ availability, variant = 'default' }) {
+export default function CompanionCard({ availability, variant = 'default', showCompatibility, compatibilityReason }) {
   const isCompact = variant === 'compact';
   
   return (
@@ -102,6 +102,16 @@ export default function CompanionCard({ availability, variant = 'default' }) {
             Book Now
           </div>
         </div>
+
+        {/* Compatibility Info */}
+        {showCompatibility && compatibilityReason && (
+          <div className="mt-3 p-3 bg-violet-50 rounded-xl border border-violet-200">
+            <div className="flex items-start gap-2">
+              <Sparkles className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-slate-700">{compatibilityReason}</p>
+            </div>
+          </div>
+        )}
       </div>
     </Link>
   );
