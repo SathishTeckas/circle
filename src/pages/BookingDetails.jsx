@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import SafetyBadge from '@/components/ui/SafetyBadge';
 import RatingStars from '@/components/ui/RatingStars';
+import PhotoCarousel from '@/components/profile/PhotoCarousel';
 import { cn } from '@/lib/utils';
 
 export default function BookingDetails() {
@@ -45,6 +46,15 @@ export default function BookingDetails() {
     queryKey: ['reviews', availability?.companion_id],
     queryFn: async () => {
       return await base44.entities.Review.filter({ reviewee_id: availability.companion_id }, '-created_date', 10);
+    },
+    enabled: !!availability?.companion_id
+  });
+
+  const { data: companionUser } = useQuery({
+    queryKey: ['companion-user', availability?.companion_id],
+    queryFn: async () => {
+      const users = await base44.entities.User.filter({ id: availability.companion_id });
+      return users[0];
     },
     enabled: !!availability?.companion_id
   });
@@ -118,37 +128,62 @@ export default function BookingDetails() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-32">
-      {/* Header Image */}
-      <div className="relative h-80">
-        <img
-          src={availability.companion_photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800'}
-          alt={availability.companion_name}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      {/* Header - Photo Carousel */}
+      <div className="relative bg-black">
+        <div className="max-w-lg mx-auto">
+          {companionUser?.profile_photos?.length > 0 ? (
+            <div className="relative" style={{ height: '500px' }}>
+              <PhotoCarousel 
+                photos={companionUser.profile_photos} 
+                userName={availability.companion_name}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+              
+              {/* Name Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 pointer-events-none">
+                <h1 className="text-3xl font-bold text-white mb-2">
+                  {availability.companion_name || 'Anonymous'}
+                </h1>
+                <div className="flex items-center gap-3">
+                  <RatingStars rating={4.8} />
+                  <span className="text-white/80 text-sm">({reviews.length} reviews)</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ height: '500px' }}>
+              <img
+                src={availability.companion_photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800'}
+                alt={availability.companion_name}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              
+              {/* Name Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <h1 className="text-3xl font-bold text-white mb-2">
+                  {availability.companion_name || 'Anonymous'}
+                </h1>
+                <div className="flex items-center gap-3">
+                  <RatingStars rating={4.8} />
+                  <span className="text-white/80 text-sm">({reviews.length} reviews)</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         
         {/* Back Button */}
         <button
           onClick={() => window.history.back()}
-          className="absolute top-4 left-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg"
+          className="absolute top-4 left-4 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg z-10"
         >
           <ArrowLeft className="w-5 h-5 text-slate-700" />
         </button>
         
         {/* Safety Badge */}
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 z-10">
           <SafetyBadge verified={true} />
-        </div>
-        
-        {/* Name Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            {availability.companion_name || 'Anonymous'}
-          </h1>
-          <div className="flex items-center gap-3">
-            <RatingStars rating={4.8} />
-            <span className="text-white/80 text-sm">({reviews.length} reviews)</span>
-          </div>
         </div>
       </div>
 

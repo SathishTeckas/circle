@@ -13,6 +13,7 @@ import {
 import { motion } from 'framer-motion';
 import SafetyBadge from '@/components/ui/SafetyBadge';
 import RatingStars from '@/components/ui/RatingStars';
+import PhotoCarousel from '@/components/profile/PhotoCarousel';
 import { cn } from '@/lib/utils';
 
 export default function Profile() {
@@ -91,15 +92,11 @@ export default function Profile() {
       </div>
 
       <div className="px-4 -mt-12 max-w-lg mx-auto space-y-4">
-        {/* Profile Card */}
-        <Card className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="relative">
-              <img
-                src={user.profile_photos?.[0] || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200'}
-                alt={user.full_name}
-                className="w-20 h-20 rounded-2xl object-cover"
-              />
+        {/* Photo Gallery */}
+        <Card className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-slate-900">Photos</h3>
+            <div className="flex items-center gap-2">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -107,49 +104,59 @@ export default function Profile() {
                 onChange={handlePhotoUpload}
                 className="hidden"
               />
-              <button 
+              <Button 
                 onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="absolute -bottom-2 -right-2 w-8 h-8 bg-violet-600 rounded-full flex items-center justify-center shadow-lg hover:bg-violet-700 transition-colors disabled:opacity-50"
+                disabled={uploading || (user.profile_photos?.length >= 5)}
+                size="sm"
+                className="h-8 bg-violet-600 hover:bg-violet-700"
               >
                 {uploading ? (
-                  <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin mr-2" />
                 ) : (
-                  <Camera className="w-4 h-4 text-white" />
+                  <Camera className="w-4 h-4 mr-1" />
                 )}
-              </button>
+                Add Photo
+              </Button>
             </div>
-            
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-xl font-bold text-slate-900">{user.full_name}</h2>
-                <SafetyBadge verified={user.kyc_status === 'verified'} />
+          </div>
+          <PhotoCarousel 
+            photos={user.profile_photos || []} 
+            userName={user.full_name}
+          />
+          <p className="text-xs text-slate-500 text-center mt-2">
+            {user.profile_photos?.length || 0}/5 photos
+          </p>
+        </Card>
+
+        {/* Profile Card */}
+        <Card className="p-6">
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-xl font-bold text-slate-900">{user.full_name}</h2>
+            <SafetyBadge verified={user.kyc_status === 'verified'} />
+          </div>
+          <p className="text-sm text-slate-600 mb-3">{user.email}</p>
+
+          <div className="flex items-center gap-3 mb-4">
+            <Badge className="bg-violet-100 text-violet-700 capitalize">
+              {user.user_role || 'User'}
+            </Badge>
+            {avgRating ? (
+              <div className="flex items-center gap-1">
+                <RatingStars rating={avgRating} size="sm" />
+                <span className="text-sm text-slate-500">({reviews.length})</span>
               </div>
-              <p className="text-sm text-slate-600 mb-2">{user.email}</p>
-              
-              <div className="flex items-center gap-3">
-                <Badge className="bg-violet-100 text-violet-700 capitalize">
-                  {user.user_role || 'User'}
-                </Badge>
-                {avgRating ? (
-                  <div className="flex items-center gap-1">
-                    <RatingStars rating={avgRating} size="sm" />
-                    <span className="text-sm text-slate-500">({reviews.length})</span>
-                  </div>
-                ) : user.user_role === 'companion' && (
-                  <Badge variant="secondary" className="bg-slate-100 text-slate-600">New</Badge>
-                )}
-              </div>
-            </div>
+            ) : user.user_role === 'companion' && (
+              <Badge variant="secondary" className="bg-slate-100 text-slate-600">New</Badge>
+            )}
           </div>
 
           {/* Bio */}
           {user.bio && (
-            <p className="text-slate-600 mt-4 text-sm">{user.bio}</p>
+            <p className="text-slate-600 text-sm mb-4">{user.bio}</p>
           )}
 
           {/* Quick Info */}
-          <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100">
+          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-100">
             <div className="text-center">
               <MapPin className="w-5 h-5 text-violet-600 mx-auto mb-1" />
               <p className="text-sm font-medium text-slate-900">{user.city || 'Not set'}</p>
