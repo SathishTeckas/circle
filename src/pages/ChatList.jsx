@@ -266,7 +266,6 @@ export default function ChatList() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep Booking</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 const refundPercentage = isSeeker && cancelBooking 
@@ -274,10 +273,13 @@ export default function ChatList() {
                   : 100;
                 cancelMutation.mutate({ bookingId: cancelBookingId, refundPercentage });
               }}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-transparent border border-red-200 text-red-600 hover:bg-red-50"
             >
-              {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Booking'}
+              {cancelMutation.isPending ? 'Cancelling...' : 'Yes, Cancel'}
             </AlertDialogAction>
+            <AlertDialogCancel className="bg-violet-600 hover:bg-violet-700 text-white">
+              No, Keep Booking
+            </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
