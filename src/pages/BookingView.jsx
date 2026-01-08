@@ -59,7 +59,7 @@ export default function BookingView() {
     queryFn: async () => {
       return await base44.entities.Message.filter({ booking_id: bookingId }, 'created_date', 100);
     },
-    enabled: !!bookingId && booking?.chat_enabled,
+    enabled: !!bookingId && chatAvailable,
     refetchInterval: 3000
   });
 
@@ -70,7 +70,7 @@ export default function BookingView() {
       if (booking?.city) query.city = booking.city;
       return await base44.entities.Venue.filter(query, '-created_date', 5);
     },
-    enabled: !!booking?.city && booking?.chat_enabled
+    enabled: !!booking?.city && chatAvailable
   });
 
   const sendMessageMutation = useMutation({
@@ -164,6 +164,28 @@ export default function BookingView() {
   const otherPartyPhoto = isSeeker ? booking.companion_photo : booking.seeker_photo;
   const status = statusConfig[booking.status] || statusConfig.pending;
   const StatusIcon = status.icon;
+
+  // Check if chat is available (24 hours after meetup for cancelled/completed)
+  const isChatAvailable = () => {
+    if (!booking.chat_enabled) return false;
+    
+    if (['cancelled', 'completed'].includes(booking.status)) {
+      if (!booking.date || !booking.start_time) return false;
+      
+      const [hours, minutes] = booking.start_time.split(':').map(Number);
+      const meetupDateTime = new Date(booking.date);
+      meetupDateTime.setHours(hours, minutes, 0, 0);
+      
+      const twentyFourHoursAfter = new Date(meetupDateTime);
+      twentyFourHoursAfter.setHours(twentyFourHoursAfter.getHours() + 24);
+      
+      return new Date() < twentyFourHoursAfter;
+    }
+    
+    return true;
+  };
+
+  const chatAvailable = isChatAvailable();
 
   // Calculate refund based on time until meetup
   const calculateRefund = () => {
@@ -412,7 +434,7 @@ export default function BookingView() {
         )}
 
         {/* Chat Section */}
-        {booking.chat_enabled && (
+        {chatAvailable && (
           <Card className="p-4">
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-violet-600" />
@@ -497,8 +519,19 @@ export default function BookingView() {
             <p className="text-xs text-slate-500 mt-2 text-center">
               Use this chat to coordinate the meetup venue and timing
             </p>
-          </Card>
-        )}
+            </Card>
+            )}
+
+            {/* Chat Expired Message */}
+            {booking.chat_enabled && !chatAvailable && ['cancelled', 'completed'].includes(booking.status) && (
+            <Card className="p-6 text-center bg-slate-50">
+            <MessageCircle className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <h3 className="font-semibold text-slate-900 mb-1">Chat Expired</h3>
+            <p className="text-sm text-slate-600">
+              Chat access has expired (24 hours after meetup time)
+            </p>
+            </Card>
+            )}
       </div>
     </div>
   );
