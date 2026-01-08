@@ -16,8 +16,8 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const CITIES = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'San Francisco'];
-const AREAS = ['Downtown', 'Midtown', 'Uptown', 'Westside', 'Eastside', 'Central'];
+const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata', 'Ahmedabad'];
+const AREAS = ['North', 'South', 'East', 'West', 'Central', 'Suburban'];
 
 export default function AdminVenues() {
   const queryClient = useQueryClient();
