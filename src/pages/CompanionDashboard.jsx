@@ -79,7 +79,8 @@ export default function CompanionDashboard() {
   });
 
   const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
-  const avgRating = user?.average_rating || 4.8;
+  const avgRating = user?.average_rating;
+  const hasRating = avgRating && user?.total_reviews > 0;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -121,7 +122,7 @@ export default function CompanionDashboard() {
             </Card>
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
               <Star className="w-5 h-5 mb-1 text-white/80" />
-              <p className="text-2xl font-bold">{avgRating.toFixed(1)}</p>
+              <p className="text-2xl font-bold">{hasRating ? avgRating.toFixed(1) : 'New'}</p>
               <p className="text-xs text-white/70">Rating</p>
             </Card>
           </div>

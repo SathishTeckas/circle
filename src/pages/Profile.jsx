@@ -48,7 +48,7 @@ export default function Profile() {
 
   const avgRating = reviews.length > 0 
     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length 
-    : 0;
+    : null;
 
   const menuItems = [
     { icon: Edit, label: 'Edit Profile', page: 'EditProfile' },
@@ -101,11 +101,13 @@ export default function Profile() {
                 <Badge className="bg-violet-100 text-violet-700 capitalize">
                   {user.user_role || 'User'}
                 </Badge>
-                {reviews.length > 0 && (
+                {avgRating ? (
                   <div className="flex items-center gap-1">
                     <RatingStars rating={avgRating} size="sm" />
                     <span className="text-sm text-slate-500">({reviews.length})</span>
                   </div>
+                ) : user.user_role === 'companion' && (
+                  <Badge variant="secondary" className="bg-slate-100 text-slate-600">New</Badge>
                 )}
               </div>
             </div>
