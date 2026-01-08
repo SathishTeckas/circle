@@ -17,6 +17,8 @@ import { cn } from '@/lib/utils';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = React.useRef(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -25,6 +27,26 @@ export default function Profile() {
     };
     loadUser();
   }, []);
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const currentPhotos = user.profile_photos || [];
+      const newPhotos = [file_url, ...currentPhotos.filter((_, idx) => idx < 4)];
+      
+      await base44.auth.updateMe({ profile_photos: newPhotos });
+      const updatedUser = await base44.auth.me();
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Failed to upload photo:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const { data: reviews = [] } = useQuery({
     queryKey: ['my-reviews', user?.id],
@@ -78,8 +100,23 @@ export default function Profile() {
                 alt={user.full_name}
                 className="w-20 h-20 rounded-2xl object-cover"
               />
-              <button className="absolute -bottom-2 -right-2 w-8 h-8 bg-violet-600 rounded-full flex items-center justify-center shadow-lg">
-                <Camera className="w-4 h-4 text-white" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="hidden"
+              />
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="absolute -bottom-2 -right-2 w-8 h-8 bg-violet-600 rounded-full flex items-center justify-center shadow-lg hover:bg-violet-700 transition-colors disabled:opacity-50"
+              >
+                {uploading ? (
+                  <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Camera className="w-4 h-4 text-white" />
+                )}
               </button>
             </div>
             
