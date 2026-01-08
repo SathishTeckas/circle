@@ -61,9 +61,12 @@ export default function ManageAvailability() {
 
   useEffect(() => {
     if (showForm && sheetContentRef.current) {
+      // Immediate scroll to ensure it starts at top
+      sheetContentRef.current.scrollTop = 0;
+      // Also do a smooth scroll as backup
       setTimeout(() => {
-        sheetContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 100);
+        sheetContentRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+      }, 50);
     }
   }, [showForm]);
 
