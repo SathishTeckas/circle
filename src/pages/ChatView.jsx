@@ -126,14 +126,20 @@ export default function ChatView() {
   };
 
   const { data: suggestedVenues = [] } = useQuery({
-    queryKey: ['suggested-venues', booking?.city, booking?.area],
+    queryKey: ['suggested-venues', booking?.city],
     queryFn: async () => {
       const query = { verified: true };
       if (booking?.city) query.city = booking.city;
-      if (booking?.area) query.area = booking.area;
-      return await base44.entities.Venue.filter(query, '-created_date', 10);
+      const results = await base44.entities.Venue.filter(query, '-created_date', 20);
+      // Prioritize venues in the same area if available
+      if (booking?.area) {
+        const areaMatches = results.filter(v => v.area === booking.area);
+        const others = results.filter(v => v.area !== booking.area);
+        return [...areaMatches, ...others];
+      }
+      return results;
     },
-    enabled: !!booking?.city && chatAvailable && booking?.status === 'accepted'
+    enabled: !!booking?.city && chatAvailable
   });
 
   const sendMessageMutation = useMutation({
