@@ -84,7 +84,6 @@ export default function BookingView() {
         status: 'accepted',
         chat_enabled: true
       });
-      // Update availability status to booked
       await base44.entities.Availability.update(booking.availability_id, {
         status: 'booked'
       });
