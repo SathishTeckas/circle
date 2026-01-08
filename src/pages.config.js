@@ -20,6 +20,7 @@ import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
 import AdminManagement from './pages/AdminManagement';
 import EditProfile from './pages/EditProfile';
+import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
@@ -46,6 +47,7 @@ export const PAGES = {
     "Welcome": Welcome,
     "AdminManagement": AdminManagement,
     "EditProfile": EditProfile,
+    "Notifications": Notifications,
 }
 
 export const pagesConfig = {
