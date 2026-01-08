@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
-import { Calendar, Clock, MapPin, MessageCircle } from 'lucide-react';
+import { Calendar, Clock, MapPin, MessageCircle, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -80,8 +80,9 @@ export default function BookingCard({ booking, userRole }) {
           <Link
             to={createPageUrl(`LeaveReview?id=${booking.id}`)}
             onClick={(e) => e.stopPropagation()}
-            className="text-violet-600 text-sm font-medium hover:underline"
+            className="flex items-center gap-1 text-violet-600 text-sm font-medium hover:underline"
           >
+            <Star className="w-4 h-4" />
             Leave Review
           </Link>
         ) : booking.chat_enabled && (

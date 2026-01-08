@@ -34,6 +34,18 @@ export default function LeaveReview() {
     enabled: !!bookingId
   });
 
+  const { data: existingReview } = useQuery({
+    queryKey: ['existing-review', bookingId, user?.id],
+    queryFn: async () => {
+      const reviews = await base44.entities.Review.filter({ 
+        booking_id: bookingId, 
+        reviewer_id: user.id 
+      });
+      return reviews[0];
+    },
+    enabled: !!bookingId && !!user?.id
+  });
+
   const submitReviewMutation = useMutation({
     mutationFn: async () => {
       const isSeeker = user.id === booking.seeker_id;
@@ -66,6 +78,26 @@ export default function LeaveReview() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (existingReview) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <Card className="p-6 max-w-md text-center">
+          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Star className="w-8 h-8 text-emerald-600" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Already Reviewed</h2>
+          <p className="text-slate-600 mb-4">You've already left a review for this meetup</p>
+          <Button 
+            onClick={() => window.history.back()}
+            className="bg-violet-600 hover:bg-violet-700"
+          >
+            Go Back
+          </Button>
+        </Card>
       </div>
     );
   }
