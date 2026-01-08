@@ -199,9 +199,9 @@ export default function ChatView() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col pb-20">
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+      <div className="sticky top-0 bg-white border-b border-slate-100 z-20">
         <div className="px-4 py-4 max-w-lg mx-auto flex items-center gap-4">
           <button
             onClick={() => window.history.back()}
@@ -280,7 +280,7 @@ export default function ChatView() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 max-w-lg mx-auto w-full space-y-3 pb-24">
+      <div className="flex-1 overflow-y-auto px-4 py-4 max-w-lg mx-auto w-full space-y-3 mb-20">
         <AnimatePresence>
           {messages.map((msg) => (
             <motion.div
@@ -313,7 +313,7 @@ export default function ChatView() {
       </div>
 
       {/* Input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4 py-4 safe-bottom z-10">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4 py-4 z-30">
         <div className="max-w-lg mx-auto flex gap-2">
           <Input
             placeholder="Type a message..."
