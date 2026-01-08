@@ -1,31 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { createPageUrl } from '../utils';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { MessageCircle, Calendar, Clock, ChevronRight, XCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import { MessageCircle, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 export default function ChatList() {
   const [user, setUser] = useState(null);
-  const [cancelBookingId, setCancelBookingId] = useState(null);
-  const [cancelBooking, setCancelBooking] = useState(null);
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -36,50 +21,6 @@ export default function ChatList() {
   }, []);
 
   const isCompanion = user?.user_role === 'companion';
-  const isSeeker = user?.user_role === 'seeker';
-
-  // Calculate refund for seeker cancellations
-  const calculateRefund = (booking) => {
-    if (!booking.date || !booking.start_time) return { percentage: 100, message: 'Full refund' };
-    
-    const [hours, minutes] = booking.start_time.split(':').map(Number);
-    const meetupDateTime = new Date(booking.date);
-    meetupDateTime.setHours(hours, minutes, 0, 0);
-    
-    const now = new Date();
-    const hoursUntilMeetup = (meetupDateTime - now) / (1000 * 60 * 60);
-    
-    if (hoursUntilMeetup >= 24) {
-      return { percentage: 100, message: 'Full refund (24+ hours)' };
-    } else if (hoursUntilMeetup >= 6) {
-      return { percentage: 50, message: '50% refund (6-24 hours)' };
-    } else if (hoursUntilMeetup >= 3) {
-      return { percentage: 25, message: '25% refund (3-6 hours)' };
-    } else {
-      return { percentage: 0, message: 'No refund (<3 hours)' };
-    }
-  };
-
-  const cancelMutation = useMutation({
-    mutationFn: async ({ bookingId, refundPercentage }) => {
-      await base44.entities.Booking.update(bookingId, { 
-        status: 'cancelled',
-        escrow_status: refundPercentage > 0 ? 'refunded' : 'held',
-        refund_amount: cancelBooking ? (cancelBooking.total_amount * refundPercentage) / 100 : 0
-      });
-      // Set availability back to available
-      if (cancelBooking?.availability_id) {
-        await base44.entities.Availability.update(cancelBooking.availability_id, { 
-          status: 'available'
-        });
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chat-bookings'] });
-      setCancelBookingId(null);
-      setCancelBooking(null);
-    }
-  });
 
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ['chat-bookings', user?.id, isCompanion],
@@ -104,21 +45,6 @@ export default function ChatList() {
 
   const getUnreadCount = (bookingId) => {
     return unreadMessages.filter(m => m.booking_id === bookingId).length;
-  };
-
-  const isUpcoming = (booking) => {
-    if (!booking.date || !booking.start_time) return false;
-    const [hours, minutes] = booking.start_time.split(':').map(Number);
-    const meetupDateTime = new Date(booking.date);
-    meetupDateTime.setHours(hours, minutes, 0, 0);
-    return meetupDateTime > new Date() && booking.status === 'accepted';
-  };
-
-  const handleCancelClick = (e, booking) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setCancelBookingId(booking.id);
-    setCancelBooking(booking);
   };
 
   return (
@@ -169,7 +95,7 @@ export default function ChatList() {
                     "p-4 hover:shadow-md transition-all",
                     unreadCount > 0 && "border-violet-200 bg-violet-50/50"
                   )}>
-                    <Link to={createPageUrl(`BookingView?id=${booking.id}`)}>
+                    <Link to={createPageUrl(`ChatView?id=${booking.id}`)}>
                       <div className="flex items-center gap-4">
                         <div className="relative">
                           <img
@@ -192,43 +118,18 @@ export default function ChatList() {
                             <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
                           </div>
                           
-                          <div className="flex items-center gap-3 text-sm text-slate-600">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-3.5 h-3.5" />
-                              {booking.date ? format(new Date(booking.date), 'MMM d') : 'TBD'}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5" />
-                              {booking.start_time}
-                            </div>
-                          </div>
+                          <p className="text-xs text-slate-500 mb-2">
+                            Booking ID: {booking.id.slice(0, 8).toUpperCase()}
+                          </p>
                           
-                          <Badge className={cn(
-                            "mt-2",
-                            booking.status === 'accepted' 
-                              ? "bg-emerald-100 text-emerald-700"
-                              : booking.status === 'completed'
-                              ? "bg-violet-100 text-violet-700"
-                              : "bg-slate-100 text-slate-700"
-                          )}>
-                            {booking.status === 'accepted' ? 'Confirmed' : 
-                             booking.status === 'completed' ? 'Completed' : booking.status}
-                          </Badge>
+                          {unreadCount > 0 && (
+                            <Badge className="bg-violet-100 text-violet-700">
+                              {unreadCount} new {unreadCount === 1 ? 'message' : 'messages'}
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     </Link>
-                    
-                    {isUpcoming(booking) && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => handleCancelClick(e, booking)}
-                        className="w-full mt-3 border-red-200 text-red-600 hover:bg-red-50"
-                      >
-                        <XCircle className="w-4 h-4 mr-2" />
-                        Cancel Booking
-                      </Button>
-                    )}
                   </Card>
                 </motion.div>
               );
@@ -236,59 +137,6 @@ export default function ChatList() {
           </div>
         )}
       </div>
-
-      {/* Cancel Confirmation Dialog */}
-      <AlertDialog open={!!cancelBookingId} onOpenChange={() => {
-        setCancelBookingId(null);
-        setCancelBooking(null);
-      }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Booking?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {isSeeker && cancelBooking ? (
-                <>
-                  <div className="my-3 p-3 bg-slate-50 rounded-lg">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm text-slate-600">Cancellation Policy:</span>
-                      <span className="text-sm font-semibold text-slate-900">
-                        {calculateRefund(cancelBooking).message}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-slate-600">Refund Amount:</span>
-                      <span className="text-base font-bold text-emerald-600">
-                        ₹{((cancelBooking.total_amount * calculateRefund(cancelBooking).percentage) / 100).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                  {calculateRefund(cancelBooking).percentage === 0 
-                    ? "No refund will be issued as it's less than 3 hours until meetup."
-                    : "The refund will be processed to your original payment method."}
-                </>
-              ) : (
-                "The seeker will receive a full refund. Cancelling confirmed bookings may affect your reliability score."
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction
-              onClick={() => {
-                const refundPercentage = isSeeker && cancelBooking 
-                  ? calculateRefund(cancelBooking).percentage 
-                  : 100;
-                cancelMutation.mutate({ bookingId: cancelBookingId, refundPercentage });
-              }}
-              className="bg-transparent border border-red-200 text-red-600 hover:bg-red-50"
-            >
-              {cancelMutation.isPending ? 'Cancelling...' : 'Yes, Cancel'}
-            </AlertDialogAction>
-            <AlertDialogCancel className="bg-violet-600 hover:bg-violet-700 text-white">
-              No, Keep Booking
-            </AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
