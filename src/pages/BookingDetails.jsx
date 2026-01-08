@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { createPageUrl } from '../utils';
+import { createPageUrl, formatTime12Hour } from '../utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -210,7 +210,7 @@ export default function BookingDetails() {
               <div>
                 <p className="text-xs text-slate-500">Time</p>
                 <p className="font-medium text-slate-900">
-                  {availability.start_time} - {availability.end_time}
+                  {formatTime12Hour(availability.start_time)} - {formatTime12Hour(availability.end_time)}
                 </p>
               </div>
             </div>

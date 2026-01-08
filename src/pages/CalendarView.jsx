@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { createPageUrl } from '../utils';
+import { createPageUrl, formatTime12Hour } from '../utils';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -191,7 +191,7 @@ export default function CalendarView() {
                             {isCompanion ? booking.seeker_name : booking.companion_name}
                           </p>
                           <p className="text-sm text-slate-600">
-                            {booking.start_time} - {booking.end_time}
+                            {formatTime12Hour(booking.start_time)} - {formatTime12Hour(booking.end_time)}
                           </p>
                         </div>
                         <Badge className={
@@ -213,7 +213,7 @@ export default function CalendarView() {
                       <div>
                         <p className="font-medium text-slate-900">Available Slot</p>
                         <p className="text-sm text-slate-600">
-                          {slot.start_time} - {slot.end_time} • ₹{slot.price_per_hour}/hr
+                          {formatTime12Hour(slot.start_time)} - {formatTime12Hour(slot.end_time)} • ₹{slot.price_per_hour}/hr
                         </p>
                       </div>
                       <Badge className="bg-emerald-100 text-emerald-700">

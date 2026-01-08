@@ -10,6 +10,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Search, SlidersHorizontal, MapPin, Calendar as CalendarIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatTime12Hour } from '../utils';
 import CompanionCard from '@/components/companion/CompanionCard';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -17,7 +18,8 @@ import { cn } from '@/lib/utils';
 const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kochi'];
 const AREAS = ['Andheri', 'Bandra', 'Powai', 'Colaba', 'Juhu', 'Versova', 'Koramangala', 'Indiranagar', 'Whitefield', 'HSR Layout', 'MG Road', 'Jayanagar'];
 const LANGUAGES = ['English', 'Hindi', 'Bengali', 'Telugu', 'Marathi', 'Tamil', 'Gujarati', 'Kannada', 'Malayalam', 'Punjabi'];
-const TIME_SLOTS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
+const TIME_SLOTS_24H = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
+const TIME_SLOTS = TIME_SLOTS_24H.map(time => ({ value: time, label: formatTime12Hour(time) }));
 
 export default function Discover() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -162,7 +164,7 @@ export default function Discover() {
                       <SelectContent>
                         <SelectItem value={null}>Any time</SelectItem>
                         {TIME_SLOTS.map(time => (
-                          <SelectItem key={time} value={time}>{time}</SelectItem>
+                          <SelectItem key={time.value} value={time.value}>{time.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -302,7 +304,7 @@ export default function Discover() {
               )}
               {selectedTime && (
                 <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
-                  {selectedTime}
+                  {formatTime12Hour(selectedTime)}
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedTime('')} />
                 </Badge>
               )}

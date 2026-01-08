@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
+import { formatTime12Hour } from '../utils';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,7 +27,8 @@ const AREAS = [
   'Park Street', 'Salt Lake', 'New Town', 'Ballygunge', 'Alipore', 'Rajarhat'
 ];
 const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kochi'];
-const TIME_SLOTS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
+const TIME_SLOTS_24H = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
+const TIME_SLOTS = TIME_SLOTS_24H.map(time => ({ value: time, label: formatTime12Hour(time) }));
 
 export default function ManageAvailability() {
   const queryClient = useQueryClient();
@@ -185,7 +187,7 @@ export default function ManageAvailability() {
                     </SelectTrigger>
                     <SelectContent>
                       {TIME_SLOTS.map(time => (
-                        <SelectItem key={time} value={time}>{time}</SelectItem>
+                        <SelectItem key={time.value} value={time.value}>{time.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -200,8 +202,8 @@ export default function ManageAvailability() {
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      {TIME_SLOTS.filter(t => t > formData.start_time).map(time => (
-                        <SelectItem key={time} value={time}>{time}</SelectItem>
+                      {TIME_SLOTS.filter(t => t.value > formData.start_time).map(time => (
+                        <SelectItem key={time.value} value={time.value}>{time.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -303,7 +305,7 @@ export default function ManageAvailability() {
                           </div>
                           <div className="flex items-center gap-2 text-sm text-slate-600">
                             <Clock className="w-4 h-4" />
-                            {slot.start_time} - {slot.end_time}
+                            {formatTime12Hour(slot.start_time)} - {formatTime12Hour(slot.end_time)}
                           </div>
                           <div className="flex items-center gap-2 text-sm text-slate-600">
                             <MapPin className="w-4 h-4" />
@@ -347,7 +349,7 @@ export default function ManageAvailability() {
                       </div>
                       <div className="flex items-center gap-2 text-sm text-slate-600">
                         <Clock className="w-4 h-4" />
-                        {slot.start_time} - {slot.end_time}
+                        {formatTime12Hour(slot.start_time)} - {formatTime12Hour(slot.end_time)}
                       </div>
                     </div>
                     <Badge className="bg-violet-200 text-violet-800">

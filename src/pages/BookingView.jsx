@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { createPageUrl } from '../utils';
+import { createPageUrl, formatTime12Hour } from '../utils';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -212,7 +212,7 @@ export default function BookingView() {
               <div>
                 <p className="text-xs text-slate-500">Time</p>
                 <p className="font-medium text-slate-900">
-                  {booking.start_time} - {booking.end_time}
+                  {formatTime12Hour(booking.start_time)} - {formatTime12Hour(booking.end_time)}
                 </p>
               </div>
             </div>
