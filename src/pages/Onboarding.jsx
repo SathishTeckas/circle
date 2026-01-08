@@ -130,7 +130,7 @@ export default function Onboarding() {
       case 1:
         return phoneVerified && userData.phone && userData.date_of_birth && !ageError && userData.gender;
       case 2:
-        return userData.profile_photos.length > 0;
+        return userData.profile_photos.length >= 5;
       case 3:
         return userData.city && userData.languages.length > 0;
       case 4:
@@ -325,7 +325,7 @@ export default function Onboarding() {
                   Add your photos
                 </h1>
                 <p className="text-slate-600">
-                  Add at least one clear photo of yourself
+                  Add 5 clear photos of yourself
                 </p>
               </div>
 
@@ -362,9 +362,19 @@ export default function Onboarding() {
                 )}
               </div>
 
-              <p className="text-center text-sm text-slate-500">
-                Photos must clearly show your face and be recent
-              </p>
+              <div className="text-center space-y-1">
+                <p className="text-sm font-medium text-slate-700">
+                  {userData.profile_photos.length} / 5 photos added
+                </p>
+                <p className="text-xs text-slate-500">
+                  Photos must clearly show your face and be recent
+                </p>
+                {userData.profile_photos.length < 5 && (
+                  <p className="text-xs text-violet-600 font-medium">
+                    {5 - userData.profile_photos.length} more photo{5 - userData.profile_photos.length > 1 ? 's' : ''} required
+                  </p>
+                )}
+              </div>
             </motion.div>
           )}
 
