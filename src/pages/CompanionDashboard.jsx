@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import NotificationBell from '../components/layout/NotificationBell';
 import { 
   Calendar, Clock, IndianRupee, Star, TrendingUp, Bell, 
   ChevronRight, Plus, Users, CheckCircle, XCircle
@@ -51,6 +52,23 @@ export default function CompanionDashboard() {
           status: 'available'
         });
       }
+      // Notify seeker about cancellation and refund
+      await base44.entities.Notification.create({
+        user_id: booking.seeker_id,
+        type: 'booking_cancelled',
+        title: '❌ Booking Cancelled',
+        message: `${booking.companion_name} cancelled your booking. Full refund processed.`,
+        booking_id: bookingId,
+        action_url: createPageUrl('MyBookings')
+      });
+      await base44.entities.Notification.create({
+        user_id: booking.seeker_id,
+        type: 'payment_refunded',
+        title: '💰 Refund Processed',
+        message: `₹${booking.total_amount.toFixed(2)} has been refunded to your account`,
+        amount: booking.total_amount,
+        action_url: createPageUrl('MyBookings')
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['upcoming-bookings'] });
@@ -125,19 +143,8 @@ export default function CompanionDashboard() {
               <p className="text-violet-200 text-sm">Welcome back</p>
               <h1 className="text-2xl font-bold text-white">{user?.full_name || 'Companion'}</h1>
             </div>
-            <div className="relative">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="text-white hover:bg-white/20"
-              >
-                <Bell className="w-6 h-6" />
-              </Button>
-              {pendingBookings.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {pendingBookings.length}
-                </span>
-              )}
+            <div className="text-white">
+              <NotificationBell user={user} />
             </div>
           </div>
 
