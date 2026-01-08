@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Users, Search, Shield, CheckCircle, XCircle, 
-  ArrowLeft, AlertTriangle, Eye
+  ArrowLeft, AlertTriangle, Eye, Ban, UserX, Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -43,6 +43,78 @@ export default function AdminUsers() {
       queryClient.invalidateQueries({ queryKey: ['admin-all-users'] });
     }
   });
+
+  const suspendMutation = useMutation({
+    mutationFn: async ({ userId, days, reason }) => {
+      const suspensionUntil = new Date();
+      suspensionUntil.setDate(suspensionUntil.getDate() + days);
+      await base44.entities.User.update(userId, { 
+        account_status: 'suspended',
+        suspension_until: suspensionUntil.toISOString(),
+        suspension_reason: reason
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-all-users'] });
+    }
+  });
+
+  const banMutation = useMutation({
+    mutationFn: async ({ userId, reason }) => {
+      await base44.entities.User.update(userId, { 
+        account_status: 'banned',
+        banned_reason: reason
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-all-users'] });
+    }
+  });
+
+  const unbanMutation = useMutation({
+    mutationFn: async (userId) => {
+      await base44.entities.User.update(userId, { 
+        account_status: 'active',
+        suspension_until: null,
+        suspension_reason: null,
+        banned_reason: null
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-all-users'] });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (userId) => {
+      await base44.entities.User.delete(userId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-all-users'] });
+    }
+  });
+
+  const handleSuspend = (userId) => {
+    const days = prompt('Suspend for how many days?', '7');
+    if (!days) return;
+    const reason = prompt('Reason for suspension?', 'Violation of community guidelines');
+    if (!reason) return;
+    suspendMutation.mutate({ userId, days: parseInt(days), reason });
+  };
+
+  const handleBan = (userId) => {
+    const reason = prompt('Reason for permanent ban?', 'Multiple violations');
+    if (!reason) return;
+    if (confirm('Permanently ban this user? This action cannot be undone.')) {
+      banMutation.mutate({ userId, reason });
+    }
+  };
+
+  const handleDelete = (userId) => {
+    if (confirm('Delete this user permanently? All their data will be removed. This action cannot be undone.')) {
+      deleteMutation.mutate(userId);
+    }
+  };
 
   const pendingUsers = allUsers.filter(u => u.kyc_status === 'pending');
   const verifiedUsers = allUsers.filter(u => u.kyc_status === 'verified');
@@ -165,10 +237,28 @@ export default function AdminUsers() {
                         </Badge>
                       </div>
                       <p className="text-sm text-slate-600 truncate">{user.email}</p>
-                      <div className="flex items-center gap-3 mt-2">
+                      <div className="flex items-center gap-3 mt-2 flex-wrap">
                         <Badge variant="outline" className="capitalize">
                           {user.user_role || 'user'}
                         </Badge>
+                        {user.account_status === 'suspended' && (
+                          <Badge className="bg-amber-100 text-amber-700">
+                            <Ban className="w-3 h-3 mr-1" />
+                            Suspended
+                          </Badge>
+                        )}
+                        {user.account_status === 'banned' && (
+                          <Badge className="bg-red-100 text-red-700">
+                            <UserX className="w-3 h-3 mr-1" />
+                            Banned
+                          </Badge>
+                        )}
+                        {(user.report_count || 0) > 0 && (
+                          <Badge className="bg-red-100 text-red-700">
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            {user.report_count} Reports
+                          </Badge>
+                        )}
                         {user.city && (
                           <span className="text-xs text-slate-500">{user.city}</span>
                         )}
@@ -181,7 +271,7 @@ export default function AdminUsers() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       {user.kyc_status === 'pending' && (
                         <>
                           <Button
@@ -203,10 +293,84 @@ export default function AdminUsers() {
                           </Button>
                         </>
                       )}
+                      
+                      {user.account_status === 'active' && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleSuspend(user.id)}
+                            className="border-amber-200 text-amber-600 hover:bg-amber-50"
+                          >
+                            <Ban className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleBan(user.id)}
+                            className="border-red-200 text-red-600 hover:bg-red-50"
+                          >
+                            <UserX className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )}
+                      
+                      {(user.account_status === 'suspended' || user.account_status === 'banned') && (
+                        <Button
+                          size="sm"
+                          onClick={() => unbanMutation.mutate(user.id)}
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                        >
+                          Restore
+                        </Button>
+                      )}
+                      
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDelete(user.id)}
+                        className="border-red-200 text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
 
-                  {/* No-show warning */}
+                  {/* Status warnings */}
+                  {user.account_status === 'suspended' && user.suspension_reason && (
+                    <div className="mt-3 pt-3 border-t border-slate-100">
+                      <div className="flex items-start gap-2 text-amber-700">
+                        <Ban className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium">Suspended</p>
+                          <p className="text-xs">{user.suspension_reason}</p>
+                          {user.suspension_until && (
+                            <p className="text-xs mt-1">Until: {format(new Date(user.suspension_until), 'MMM d, yyyy')}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {user.account_status === 'banned' && user.banned_reason && (
+                    <div className="mt-3 pt-3 border-t border-slate-100">
+                      <div className="flex items-start gap-2 text-red-700">
+                        <UserX className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium">Permanently Banned</p>
+                          <p className="text-xs">{user.banned_reason}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {(user.report_count || 0) >= 3 && (
+                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2 text-red-700">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span className="text-sm font-medium">⚠️ {user.report_count} reports - Consider banning</span>
+                    </div>
+                  )}
+                  
                   {(user.no_show_count || 0) > 0 && (
                     <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2 text-amber-700">
                       <AlertTriangle className="w-4 h-4" />
