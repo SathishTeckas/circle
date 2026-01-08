@@ -63,6 +63,16 @@ export default function BookingView() {
     refetchInterval: 3000
   });
 
+  const { data: suggestedVenues = [] } = useQuery({
+    queryKey: ['suggested-venues', booking?.city, booking?.area],
+    queryFn: async () => {
+      const query = { verified: true };
+      if (booking?.city) query.city = booking.city;
+      return await base44.entities.Venue.filter(query, '-created_date', 5);
+    },
+    enabled: !!booking?.city && booking?.chat_enabled
+  });
+
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
       await base44.entities.Message.create({
@@ -408,6 +418,34 @@ export default function BookingView() {
               <MessageCircle className="w-5 h-5 text-violet-600" />
               Chat
             </h3>
+
+            {/* Suggested Venues */}
+            {suggestedVenues.length > 0 && (
+              <div className="mb-4">
+                <p className="text-xs text-slate-500 mb-2 flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
+                  Suggested restaurants in {booking.city}
+                </p>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {suggestedVenues.map(venue => (
+                    <button
+                      key={venue.id}
+                      onClick={() => setMessage(`How about ${venue.name}? ${venue.address}`)}
+                      className="flex-shrink-0 bg-white border border-slate-200 rounded-xl p-3 hover:border-violet-300 hover:bg-violet-50 transition-all text-left min-w-[200px]"
+                    >
+                      <p className="font-medium text-slate-900 text-sm">{venue.name}</p>
+                      <p className="text-xs text-slate-600 mt-1">{venue.area || venue.address}</p>
+                      {venue.has_cctv && (
+                        <div className="flex items-center gap-1 mt-1">
+                          <Shield className="w-3 h-3 text-emerald-600" />
+                          <span className="text-xs text-emerald-600">CCTV Available</span>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             
             <div className="bg-slate-50 rounded-xl p-4 h-64 overflow-y-auto mb-4 space-y-3">
               <AnimatePresence>
