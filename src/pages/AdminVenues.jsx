@@ -12,7 +12,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Switch } from '@/components/ui/switch';
 import { 
   Building, Plus, MapPin, Shield, Camera, Trash2,
-  ArrowLeft, CheckCircle, XCircle, Pencil
+  ArrowLeft, CheckCircle, XCircle, Pencil, Upload, X
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -34,6 +34,7 @@ export default function AdminVenues() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingVenue, setEditingVenue] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -118,6 +119,21 @@ export default function AdminVenues() {
       google_map_link: venue.google_map_link || ''
     });
     setShowForm(true);
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setFormData({ ...formData, photo_url: file_url });
+    } catch (error) {
+      alert('Failed to upload photo');
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -228,13 +244,45 @@ export default function AdminVenues() {
                   </div>
 
                   <div>
-                    <Label>Photo URL</Label>
-                    <Input
-                      placeholder="https://example.com/photo.jpg"
-                      value={formData.photo_url}
-                      onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-                      className="mt-1"
-                    />
+                    <Label>Venue Photo</Label>
+                    
+                    {formData.photo_url ? (
+                      <div className="mt-1 relative">
+                        <img 
+                          src={formData.photo_url} 
+                          alt="Venue" 
+                          className="w-full h-40 object-cover rounded-xl"
+                        />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="destructive"
+                          onClick={() => setFormData({ ...formData, photo_url: '' })}
+                          className="absolute top-2 right-2 rounded-full"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <label className="mt-1 flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        {uploading ? (
+                          <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                            <p className="text-sm text-slate-600">Click to upload photo</p>
+                            <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 10MB</p>
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handlePhotoUpload}
+                          disabled={uploading}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
                   </div>
 
                   <div>
