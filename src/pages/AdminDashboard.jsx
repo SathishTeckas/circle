@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Users, DollarSign, Calendar, Shield, TrendingUp, 
+  Users, IndianRupee, Calendar, Shield, TrendingUp, 
   AlertTriangle, MapPin, ChevronRight, Building
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -60,8 +60,8 @@ export default function AdminDashboard() {
     { label: 'Total Users', value: allUsers.length, icon: Users, color: 'bg-blue-500' },
     { label: 'Companions', value: companions.length, icon: Users, color: 'bg-violet-500' },
     { label: 'Seekers', value: seekers.length, icon: Users, color: 'bg-fuchsia-500' },
-    { label: 'Revenue', value: `$${totalRevenue.toFixed(0)}`, icon: DollarSign, color: 'bg-emerald-500' },
-    { label: 'Total GMV', value: `$${totalGMV.toFixed(0)}`, icon: TrendingUp, color: 'bg-teal-500' },
+    { label: 'Revenue', value: `₹${totalRevenue.toFixed(0)}`, icon: IndianRupee, color: 'bg-emerald-500' },
+    { label: 'Total GMV', value: `₹${totalGMV.toFixed(0)}`, icon: TrendingUp, color: 'bg-teal-500' },
     { label: 'Bookings', value: allBookings.length, icon: Calendar, color: 'bg-amber-500' },
   ];
 
@@ -161,7 +161,7 @@ export default function AdminDashboard() {
                   }>
                     {booking.status}
                   </Badge>
-                  <span className="font-semibold text-slate-900">${booking.total_amount}</span>
+                  <span className="font-semibold text-slate-900">₹{booking.total_amount}</span>
                 </div>
               ))}
             </div>
