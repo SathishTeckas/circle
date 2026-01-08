@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { 
-  Settings, DollarSign, Clock, Shield, Bell, ArrowLeft,
+  Settings, IndianRupee, Clock, Shield, Bell, ArrowLeft,
   Save, AlertTriangle
 } from 'lucide-react';
 
@@ -59,7 +59,7 @@ export default function AdminSettings() {
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-emerald-600" />
+              <IndianRupee className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
               <h2 className="font-semibold text-slate-900">Financial Settings</h2>
