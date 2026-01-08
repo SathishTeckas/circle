@@ -280,7 +280,7 @@ export default function ChatView() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 max-w-lg mx-auto w-full space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-4 max-w-lg mx-auto w-full space-y-3 pb-24">
         <AnimatePresence>
           {messages.map((msg) => (
             <motion.div

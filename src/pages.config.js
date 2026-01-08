@@ -24,6 +24,8 @@ import TermsAcceptance from './pages/TermsAcceptance';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
 import ChatView from './pages/ChatView';
+import PrivacySafety from './pages/PrivacySafety';
+import HelpSupport from './pages/HelpSupport';
 import __Layout from './Layout.jsx';
 
 
@@ -54,6 +56,8 @@ export const PAGES = {
     "Wallet": Wallet,
     "Welcome": Welcome,
     "ChatView": ChatView,
+    "PrivacySafety": PrivacySafety,
+    "HelpSupport": HelpSupport,
 }
 
 export const pagesConfig = {
