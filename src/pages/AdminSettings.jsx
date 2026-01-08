@@ -189,6 +189,7 @@ export default function AdminSettings() {
               <Switch
                 checked={settings.require_cctv_venues}
                 onCheckedChange={(checked) => setSettings({ ...settings, require_cctv_venues: checked })}
+                className="data-[state=checked]:bg-violet-600"
               />
             </div>
 
@@ -200,6 +201,7 @@ export default function AdminSettings() {
               <Switch
                 checked={settings.auto_refund_on_rejection}
                 onCheckedChange={(checked) => setSettings({ ...settings, auto_refund_on_rejection: checked })}
+                className="data-[state=checked]:bg-violet-600"
               />
             </div>
           </div>
