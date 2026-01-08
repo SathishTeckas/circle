@@ -39,10 +39,17 @@ export default function CompanionDashboard() {
 
   const cancelMutation = useMutation({
     mutationFn: async (bookingId) => {
+      const booking = upcomingBookings.find(b => b.id === bookingId);
       await base44.entities.Booking.update(bookingId, { 
         status: 'cancelled',
         escrow_status: 'refunded'
       });
+      // Set availability back to available
+      if (booking?.availability_id) {
+        await base44.entities.Availability.update(booking.availability_id, { 
+          status: 'available'
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['upcoming-bookings'] });

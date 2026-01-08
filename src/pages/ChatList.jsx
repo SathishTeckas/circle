@@ -67,6 +67,12 @@ export default function ChatList() {
         escrow_status: refundPercentage > 0 ? 'refunded' : 'held',
         refund_amount: cancelBooking ? (cancelBooking.total_amount * refundPercentage) / 100 : 0
       });
+      // Set availability back to available
+      if (cancelBooking?.availability_id) {
+        await base44.entities.Availability.update(cancelBooking.availability_id, { 
+          status: 'available'
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chat-bookings'] });
