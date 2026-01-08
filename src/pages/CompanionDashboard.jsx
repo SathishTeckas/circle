@@ -39,10 +39,19 @@ export default function CompanionDashboard() {
   const { data: upcomingBookings = [] } = useQuery({
     queryKey: ['upcoming-bookings', user?.id],
     queryFn: async () => {
-      return await base44.entities.Booking.filter({ 
+      const allAccepted = await base44.entities.Booking.filter({ 
         companion_id: user.id, 
         status: 'accepted' 
       }, '-created_date', 10);
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      return allAccepted.filter(b => {
+        if (!b.date) return true;
+        const bookingDate = new Date(b.date);
+        return bookingDate >= today;
+      });
     },
     enabled: !!user?.id
   });

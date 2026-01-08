@@ -29,8 +29,22 @@ export default function MyBookings() {
   const upcomingStatuses = ['pending', 'accepted', 'in_progress'];
   const pastStatuses = ['completed', 'rejected', 'cancelled', 'no_show_companion', 'no_show_seeker', 'disputed'];
 
-  const upcomingBookings = bookings.filter(b => upcomingStatuses.includes(b.status));
-  const pastBookings = bookings.filter(b => pastStatuses.includes(b.status));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcomingBookings = bookings.filter(b => {
+    if (!upcomingStatuses.includes(b.status)) return false;
+    if (!b.date) return true;
+    const bookingDate = new Date(b.date);
+    return bookingDate >= today;
+  });
+  
+  const pastBookings = bookings.filter(b => {
+    if (pastStatuses.includes(b.status)) return true;
+    if (!b.date) return false;
+    const bookingDate = new Date(b.date);
+    return bookingDate < today;
+  });
 
   const displayBookings = activeTab === 'upcoming' ? upcomingBookings : pastBookings;
 
