@@ -64,13 +64,6 @@ export default function Profile() {
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-xl font-bold text-white">Profile</h1>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="text-white hover:bg-white/20"
-            >
-              <Settings className="w-5 h-5" />
-            </Button>
           </div>
         </div>
       </div>

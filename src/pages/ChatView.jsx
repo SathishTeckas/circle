@@ -187,7 +187,7 @@ export default function ChatView() {
 
   if (!chatAvailable) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 pb-20">
         <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
           <div className="px-4 py-4 max-w-lg mx-auto flex items-center gap-4">
             <button
@@ -350,7 +350,7 @@ export default function ChatView() {
       </div>
 
       {/* Input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-[60]">
         <div className="px-4 py-3 max-w-lg mx-auto">
           <div className="flex gap-2">
             <Input
