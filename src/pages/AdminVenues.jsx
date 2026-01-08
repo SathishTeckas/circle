@@ -211,6 +211,7 @@ export default function AdminVenues() {
                     <Switch
                       checked={formData.has_cctv}
                       onCheckedChange={(checked) => setFormData({ ...formData, has_cctv: checked })}
+                      className="data-[state=checked]:bg-violet-600"
                     />
                   </div>
 
