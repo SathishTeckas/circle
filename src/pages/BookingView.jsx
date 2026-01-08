@@ -235,7 +235,7 @@ export default function BookingView() {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-slate-600">Base Price ({booking.duration_hours}h)</span>
-              <span className="text-slate-900">${booking.base_price?.toFixed(2)}</span>
+              <span className="text-slate-900">₹{booking.base_price?.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-600">Platform Fee (15%)</span>
