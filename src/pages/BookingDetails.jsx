@@ -327,7 +327,7 @@ export default function BookingDetails() {
             <SelectContent>
               {[1, 2, 3, 4].map(h => (
                 <SelectItem key={h} value={String(h)}>
-                  {h} hour{h > 1 ? 's' : ''} - ${availability.price_per_hour * h}
+                  {h} hour{h > 1 ? 's' : ''} - ₹{availability.price_per_hour * h}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -341,7 +341,7 @@ export default function BookingDetails() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-sm text-slate-500">Total</p>
-              <p className="text-2xl font-bold text-slate-900">${totalAmount.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-slate-900">₹{totalAmount.toFixed(2)}</p>
               <p className="text-xs text-slate-500">incl. 15% platform fee</p>
             </div>
             <Button
