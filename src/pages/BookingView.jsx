@@ -62,6 +62,15 @@ export default function BookingView() {
       await base44.entities.Availability.update(booking.availability_id, {
         status: 'booked'
       });
+      // Create notification for seeker
+      await base44.entities.Notification.create({
+        user_id: booking.seeker_id,
+        type: 'booking_accepted',
+        title: '🎉 Booking Confirmed!',
+        message: `${booking.companion_name} accepted your booking request`,
+        booking_id: bookingId,
+        action_url: createPageUrl(`BookingView?id=${bookingId}`)
+      });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
   });
@@ -78,21 +87,63 @@ export default function BookingView() {
           status: 'available'
         });
       }
+      // Create notification for seeker
+      await base44.entities.Notification.create({
+        user_id: booking.seeker_id,
+        type: 'booking_rejected',
+        title: 'Booking Declined',
+        message: `${booking.companion_name} declined your booking request. Full refund processed.`,
+        booking_id: bookingId,
+        amount: booking.total_amount,
+        action_url: createPageUrl('Discover')
+      });
+      // Create notification about refund
+      await base44.entities.Notification.create({
+        user_id: booking.seeker_id,
+        type: 'payment_refunded',
+        title: '💰 Refund Processed',
+        message: `₹${booking.total_amount.toFixed(2)} has been refunded to your account`,
+        amount: booking.total_amount,
+        action_url: createPageUrl('MyBookings')
+      });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
   });
 
   const cancelMutation = useMutation({
     mutationFn: async ({ refundPercentage }) => {
+      const refundAmount = (booking.total_amount * refundPercentage) / 100;
       await base44.entities.Booking.update(bookingId, { 
         status: 'cancelled',
         escrow_status: refundPercentage > 0 ? 'refunded' : 'held',
-        refund_amount: (booking.total_amount * refundPercentage) / 100
+        refund_amount: refundAmount
       });
       // Set availability back to available
       if (booking?.availability_id) {
         await base44.entities.Availability.update(booking.availability_id, { 
           status: 'available'
+        });
+      }
+      // Notify the other party
+      const otherUserId = isSeeker ? booking.companion_id : booking.seeker_id;
+      const otherUserName = isSeeker ? booking.companion_name : booking.seeker_name;
+      await base44.entities.Notification.create({
+        user_id: otherUserId,
+        type: 'booking_cancelled',
+        title: '❌ Booking Cancelled',
+        message: `${user.full_name} cancelled the booking${refundPercentage === 100 ? ' (Full refund issued)' : ''}`,
+        booking_id: bookingId,
+        action_url: createPageUrl('CalendarView')
+      });
+      // If there's a refund, notify about it
+      if (refundPercentage > 0 && isSeeker) {
+        await base44.entities.Notification.create({
+          user_id: booking.seeker_id,
+          type: 'payment_refunded',
+          title: '💰 Refund Processed',
+          message: `₹${refundAmount.toFixed(2)} (${refundPercentage}%) has been refunded to your account`,
+          amount: refundAmount,
+          action_url: createPageUrl('MyBookings')
         });
       }
     },
