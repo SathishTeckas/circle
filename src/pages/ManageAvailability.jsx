@@ -57,6 +57,16 @@ export default function ManageAvailability() {
     enabled: !!user?.id
   });
 
+  const sheetContentRef = React.useRef(null);
+
+  useEffect(() => {
+    if (showForm && sheetContentRef.current) {
+      setTimeout(() => {
+        sheetContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    }
+  }, [showForm]);
+
   const createMutation = useMutation({
     mutationFn: async () => {
       const startHour = parseInt(formData.start_time.split(':')[0]);
@@ -136,7 +146,7 @@ export default function ManageAvailability() {
               <SheetTitle>Create Availability</SheetTitle>
             </SheetHeader>
 
-            <div className="space-y-6 overflow-y-auto flex-1 pb-24 pr-2">
+            <div ref={sheetContentRef} className="space-y-6 overflow-y-auto flex-1 pb-24 pr-2">
               <style>{`
                 .rdp-day_selected {
                   background-color: rgb(236 72 153) !important;
