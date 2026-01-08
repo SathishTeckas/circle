@@ -40,7 +40,9 @@ export default function AdminVenues() {
     area: '',
     type: 'restaurant',
     has_cctv: false,
-    capacity: ''
+    capacity: '',
+    photo_url: '',
+    google_map_link: ''
   });
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export default function AdminVenues() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-venues'] });
       setShowForm(false);
-      setFormData({ name: '', address: '', city: '', area: '', type: 'restaurant', has_cctv: false, capacity: '' });
+      setFormData({ name: '', address: '', city: '', area: '', type: 'restaurant', has_cctv: false, capacity: '', photo_url: '', google_map_link: '' });
     }
   });
 
@@ -200,6 +202,26 @@ export default function AdminVenues() {
                     />
                   </div>
 
+                  <div>
+                    <Label>Photo URL</Label>
+                    <Input
+                      placeholder="https://example.com/photo.jpg"
+                      value={formData.photo_url}
+                      onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Google Map Link</Label>
+                    <Input
+                      placeholder="https://maps.google.com/..."
+                      value={formData.google_map_link}
+                      onChange={(e) => setFormData({ ...formData, google_map_link: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+
                   <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                     <div className="flex items-center gap-3">
                       <Camera className="w-5 h-5 text-slate-600" />
@@ -276,12 +298,34 @@ export default function AdminVenues() {
                         {venue.area}, {venue.city} • Capacity: {venue.capacity || 'N/A'}
                       </p>
 
-                      {venue.has_cctv && (
-                        <Badge className="mt-2 bg-blue-100 text-blue-700">
-                          <Camera className="w-3 h-3 mr-1" />
-                          CCTV Monitored
-                        </Badge>
-                      )}
+                      <div className="flex gap-2 mt-2">
+                        {venue.has_cctv && (
+                          <Badge className="bg-blue-100 text-blue-700">
+                            <Camera className="w-3 h-3 mr-1" />
+                            CCTV Monitored
+                          </Badge>
+                        )}
+                        {venue.google_map_link && (
+                          <a 
+                            href={venue.google_map_link} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-xs text-violet-600 hover:text-violet-700 underline"
+                          >
+                            View on Map
+                          </a>
+                        )}
+                        {venue.photo_url && (
+                          <a 
+                            href={venue.photo_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-xs text-violet-600 hover:text-violet-700 underline"
+                          >
+                            View Photo
+                          </a>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex gap-2">
