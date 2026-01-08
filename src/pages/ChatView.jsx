@@ -160,10 +160,10 @@ export default function ChatView() {
               alt={otherPartyName}
               className="w-10 h-10 rounded-full object-cover"
             />
-            <div>
+            <div className="flex-1 min-w-0">
               <h1 className="font-semibold text-slate-900">{otherPartyName || 'Chat'}</h1>
-              <p className="text-xs text-slate-500">
-                {booking.date} • {booking.start_time}
+              <p className="text-xs text-slate-500 truncate">
+                Booking ID: {booking.id.slice(0, 8).toUpperCase()}
               </p>
             </div>
           </div>
