@@ -14,8 +14,10 @@ import CompanionCard from '@/components/companion/CompanionCard';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-const CITIES = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'San Francisco', 'Miami', 'Seattle', 'Boston', 'Austin'];
-const AREAS = ['Downtown', 'Midtown', 'Uptown', 'Westside', 'Eastside', 'Central'];
+const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kochi'];
+const AREAS = ['Andheri', 'Bandra', 'Powai', 'Colaba', 'Juhu', 'Versova', 'Koramangala', 'Indiranagar', 'Whitefield', 'HSR Layout', 'MG Road', 'Jayanagar'];
+const LANGUAGES = ['English', 'Hindi', 'Bengali', 'Telugu', 'Marathi', 'Tamil', 'Gujarati', 'Kannada', 'Malayalam', 'Punjabi'];
+const TIME_SLOTS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
 
 export default function Discover() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,18 +34,8 @@ export default function Discover() {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  const LANGUAGES = [
-    'English', 'Hindi', 'Bengali', 'Telugu', 'Marathi', 'Tamil',
-    'Gujarati', 'Kannada', 'Malayalam', 'Punjabi'
-  ];
-
-  const TIME_SLOTS = [
-    '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00',
-    '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'
-  ];
-
   const { data: availabilities = [], isLoading } = useQuery({
-    queryKey: ['availabilities', filters, selectedDate, selectedTime],
+    queryKey: ['availabilities', filters, selectedDate],
     queryFn: async () => {
       const query = { status: 'available' };
       if (filters.city) query.city = filters.city;
@@ -51,29 +43,16 @@ export default function Discover() {
       if (filters.gender) query.gender = filters.gender;
       if (selectedDate) query.date = format(selectedDate, 'yyyy-MM-dd');
       
-      const results = await base44.entities.Availability.filter(query, '-created_date', 100);
+      const results = await base44.entities.Availability.filter(query, '-created_date', 50);
       return results;
     }
   });
 
-  const { data: companions = [] } = useQuery({
-    queryKey: ['companions', availabilities],
+  const { data: companionUsers = [] } = useQuery({
+    queryKey: ['companion-users'],
     queryFn: async () => {
-      const companionIds = [...new Set(availabilities.map(a => a.companion_id))];
-      if (companionIds.length === 0) return [];
-      const users = await Promise.all(
-        companionIds.map(async (id) => {
-          try {
-            const result = await base44.entities.User.filter({ id });
-            return result[0];
-          } catch (e) {
-            return null;
-          }
-        })
-      );
-      return users.filter(Boolean);
-    },
-    enabled: availabilities.length > 0
+      return await base44.entities.User.filter({ user_role: 'companion' });
+    }
   });
 
   const filteredAvailabilities = availabilities.filter(a => {
@@ -88,19 +67,15 @@ export default function Discover() {
       const availDate = new Date(a.date);
       if (availDate.toDateString() !== selectedDate.toDateString()) return false;
     }
-    if (selectedTime && a.start_time) {
-      const availStart = parseInt(a.start_time.split(':')[0]);
-      const selectedHour = parseInt(selectedTime.split(':')[0]);
-      const availEnd = parseInt(a.end_time?.split(':')[0] || '23');
-      if (selectedHour < availStart || selectedHour >= availEnd) return false;
+    if (selectedTime) {
+      if (a.start_time > selectedTime || a.end_time <= selectedTime) return false;
     }
     if (filters.priceMin && a.price_per_hour < Number(filters.priceMin)) return false;
     if (filters.priceMax && a.price_per_hour > Number(filters.priceMax)) return false;
     if (filters.language && !a.languages?.includes(filters.language)) return false;
     if (filters.minRating) {
-      const companion = companions.find(c => c?.id === a.companion_id);
-      const rating = companion?.average_rating || 0;
-      if (rating < parseFloat(filters.minRating)) return false;
+      const companionUser = companionUsers.find(u => u.id === a.companion_id);
+      if (!companionUser || companionUser.average_rating < Number(filters.minRating)) return false;
     }
     return true;
   });
@@ -155,7 +130,7 @@ export default function Discover() {
                   <SheetTitle className="text-xl">Filters</SheetTitle>
                 </SheetHeader>
                 
-                <div className="space-y-6 overflow-y-auto pb-24">
+                <div className="space-y-6 overflow-y-auto pb-24 pr-2">
                   {/* Date */}
                   <div>
                     <label className="text-sm font-medium text-slate-700 mb-2 block">Date</label>
@@ -177,9 +152,9 @@ export default function Discover() {
                     </Popover>
                   </div>
 
-                  {/* Time */}
+                  {/* Time Slot */}
                   <div>
-                    <label className="text-sm font-medium text-slate-700 mb-2 block">Time</label>
+                    <label className="text-sm font-medium text-slate-700 mb-2 block">Time Slot</label>
                     <Select value={selectedTime} onValueChange={setSelectedTime}>
                       <SelectTrigger className="h-12 rounded-xl">
                         <SelectValue placeholder="Any time" />
@@ -247,14 +222,14 @@ export default function Discover() {
                     <div className="flex gap-3">
                       <Input
                         type="number"
-                        placeholder="Min ₹"
+                        placeholder="Min"
                         value={filters.priceMin}
                         onChange={(e) => setFilters({ ...filters, priceMin: e.target.value })}
                         className="h-12 rounded-xl"
                       />
                       <Input
                         type="number"
-                        placeholder="Max ₹"
+                        placeholder="Max"
                         value={filters.priceMax}
                         onChange={(e) => setFilters({ ...filters, priceMax: e.target.value })}
                         className="h-12 rounded-xl"
@@ -264,7 +239,7 @@ export default function Discover() {
 
                   {/* Language */}
                   <div>
-                    <label className="text-sm font-medium text-slate-700 mb-2 block">Language</label>
+                    <label className="text-sm font-medium text-slate-700 mb-2 block">Language Spoken</label>
                     <Select value={filters.language} onValueChange={(v) => setFilters({ ...filters, language: v })}>
                       <SelectTrigger className="h-12 rounded-xl">
                         <SelectValue placeholder="Any language" />
@@ -287,10 +262,10 @@ export default function Discover() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value={null}>Any rating</SelectItem>
-                        <SelectItem value="4.5">4.5+ ⭐</SelectItem>
-                        <SelectItem value="4.0">4.0+ ⭐</SelectItem>
-                        <SelectItem value="3.5">3.5+ ⭐</SelectItem>
-                        <SelectItem value="3.0">3.0+ ⭐</SelectItem>
+                        <SelectItem value="4.5">4.5+ stars ⭐</SelectItem>
+                        <SelectItem value="4.0">4.0+ stars ⭐</SelectItem>
+                        <SelectItem value="3.5">3.5+ stars ⭐</SelectItem>
+                        <SelectItem value="3.0">3.0+ stars ⭐</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -337,16 +312,16 @@ export default function Discover() {
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, city: '' })} />
                 </Badge>
               )}
-              {filters.area && (
-                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
-                  {filters.area}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, area: '' })} />
-                </Badge>
-              )}
               {filters.gender && (
                 <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
                   {filters.gender}
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, gender: '' })} />
+                </Badge>
+              )}
+              {(filters.priceMin || filters.priceMax) && (
+                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                  ₹{filters.priceMin || '0'}-{filters.priceMax || '∞'}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, priceMin: '', priceMax: '' })} />
                 </Badge>
               )}
               {filters.language && (
@@ -359,12 +334,6 @@ export default function Discover() {
                 <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
                   {filters.minRating}+ ⭐
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, minRating: '' })} />
-                </Badge>
-              )}
-              {(filters.priceMin || filters.priceMax) && (
-                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
-                  ₹{filters.priceMin || '0'}-{filters.priceMax || '∞'}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, priceMin: '', priceMax: '' })} />
                 </Badge>
               )}
             </div>
