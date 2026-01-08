@@ -57,7 +57,13 @@ export default function EditProfile() {
 
   const updateMutation = useMutation({
     mutationFn: async () => {
-      await base44.auth.updateMe(formData);
+      // Update full_name using User entity (built-in field)
+      if (formData.full_name !== user.full_name) {
+        await base44.entities.User.update(user.id, { full_name: formData.full_name });
+      }
+      // Update other fields using updateMe
+      const { full_name, ...otherFields } = formData;
+      await base44.auth.updateMe(otherFields);
     },
     onSuccess: () => {
       window.location.href = createPageUrl('Profile');
