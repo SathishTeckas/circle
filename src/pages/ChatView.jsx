@@ -123,9 +123,10 @@ export default function ChatView() {
     queryFn: async () => {
       const query = { verified: true };
       if (booking?.city) query.city = booking.city;
-      return await base44.entities.Venue.filter(query, '-created_date', 5);
+      if (booking?.area) query.area = booking.area;
+      return await base44.entities.Venue.filter(query, '-created_date', 10);
     },
-    enabled: !!booking?.city && chatAvailable
+    enabled: !!booking?.city && chatAvailable && booking?.status === 'accepted'
   });
 
   const sendMessageMutation = useMutation({
@@ -226,27 +227,51 @@ export default function ChatView() {
 
       {/* Suggested Venues */}
       {suggestedVenues.length > 0 && (
-        <div className="bg-white border-b border-slate-100 px-4 py-3">
+        <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 border-b border-violet-100 px-4 py-4">
           <div className="max-w-lg mx-auto">
-            <p className="text-xs text-slate-500 mb-2 flex items-center gap-1">
-              <MapPin className="w-3 h-3" />
-              Suggested restaurants in {booking.city}
-            </p>
-            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center">
+                  <MapPin className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">Suggested Restaurants</p>
+                  <p className="text-xs text-slate-600">{booking.area || booking.city} • Verified venues</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {suggestedVenues.map(venue => (
                 <button
                   key={venue.id}
-                  onClick={() => setMessage(`How about ${venue.name}? ${venue.address}`)}
-                  className="flex-shrink-0 bg-slate-50 border border-slate-200 rounded-xl p-3 hover:border-violet-300 hover:bg-violet-50 transition-all text-left min-w-[200px]"
+                  onClick={() => setMessage(`How about meeting at ${venue.name}?\n📍 ${venue.address}${venue.has_cctv ? '\n🎥 CCTV available for safety' : ''}`)}
+                  className="flex-shrink-0 bg-white border-2 border-violet-200 rounded-2xl p-4 hover:border-violet-400 hover:shadow-md transition-all text-left min-w-[240px] group"
                 >
-                  <p className="font-medium text-slate-900 text-sm">{venue.name}</p>
-                  <p className="text-xs text-slate-600 mt-1">{venue.area || venue.address}</p>
-                  {venue.has_cctv && (
-                    <div className="flex items-center gap-1 mt-1">
-                      <Shield className="w-3 h-3 text-emerald-600" />
-                      <span className="text-xs text-emerald-600">CCTV Available</span>
-                    </div>
-                  )}
+                  <div className="flex items-start justify-between mb-2">
+                    <p className="font-semibold text-slate-900 text-sm leading-tight pr-2">{venue.name}</p>
+                    {venue.verified && (
+                      <Shield className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-600 mb-2 line-clamp-1">{venue.address}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs bg-violet-100 text-violet-700 px-2 py-1 rounded-full">
+                      {venue.area || venue.city}
+                    </span>
+                    {venue.has_cctv && (
+                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full flex items-center gap-1">
+                        🎥 CCTV
+                      </span>
+                    )}
+                    {venue.type && (
+                      <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded-full capitalize">
+                        {venue.type}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-violet-600 mt-2 group-hover:text-violet-700 font-medium">
+                    Tap to suggest →
+                  </p>
                 </button>
               ))}
             </div>
