@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { ArrowLeft, MessageCircle, Send, MapPin, Shield, MoreVertical } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
 import BlockUserButton from '../components/profile/BlockUserButton';
 import {
   DropdownMenu,
