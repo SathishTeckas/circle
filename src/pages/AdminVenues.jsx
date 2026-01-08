@@ -17,7 +17,18 @@ import {
 import { motion } from 'framer-motion';
 
 const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata', 'Ahmedabad'];
-const AREAS = ['North', 'South', 'East', 'West', 'Central', 'Suburban'];
+const AREAS = [
+  'Adambakkam', 'Adyar', 'Alandur', 'Alwarpet', 'Ambattur', 'Anna Nagar', 'Arumbakkam', 'Ashok Nagar',
+  'Avadi', 'Ayanavaram', 'Besant Nagar', 'Chetpet', 'Choolaimedu', 'Chromepet', 'Egmore', 'Ekkaduthangal',
+  'George Town (Parry\'s)', 'Gopalapuram', 'Guindy', 'Injambakkam', 'K.K. Nagar', 'Kilpauk', 'Kodambakkam',
+  'Kolathur', 'Korattur', 'Kotturpuram', 'Koyambedu', 'Madhavaram', 'Madipakkam', 'Mandaveli', 'Medavakkam',
+  'Meenambakkam', 'Mogappair', 'Mylapore', 'Nandanam', 'Nanganallur', 'Navalur', 'Neelankarai', 'Nungambakkam',
+  'Palavakkam', 'Pallavaram', 'Pallikaranai', 'Perambur', 'Perungudi', 'Poonamallee', 'Porur', 'Purasawalkam',
+  'R.A. Puram', 'Red Hills', 'Royapettah', 'Royapuram', 'Saidapet', 'Santhome', 'Selaiyur', 'Sholinganallur',
+  'St. Thomas Mount', 'T. Nagar', 'Tambaram', 'Teynampet', 'Thiruvanmiyur', 'Thiruvottiyur', 'Thoraipakkam',
+  'Tondiarpet', 'Triplicane', 'Vadapalani', 'Valasaravakkam', 'Velachery', 'Villivakkam', 'Virugambakkam',
+  'Washermanpet', 'West Mambalam'
+];
 
 export default function AdminVenues() {
   const queryClient = useQueryClient();
