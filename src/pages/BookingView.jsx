@@ -369,6 +369,23 @@ export default function BookingView() {
           </Card>
         )}
 
+        {booking.status === 'accepted' && isCompanion && (
+          <Card className="p-4 border-red-200 bg-red-50">
+            <h3 className="font-semibold text-red-900 mb-2">Cancel Booking</h3>
+            <p className="text-sm text-red-700 mb-3">
+              The seeker will receive a full refund. Cancelling confirmed bookings may affect your reliability score and future bookings.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => cancelMutation.mutate({ refundPercentage: 100 })}
+              disabled={cancelMutation.isPending}
+              className="w-full h-12 rounded-xl border-red-300 text-red-700 hover:bg-red-100"
+            >
+              {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Booking'}
+            </Button>
+          </Card>
+        )}
+
         {/* Chat Section */}
         {booking.chat_enabled && (
           <Card className="p-4">
