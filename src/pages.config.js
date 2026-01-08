@@ -7,6 +7,7 @@ import AdminVenues from './pages/AdminVenues';
 import BookingDetails from './pages/BookingDetails';
 import BookingView from './pages/BookingView';
 import ChatList from './pages/ChatList';
+import CompanionBookings from './pages/CompanionBookings';
 import CompanionDashboard from './pages/CompanionDashboard';
 import Discover from './pages/Discover';
 import EditProfile from './pages/EditProfile';
@@ -22,7 +23,6 @@ import RoleSelection from './pages/RoleSelection';
 import TermsAcceptance from './pages/TermsAcceptance';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
-import CompanionBookings from './pages/CompanionBookings';
 import __Layout from './Layout.jsx';
 
 
@@ -36,6 +36,7 @@ export const PAGES = {
     "BookingDetails": BookingDetails,
     "BookingView": BookingView,
     "ChatList": ChatList,
+    "CompanionBookings": CompanionBookings,
     "CompanionDashboard": CompanionDashboard,
     "Discover": Discover,
     "EditProfile": EditProfile,
@@ -51,7 +52,6 @@ export const PAGES = {
     "TermsAcceptance": TermsAcceptance,
     "Wallet": Wallet,
     "Welcome": Welcome,
-    "CompanionBookings": CompanionBookings,
 }
 
 export const pagesConfig = {

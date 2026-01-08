@@ -99,7 +99,7 @@ export default function ManageAvailability() {
   });
 
   const activeAvailabilities = availabilities.filter(a => a.status === 'available');
-  const bookedAvailabilities = availabilities.filter(a => ['pending', 'booked'].includes(a.status));
+  const bookedAvailabilities = availabilities.filter(a => a.status === 'booked');
 
   const canSubmit = selectedDate && formData.start_time && formData.end_time && 
                     formData.area && formData.city && formData.price_per_hour;
