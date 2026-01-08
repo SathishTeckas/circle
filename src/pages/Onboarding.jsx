@@ -116,8 +116,15 @@ export default function Onboarding() {
   const handleComplete = async () => {
     setLoading(true);
     try {
+      // Update full_name in User entity (built-in field)
+      const user = await base44.auth.me();
+      if (userData.full_name !== user.full_name) {
+        await base44.entities.User.update(user.id, { full_name: userData.full_name });
+      }
+      // Update other custom fields
+      const { full_name, ...otherFields } = userData;
       await base44.auth.updateMe({
-        ...userData,
+        ...otherFields,
         onboarding_completed: false // Will be true after KYC
       });
       window.location.href = createPageUrl('KYCVerification');
