@@ -34,6 +34,7 @@ export default function Onboarding() {
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [ageError, setAgeError] = useState('');
   const [userData, setUserData] = useState({
+    full_name: '',
     phone: '',
     date_of_birth: '',
     gender: '',
@@ -51,6 +52,7 @@ export default function Onboarding() {
         const user = await base44.auth.me();
         setUserData(prev => ({
           ...prev,
+          full_name: user.full_name || '',
           phone: user.phone || '',
           date_of_birth: user.date_of_birth || '',
           gender: user.gender || '',
@@ -128,9 +130,9 @@ export default function Onboarding() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return phoneVerified && userData.phone && userData.date_of_birth && !ageError && userData.gender;
+        return userData.full_name && phoneVerified && userData.phone && userData.date_of_birth && !ageError && userData.gender;
       case 2:
-        return userData.profile_photos.length >= 5;
+        return userData.profile_photos.length >= 1;
       case 3:
         return userData.city && userData.languages.length > 0;
       case 4:
@@ -195,6 +197,17 @@ export default function Onboarding() {
               </div>
 
               <div className="space-y-4">
+                <div>
+                  <Label className="text-slate-700 mb-2 block">Full Name</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={userData.full_name}
+                    onChange={(e) => setUserData({ ...userData, full_name: e.target.value })}
+                    className="h-14 rounded-xl border-slate-200"
+                  />
+                </div>
+
                 <div>
                   <Label className="text-slate-700 mb-2 flex items-center gap-2">
                     Phone Number
@@ -325,7 +338,7 @@ export default function Onboarding() {
                   Add your photos
                 </h1>
                 <p className="text-slate-600">
-                  Add 5 clear photos of yourself
+                  Add at least 1 clear photo (up to 5)
                 </p>
               </div>
 
@@ -369,9 +382,13 @@ export default function Onboarding() {
                 <p className="text-xs text-slate-500">
                   Photos must clearly show your face and be recent
                 </p>
-                {userData.profile_photos.length < 5 && (
+                {userData.profile_photos.length < 1 ? (
+                  <p className="text-xs text-red-600 font-medium">
+                    At least 1 photo required
+                  </p>
+                ) : userData.profile_photos.length < 5 && (
                   <p className="text-xs text-violet-600 font-medium">
-                    {5 - userData.profile_photos.length} more photo{5 - userData.profile_photos.length > 1 ? 's' : ''} required
+                    Add {5 - userData.profile_photos.length} more for a complete profile
                   </p>
                 )}
               </div>
