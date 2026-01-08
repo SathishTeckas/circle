@@ -18,6 +18,7 @@ import RoleSelection from './pages/RoleSelection';
 import TermsAcceptance from './pages/TermsAcceptance';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
+import AdminManagement from './pages/AdminManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -42,6 +43,7 @@ export const PAGES = {
     "TermsAcceptance": TermsAcceptance,
     "Wallet": Wallet,
     "Welcome": Welcome,
+    "AdminManagement": AdminManagement,
 }
 
 export const pagesConfig = {

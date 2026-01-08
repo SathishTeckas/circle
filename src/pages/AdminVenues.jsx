@@ -148,12 +148,12 @@ export default function AdminVenues() {
                   Add Venue
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:max-w-md">
+              <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>{editingVenue ? 'Edit Venue' : 'Add New Venue'}</SheetTitle>
                 </SheetHeader>
 
-                <div className="space-y-4 mt-6">
+                <div className="space-y-4 mt-6 pb-6">
                   <div>
                     <Label>Venue Name</Label>
                     <Input
