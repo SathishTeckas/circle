@@ -193,6 +193,26 @@ export default function Profile() {
           </Card>
         )}
 
+        {/* Admin Panel Access */}
+        {(user?.user_role === 'admin' || user?.role === 'admin') && (
+          <Link to={createPageUrl('AdminDashboard')}>
+            <Card className="p-4 bg-gradient-to-r from-violet-600 to-fuchsia-600">
+              <div className="flex items-center justify-between text-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Shield className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">Admin Panel</h3>
+                    <p className="text-sm text-white/80">Manage platform</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5" />
+              </div>
+            </Card>
+          </Link>
+        )}
+
         {/* Menu */}
         <Card className="divide-y divide-slate-100">
           {menuItems.map((item) => (
