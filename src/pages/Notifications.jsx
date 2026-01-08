@@ -42,6 +42,38 @@ export default function Notifications() {
     }
   }, []);
 
+  // Show browser push notifications for new notifications
+  useEffect(() => {
+    if (!notifications.length || !user?.id) return;
+
+    const unreadNotifs = notifications.filter(n => !n.read);
+    
+    // Check if there are new unread notifications
+    const lastNotification = unreadNotifs[0];
+    if (lastNotification && document.hidden) {
+      // Only show notification if page is hidden
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const notification = new Notification(lastNotification.title, {
+          body: lastNotification.message,
+          icon: '/favicon.ico',
+          badge: '/favicon.ico',
+          tag: lastNotification.id,
+          requireInteraction: false
+        });
+
+        notification.onclick = () => {
+          window.focus();
+          if (lastNotification.action_url) {
+            window.location.href = lastNotification.action_url;
+          }
+          notification.close();
+        };
+
+        setTimeout(() => notification.close(), 8000);
+      }
+    }
+  }, [notifications, user?.id]);
+
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ['notifications', user?.id],
     queryFn: async () => {

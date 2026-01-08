@@ -65,6 +65,7 @@ export default function BookingDetails() {
       const basePrice = availability.price_per_hour * selectedHours;
       const platformFee = basePrice * 0.15;
       const totalAmount = basePrice + platformFee;
+      const companionPayout = basePrice * 0.85;
       
       const booking = await base44.entities.Booking.create({
         availability_id: availabilityId,
@@ -83,13 +84,24 @@ export default function BookingDetails() {
         base_price: basePrice,
         platform_fee: platformFee,
         total_amount: totalAmount,
-        companion_payout: basePrice,
+        companion_payout: companionPayout,
         status: 'pending',
         escrow_status: 'held',
         request_expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString()
       });
       
       await base44.entities.Availability.update(availabilityId, { status: 'pending' });
+      
+      // Create notification for companion
+      await base44.entities.Notification.create({
+        user_id: availability.companion_id,
+        type: 'booking_request',
+        title: '🔔 New Booking Request!',
+        message: `${user.full_name} wants to book you for ${selectedHours}h on ${format(new Date(availability.date), 'MMM d')}`,
+        booking_id: booking.id,
+        amount: companionPayout,
+        action_url: createPageUrl(`BookingView?id=${booking.id}`)
+      });
       
       return booking;
     },

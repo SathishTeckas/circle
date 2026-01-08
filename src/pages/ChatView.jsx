@@ -151,6 +151,17 @@ export default function ChatView() {
         sender_name: user.full_name,
         content
       });
+
+      // Create notification for the other party
+      const otherUserId = isSeeker ? booking.companion_id : booking.seeker_id;
+      await base44.entities.Notification.create({
+        user_id: otherUserId,
+        type: 'new_message',
+        title: '💬 New Message',
+        message: `${user.full_name}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+        booking_id: bookingId,
+        action_url: createPageUrl(`ChatView?id=${bookingId}`)
+      });
     },
     onSuccess: () => {
       setMessage('');

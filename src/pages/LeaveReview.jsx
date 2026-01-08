@@ -49,24 +49,35 @@ export default function LeaveReview() {
   const submitReviewMutation = useMutation({
     mutationFn: async () => {
       const isSeeker = user.id === booking.seeker_id;
+      const revieweeId = isSeeker ? booking.companion_id : booking.seeker_id;
+      
       await base44.entities.Review.create({
         booking_id: bookingId,
         reviewer_id: user.id,
         reviewer_name: user.full_name,
-        reviewee_id: isSeeker ? booking.companion_id : booking.seeker_id,
+        reviewee_id: revieweeId,
         rating: rating,
         comment: comment,
         reviewer_role: isSeeker ? 'seeker' : 'companion'
       });
 
       // Update the reviewee's average rating
-      const revieweeId = isSeeker ? booking.companion_id : booking.seeker_id;
       const allReviews = await base44.entities.Review.filter({ reviewee_id: revieweeId });
       const avgRating = (allReviews.reduce((sum, r) => sum + r.rating, 0) + rating) / (allReviews.length + 1);
       
       await base44.entities.User.update(revieweeId, {
         average_rating: avgRating,
         total_reviews: allReviews.length + 1
+      });
+
+      // Create notification for the reviewee
+      await base44.entities.Notification.create({
+        user_id: revieweeId,
+        type: 'review_received',
+        title: '⭐ New Review!',
+        message: `${user.full_name} left you a ${rating}-star review${comment ? ': "' + comment.substring(0, 50) + (comment.length > 50 ? '..."' : '"') : ''}`,
+        booking_id: bookingId,
+        action_url: createPageUrl('Profile')
       });
     },
     onSuccess: () => {
