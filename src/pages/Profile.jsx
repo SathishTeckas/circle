@@ -53,8 +53,8 @@ export default function Profile() {
   const menuItems = [
     { icon: Edit, label: 'Edit Profile', page: 'EditProfile' },
     { icon: Bell, label: 'Notifications', page: 'Notifications' },
-    { icon: Shield, label: 'Privacy & Safety', page: 'Privacy' },
-    { icon: HelpCircle, label: 'Help & Support', page: 'Support' },
+    { icon: Shield, label: 'Privacy & Safety', page: 'PrivacySafety' },
+    { icon: HelpCircle, label: 'Help & Support', page: 'HelpSupport' },
   ];
 
   return (

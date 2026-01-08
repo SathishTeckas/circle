@@ -313,7 +313,7 @@ export default function ChatView() {
       </div>
 
       {/* Input */}
-      <div className="sticky bottom-0 bg-white border-t border-slate-100 px-4 py-4 safe-bottom">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4 py-4 safe-bottom z-10">
         <div className="max-w-lg mx-auto flex gap-2">
           <Input
             placeholder="Type a message..."
