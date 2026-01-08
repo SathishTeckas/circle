@@ -40,7 +40,8 @@ export default function ChatList() {
       const allMessages = await base44.entities.Message.filter({ read: false }, '-created_date', 100);
       return allMessages.filter(m => m.sender_id !== user.id);
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    refetchInterval: 3000
   });
 
   const getUnreadCount = (bookingId) => {

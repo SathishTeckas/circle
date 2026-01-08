@@ -16,6 +16,7 @@ export default function ChatView() {
   
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState('');
+  const [lastMessageCount, setLastMessageCount] = useState(0);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -23,6 +24,11 @@ export default function ChatView() {
       setUser(userData);
     };
     loadUser();
+
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
   }, []);
 
   const { data: booking } = useQuery({
@@ -62,8 +68,55 @@ export default function ChatView() {
       return await base44.entities.Message.filter({ booking_id: bookingId }, 'created_date', 100);
     },
     enabled: !!bookingId && chatAvailable,
-    refetchInterval: 3000
+    refetchInterval: 2000
   });
+
+  // Mark messages as read and show notifications for new messages
+  useEffect(() => {
+    if (!messages.length || !user?.id) return;
+
+    const unreadMessages = messages.filter(m => !m.read && m.sender_id !== user.id);
+    
+    // Mark unread messages as read
+    unreadMessages.forEach(async (msg) => {
+      try {
+        await base44.entities.Message.update(msg.id, { read: true });
+      } catch (e) {
+        console.error('Failed to mark message as read:', e);
+      }
+    });
+
+    // Show notification for new messages
+    if (messages.length > lastMessageCount && lastMessageCount > 0) {
+      const newMessages = messages.slice(lastMessageCount);
+      const newFromOther = newMessages.filter(m => m.sender_id !== user.id);
+      
+      if (newFromOther.length > 0 && document.hidden) {
+        const lastMsg = newFromOther[newFromOther.length - 1];
+        showNotification(lastMsg.sender_name, lastMsg.content);
+      }
+    }
+
+    setLastMessageCount(messages.length);
+  }, [messages, user?.id, lastMessageCount]);
+
+  const showNotification = (senderName, content) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const notification = new Notification(senderName || 'New Message', {
+        body: content.substring(0, 100),
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        tag: bookingId
+      });
+
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+      };
+
+      setTimeout(() => notification.close(), 5000);
+    }
+  };
 
   const { data: suggestedVenues = [] } = useQuery({
     queryKey: ['suggested-venues', booking?.city, booking?.area],
@@ -87,6 +140,7 @@ export default function ChatView() {
     onSuccess: () => {
       setMessage('');
       queryClient.invalidateQueries({ queryKey: ['messages', bookingId] });
+      queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
       setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     }
   });
