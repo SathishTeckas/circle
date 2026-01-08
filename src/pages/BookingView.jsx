@@ -54,6 +54,28 @@ export default function BookingView() {
     refetchInterval: 5000
   });
 
+  // Check if chat is available (24 hours after meetup for cancelled/completed)
+  const isChatAvailable = () => {
+    if (!booking?.chat_enabled) return false;
+    
+    if (['cancelled', 'completed'].includes(booking.status)) {
+      if (!booking.date || !booking.start_time) return false;
+      
+      const [hours, minutes] = booking.start_time.split(':').map(Number);
+      const meetupDateTime = new Date(booking.date);
+      meetupDateTime.setHours(hours, minutes, 0, 0);
+      
+      const twentyFourHoursAfter = new Date(meetupDateTime);
+      twentyFourHoursAfter.setHours(twentyFourHoursAfter.getHours() + 24);
+      
+      return new Date() < twentyFourHoursAfter;
+    }
+    
+    return true;
+  };
+
+  const chatAvailable = booking ? isChatAvailable() : false;
+
   const { data: messages = [] } = useQuery({
     queryKey: ['messages', bookingId],
     queryFn: async () => {
@@ -164,28 +186,6 @@ export default function BookingView() {
   const otherPartyPhoto = isSeeker ? booking.companion_photo : booking.seeker_photo;
   const status = statusConfig[booking.status] || statusConfig.pending;
   const StatusIcon = status.icon;
-
-  // Check if chat is available (24 hours after meetup for cancelled/completed)
-  const isChatAvailable = () => {
-    if (!booking.chat_enabled) return false;
-    
-    if (['cancelled', 'completed'].includes(booking.status)) {
-      if (!booking.date || !booking.start_time) return false;
-      
-      const [hours, minutes] = booking.start_time.split(':').map(Number);
-      const meetupDateTime = new Date(booking.date);
-      meetupDateTime.setHours(hours, minutes, 0, 0);
-      
-      const twentyFourHoursAfter = new Date(meetupDateTime);
-      twentyFourHoursAfter.setHours(twentyFourHoursAfter.getHours() + 24);
-      
-      return new Date() < twentyFourHoursAfter;
-    }
-    
-    return true;
-  };
-
-  const chatAvailable = isChatAvailable();
 
   // Calculate refund based on time until meetup
   const calculateRefund = () => {
