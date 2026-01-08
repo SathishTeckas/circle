@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPageUrl } from '../utils';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -8,14 +8,26 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Calendar, Clock, IndianRupee, Star, TrendingUp, Bell, 
-  ChevronRight, Plus, Users, CheckCircle
+  ChevronRight, Plus, Users, CheckCircle, XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function CompanionDashboard() {
   const [user, setUser] = useState(null);
+  const [cancelBookingId, setCancelBookingId] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -24,6 +36,19 @@ export default function CompanionDashboard() {
     };
     loadUser();
   }, []);
+
+  const cancelMutation = useMutation({
+    mutationFn: async (bookingId) => {
+      await base44.entities.Booking.update(bookingId, { 
+        status: 'cancelled',
+        escrow_status: 'refunded'
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['upcoming-bookings'] });
+      setCancelBookingId(null);
+    }
+  });
 
   const { data: pendingBookings = [] } = useQuery({
     queryKey: ['pending-bookings', user?.id],
@@ -204,32 +229,48 @@ export default function CompanionDashboard() {
           ) : (
             <div className="space-y-3">
               {upcomingBookings.slice(0, 3).map((booking) => (
-                <Link
+                <div
                   key={booking.id}
-                  to={createPageUrl(`BookingView?id=${booking.id}`)}
-                  className="block bg-slate-50 rounded-xl p-3"
+                  className="bg-slate-50 rounded-xl p-3"
                 >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={booking.seeker_photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'}
-                      alt={booking.seeker_name}
-                      className="w-10 h-10 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium text-slate-900">{booking.seeker_name}</p>
-                      <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {booking.date ? format(new Date(booking.date), 'EEE, MMM d') : 'TBD'}
-                        <Clock className="w-3.5 h-3.5 ml-2" />
-                        {booking.start_time}
+                  <Link
+                    to={createPageUrl(`BookingView?id=${booking.id}`)}
+                    className="block"
+                  >
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={booking.seeker_photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'}
+                        alt={booking.seeker_name}
+                        className="w-10 h-10 rounded-lg object-cover"
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium text-slate-900">{booking.seeker_name}</p>
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                          <Calendar className="w-3.5 h-3.5" />
+                          {booking.date ? format(new Date(booking.date), 'EEE, MMM d') : 'TBD'}
+                          <Clock className="w-3.5 h-3.5 ml-2" />
+                          {booking.start_time}
+                        </div>
                       </div>
+                      <Badge className="bg-emerald-100 text-emerald-700">
+                        <CheckCircle className="w-3.5 h-3.5 mr-1" />
+                        Confirmed
+                      </Badge>
                     </div>
-                    <Badge className="bg-emerald-100 text-emerald-700">
-                      <CheckCircle className="w-3.5 h-3.5 mr-1" />
-                      Confirmed
-                    </Badge>
-                  </div>
-                </Link>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCancelBookingId(booking.id);
+                    }}
+                    className="w-full mt-2 border-red-200 text-red-600 hover:bg-red-50"
+                  >
+                    <XCircle className="w-4 h-4 mr-2" />
+                    Cancel Booking
+                  </Button>
+                </div>
               ))}
             </div>
           )}
@@ -256,6 +297,27 @@ export default function CompanionDashboard() {
           </div>
         </Card>
       </div>
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={!!cancelBookingId} onOpenChange={() => setCancelBookingId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Booking?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The seeker will receive a full refund. Cancelling confirmed bookings may affect your reliability score and future bookings.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Booking</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => cancelMutation.mutate(cancelBookingId)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Booking'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
