@@ -20,27 +20,60 @@ const AREAS = ['Downtown', 'Midtown', 'Uptown', 'Westside', 'Eastside', 'Central
 export default function Discover() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState('');
   const [filters, setFilters] = useState({
     city: '',
     area: '',
     gender: '',
     priceMin: '',
     priceMax: '',
-    language: ''
+    language: '',
+    minRating: ''
   });
   const [showFilters, setShowFilters] = useState(false);
 
+  const LANGUAGES = [
+    'English', 'Hindi', 'Bengali', 'Telugu', 'Marathi', 'Tamil',
+    'Gujarati', 'Kannada', 'Malayalam', 'Punjabi'
+  ];
+
+  const TIME_SLOTS = [
+    '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00',
+    '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'
+  ];
+
   const { data: availabilities = [], isLoading } = useQuery({
-    queryKey: ['availabilities', filters],
+    queryKey: ['availabilities', filters, selectedDate, selectedTime],
     queryFn: async () => {
       const query = { status: 'available' };
       if (filters.city) query.city = filters.city;
       if (filters.area) query.area = filters.area;
       if (filters.gender) query.gender = filters.gender;
+      if (selectedDate) query.date = format(selectedDate, 'yyyy-MM-dd');
       
-      const results = await base44.entities.Availability.filter(query, '-created_date', 50);
+      const results = await base44.entities.Availability.filter(query, '-created_date', 100);
       return results;
     }
+  });
+
+  const { data: companions = [] } = useQuery({
+    queryKey: ['companions', availabilities],
+    queryFn: async () => {
+      const companionIds = [...new Set(availabilities.map(a => a.companion_id))];
+      if (companionIds.length === 0) return [];
+      const users = await Promise.all(
+        companionIds.map(async (id) => {
+          try {
+            const result = await base44.entities.User.filter({ id });
+            return result[0];
+          } catch (e) {
+            return null;
+          }
+        })
+      );
+      return users.filter(Boolean);
+    },
+    enabled: availabilities.length > 0
   });
 
   const filteredAvailabilities = availabilities.filter(a => {
@@ -55,18 +88,31 @@ export default function Discover() {
       const availDate = new Date(a.date);
       if (availDate.toDateString() !== selectedDate.toDateString()) return false;
     }
+    if (selectedTime && a.start_time) {
+      const availStart = parseInt(a.start_time.split(':')[0]);
+      const selectedHour = parseInt(selectedTime.split(':')[0]);
+      const availEnd = parseInt(a.end_time?.split(':')[0] || '23');
+      if (selectedHour < availStart || selectedHour >= availEnd) return false;
+    }
     if (filters.priceMin && a.price_per_hour < Number(filters.priceMin)) return false;
     if (filters.priceMax && a.price_per_hour > Number(filters.priceMax)) return false;
+    if (filters.language && !a.languages?.includes(filters.language)) return false;
+    if (filters.minRating) {
+      const companion = companions.find(c => c?.id === a.companion_id);
+      const rating = companion?.average_rating || 0;
+      if (rating < parseFloat(filters.minRating)) return false;
+    }
     return true;
   });
 
   const clearFilters = () => {
-    setFilters({ city: '', area: '', gender: '', priceMin: '', priceMax: '', language: '' });
+    setFilters({ city: '', area: '', gender: '', priceMin: '', priceMax: '', language: '', minRating: '' });
     setSelectedDate(null);
+    setSelectedTime('');
     setSearchQuery('');
   };
 
-  const activeFilterCount = Object.values(filters).filter(Boolean).length + (selectedDate ? 1 : 0);
+  const activeFilterCount = Object.values(filters).filter(Boolean).length + (selectedDate ? 1 : 0) + (selectedTime ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -131,6 +177,22 @@ export default function Discover() {
                     </Popover>
                   </div>
 
+                  {/* Time */}
+                  <div>
+                    <label className="text-sm font-medium text-slate-700 mb-2 block">Time</label>
+                    <Select value={selectedTime} onValueChange={setSelectedTime}>
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue placeholder="Any time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={null}>Any time</SelectItem>
+                        {TIME_SLOTS.map(time => (
+                          <SelectItem key={time} value={time}>{time}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {/* City */}
                   <div>
                     <label className="text-sm font-medium text-slate-700 mb-2 block">City</label>
@@ -181,23 +243,56 @@ export default function Discover() {
 
                   {/* Price Range */}
                   <div>
-                    <label className="text-sm font-medium text-slate-700 mb-2 block">Price Range ($/hour)</label>
+                    <label className="text-sm font-medium text-slate-700 mb-2 block">Price Range (₹/hour)</label>
                     <div className="flex gap-3">
                       <Input
                         type="number"
-                        placeholder="Min"
+                        placeholder="Min ₹"
                         value={filters.priceMin}
                         onChange={(e) => setFilters({ ...filters, priceMin: e.target.value })}
                         className="h-12 rounded-xl"
                       />
                       <Input
                         type="number"
-                        placeholder="Max"
+                        placeholder="Max ₹"
                         value={filters.priceMax}
                         onChange={(e) => setFilters({ ...filters, priceMax: e.target.value })}
                         className="h-12 rounded-xl"
                       />
                     </div>
+                  </div>
+
+                  {/* Language */}
+                  <div>
+                    <label className="text-sm font-medium text-slate-700 mb-2 block">Language</label>
+                    <Select value={filters.language} onValueChange={(v) => setFilters({ ...filters, language: v })}>
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue placeholder="Any language" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={null}>Any language</SelectItem>
+                        {LANGUAGES.map(lang => (
+                          <SelectItem key={lang} value={lang}>{lang}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Minimum Rating */}
+                  <div>
+                    <label className="text-sm font-medium text-slate-700 mb-2 block">Minimum Rating</label>
+                    <Select value={filters.minRating} onValueChange={(v) => setFilters({ ...filters, minRating: v })}>
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue placeholder="Any rating" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={null}>Any rating</SelectItem>
+                        <SelectItem value="4.5">4.5+ ⭐</SelectItem>
+                        <SelectItem value="4.0">4.0+ ⭐</SelectItem>
+                        <SelectItem value="3.5">3.5+ ⭐</SelectItem>
+                        <SelectItem value="3.0">3.0+ ⭐</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -230,16 +325,46 @@ export default function Discover() {
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedDate(null)} />
                 </Badge>
               )}
+              {selectedTime && (
+                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                  {selectedTime}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedTime('')} />
+                </Badge>
+              )}
               {filters.city && (
                 <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
                   {filters.city}
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, city: '' })} />
                 </Badge>
               )}
+              {filters.area && (
+                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                  {filters.area}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, area: '' })} />
+                </Badge>
+              )}
               {filters.gender && (
                 <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
                   {filters.gender}
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, gender: '' })} />
+                </Badge>
+              )}
+              {filters.language && (
+                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                  {filters.language}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, language: '' })} />
+                </Badge>
+              )}
+              {filters.minRating && (
+                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                  {filters.minRating}+ ⭐
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, minRating: '' })} />
+                </Badge>
+              )}
+              {(filters.priceMin || filters.priceMax) && (
+                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                  ₹{filters.priceMin || '0'}-{filters.priceMax || '∞'}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, priceMin: '', priceMax: '' })} />
                 </Badge>
               )}
             </div>
