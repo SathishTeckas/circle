@@ -216,8 +216,9 @@ export default function Profile() {
         {/* Menu */}
         <Card className="divide-y divide-slate-100">
           {menuItems.map((item) => (
-            <button
+            <Link
               key={item.label}
+              to={createPageUrl(item.page)}
               className="w-full flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors"
             >
               <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
@@ -227,7 +228,7 @@ export default function Profile() {
                 {item.label}
               </span>
               <ChevronRight className="w-5 h-5 text-slate-400" />
-            </button>
+            </Link>
           ))}
         </Card>
 
