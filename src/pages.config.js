@@ -21,6 +21,7 @@ import Welcome from './pages/Welcome';
 import AdminManagement from './pages/AdminManagement';
 import EditProfile from './pages/EditProfile';
 import Notifications from './pages/Notifications';
+import LeaveReview from './pages/LeaveReview';
 import __Layout from './Layout.jsx';
 
 
@@ -48,6 +49,7 @@ export const PAGES = {
     "AdminManagement": AdminManagement,
     "EditProfile": EditProfile,
     "Notifications": Notifications,
+    "LeaveReview": LeaveReview,
 }
 
 export const pagesConfig = {
