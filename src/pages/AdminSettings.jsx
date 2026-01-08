@@ -47,9 +47,19 @@ export default function AdminSettings() {
       {/* Header */}
       <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
         <div className="px-4 md:px-8 py-4 max-w-7xl mx-auto">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Platform Settings</h1>
-            <p className="text-sm text-slate-600">Configure platform behavior</p>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => window.location.href = createPageUrl('AdminDashboard')}
+              className="rounded-xl"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Platform Settings</h1>
+              <p className="text-sm text-slate-600">Configure platform behavior</p>
+            </div>
           </div>
         </div>
       </div>
