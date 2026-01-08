@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { 
   ArrowLeft, Calendar, Clock, MapPin, MessageCircle, 
   Phone, CheckCircle, XCircle, AlertCircle, Camera,
-  Send, Shield, DollarSign
+  Send, Shield, IndianRupee
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -228,7 +228,7 @@ export default function BookingView() {
         {/* Payment Info */}
         <Card className="p-4 space-y-3">
           <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-emerald-600" />
+            <IndianRupee className="w-5 h-5 text-emerald-600" />
             Payment Details
           </h3>
           
@@ -239,11 +239,11 @@ export default function BookingView() {
             </div>
             <div className="flex justify-between">
               <span className="text-slate-600">Platform Fee (15%)</span>
-              <span className="text-slate-900">${booking.platform_fee?.toFixed(2)}</span>
+              <span className="text-slate-900">₹{booking.platform_fee?.toFixed(2)}</span>
             </div>
             <div className="flex justify-between border-t border-slate-100 pt-2 font-semibold">
               <span className="text-slate-900">Total</span>
-              <span className="text-slate-900">${booking.total_amount?.toFixed(2)}</span>
+              <span className="text-slate-900">₹{booking.total_amount?.toFixed(2)}</span>
             </div>
           </div>
 
