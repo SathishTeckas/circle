@@ -12,7 +12,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Switch } from '@/components/ui/switch';
 import { 
   Building, Plus, MapPin, Shield, Camera, Trash2,
-  ArrowLeft, CheckCircle, XCircle
+  ArrowLeft, CheckCircle, XCircle, Pencil
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -33,6 +33,7 @@ const AREAS = [
 export default function AdminVenues() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
+  const [editingVenue, setEditingVenue] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -62,15 +63,23 @@ export default function AdminVenues() {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      await base44.entities.Venue.create({
-        ...formData,
-        capacity: parseInt(formData.capacity) || 0,
-        verified: false
-      });
+      if (editingVenue) {
+        await base44.entities.Venue.update(editingVenue.id, {
+          ...formData,
+          capacity: parseInt(formData.capacity) || 0
+        });
+      } else {
+        await base44.entities.Venue.create({
+          ...formData,
+          capacity: parseInt(formData.capacity) || 0,
+          verified: false
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-venues'] });
       setShowForm(false);
+      setEditingVenue(null);
       setFormData({ name: '', address: '', city: '', area: '', type: 'restaurant', has_cctv: false, capacity: '', photo_url: '', google_map_link: '' });
     }
   });
@@ -94,6 +103,22 @@ export default function AdminVenues() {
   });
 
   const canSubmit = formData.name && formData.address && formData.city;
+
+  const handleEdit = (venue) => {
+    setEditingVenue(venue);
+    setFormData({
+      name: venue.name || '',
+      address: venue.address || '',
+      city: venue.city || '',
+      area: venue.area || '',
+      type: venue.type || 'restaurant',
+      has_cctv: venue.has_cctv || false,
+      capacity: venue.capacity?.toString() || '',
+      photo_url: venue.photo_url || '',
+      google_map_link: venue.google_map_link || ''
+    });
+    setShowForm(true);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -125,7 +150,7 @@ export default function AdminVenues() {
               </SheetTrigger>
               <SheetContent side="right" className="w-full sm:max-w-md">
                 <SheetHeader>
-                  <SheetTitle>Add New Venue</SheetTitle>
+                  <SheetTitle>{editingVenue ? 'Edit Venue' : 'Add New Venue'}</SheetTitle>
                 </SheetHeader>
 
                 <div className="space-y-4 mt-6">
@@ -242,7 +267,7 @@ export default function AdminVenues() {
                     disabled={!canSubmit || createMutation.isPending}
                     className="w-full h-12 bg-violet-600 hover:bg-violet-700 rounded-xl"
                   >
-                    {createMutation.isPending ? 'Adding...' : 'Add Venue'}
+                    {createMutation.isPending ? (editingVenue ? 'Updating...' : 'Adding...') : (editingVenue ? 'Update Venue' : 'Add Venue')}
                   </Button>
                 </div>
               </SheetContent>
@@ -338,6 +363,14 @@ export default function AdminVenues() {
                           Verify
                         </Button>
                       )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(venue)}
+                        className="border-violet-200 text-violet-600 hover:bg-violet-50"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
