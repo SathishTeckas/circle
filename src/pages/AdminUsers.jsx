@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { createPageUrl } from '../utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,16 @@ export default function AdminUsers() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('pending');
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const user = await base44.auth.me();
+      if (user.user_role !== 'admin' && user.role !== 'admin') {
+        window.location.href = createPageUrl('Discover');
+      }
+    };
+    checkAdmin();
+  }, []);
 
   const { data: allUsers = [], isLoading } = useQuery({
     queryKey: ['admin-all-users'],

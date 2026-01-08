@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { createPageUrl } from '../utils';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +24,16 @@ export default function AdminSettings() {
   });
 
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const user = await base44.auth.me();
+      if (user.user_role !== 'admin' && user.role !== 'admin') {
+        window.location.href = createPageUrl('Discover');
+      }
+    };
+    checkAdmin();
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);

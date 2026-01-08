@@ -18,6 +18,10 @@ export default function AdminDashboard() {
   useEffect(() => {
     const loadUser = async () => {
       const userData = await base44.auth.me();
+      if (userData.user_role !== 'admin' && userData.role !== 'admin') {
+        window.location.href = createPageUrl('Discover');
+        return;
+      }
       setUser(userData);
     };
     loadUser();
