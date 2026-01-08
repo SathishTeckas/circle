@@ -99,10 +99,11 @@ export default function BookingView() {
   });
 
   const cancelMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ refundPercentage }) => {
       await base44.entities.Booking.update(bookingId, { 
         status: 'cancelled',
-        escrow_status: 'refunded'
+        escrow_status: refundPercentage > 0 ? 'refunded' : 'held',
+        refund_amount: (booking.total_amount * refundPercentage) / 100
       });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
@@ -138,6 +139,30 @@ export default function BookingView() {
   const otherPartyPhoto = isSeeker ? booking.companion_photo : booking.seeker_photo;
   const status = statusConfig[booking.status] || statusConfig.pending;
   const StatusIcon = status.icon;
+
+  // Calculate refund based on time until meetup
+  const calculateRefund = () => {
+    if (!booking.date || !booking.start_time) return { percentage: 100, message: 'Full refund' };
+    
+    const [hours, minutes] = booking.start_time.split(':').map(Number);
+    const meetupDateTime = new Date(booking.date);
+    meetupDateTime.setHours(hours, minutes, 0, 0);
+    
+    const now = new Date();
+    const hoursUntilMeetup = (meetupDateTime - now) / (1000 * 60 * 60);
+    
+    if (hoursUntilMeetup >= 24) {
+      return { percentage: 100, message: 'Full refund (24+ hours notice)' };
+    } else if (hoursUntilMeetup >= 6) {
+      return { percentage: 50, message: '50% refund (6-24 hours notice)' };
+    } else if (hoursUntilMeetup >= 3) {
+      return { percentage: 25, message: '25% refund (3-6 hours notice)' };
+    } else {
+      return { percentage: 0, message: 'No refund (less than 3 hours notice)' };
+    }
+  };
+
+  const refundInfo = isSeeker && booking.status === 'accepted' ? calculateRefund() : null;
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
@@ -295,11 +320,51 @@ export default function BookingView() {
             </div>
             <Button
               variant="outline"
-              onClick={() => cancelMutation.mutate()}
+              onClick={() => cancelMutation.mutate({ refundPercentage: 100 })}
               disabled={cancelMutation.isPending}
               className="w-full mt-4 h-12 rounded-xl border-amber-300 text-amber-700 hover:bg-amber-100"
             >
               Cancel Request
+            </Button>
+          </Card>
+        )}
+
+        {booking.status === 'accepted' && isSeeker && refundInfo && (
+          <Card className="p-4 border-red-200 bg-red-50">
+            <h3 className="font-semibold text-red-900 mb-2">Cancel Booking</h3>
+            <div className="bg-white rounded-xl p-3 mb-3">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-sm text-slate-600">Cancellation Policy</span>
+                <span className={cn(
+                  "text-sm font-semibold",
+                  refundInfo.percentage === 100 ? "text-emerald-600" :
+                  refundInfo.percentage >= 50 ? "text-amber-600" :
+                  "text-red-600"
+                )}>
+                  {refundInfo.message}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-slate-600">Refund Amount</span>
+                <span className="text-lg font-bold text-slate-900">
+                  ₹{((booking.total_amount * refundInfo.percentage) / 100).toFixed(2)}
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-red-700 mb-3">
+              {refundInfo.percentage === 0 
+                ? "No refund will be issued as it's less than 3 hours until meetup."
+                : refundInfo.percentage === 100
+                ? "You'll receive a full refund to your original payment method."
+                : "A partial refund will be processed to your original payment method."}
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => cancelMutation.mutate({ refundPercentage: refundInfo.percentage })}
+              disabled={cancelMutation.isPending}
+              className="w-full h-12 rounded-xl border-red-300 text-red-700 hover:bg-red-100"
+            >
+              {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Booking'}
             </Button>
           </Card>
         )}
