@@ -85,11 +85,9 @@ export default function BookingView() {
         chat_enabled: true
       });
       // Update availability status to booked
-      if (booking.availability_id) {
-        await base44.entities.Availability.update(booking.availability_id, { 
-          status: 'booked'
-        });
-      }
+      await base44.entities.Availability.update(booking.availability_id, {
+        status: 'booked'
+      });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
   });
@@ -100,12 +98,6 @@ export default function BookingView() {
         status: 'rejected',
         escrow_status: 'refunded'
       });
-      // Set availability back to available
-      if (booking.availability_id) {
-        await base44.entities.Availability.update(booking.availability_id, { 
-          status: 'available'
-        });
-      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
   });
@@ -117,12 +109,6 @@ export default function BookingView() {
         escrow_status: refundPercentage > 0 ? 'refunded' : 'held',
         refund_amount: (booking.total_amount * refundPercentage) / 100
       });
-      // Set availability back to available
-      if (booking.availability_id) {
-        await base44.entities.Availability.update(booking.availability_id, { 
-          status: 'available'
-        });
-      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
   });
