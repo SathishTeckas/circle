@@ -159,7 +159,9 @@ export default function ChatView() {
   };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
 
   const isSeeker = user?.id === booking?.seeker_id;
@@ -217,9 +219,9 @@ export default function ChatView() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="flex flex-col h-screen bg-slate-50">
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-20">
+      <div className="bg-white border-b border-slate-100 flex-shrink-0">
         <div className="px-4 py-4 max-w-lg mx-auto flex items-center gap-4">
           <button
             onClick={() => window.history.back()}
@@ -264,7 +266,7 @@ export default function ChatView() {
 
       {/* Suggested Venues */}
       {suggestedVenues.length > 0 && (
-        <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 border-b border-violet-100 px-4 py-4">
+        <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 border-b border-violet-100 px-4 py-4 flex-shrink-0">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -316,41 +318,43 @@ export default function ChatView() {
         </div>
       )}
 
-      {/* Messages */}
-      <div className="px-4 py-4 max-w-lg mx-auto w-full space-y-3 pb-28">
-        <AnimatePresence>
-          {messages.map((msg) => (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={cn(
-                "flex",
-                msg.sender_id === user?.id ? "justify-end" : "justify-start"
-              )}
-            >
-              <div className={cn(
-                "max-w-[75%] px-4 py-2.5 rounded-2xl",
-                msg.sender_id === user?.id
-                  ? "bg-violet-600 text-white rounded-br-md"
-                  : "bg-white text-slate-900 rounded-bl-md shadow-sm"
-              )}>
-                <p className="text-sm">{msg.content}</p>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-        {messages.length === 0 && (
-          <div className="text-center py-16">
-            <MessageCircle className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-sm text-slate-500">No messages yet. Start the conversation!</p>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
+      {/* Messages Container */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-4 py-4 max-w-lg mx-auto w-full space-y-3">
+          <AnimatePresence>
+            {messages.map((msg) => (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={cn(
+                  "flex",
+                  msg.sender_id === user?.id ? "justify-end" : "justify-start"
+                )}
+              >
+                <div className={cn(
+                  "max-w-[75%] px-4 py-2.5 rounded-2xl",
+                  msg.sender_id === user?.id
+                    ? "bg-violet-600 text-white rounded-br-md"
+                    : "bg-white text-slate-900 rounded-bl-md shadow-sm"
+                )}>
+                  <p className="text-sm">{msg.content}</p>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          {messages.length === 0 && (
+            <div className="text-center py-16">
+              <MessageCircle className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <p className="text-sm text-slate-500">No messages yet. Start the conversation!</p>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* Input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-[60]">
+      <div className="bg-white border-t border-slate-200 shadow-lg flex-shrink-0">
         <div className="px-4 py-3 max-w-lg mx-auto">
           <div className="flex gap-2">
             <Input
