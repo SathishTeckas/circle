@@ -7,6 +7,16 @@ import { motion } from 'framer-motion';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 
+// Custom styled switch override
+const switchStyles = `
+  .switch-custom[data-state="checked"] {
+    background-color: rgb(139 92 246) !important;
+  }
+  .switch-custom[data-state="unchecked"] {
+    background-color: rgb(226 232 240) !important;
+  }
+`;
+
 export default function KYCVerification() {
   const [user, setUser] = useState(null);
   const [step, setStep] = useState('intro'); // intro, permissions, pending, verified
@@ -60,6 +70,7 @@ export default function KYCVerification() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white px-6 py-12">
+      <style>{switchStyles}</style>
       <div className="max-w-md mx-auto">
         {/* Intro Step */}
         {step === 'intro' && (
@@ -149,6 +160,7 @@ export default function KYCVerification() {
                 <Switch
                   checked={permissions.location}
                   onCheckedChange={(checked) => setPermissions({ ...permissions, location: checked })}
+                  className="switch-custom data-[state=checked]:bg-violet-600"
                 />
               </div>
 
@@ -165,6 +177,7 @@ export default function KYCVerification() {
                 <Switch
                   checked={permissions.notifications}
                   onCheckedChange={(checked) => setPermissions({ ...permissions, notifications: checked })}
+                  className="switch-custom data-[state=checked]:bg-violet-600"
                 />
               </div>
             </div>
