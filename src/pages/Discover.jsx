@@ -10,7 +10,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Search, SlidersHorizontal, MapPin, Calendar as CalendarIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
-import { formatTime12Hour } from '../utils';
+import { formatTime12Hour } from '../components/utils/timeFormat';
 import CompanionCard from '@/components/companion/CompanionCard';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';

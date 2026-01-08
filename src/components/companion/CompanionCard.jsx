@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
+import { formatTimeRange12Hour } from '../utils/timeFormat';
 import { MapPin, Clock, Globe, Heart, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import SafetyBadge from '@/components/ui/SafetyBadge';
@@ -65,7 +66,7 @@ export default function CompanionCard({ availability, variant = 'default', showC
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <Clock className="w-4 h-4 text-violet-500" />
-            <span>{availability.start_time} - {availability.end_time}</span>
+            <span>{formatTimeRange12Hour(availability.start_time, availability.end_time)}</span>
           </div>
           {availability.languages?.length > 0 && (
             <div className="flex items-center gap-2 text-sm text-slate-600">

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { createPageUrl, formatTime12Hour } from '../utils';
+import { createPageUrl } from '../utils';
+import { formatTime12Hour } from '../components/utils/timeFormat';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
