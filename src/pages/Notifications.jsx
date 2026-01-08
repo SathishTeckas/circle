@@ -1,17 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { createPageUrl } from '../utils';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowLeft, Bell, CheckCircle, AlertCircle, Calendar, 
-  MessageCircle, Star, Clock
+  MessageCircle, Star, Clock, IndianRupee, XCircle, Wallet
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 
+const NOTIFICATION_ICONS = {
+  booking_request: { icon: Calendar, color: 'bg-violet-100 text-violet-600' },
+  booking_accepted: { icon: CheckCircle, color: 'bg-emerald-100 text-emerald-600' },
+  booking_rejected: { icon: XCircle, color: 'bg-red-100 text-red-600' },
+  booking_cancelled: { icon: AlertCircle, color: 'bg-orange-100 text-orange-600' },
+  payment_received: { icon: IndianRupee, color: 'bg-green-100 text-green-600' },
+  payment_refunded: { icon: Wallet, color: 'bg-blue-100 text-blue-600' },
+  new_message: { icon: MessageCircle, color: 'bg-blue-100 text-blue-600' },
+  review_received: { icon: Star, color: 'bg-amber-100 text-amber-600' },
+  booking_reminder: { icon: Clock, color: 'bg-purple-100 text-purple-600' },
+  payout_processed: { icon: Wallet, color: 'bg-emerald-100 text-emerald-600' }
+};
+
 export default function Notifications() {
   const [user, setUser] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -19,51 +35,55 @@ export default function Notifications() {
       setUser(userData);
     };
     loadUser();
+
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
   }, []);
 
-  // Mock notifications - in production this would be from a real entity
-  const notifications = [
-    {
-      id: 1,
-      type: 'booking',
-      title: 'New Booking Request',
-      message: 'Sarah wants to book you for tomorrow at 6 PM',
-      time: new Date(),
-      read: false,
-      icon: Calendar,
-      color: 'bg-violet-100 text-violet-600'
+  const { data: notifications = [], isLoading } = useQuery({
+    queryKey: ['notifications', user?.id],
+    queryFn: async () => {
+      return await base44.entities.Notification.filter(
+        { user_id: user.id }, 
+        '-created_date', 
+        50
+      );
     },
-    {
-      id: 2,
-      type: 'message',
-      title: 'New Message',
-      message: 'John sent you a message about the meetup',
-      time: new Date(Date.now() - 3600000),
-      read: false,
-      icon: MessageCircle,
-      color: 'bg-blue-100 text-blue-600'
+    enabled: !!user?.id,
+    refetchInterval: 10000 // Refresh every 10 seconds
+  });
+
+  const markAsReadMutation = useMutation({
+    mutationFn: async (notificationId) => {
+      await base44.entities.Notification.update(notificationId, { read: true });
     },
-    {
-      id: 3,
-      type: 'review',
-      title: 'New Review',
-      message: 'Emma left you a 5-star review!',
-      time: new Date(Date.now() - 7200000),
-      read: true,
-      icon: Star,
-      color: 'bg-amber-100 text-amber-600'
-    },
-    {
-      id: 4,
-      type: 'booking',
-      title: 'Booking Confirmed',
-      message: 'Your meetup with Mike is confirmed for Friday',
-      time: new Date(Date.now() - 86400000),
-      read: true,
-      icon: CheckCircle,
-      color: 'bg-emerald-100 text-emerald-600'
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     }
-  ];
+  });
+
+  const markAllAsReadMutation = useMutation({
+    mutationFn: async () => {
+      const unreadNotifs = notifications.filter(n => !n.read);
+      await Promise.all(
+        unreadNotifs.map(n => base44.entities.Notification.update(n.id, { read: true }))
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    }
+  });
+
+  const handleNotificationClick = (notification) => {
+    if (!notification.read) {
+      markAsReadMutation.mutate(notification.id);
+    }
+    if (notification.action_url) {
+      window.location.href = notification.action_url;
+    }
+  };
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -88,8 +108,13 @@ export default function Notifications() {
               </div>
             </div>
             {unreadCount > 0 && (
-              <Button variant="ghost" className="text-violet-600 text-sm">
-                Mark all read
+              <Button 
+                variant="ghost" 
+                className="text-violet-600 text-sm"
+                onClick={() => markAllAsReadMutation.mutate()}
+                disabled={markAllAsReadMutation.isPending}
+              >
+                {markAllAsReadMutation.isPending ? 'Marking...' : 'Mark all read'}
               </Button>
             )}
           </div>
@@ -97,7 +122,11 @@ export default function Notifications() {
       </div>
 
       <div className="px-4 py-6 max-w-lg mx-auto">
-        {notifications.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : notifications.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Bell className="w-8 h-8 text-slate-400" />
@@ -108,7 +137,8 @@ export default function Notifications() {
         ) : (
           <div className="space-y-3">
             {notifications.map((notification, idx) => {
-              const Icon = notification.icon;
+              const iconConfig = NOTIFICATION_ICONS[notification.type] || NOTIFICATION_ICONS.booking_request;
+              const Icon = iconConfig.icon;
               return (
                 <motion.div
                   key={notification.id}
@@ -116,9 +146,14 @@ export default function Notifications() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
                 >
-                  <Card className={`p-4 ${notification.read ? 'bg-white' : 'bg-violet-50 border-violet-200'}`}>
+                  <Card 
+                    className={`p-4 cursor-pointer transition-all hover:shadow-md ${
+                      notification.read ? 'bg-white' : 'bg-violet-50 border-violet-200'
+                    }`}
+                    onClick={() => handleNotificationClick(notification)}
+                  >
                     <div className="flex items-start gap-4">
-                      <div className={`w-12 h-12 ${notification.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                      <div className={`w-12 h-12 ${iconConfig.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
                         <Icon className="w-6 h-6" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -129,9 +164,15 @@ export default function Notifications() {
                           )}
                         </div>
                         <p className="text-sm text-slate-600 mb-2">{notification.message}</p>
+                        {notification.amount && (
+                          <div className="flex items-center gap-1 text-sm font-semibold text-emerald-600 mb-2">
+                            <IndianRupee className="w-4 h-4" />
+                            {notification.amount.toFixed(2)}
+                          </div>
+                        )}
                         <div className="flex items-center gap-2 text-xs text-slate-500">
                           <Clock className="w-3 h-3" />
-                          {format(notification.time, 'MMM d, h:mm a')}
+                          {format(new Date(notification.created_date), 'MMM d, h:mm a')}
                         </div>
                       </div>
                     </div>
