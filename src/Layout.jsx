@@ -67,7 +67,7 @@ export default function Layout({ children, currentPageName }) {
 
   const companionNav = [
     { name: 'Dashboard', icon: Home, page: 'CompanionDashboard' },
-    { name: 'Availability', icon: Calendar, page: 'ManageAvailability' },
+    { name: 'Bookings', icon: Calendar, page: 'CompanionBookings' },
     { name: 'Chat', icon: MessageCircle, page: 'ChatList' },
     { name: 'Wallet', icon: Wallet, page: 'Wallet' },
     { name: 'Profile', icon: User, page: 'Profile' },

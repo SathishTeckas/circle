@@ -22,6 +22,7 @@ import RoleSelection from './pages/RoleSelection';
 import TermsAcceptance from './pages/TermsAcceptance';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
+import CompanionBookings from './pages/CompanionBookings';
 import __Layout from './Layout.jsx';
 
 
@@ -50,6 +51,7 @@ export const PAGES = {
     "TermsAcceptance": TermsAcceptance,
     "Wallet": Wallet,
     "Welcome": Welcome,
+    "CompanionBookings": CompanionBookings,
 }
 
 export const pagesConfig = {
