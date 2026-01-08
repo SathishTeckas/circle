@@ -1,0 +1,257 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { ArrowLeft, MessageCircle, Send, MapPin, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+
+export default function ChatView() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const bookingId = urlParams.get('id');
+  const queryClient = useQueryClient();
+  const messagesEndRef = useRef(null);
+  
+  const [user, setUser] = useState(null);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const userData = await base44.auth.me();
+      setUser(userData);
+    };
+    loadUser();
+  }, []);
+
+  const { data: booking } = useQuery({
+    queryKey: ['booking', bookingId],
+    queryFn: async () => {
+      const results = await base44.entities.Booking.filter({ id: bookingId });
+      return results[0];
+    },
+    enabled: !!bookingId
+  });
+
+  // Check if chat is available (24 hours after meetup for cancelled/completed)
+  const isChatAvailable = () => {
+    if (!booking?.chat_enabled) return false;
+    
+    if (['cancelled', 'completed'].includes(booking.status)) {
+      if (!booking.date || !booking.start_time) return false;
+      
+      const [hours, minutes] = booking.start_time.split(':').map(Number);
+      const meetupDateTime = new Date(booking.date);
+      meetupDateTime.setHours(hours, minutes, 0, 0);
+      
+      const twentyFourHoursAfter = new Date(meetupDateTime);
+      twentyFourHoursAfter.setHours(twentyFourHoursAfter.getHours() + 24);
+      
+      return new Date() < twentyFourHoursAfter;
+    }
+    
+    return true;
+  };
+
+  const chatAvailable = booking ? isChatAvailable() : false;
+
+  const { data: messages = [] } = useQuery({
+    queryKey: ['messages', bookingId],
+    queryFn: async () => {
+      return await base44.entities.Message.filter({ booking_id: bookingId }, 'created_date', 100);
+    },
+    enabled: !!bookingId && chatAvailable,
+    refetchInterval: 3000
+  });
+
+  const { data: suggestedVenues = [] } = useQuery({
+    queryKey: ['suggested-venues', booking?.city, booking?.area],
+    queryFn: async () => {
+      const query = { verified: true };
+      if (booking?.city) query.city = booking.city;
+      return await base44.entities.Venue.filter(query, '-created_date', 5);
+    },
+    enabled: !!booking?.city && chatAvailable
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: async (content) => {
+      await base44.entities.Message.create({
+        booking_id: bookingId,
+        sender_id: user.id,
+        sender_name: user.full_name,
+        content
+      });
+    },
+    onSuccess: () => {
+      setMessage('');
+      queryClient.invalidateQueries({ queryKey: ['messages', bookingId] });
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    }
+  });
+
+  const handleSendMessage = () => {
+    if (!message.trim()) return;
+    sendMessageMutation.mutate(message);
+  };
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const isSeeker = user?.id === booking?.seeker_id;
+  const otherPartyName = isSeeker ? booking?.companion_name : booking?.seeker_name;
+  const otherPartyPhoto = isSeeker ? booking?.companion_photo : booking?.seeker_photo;
+
+  if (!booking) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!chatAvailable) {
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+          <div className="px-4 py-4 max-w-lg mx-auto flex items-center gap-4">
+            <button
+              onClick={() => window.history.back()}
+              className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+            >
+              <ArrowLeft className="w-5 h-5 text-slate-700" />
+            </button>
+            <h1 className="font-semibold text-slate-900">Chat</h1>
+          </div>
+        </div>
+        
+        <div className="px-4 py-12 max-w-lg mx-auto">
+          <Card className="p-6 text-center bg-slate-50">
+            <MessageCircle className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <h3 className="font-semibold text-slate-900 mb-1">Chat Not Available</h3>
+            <p className="text-sm text-slate-600">
+              {booking.chat_enabled && ['cancelled', 'completed'].includes(booking.status)
+                ? 'Chat access has expired (24 hours after meetup time)'
+                : 'Chat will be available once the booking is confirmed'
+              }
+            </p>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Header */}
+      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+        <div className="px-4 py-4 max-w-lg mx-auto flex items-center gap-4">
+          <button
+            onClick={() => window.history.back()}
+            className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+          >
+            <ArrowLeft className="w-5 h-5 text-slate-700" />
+          </button>
+          <div className="flex items-center gap-3 flex-1">
+            <img
+              src={otherPartyPhoto || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'}
+              alt={otherPartyName}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+            <div>
+              <h1 className="font-semibold text-slate-900">{otherPartyName || 'Chat'}</h1>
+              <p className="text-xs text-slate-500">
+                {booking.date} • {booking.start_time}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Suggested Venues */}
+      {suggestedVenues.length > 0 && (
+        <div className="bg-white border-b border-slate-100 px-4 py-3">
+          <div className="max-w-lg mx-auto">
+            <p className="text-xs text-slate-500 mb-2 flex items-center gap-1">
+              <MapPin className="w-3 h-3" />
+              Suggested restaurants in {booking.city}
+            </p>
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
+              {suggestedVenues.map(venue => (
+                <button
+                  key={venue.id}
+                  onClick={() => setMessage(`How about ${venue.name}? ${venue.address}`)}
+                  className="flex-shrink-0 bg-slate-50 border border-slate-200 rounded-xl p-3 hover:border-violet-300 hover:bg-violet-50 transition-all text-left min-w-[200px]"
+                >
+                  <p className="font-medium text-slate-900 text-sm">{venue.name}</p>
+                  <p className="text-xs text-slate-600 mt-1">{venue.area || venue.address}</p>
+                  {venue.has_cctv && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <Shield className="w-3 h-3 text-emerald-600" />
+                      <span className="text-xs text-emerald-600">CCTV Available</span>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 max-w-lg mx-auto w-full space-y-3">
+        <AnimatePresence>
+          {messages.map((msg) => (
+            <motion.div
+              key={msg.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={cn(
+                "flex",
+                msg.sender_id === user?.id ? "justify-end" : "justify-start"
+              )}
+            >
+              <div className={cn(
+                "max-w-[75%] px-4 py-2.5 rounded-2xl",
+                msg.sender_id === user?.id
+                  ? "bg-violet-600 text-white rounded-br-md"
+                  : "bg-white text-slate-900 rounded-bl-md shadow-sm"
+              )}>
+                <p className="text-sm">{msg.content}</p>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        {messages.length === 0 && (
+          <div className="text-center py-16">
+            <MessageCircle className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <p className="text-sm text-slate-500">No messages yet. Start the conversation!</p>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div className="sticky bottom-0 bg-white border-t border-slate-100 px-4 py-4 safe-bottom">
+        <div className="max-w-lg mx-auto flex gap-2">
+          <Input
+            placeholder="Type a message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            className="h-12 rounded-xl"
+          />
+          <Button
+            onClick={handleSendMessage}
+            disabled={!message.trim() || sendMessageMutation.isPending}
+            className="h-12 w-12 rounded-xl bg-violet-600 hover:bg-violet-700 flex-shrink-0"
+          >
+            <Send className="w-5 h-5" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -9,8 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { 
   ArrowLeft, Calendar, Clock, MapPin, MessageCircle, 
-  Phone, CheckCircle, XCircle, AlertCircle, Camera,
-  Send, Shield, IndianRupee
+  CheckCircle, XCircle, AlertCircle, Shield, IndianRupee
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -34,7 +33,6 @@ export default function BookingView() {
   const queryClient = useQueryClient();
   
   const [user, setUser] = useState(null);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -52,62 +50,6 @@ export default function BookingView() {
     },
     enabled: !!bookingId,
     refetchInterval: 5000
-  });
-
-  // Check if chat is available (24 hours after meetup for cancelled/completed)
-  const isChatAvailable = () => {
-    if (!booking?.chat_enabled) return false;
-    
-    if (['cancelled', 'completed'].includes(booking.status)) {
-      if (!booking.date || !booking.start_time) return false;
-      
-      const [hours, minutes] = booking.start_time.split(':').map(Number);
-      const meetupDateTime = new Date(booking.date);
-      meetupDateTime.setHours(hours, minutes, 0, 0);
-      
-      const twentyFourHoursAfter = new Date(meetupDateTime);
-      twentyFourHoursAfter.setHours(twentyFourHoursAfter.getHours() + 24);
-      
-      return new Date() < twentyFourHoursAfter;
-    }
-    
-    return true;
-  };
-
-  const chatAvailable = booking ? isChatAvailable() : false;
-
-  const { data: messages = [] } = useQuery({
-    queryKey: ['messages', bookingId],
-    queryFn: async () => {
-      return await base44.entities.Message.filter({ booking_id: bookingId }, 'created_date', 100);
-    },
-    enabled: !!bookingId && chatAvailable,
-    refetchInterval: 3000
-  });
-
-  const { data: suggestedVenues = [] } = useQuery({
-    queryKey: ['suggested-venues', booking?.city, booking?.area],
-    queryFn: async () => {
-      const query = { verified: true };
-      if (booking?.city) query.city = booking.city;
-      return await base44.entities.Venue.filter(query, '-created_date', 5);
-    },
-    enabled: !!booking?.city && chatAvailable
-  });
-
-  const sendMessageMutation = useMutation({
-    mutationFn: async (content) => {
-      await base44.entities.Message.create({
-        booking_id: bookingId,
-        sender_id: user.id,
-        sender_name: user.full_name,
-        content
-      });
-    },
-    onSuccess: () => {
-      setMessage('');
-      queryClient.invalidateQueries({ queryKey: ['messages', bookingId] });
-    }
   });
 
   const acceptMutation = useMutation({
@@ -155,11 +97,6 @@ export default function BookingView() {
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
   });
-
-  const handleSendMessage = () => {
-    if (!message.trim()) return;
-    sendMessageMutation.mutate(message);
-  };
 
   if (isLoading) {
     return (
@@ -433,105 +370,15 @@ export default function BookingView() {
           </Card>
         )}
 
-        {/* Chat Section */}
-        {chatAvailable && (
-          <Card className="p-4">
-            <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <MessageCircle className="w-5 h-5 text-violet-600" />
-              Chat
-            </h3>
-
-            {/* Suggested Venues */}
-            {suggestedVenues.length > 0 && (
-              <div className="mb-4">
-                <p className="text-xs text-slate-500 mb-2 flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  Suggested restaurants in {booking.city}
-                </p>
-                <div className="flex gap-2 overflow-x-auto pb-2">
-                  {suggestedVenues.map(venue => (
-                    <button
-                      key={venue.id}
-                      onClick={() => setMessage(`How about ${venue.name}? ${venue.address}`)}
-                      className="flex-shrink-0 bg-white border border-slate-200 rounded-xl p-3 hover:border-violet-300 hover:bg-violet-50 transition-all text-left min-w-[200px]"
-                    >
-                      <p className="font-medium text-slate-900 text-sm">{venue.name}</p>
-                      <p className="text-xs text-slate-600 mt-1">{venue.area || venue.address}</p>
-                      {venue.has_cctv && (
-                        <div className="flex items-center gap-1 mt-1">
-                          <Shield className="w-3 h-3 text-emerald-600" />
-                          <span className="text-xs text-emerald-600">CCTV Available</span>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            <div className="bg-slate-50 rounded-xl p-4 h-64 overflow-y-auto mb-4 space-y-3">
-              <AnimatePresence>
-                {messages.map((msg) => (
-                  <motion.div
-                    key={msg.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={cn(
-                      "flex",
-                      msg.sender_id === user?.id ? "justify-end" : "justify-start"
-                    )}
-                  >
-                    <div className={cn(
-                      "max-w-[75%] px-4 py-2.5 rounded-2xl",
-                      msg.sender_id === user?.id
-                        ? "bg-violet-600 text-white rounded-br-md"
-                        : "bg-white text-slate-900 rounded-bl-md shadow-sm"
-                    )}>
-                      <p className="text-sm">{msg.content}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              {messages.length === 0 && (
-                <p className="text-center text-sm text-slate-500 py-8">
-                  No messages yet. Start the conversation!
-                </p>
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              <Input
-                placeholder="Type a message..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                className="h-12 rounded-xl"
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={!message.trim() || sendMessageMutation.isPending}
-                className="h-12 w-12 rounded-xl bg-violet-600 hover:bg-violet-700"
-              >
-                <Send className="w-5 h-5" />
-              </Button>
-            </div>
-
-            <p className="text-xs text-slate-500 mt-2 text-center">
-              Use this chat to coordinate the meetup venue and timing
-            </p>
-            </Card>
-            )}
-
-            {/* Chat Expired Message */}
-            {booking.chat_enabled && !chatAvailable && ['cancelled', 'completed'].includes(booking.status) && (
-            <Card className="p-6 text-center bg-slate-50">
-            <MessageCircle className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="font-semibold text-slate-900 mb-1">Chat Expired</h3>
-            <p className="text-sm text-slate-600">
-              Chat access has expired (24 hours after meetup time)
-            </p>
-            </Card>
-            )}
+        {/* Open Chat Button */}
+        {booking.chat_enabled && (
+          <Link to={createPageUrl(`ChatView?id=${bookingId}`)}>
+            <Button className="w-full h-14 bg-violet-600 hover:bg-violet-700 rounded-xl">
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Open Chat
+            </Button>
+          </Link>
+        )}
       </div>
     </div>
   );
