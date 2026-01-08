@@ -4,9 +4,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, MessageCircle, Send, MapPin, Shield } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Send, MapPin, Shield, MoreVertical } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import BlockUserButton from '../components/profile/BlockUserButton';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function ChatView() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -158,6 +166,17 @@ export default function ChatView() {
   const isSeeker = user?.id === booking?.seeker_id;
   const otherPartyName = isSeeker ? booking?.companion_name : booking?.seeker_name;
   const otherPartyPhoto = isSeeker ? booking?.companion_photo : booking?.seeker_photo;
+  const otherPartyId = isSeeker ? booking?.companion_id : booking?.seeker_id;
+
+  const { data: blockedUsers = [] } = useQuery({
+    queryKey: ['blocked-users', user?.id],
+    queryFn: async () => {
+      return await base44.entities.BlockedUser.filter({ blocker_id: user.id });
+    },
+    enabled: !!user?.id
+  });
+
+  const isBlocked = blockedUsers.some(b => b.blocked_id === otherPartyId);
 
   if (!booking) {
     return (
@@ -222,6 +241,25 @@ export default function ChatView() {
               </p>
             </div>
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <MoreVertical className="w-5 h-5 text-slate-600" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <div className="w-full">
+                  <BlockUserButton 
+                    userId={otherPartyId}
+                    userName={otherPartyName}
+                    isBlocked={isBlocked}
+                    className="w-full"
+                  />
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

@@ -26,6 +26,7 @@ import Welcome from './pages/Welcome';
 import ChatView from './pages/ChatView';
 import PrivacySafety from './pages/PrivacySafety';
 import HelpSupport from './pages/HelpSupport';
+import CalendarView from './pages/CalendarView';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +59,7 @@ export const PAGES = {
     "ChatView": ChatView,
     "PrivacySafety": PrivacySafety,
     "HelpSupport": HelpSupport,
+    "CalendarView": CalendarView,
 }
 
 export const pagesConfig = {

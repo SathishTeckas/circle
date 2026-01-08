@@ -59,7 +59,7 @@ export default function Layout({ children, currentPageName }) {
 
   const seekerNav = [
     { name: 'Discover', icon: Search, page: 'Discover' },
-    { name: 'Bookings', icon: Calendar, page: 'MyBookings' },
+    { name: 'Calendar', icon: Calendar, page: 'CalendarView' },
     { name: 'Groups', icon: Users, page: 'GroupEvents' },
     { name: 'Chat', icon: MessageCircle, page: 'ChatList' },
     { name: 'Profile', icon: User, page: 'Profile' },
@@ -67,7 +67,7 @@ export default function Layout({ children, currentPageName }) {
 
   const companionNav = [
     { name: 'Dashboard', icon: Home, page: 'CompanionDashboard' },
-    { name: 'Bookings', icon: Calendar, page: 'CompanionBookings' },
+    { name: 'Calendar', icon: Calendar, page: 'CalendarView' },
     { name: 'Chat', icon: MessageCircle, page: 'ChatList' },
     { name: 'Wallet', icon: Wallet, page: 'Wallet' },
     { name: 'Profile', icon: User, page: 'Profile' },
