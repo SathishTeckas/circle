@@ -143,9 +143,11 @@ export default function CompanionDashboard() {
               <p className="text-violet-200 text-sm">Welcome back</p>
               <h1 className="text-2xl font-bold text-white">{user?.full_name || 'Companion'}</h1>
             </div>
-            <div className="text-white">
-              <NotificationBell user={user} />
-            </div>
+            {user && (
+              <div className="text-white">
+                <NotificationBell user={user} />
+              </div>
+            )}
           </div>
 
           {/* Stats */}
