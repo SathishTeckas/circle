@@ -12,6 +12,7 @@ import { Search, SlidersHorizontal, MapPin, Calendar as CalendarIcon, X } from '
 import { format } from 'date-fns';
 import { formatTime12Hour } from '../components/utils/timeFormat';
 import CompanionCard from '@/components/companion/CompanionCard';
+import NotificationBell from '@/components/layout/NotificationBell';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +23,7 @@ const TIME_SLOTS_24H = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '1
 const TIME_SLOTS = TIME_SLOTS_24H.map(time => ({ value: time, label: formatTime12Hour(time) }));
 
 export default function Discover() {
+  const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState('');
@@ -35,6 +37,14 @@ export default function Discover() {
     minRating: ''
   });
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const userData = await base44.auth.me();
+      setUser(userData);
+    };
+    loadUser();
+  }, []);
 
   const { data: availabilities = [], isLoading } = useQuery({
     queryKey: ['availabilities', filters, selectedDate],
@@ -96,7 +106,10 @@ export default function Discover() {
       {/* Header */}
       <div className="sticky top-0 bg-white border-b border-slate-100 z-30">
         <div className="px-4 py-4 max-w-lg mx-auto">
-          <h1 className="text-2xl font-bold text-slate-900 mb-4">Discover</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-slate-900">Discover</h1>
+            {user && <NotificationBell user={user} />}
+          </div>
           
           {/* Search Bar */}
           <div className="flex gap-2">

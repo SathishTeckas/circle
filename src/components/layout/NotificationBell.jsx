@@ -18,7 +18,7 @@ export default function NotificationBell({ user }) {
       return notifications.length;
     },
     enabled: !!user?.id,
-    refetchInterval: 10000 // Refresh every 10 seconds
+    refetchInterval: 3000 // Refresh every 3 seconds
   });
 
   return (
