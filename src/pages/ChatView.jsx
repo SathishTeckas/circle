@@ -318,12 +318,12 @@ export default function ChatView() {
                 </div>
               </div>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            <div className="space-y-3">
               {suggestedVenues.map(venue => (
                 <button
                   key={venue.id}
                   onClick={() => setMessage(`How about meeting at ${venue.name}?\n📍 ${venue.address}${venue.has_cctv ? '\n🎥 CCTV available for safety' : ''}`)}
-                  className="flex-shrink-0 bg-white border-2 border-violet-200 rounded-2xl p-4 hover:border-violet-400 hover:shadow-md transition-all text-left min-w-[240px] group"
+                  className="w-full bg-white border-2 border-violet-200 rounded-2xl p-4 hover:border-violet-400 hover:shadow-md transition-all text-left group"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <p className="font-semibold text-slate-900 text-sm leading-tight pr-2">{venue.name}</p>
@@ -331,7 +331,7 @@ export default function ChatView() {
                       <Shield className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     )}
                   </div>
-                  <p className="text-xs text-slate-600 mb-2 line-clamp-1">{venue.address}</p>
+                  <p className="text-xs text-slate-600 mb-2">{venue.address}</p>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs bg-violet-100 text-violet-700 px-2 py-1 rounded-full">
                       {venue.area || venue.city}
