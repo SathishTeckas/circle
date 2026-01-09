@@ -318,40 +318,53 @@ export default function ChatView() {
                 </div>
               </div>
             </div>
-            <div className="space-y-3">
-              {suggestedVenues.map(venue => (
-                <button
-                  key={venue.id}
-                  onClick={() => setMessage(`How about meeting at ${venue.name}?\n📍 ${venue.address}${venue.has_cctv ? '\n🎥 CCTV available for safety' : ''}`)}
-                  className="w-full bg-white border-2 border-violet-200 rounded-2xl p-4 hover:border-violet-400 hover:shadow-md transition-all text-left group"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <p className="font-semibold text-slate-900 text-sm leading-tight pr-2">{venue.name}</p>
-                    {venue.verified && (
-                      <Shield className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    )}
+            <div className="space-y-2">
+              {(() => {
+                // Group venues by area
+                const venuesByArea = suggestedVenues.reduce((acc, venue) => {
+                  const area = venue.area || venue.city;
+                  if (!acc[area]) acc[area] = [];
+                  acc[area].push(venue);
+                  return acc;
+                }, {});
+
+                return Object.entries(venuesByArea).map(([area, venues]) => (
+                  <div key={area} className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-slate-600">{area}</span>
+                      <span className="text-xs text-slate-400">• {venues.length} venue{venues.length > 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {venues.map(venue => (
+                        <button
+                          key={venue.id}
+                          onClick={() => setMessage(`How about meeting at ${venue.name}?\n📍 ${venue.address}${venue.has_cctv ? '\n🎥 CCTV available for safety' : ''}`)}
+                          className="bg-white border-2 border-violet-200 rounded-xl p-3 hover:border-violet-400 hover:shadow-md transition-all text-left group"
+                        >
+                          <div className="flex items-start gap-2 mb-2">
+                            <p className="font-semibold text-slate-900 text-sm leading-tight flex-1">{venue.name}</p>
+                            {venue.verified && (
+                              <Shield className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {venue.has_cctv && (
+                              <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full">
+                                🎥
+                              </span>
+                            )}
+                            {venue.type && (
+                              <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full capitalize">
+                                {venue.type}
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-600 mb-2">{venue.address}</p>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs bg-violet-100 text-violet-700 px-2 py-1 rounded-full">
-                      {venue.area || venue.city}
-                    </span>
-                    {venue.has_cctv && (
-                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full flex items-center gap-1">
-                        🎥 CCTV
-                      </span>
-                    )}
-                    {venue.type && (
-                      <span className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded-full capitalize">
-                        {venue.type}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-violet-600 mt-2 group-hover:text-violet-700 font-medium">
-                    Tap to suggest →
-                  </p>
-                </button>
-              ))}
+                ));
+              })()}
             </div>
           </div>
         </div>
