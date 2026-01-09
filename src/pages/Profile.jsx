@@ -14,6 +14,7 @@ import { motion } from 'framer-motion';
 import SafetyBadge from '@/components/ui/SafetyBadge';
 import RatingStars from '@/components/ui/RatingStars';
 import PhotoCarousel from '@/components/profile/PhotoCarousel';
+import NotificationBell from '../components/layout/NotificationBell';
 import { cn } from '@/lib/utils';
 
 export default function Profile() {
@@ -87,6 +88,9 @@ export default function Profile() {
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-xl font-bold text-white">Profile</h1>
+            <div className="text-white">
+              <NotificationBell user={user} />
+            </div>
           </div>
         </div>
       </div>

@@ -144,6 +144,8 @@ export default function ChatView() {
     enabled: !!booking?.city && chatAvailable
   });
 
+  const isSeeker = user?.id === booking?.seeker_id;
+
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
       await base44.entities.Message.create({
@@ -173,7 +175,7 @@ export default function ChatView() {
   });
 
   const handleSendMessage = () => {
-    if (!message.trim()) return;
+    if (!message.trim() || !user?.id || !booking) return;
     sendMessageMutation.mutate(message);
   };
 
@@ -182,8 +184,6 @@ export default function ChatView() {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
-
-  const isSeeker = user?.id === booking?.seeker_id;
   const otherPartyName = isSeeker ? booking?.companion_name : booking?.seeker_name;
   const otherPartyPhoto = isSeeker ? booking?.companion_photo : booking?.seeker_photo;
   const otherPartyId = isSeeker ? booking?.companion_id : booking?.seeker_id;
