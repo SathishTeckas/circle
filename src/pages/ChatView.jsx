@@ -268,7 +268,10 @@ export default function ChatView() {
           >
             <ArrowLeft className="w-5 h-5 text-slate-700" />
           </button>
-          <div className="flex items-center gap-3 flex-1">
+          <Link 
+            to={createPageUrl(`UserProfile?id=${otherPartyId}`)}
+            className="flex items-center gap-3 flex-1"
+          >
             <img
               src={otherPartyPhoto || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'}
               alt={otherPartyName}
@@ -280,7 +283,7 @@ export default function ChatView() {
                 Booking ID: {booking.id.slice(0, 8).toUpperCase()}
               </p>
             </div>
-          </div>
+          </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
