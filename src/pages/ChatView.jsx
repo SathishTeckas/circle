@@ -148,7 +148,9 @@ export default function ChatView() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
-      await base44.entities.Message.create({
+      const currentIsSeeker = user?.id === booking?.seeker_id;
+      
+      const newMessage = await base44.entities.Message.create({
         booking_id: bookingId,
         sender_id: user.id,
         sender_name: user.full_name,
@@ -156,7 +158,8 @@ export default function ChatView() {
       });
 
       // Create notification for the other party
-      const otherUserId = isSeeker ? booking.companion_id : booking.seeker_id;
+      const otherUserId = currentIsSeeker ? booking.companion_id : booking.seeker_id;
+      
       await base44.entities.Notification.create({
         user_id: otherUserId,
         type: 'new_message',
@@ -165,24 +168,26 @@ export default function ChatView() {
         booking_id: bookingId,
         action_url: createPageUrl(`ChatView?id=${bookingId}`)
       });
+
+      return newMessage;
     },
     onSuccess: () => {
       setMessage('');
       queryClient.invalidateQueries({ queryKey: ['messages', bookingId] });
       queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
       setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    },
+    onError: (error) => {
+      console.error('Failed to send message:', error);
+      alert('Failed to send message. Please try again.');
     }
   });
 
-  const handleSendMessage = async (e) => {
-    e?.preventDefault();
+  const handleSendMessage = (e) => {
+    if (e) e.preventDefault();
     if (!message.trim() || !user?.id || !booking || sendMessageMutation.isPending) return;
     
-    try {
-      await sendMessageMutation.mutateAsync(message);
-    } catch (error) {
-      console.error('Failed to send message:', error);
-    }
+    sendMessageMutation.mutate(message);
   };
 
   useEffect(() => {
