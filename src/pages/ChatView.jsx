@@ -148,26 +148,35 @@ export default function ChatView() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
-      const currentIsSeeker = user?.id === booking?.seeker_id;
+      if (!user?.id || !bookingId || !content?.trim()) {
+        throw new Error('Missing required data');
+      }
+
+      console.log('Sending message:', { userId: user.id, bookingId, content });
       
       const newMessage = await base44.entities.Message.create({
         booking_id: bookingId,
         sender_id: user.id,
-        sender_name: user.full_name,
-        content
+        sender_name: user.full_name || 'Anonymous',
+        content: content.trim()
       });
 
+      console.log('Message created:', newMessage);
+
       // Create notification for the other party
-      const otherUserId = currentIsSeeker ? booking.companion_id : booking.seeker_id;
+      const currentIsSeeker = user.id === booking?.seeker_id;
+      const otherUserId = currentIsSeeker ? booking?.companion_id : booking?.seeker_id;
       
-      await base44.entities.Notification.create({
-        user_id: otherUserId,
-        type: 'new_message',
-        title: '💬 New Message',
-        message: `${user.full_name}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
-        booking_id: bookingId,
-        action_url: createPageUrl(`ChatView?id=${bookingId}`)
-      });
+      if (otherUserId) {
+        await base44.entities.Notification.create({
+          user_id: otherUserId,
+          type: 'new_message',
+          title: '💬 New Message',
+          message: `${user.full_name || 'Someone'}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+          booking_id: bookingId,
+          action_url: createPageUrl(`ChatView?id=${bookingId}`)
+        });
+      }
 
       return newMessage;
     },
@@ -178,8 +187,8 @@ export default function ChatView() {
       setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     },
     onError: (error) => {
-      console.error('Failed to send message:', error);
-      alert('Failed to send message. Please try again.');
+      console.error('Send message error:', error);
+      alert(`Failed to send message: ${error.message || 'Please try again'}`);
     }
   });
 
