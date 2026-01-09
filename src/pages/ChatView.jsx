@@ -174,9 +174,15 @@ export default function ChatView() {
     }
   });
 
-  const handleSendMessage = () => {
-    if (!message.trim() || !user?.id || !booking) return;
-    sendMessageMutation.mutate(message);
+  const handleSendMessage = async (e) => {
+    e?.preventDefault();
+    if (!message.trim() || !user?.id || !booking || sendMessageMutation.isPending) return;
+    
+    try {
+      await sendMessageMutation.mutateAsync(message);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
   useEffect(() => {
@@ -380,7 +386,12 @@ export default function ChatView() {
               placeholder="Type a message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage(e);
+                }
+              }}
               className="h-12 rounded-xl flex-1"
             />
             <Button
