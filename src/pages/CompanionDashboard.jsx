@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import NotificationBell from '../components/layout/NotificationBell';
 import { 
   Calendar, Clock, IndianRupee, Star, TrendingUp, Bell, 
-  ChevronRight, Plus, Users, CheckCircle, XCircle
+  ChevronRight, Plus, Users as UsersIcon, CheckCircle, XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -133,6 +133,16 @@ export default function CompanionDashboard() {
   const avgRating = user?.average_rating;
   const hasRating = avgRating && user?.total_reviews > 0;
 
+  const { data: groupEvents = [] } = useQuery({
+    queryKey: ['group-events-upcoming', user?.city],
+    queryFn: async () => {
+      const query = { status: 'open' };
+      if (user?.city) query.city = user.city;
+      return await base44.entities.GroupEvent.filter(query, '-date', 10);
+    },
+    enabled: !!user?.id
+  });
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -158,7 +168,7 @@ export default function CompanionDashboard() {
               <p className="text-xs text-white/70">Total Earned</p>
             </Card>
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
-              <Users className="w-5 h-5 mb-1 text-white/80" />
+              <UsersIcon className="w-5 h-5 mb-1 text-white/80" />
               <p className="text-2xl font-bold">{completedBookings.length}</p>
               <p className="text-xs text-white/70">Meetups</p>
             </Card>
@@ -289,6 +299,49 @@ export default function CompanionDashboard() {
             </div>
           )}
         </Card>
+
+        {/* Group Events */}
+        {groupEvents.length > 0 && (
+          <Card className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+                <UsersIcon className="w-5 h-5 text-violet-600" />
+                Group Events
+              </h3>
+              <Link to={createPageUrl('GroupEvents')} className="text-sm text-violet-600 font-medium">
+                View All
+              </Link>
+            </div>
+
+            <div className="space-y-3">
+              {groupEvents.slice(0, 3).map((event) => (
+                <Link
+                  key={event.id}
+                  to={createPageUrl('GroupEvents')}
+                  className="block bg-gradient-to-br from-violet-50 to-fuchsia-50 rounded-xl p-4 border border-violet-200 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-slate-900">{event.title || 'Group Meetup'}</h4>
+                      <div className="flex items-center gap-2 text-sm text-slate-600 mt-1">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {event.date ? format(new Date(event.date), 'EEE, MMM d') : 'TBD'} • {event.time}
+                      </div>
+                    </div>
+                    <Badge className="bg-violet-200 text-violet-700">
+                      {event.current_participants || 0}/{event.max_participants || 8}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-600">
+                    <span>{event.language}</span>
+                    <span>•</span>
+                    <span>{event.venue_name || event.city}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </Card>
+        )}
 
         {/* Earnings Summary */}
         <Card className="p-4">
