@@ -7,7 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, MessageCircle, Send, MapPin, Shield, MoreVertical } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Send, MapPin, Shield, MoreVertical, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import BlockUserButton from '../components/profile/BlockUserButton';

@@ -62,7 +62,7 @@ export default function UserProfile() {
   }
 
   const hasRating = user.average_rating && user.total_reviews > 0;
-  const photos = user.photos || [];
+  const photos = user.photos || user.profile_photos || [];
   const profilePhoto = photos[0] || user.profile_photo || user.profile_picture || user.photo;
   const interests = user.interests || [];
   const languages = user.languages || [];
