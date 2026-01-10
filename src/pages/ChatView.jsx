@@ -27,6 +27,8 @@ export default function ChatView() {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState('');
   const [lastMessageCount, setLastMessageCount] = useState(0);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -146,6 +148,32 @@ export default function ChatView() {
   });
 
   const isSeeker = user?.id === booking?.seeker_id;
+
+  const handleFileUpload = async (files) => {
+    if (!files || files.length === 0) return;
+    
+    setUploadingFile(true);
+    const urls = [];
+    
+    try {
+      for (const file of files) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        urls.push(file_url);
+      }
+      
+      const fileMessage = urls.length === 1 
+        ? `📎 ${urls[0]}`
+        : `📎 ${urls.length} files:\n${urls.join('\n')}`;
+      
+      await sendMessageMutation.mutateAsync(fileMessage);
+    } catch (error) {
+      console.error('File upload error:', error);
+      alert('Failed to upload files');
+    } finally {
+      setUploadingFile(false);
+      setSelectedFiles([]);
+    }
+  };
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
@@ -378,26 +406,44 @@ export default function ChatView() {
       <div className="flex-1 overflow-y-auto">
         <div className="px-4 py-4 max-w-lg mx-auto w-full space-y-3">
           <AnimatePresence>
-            {messages.map((msg) => (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={cn(
-                  "flex",
-                  msg.sender_id === user?.id ? "justify-end" : "justify-start"
-                )}
-              >
-                <div className={cn(
-                  "max-w-[75%] px-4 py-2.5 rounded-2xl",
-                  msg.sender_id === user?.id
-                    ? "bg-violet-600 text-white rounded-br-md"
-                    : "bg-white text-slate-900 rounded-bl-md shadow-sm"
-                )}>
-                  <p className="text-sm">{msg.content}</p>
-                </div>
-              </motion.div>
-            ))}
+            {messages.map((msg) => {
+              const isImage = msg.content?.includes('https://') && 
+                (msg.content.includes('.jpg') || msg.content.includes('.jpeg') || 
+                 msg.content.includes('.png') || msg.content.includes('.gif') ||
+                 msg.content.includes('.webp'));
+              const isFile = msg.content?.startsWith('📎');
+
+              return (
+                <motion.div
+                  key={msg.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={cn(
+                    "flex",
+                    msg.sender_id === user?.id ? "justify-end" : "justify-start"
+                  )}
+                >
+                  <div className={cn(
+                    "max-w-[75%] rounded-2xl overflow-hidden",
+                    msg.sender_id === user?.id
+                      ? "bg-violet-600 text-white rounded-br-md"
+                      : "bg-white text-slate-900 rounded-bl-md shadow-sm"
+                  )}>
+                    {isImage ? (
+                      <a href={msg.content.replace('📎 ', '').split('\n')[0]} target="_blank" rel="noopener noreferrer">
+                        <img 
+                          src={msg.content.replace('📎 ', '').split('\n')[0]} 
+                          alt="Shared image"
+                          className="max-w-full h-auto max-h-96 object-contain cursor-pointer hover:opacity-90"
+                        />
+                      </a>
+                    ) : (
+                      <p className="text-sm px-4 py-2.5 whitespace-pre-wrap break-words">{msg.content}</p>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
           {messages.length === 0 && (
             <div className="text-center py-16">
@@ -413,6 +459,36 @@ export default function ChatView() {
       <div className="bg-white border-t border-slate-200 shadow-lg flex-shrink-0">
         <div className="px-4 py-3 max-w-lg mx-auto">
           <div className="flex gap-2">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => {
+                if (e.target.files) {
+                  handleFileUpload(Array.from(e.target.files));
+                }
+              }}
+              className="hidden"
+              id="file-upload"
+              disabled={uploadingFile}
+            />
+            <label htmlFor="file-upload">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={uploadingFile}
+                className="h-12 w-12 rounded-xl flex-shrink-0"
+                asChild
+              >
+                <span className="cursor-pointer flex items-center justify-center">
+                  {uploadingFile ? (
+                    <div className="w-4 h-4 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <ImageIcon className="w-5 h-5" />
+                  )}
+                </span>
+              </Button>
+            </label>
             <Input
               placeholder="Type a message..."
               value={message}
@@ -424,10 +500,11 @@ export default function ChatView() {
                 }
               }}
               className="h-12 rounded-xl flex-1"
+              disabled={uploadingFile}
             />
             <Button
               onClick={handleSendMessage}
-              disabled={!message.trim() || sendMessageMutation.isPending}
+              disabled={!message.trim() || sendMessageMutation.isPending || uploadingFile}
               className="h-12 w-12 rounded-xl bg-violet-600 hover:bg-violet-700 flex-shrink-0"
             >
               <Send className="w-5 h-5" />

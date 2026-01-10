@@ -63,6 +63,7 @@ export default function UserProfile() {
 
   const hasRating = user.average_rating && user.total_reviews > 0;
   const photos = user.photos || [];
+  const profilePhoto = photos[0] || user.profile_photo || user.profile_picture || user.photo;
   const interests = user.interests || [];
   const languages = user.languages || [];
 
@@ -85,10 +86,10 @@ export default function UserProfile() {
         {/* Photo Section */}
         {photos && photos.length > 0 ? (
           <PhotoCarousel photos={photos} />
-        ) : (photos?.[0] || user.profile_photo) ? (
+        ) : profilePhoto ? (
           <Card className="p-0 overflow-hidden">
             <img 
-              src={photos?.[0] || user.profile_photo}
+              src={profilePhoto}
               alt={user.full_name}
               className="w-full h-96 object-cover"
             />
