@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Users, IndianRupee, Calendar, Shield, TrendingUp, 
-  AlertTriangle, MapPin, ChevronRight, Building
+  AlertTriangle, MapPin, ChevronRight, Building, Settings
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -70,6 +70,7 @@ export default function AdminDashboard() {
     { label: 'Manage Venues', desc: `${venues.length} registered venues`, icon: Building, page: 'AdminVenues' },
     { label: 'Group Events', desc: `${groupEvents.length} events`, icon: Calendar, page: 'AdminGroups' },
     { label: 'Disputes', desc: `${disputedBookings.length} open disputes`, icon: AlertTriangle, page: 'AdminDisputes', alert: disputedBookings.length > 0 },
+    { label: 'Platform Settings', desc: 'Configure fees and policies', icon: Settings, page: 'AdminSettings' },
   ];
 
   return (
