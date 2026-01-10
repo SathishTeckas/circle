@@ -29,6 +29,8 @@ import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
 import AdminPayouts from './pages/AdminPayouts';
+import RaiseDispute from './pages/RaiseDispute';
+import AdminDisputes from './pages/AdminDisputes';
 import __Layout from './Layout.jsx';
 
 
@@ -64,6 +66,8 @@ export const PAGES = {
     "Wallet": Wallet,
     "Welcome": Welcome,
     "AdminPayouts": AdminPayouts,
+    "RaiseDispute": RaiseDispute,
+    "AdminDisputes": AdminDisputes,
 }
 
 export const pagesConfig = {
