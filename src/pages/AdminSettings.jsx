@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,8 +11,10 @@ import {
   Settings, IndianRupee, Clock, Shield, Bell, ArrowLeft,
   Save, AlertTriangle
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function AdminSettings() {
+  const queryClient = useQueryClient();
   const [settings, setSettings] = useState({
     platform_fee: 15,
     request_timeout_minutes: 30,
@@ -23,8 +26,6 @@ export default function AdminSettings() {
     review_delay_hours: 3
   });
 
-  const [saving, setSaving] = useState(false);
-
   useEffect(() => {
     const checkAdmin = async () => {
       const user = await base44.auth.me();
@@ -35,12 +36,36 @@ export default function AdminSettings() {
     checkAdmin();
   }, []);
 
-  const handleSave = async () => {
-    setSaving(true);
-    // In production, this would save to a settings entity
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setSaving(false);
-  };
+  const { data: savedSettings, isLoading } = useQuery({
+    queryKey: ['app-settings'],
+    queryFn: async () => {
+      const results = await base44.entities.AppSettings.list('', 1);
+      return results[0];
+    }
+  });
+
+  useEffect(() => {
+    if (savedSettings) {
+      setSettings(savedSettings);
+    }
+  }, [savedSettings]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      if (savedSettings?.id) {
+        await base44.entities.AppSettings.update(savedSettings.id, settings);
+      } else {
+        await base44.entities.AppSettings.create(settings);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['app-settings'] });
+      toast.success('Settings saved successfully');
+    },
+    onError: () => {
+      toast.error('Failed to save settings');
+    }
+  });
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -222,11 +247,11 @@ export default function AdminSettings() {
 
         {/* Save Button */}
         <Button
-          onClick={handleSave}
-          disabled={saving}
+          onClick={() => saveMutation.mutate()}
+          disabled={saveMutation.isPending || isLoading}
           className="w-full h-14 bg-violet-600 hover:bg-violet-700 rounded-xl text-lg"
         >
-          {saving ? (
+          {saveMutation.isPending ? (
             <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
