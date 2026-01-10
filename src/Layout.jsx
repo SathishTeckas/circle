@@ -187,7 +187,12 @@ export default function Layout({ children, currentPageName }) {
           --primary-foreground: 255 255 255;
         }
         .safe-bottom {
-          padding-bottom: env(safe-area-inset-bottom, 16px);
+          padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+        }
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+          .pb-20 {
+            padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
+          }
         }
       `}</style>
       
@@ -201,8 +206,8 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Bottom Navigation */}
       {!hideNav && user && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 safe-bottom z-50">
-          <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
+        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+          <div className="flex justify-around items-center h-16 max-w-lg mx-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px))' }}>
             {navItems.map((item) => {
               const isActive = currentPageName === item.page;
               return (
