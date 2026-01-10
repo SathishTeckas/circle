@@ -16,6 +16,7 @@ export default function CalendarView() {
   const [user, setUser] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -68,7 +69,7 @@ export default function CalendarView() {
       {/* Header */}
       <div className="bg-white border-b border-slate-100 px-4 py-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold text-slate-900">Calendar</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Bookings</h1>
           <p className="text-sm text-slate-600">
             {isCompanion ? 'Manage your availability and bookings' : 'View your upcoming bookings'}
           </p>
@@ -76,8 +77,81 @@ export default function CalendarView() {
       </div>
 
       <div className="px-4 py-6 max-w-4xl mx-auto space-y-6">
-        {/* Month Navigation */}
-        <Card className="p-4">
+        {/* All Bookings List */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-slate-900">Your Bookings</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCalendar(!showCalendar)}
+              className="rounded-xl"
+            >
+              <CalendarIcon className="w-4 h-4 mr-2" />
+              {showCalendar ? 'Hide Calendar' : 'Show Calendar'}
+            </Button>
+          </div>
+
+          {bookings.length === 0 ? (
+            <Card className="p-8 text-center">
+              <CalendarIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <h3 className="font-semibold text-slate-900 mb-1">No bookings yet</h3>
+              <p className="text-sm text-slate-600">
+                {isCompanion ? 'Your bookings will appear here' : 'Book a companion to get started'}
+              </p>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {bookings.map((booking) => (
+                <Link 
+                  key={booking.id} 
+                  to={createPageUrl(`BookingView?id=${booking.id}`)}
+                  className="block"
+                >
+                  <Card className="p-4 hover:shadow-md transition-all border-l-4 border-l-violet-600">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <p className="font-semibold text-slate-900">
+                          {isCompanion ? booking.seeker_name : booking.companion_name}
+                        </p>
+                        <p className="text-sm text-slate-600">
+                          {format(new Date(booking.date), 'EEEE, MMMM d, yyyy')}
+                        </p>
+                        <p className="text-sm text-slate-600">
+                          {formatTime12Hour(booking.start_time)} - {formatTime12Hour(booking.end_time)}
+                        </p>
+                        {booking.venue_name && (
+                          <p className="text-xs text-slate-500 mt-1">📍 {booking.venue_name}</p>
+                        )}
+                      </div>
+                      <Badge className={
+                        booking.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
+                        booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                        booking.status === 'completed' ? 'bg-blue-100 text-blue-700' :
+                        'bg-slate-100 text-slate-700'
+                      }>
+                        {booking.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                      <span className="text-sm font-medium text-slate-900">₹{booking.total_amount}</span>
+                      <span className="text-xs text-slate-500">{booking.duration_hours}h</span>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Calendar View - Collapsible */}
+        {showCalendar && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <Card className="p-4">
           <div className="flex items-center justify-between mb-6">
             <button
               onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
@@ -167,65 +241,67 @@ export default function CalendarView() {
           </Link>
         )}
 
-        {/* Selected Day Events */}
-        {selectedDate && (
-          <Card className="p-4">
-            <h3 className="font-semibold text-slate-900 mb-4">
-              {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-            </h3>
+            {/* Selected Day Events */}
+            {selectedDate && (
+              <Card className="p-4 mt-4">
+                <h3 className="font-semibold text-slate-900 mb-4">
+                  {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+                </h3>
 
-            {selectedEvents.bookings.length === 0 && selectedEvents.availabilities.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-8">No events on this day</p>
-            ) : (
-              <div className="space-y-3">
-                {/* Bookings */}
-                {selectedEvents.bookings.map((booking) => (
-                  <Link 
-                    key={booking.id} 
-                    to={createPageUrl(`BookingView?id=${booking.id}`)}
-                    className="block"
-                  >
-                    <Card className="p-3 hover:shadow-md transition-all bg-violet-50 border-violet-200">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium text-slate-900">
-                            {isCompanion ? booking.seeker_name : booking.companion_name}
-                          </p>
-                          <p className="text-sm text-slate-600">
-                            {formatTime12Hour(booking.start_time)} - {formatTime12Hour(booking.end_time)}
-                          </p>
+                {selectedEvents.bookings.length === 0 && selectedEvents.availabilities.length === 0 ? (
+                  <p className="text-sm text-slate-500 text-center py-8">No events on this day</p>
+                ) : (
+                  <div className="space-y-3">
+                    {/* Bookings */}
+                    {selectedEvents.bookings.map((booking) => (
+                      <Link 
+                        key={booking.id} 
+                        to={createPageUrl(`BookingView?id=${booking.id}`)}
+                        className="block"
+                      >
+                        <Card className="p-3 hover:shadow-md transition-all bg-violet-50 border-violet-200">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-medium text-slate-900">
+                                {isCompanion ? booking.seeker_name : booking.companion_name}
+                              </p>
+                              <p className="text-sm text-slate-600">
+                                {formatTime12Hour(booking.start_time)} - {formatTime12Hour(booking.end_time)}
+                              </p>
+                            </div>
+                            <Badge className={
+                              booking.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
+                              booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                              'bg-slate-100 text-slate-700'
+                            }>
+                              {booking.status}
+                            </Badge>
+                          </div>
+                        </Card>
+                      </Link>
+                    ))}
+
+                    {/* Availabilities */}
+                    {isCompanion && selectedEvents.availabilities.map((slot) => (
+                      <Card key={slot.id} className="p-3 bg-emerald-50 border-emerald-200">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-slate-900">Available Slot</p>
+                            <p className="text-sm text-slate-600">
+                              {formatTime12Hour(slot.start_time)} - {formatTime12Hour(slot.end_time)} • ₹{slot.price_per_hour}/hr
+                            </p>
+                          </div>
+                          <Badge className="bg-emerald-100 text-emerald-700">
+                            Open
+                          </Badge>
                         </div>
-                        <Badge className={
-                          booking.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
-                          booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                          'bg-slate-100 text-slate-700'
-                        }>
-                          {booking.status}
-                        </Badge>
-                      </div>
-                    </Card>
-                  </Link>
-                ))}
-
-                {/* Availabilities */}
-                {isCompanion && selectedEvents.availabilities.map((slot) => (
-                  <Card key={slot.id} className="p-3 bg-emerald-50 border-emerald-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-slate-900">Available Slot</p>
-                        <p className="text-sm text-slate-600">
-                          {formatTime12Hour(slot.start_time)} - {formatTime12Hour(slot.end_time)} • ₹{slot.price_per_hour}/hr
-                        </p>
-                      </div>
-                      <Badge className="bg-emerald-100 text-emerald-700">
-                        Open
-                      </Badge>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </Card>
             )}
-          </Card>
+          </motion.div>
         )}
       </div>
     </div>
