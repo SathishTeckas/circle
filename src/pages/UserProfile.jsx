@@ -83,8 +83,16 @@ export default function UserProfile() {
 
       <div className="px-4 py-6 max-w-lg mx-auto space-y-4">
         {/* Photo Carousel */}
-        {photos.length > 0 && (
+        {photos.length > 0 ? (
           <PhotoCarousel photos={photos} />
+        ) : user.profile_photo && (
+          <Card className="p-0 overflow-hidden">
+            <img 
+              src={user.profile_photo} 
+              alt={user.full_name}
+              className="w-full h-96 object-cover"
+            />
+          </Card>
         )}
 
         {/* User Info */}
