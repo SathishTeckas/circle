@@ -77,6 +77,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Dashboard', icon: Shield, page: 'AdminDashboard' },
     { name: 'Users', icon: Users, page: 'AdminUsers' },
     { name: 'Venues', icon: Home, page: 'AdminVenues' },
+    { name: 'Payouts', icon: Wallet, page: 'AdminPayouts' },
     { name: 'Admins', icon: Shield, page: 'AdminManagement' },
     { name: 'Settings', icon: Settings, page: 'AdminSettings' },
   ];
