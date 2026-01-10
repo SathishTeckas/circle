@@ -28,6 +28,7 @@ import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
+import AdminPayouts from './pages/AdminPayouts';
 import __Layout from './Layout.jsx';
 
 
@@ -62,6 +63,7 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "Wallet": Wallet,
     "Welcome": Welcome,
+    "AdminPayouts": AdminPayouts,
 }
 
 export const pagesConfig = {
