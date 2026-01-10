@@ -29,6 +29,9 @@ export default function ChatView() {
   const [lastMessageCount, setLastMessageCount] = useState(0);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [showImagePreview, setShowImagePreview] = useState(false);
+  const [previewImages, setPreviewImages] = useState([]);
+  const [viewingImage, setViewingImage] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -149,14 +152,28 @@ export default function ChatView() {
 
   const isSeeker = user?.id === booking?.seeker_id;
 
-  const handleFileUpload = async (files) => {
+  const handleFileSelect = async (files) => {
     if (!files || files.length === 0) return;
     
+    // Create preview URLs
+    const previews = Array.from(files).map(file => ({
+      file,
+      preview: URL.createObjectURL(file)
+    }));
+    
+    setPreviewImages(previews);
+    setShowImagePreview(true);
+  };
+
+  const handleConfirmSend = async () => {
+    if (previewImages.length === 0) return;
+    
     setUploadingFile(true);
+    setShowImagePreview(false);
     const urls = [];
     
     try {
-      for (const file of files) {
+      for (const { file } of previewImages) {
         const { file_url } = await base44.integrations.Core.UploadFile({ file });
         urls.push(file_url);
       }
@@ -166,6 +183,10 @@ export default function ChatView() {
         : `📎 ${urls.length} files:\n${urls.join('\n')}`;
       
       await sendMessageMutation.mutateAsync(fileMessage);
+      
+      // Cleanup preview URLs
+      previewImages.forEach(({ preview }) => URL.revokeObjectURL(preview));
+      setPreviewImages([]);
     } catch (error) {
       console.error('File upload error:', error);
       alert('Failed to upload files');
@@ -173,6 +194,12 @@ export default function ChatView() {
       setUploadingFile(false);
       setSelectedFiles([]);
     }
+  };
+
+  const handleCancelPreview = () => {
+    previewImages.forEach(({ preview }) => URL.revokeObjectURL(preview));
+    setPreviewImages([]);
+    setShowImagePreview(false);
   };
 
   const sendMessageMutation = useMutation({
@@ -429,15 +456,18 @@ export default function ChatView() {
                       ? "bg-violet-600 text-white rounded-br-md"
                       : "bg-white text-slate-900 rounded-bl-md shadow-sm"
                   )}>
-                    {isImage ? (
-                      <a href={msg.content.replace('📎 ', '').split('\n')[0]} target="_blank" rel="noopener noreferrer">
-                        <img 
-                          src={msg.content.replace('📎 ', '').split('\n')[0]} 
-                          alt="Shared image"
-                          className="max-w-full h-auto max-h-96 object-contain cursor-pointer hover:opacity-90"
-                        />
-                      </a>
-                    ) : (
+                   {isImage ? (
+                     <button 
+                       onClick={() => setViewingImage(msg.content.replace('📎 ', '').split('\n')[0])}
+                       className="block"
+                     >
+                       <img 
+                         src={msg.content.replace('📎 ', '').split('\n')[0]} 
+                         alt="Shared image"
+                         className="max-w-full h-auto max-h-96 object-contain cursor-pointer hover:opacity-90"
+                       />
+                     </button>
+                   ) : (
                       <p className="text-sm px-4 py-2.5 whitespace-pre-wrap break-words">{msg.content}</p>
                     )}
                   </div>
@@ -465,7 +495,7 @@ export default function ChatView() {
               multiple
               onChange={(e) => {
                 if (e.target.files) {
-                  handleFileUpload(Array.from(e.target.files));
+                  handleFileSelect(Array.from(e.target.files));
                 }
               }}
               className="hidden"
@@ -512,6 +542,101 @@ export default function ChatView() {
           </div>
         </div>
       </div>
+
+      {/* Image Preview Modal (before sending) */}
+      <AnimatePresence>
+        {showImagePreview && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex flex-col"
+            onClick={handleCancelPreview}
+          >
+            <div className="flex items-center justify-between p-4">
+              <button onClick={handleCancelPreview} className="text-white">
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+              <span className="text-white text-sm">{previewImages.length} photo{previewImages.length > 1 ? 's' : ''}</span>
+              <div className="w-6" />
+            </div>
+            
+            <div className="flex-1 flex items-center justify-center p-4 overflow-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="grid gap-4" style={{ gridTemplateColumns: previewImages.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                {previewImages.map(({ preview }, idx) => (
+                  <img
+                    key={idx}
+                    src={preview}
+                    alt={`Preview ${idx + 1}`}
+                    className="max-h-[70vh] w-auto object-contain rounded-lg"
+                  />
+                ))}
+              </div>
+            </div>
+            
+            <div className="p-4 bg-black/50 backdrop-blur">
+              <Input
+                placeholder="Add a caption..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="mb-3 bg-white/10 border-white/20 text-white placeholder:text-white/50"
+              />
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleCancelPreview}
+                  className="flex-1 border-white/20 text-white hover:bg-white/10"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmSend}
+                  disabled={uploadingFile}
+                  className="flex-1 bg-violet-600 hover:bg-violet-700"
+                >
+                  {uploadingFile ? 'Sending...' : 'Send'}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Image Viewer Modal (viewing sent images) */}
+      <AnimatePresence>
+        {viewingImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/95 z-50 flex flex-col"
+            onClick={() => setViewingImage(null)}
+          >
+            <div className="flex items-center justify-between p-4">
+              <button onClick={() => setViewingImage(null)} className="text-white">
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+              <span className="text-white text-sm">Photo</span>
+              <a 
+                href={viewingImage} 
+                download 
+                className="text-white text-sm"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Download
+              </a>
+            </div>
+            
+            <div className="flex-1 flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
+              <img
+                src={viewingImage}
+                alt="Full size"
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
