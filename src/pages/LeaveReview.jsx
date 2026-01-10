@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 
 export default function LeaveReview() {
   const urlParams = new URLSearchParams(window.location.search);
-  const bookingId = urlParams.get('id');
+  const bookingId = urlParams.get('bookingId');
   
   const [user, setUser] = useState(null);
   const [rating, setRating] = useState(0);
