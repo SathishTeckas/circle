@@ -7,9 +7,20 @@ import { Badge } from '@/components/ui/badge';
 import SafetyBadge from '@/components/ui/SafetyBadge';
 import RatingStars from '@/components/ui/RatingStars';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 export default function CompanionCard({ availability, variant = 'default', showCompatibility, compatibilityReason }) {
   const isCompact = variant === 'compact';
+
+  const { data: companion } = useQuery({
+    queryKey: ['companion-user', availability.companion_id],
+    queryFn: async () => {
+      const users = await base44.entities.User.filter({ id: availability.companion_id });
+      return users[0];
+    },
+    enabled: !!availability.companion_id
+  });
   
   return (
     <Link 
@@ -54,10 +65,20 @@ export default function CompanionCard({ availability, variant = 'default', showC
           </h3>
         )}
         
-        <div className="flex items-center gap-2 mb-2">
-          <RatingStars rating={4.8} size="sm" />
-          <span className="text-xs text-slate-500">(24 reviews)</span>
-        </div>
+        {companion && (companion.total_reviews > 0 || companion.average_rating) ? (
+          <div className="flex items-center gap-2 mb-2">
+            <RatingStars rating={companion.average_rating || 0} size="sm" />
+            <span className="text-xs text-slate-500">
+              ({companion.total_reviews || 0} {companion.total_reviews === 1 ? 'review' : 'reviews'})
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant="secondary" className="bg-violet-50 text-violet-700 text-xs">
+              New Companion
+            </Badge>
+          </div>
+        )}
 
         <div className="space-y-1.5 mb-3">
           <div className="flex items-center gap-2 text-sm text-slate-600">
