@@ -252,9 +252,9 @@ export default function CompanionDashboard() {
                 >
                   <Link
                     to={createPageUrl(`BookingView?id=${booking.id}`)}
-                    className="block"
+                    className="block hover:bg-slate-100 rounded-lg transition-colors"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 p-2">
                       <img
                         src={booking.seeker_photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'}
                         alt={booking.seeker_name}
@@ -278,10 +278,7 @@ export default function CompanionDashboard() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setCancelBookingId(booking.id);
-                    }}
+                    onClick={() => setCancelBookingId(booking.id)}
                     className="w-full mt-2 border-red-200 text-red-600 hover:bg-red-50"
                   >
                     <XCircle className="w-4 h-4 mr-2" />

@@ -1,6 +1,8 @@
 import AdminDashboard from './pages/AdminDashboard';
+import AdminDisputes from './pages/AdminDisputes';
 import AdminGroups from './pages/AdminGroups';
 import AdminManagement from './pages/AdminManagement';
+import AdminPayouts from './pages/AdminPayouts';
 import AdminSettings from './pages/AdminSettings';
 import AdminUsers from './pages/AdminUsers';
 import AdminVenues from './pages/AdminVenues';
@@ -23,21 +25,21 @@ import Notifications from './pages/Notifications';
 import Onboarding from './pages/Onboarding';
 import PrivacySafety from './pages/PrivacySafety';
 import Profile from './pages/Profile';
+import RaiseDispute from './pages/RaiseDispute';
 import RoleSelection from './pages/RoleSelection';
 import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
-import AdminPayouts from './pages/AdminPayouts';
-import RaiseDispute from './pages/RaiseDispute';
-import AdminDisputes from './pages/AdminDisputes';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminDashboard": AdminDashboard,
+    "AdminDisputes": AdminDisputes,
     "AdminGroups": AdminGroups,
     "AdminManagement": AdminManagement,
+    "AdminPayouts": AdminPayouts,
     "AdminSettings": AdminSettings,
     "AdminUsers": AdminUsers,
     "AdminVenues": AdminVenues,
@@ -60,14 +62,12 @@ export const PAGES = {
     "Onboarding": Onboarding,
     "PrivacySafety": PrivacySafety,
     "Profile": Profile,
+    "RaiseDispute": RaiseDispute,
     "RoleSelection": RoleSelection,
     "TermsAcceptance": TermsAcceptance,
     "UserProfile": UserProfile,
     "Wallet": Wallet,
     "Welcome": Welcome,
-    "AdminPayouts": AdminPayouts,
-    "RaiseDispute": RaiseDispute,
-    "AdminDisputes": AdminDisputes,
 }
 
 export const pagesConfig = {
