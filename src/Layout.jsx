@@ -98,10 +98,16 @@ export default function Layout({ children, currentPageName }) {
         <aside className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
           <div className="flex flex-col flex-grow bg-white border-r border-slate-200 overflow-y-auto">
             {/* Logo */}
-            <div className="flex items-center h-16 px-6 border-b border-slate-100">
+            <div className="flex items-center justify-between h-16 px-6 border-b border-slate-100">
               <h1 className="text-xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
                 Circle Admin
               </h1>
+              <button
+                onClick={() => window.history.back()}
+                className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center hover:bg-slate-200 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 text-slate-600" />
+              </button>
             </div>
             
             {/* Navigation */}
