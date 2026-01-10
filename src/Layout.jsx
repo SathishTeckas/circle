@@ -13,7 +13,8 @@ import {
   Settings,
   Shield,
   Menu,
-  X
+  X,
+  AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -78,6 +79,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Users', icon: Users, page: 'AdminUsers' },
     { name: 'Venues', icon: Home, page: 'AdminVenues' },
     { name: 'Payouts', icon: Wallet, page: 'AdminPayouts' },
+    { name: 'Disputes', icon: AlertCircle, page: 'AdminDisputes' },
     { name: 'Admins', icon: Shield, page: 'AdminManagement' },
     { name: 'Settings', icon: Settings, page: 'AdminSettings' },
   ];

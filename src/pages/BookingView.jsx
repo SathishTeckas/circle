@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { 
   ArrowLeft, Calendar, Clock, MapPin, MessageCircle, 
-  CheckCircle, XCircle, AlertCircle, Shield, IndianRupee
+  CheckCircle, XCircle, AlertCircle, Shield, IndianRupee, Star
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -561,8 +561,33 @@ export default function BookingView() {
           </Card>
         )}
 
+        {/* Raise Dispute */}
+        {['accepted', 'completed'].includes(booking.status) && (
+          <Link to={createPageUrl(`RaiseDispute?id=${bookingId}`)}>
+            <Button variant="outline" className="w-full h-12 border-orange-200 text-orange-600 hover:bg-orange-50 rounded-xl">
+              <AlertCircle className="w-5 h-5 mr-2" />
+              Raise Dispute
+            </Button>
+          </Link>
+        )}
+
+        {/* Disputed Status */}
+        {booking.status === 'disputed' && (
+          <Card className="p-4 bg-orange-50 border-orange-200">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-orange-900">Dispute Under Review</h3>
+                <p className="text-sm text-orange-700 mt-1">
+                  Our support team is reviewing the dispute. You'll be notified once it's resolved.
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* Open Chat Button */}
-        {booking.chat_enabled && booking.status !== 'completed' && (
+        {booking.chat_enabled && !['completed', 'disputed'].includes(booking.status) && (
           <Link to={createPageUrl(`ChatView?id=${bookingId}`)}>
             <Button className="w-full h-14 bg-violet-600 hover:bg-violet-700 rounded-xl">
               <MessageCircle className="w-5 h-5 mr-2" />
