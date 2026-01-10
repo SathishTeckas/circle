@@ -207,13 +207,13 @@ export default function CompanionDashboard() {
                 <Link
                   key={booking.id}
                   to={createPageUrl(`BookingView?id=${booking.id}`)}
-                  className="block bg-white rounded-xl p-3 border border-amber-200"
+                  className="block bg-white rounded-xl p-3 border border-amber-200 hover:shadow-sm transition-shadow"
                 >
                   <div className="flex items-center gap-3">
                     <img
-                      src={booking.seeker_photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'}
+                      src={booking.seeker_photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200'}
                       alt={booking.seeker_name}
-                      className="w-10 h-10 rounded-lg object-cover"
+                      className="w-16 h-16 rounded-xl object-cover ring-2 ring-amber-200"
                     />
                     <div className="flex-1">
                       <p className="font-medium text-slate-900">{booking.seeker_name}</p>
