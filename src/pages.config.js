@@ -25,9 +25,9 @@ import PrivacySafety from './pages/PrivacySafety';
 import Profile from './pages/Profile';
 import RoleSelection from './pages/RoleSelection';
 import TermsAcceptance from './pages/TermsAcceptance';
+import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
-import UserProfile from './pages/UserProfile';
 import __Layout from './Layout.jsx';
 
 
@@ -59,9 +59,9 @@ export const PAGES = {
     "Profile": Profile,
     "RoleSelection": RoleSelection,
     "TermsAcceptance": TermsAcceptance,
+    "UserProfile": UserProfile,
     "Wallet": Wallet,
     "Welcome": Welcome,
-    "UserProfile": UserProfile,
 }
 
 export const pagesConfig = {
