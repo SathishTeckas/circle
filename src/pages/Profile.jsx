@@ -159,34 +159,6 @@ export default function Profile() {
             <p className="text-slate-600 text-sm mb-4">{user.bio}</p>
           )}
 
-          {/* About Me - For Companions */}
-          {user.user_role === 'companion' && user.about_me && (
-            <div className="bg-violet-50 border border-violet-100 rounded-xl p-4 mb-4">
-              <h4 className="font-semibold text-violet-900 mb-2 flex items-center gap-2">
-                <User className="w-4 h-4" />
-                About Me
-              </h4>
-              <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">{user.about_me}</p>
-            </div>
-          )}
-
-          {/* Skills - For Companions */}
-          {user.user_role === 'companion' && user.skills?.length > 0 && (
-            <div className="mb-4">
-              <h4 className="font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-600" />
-                Skills & Specializations
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {user.skills.map((skill, idx) => (
-                  <Badge key={idx} className="bg-indigo-100 text-indigo-700 border-indigo-200">
-                    ✓ {skill}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Quick Info */}
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-100">
             <div className="text-center">
@@ -206,41 +178,6 @@ export default function Profile() {
             </div>
           </div>
         </Card>
-
-        {/* Portfolio - For Companions */}
-        {user.user_role === 'companion' && user.portfolio_urls?.length > 0 && (
-          <Card className="p-4">
-            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Camera className="w-5 h-5 text-violet-600" />
-              Portfolio
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              {user.portfolio_urls.map((url, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="aspect-square rounded-xl overflow-hidden bg-slate-100"
-                >
-                  {url.includes('video') || url.includes('.mp4') || url.includes('.mov') ? (
-                    <video
-                      src={url}
-                      controls
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <img
-                      src={url}
-                      alt={`Portfolio ${idx + 1}`}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform"
-                    />
-                  )}
-                </motion.div>
-              ))}
-            </div>
-          </Card>
-        )}
 
         {/* Video Introduction */}
         {user.video_intro_url && (
