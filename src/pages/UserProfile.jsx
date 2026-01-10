@@ -8,7 +8,7 @@ import RatingStars from '../components/ui/RatingStars';
 import PhotoCarousel from '../components/profile/PhotoCarousel';
 import { 
   ArrowLeft, MapPin, Briefcase, MessageCircle, Calendar, 
-  Languages, Heart, Shield, Star
+  Languages, Heart, Shield, Star, Sparkles, Camera, User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -147,6 +147,67 @@ export default function UserProfile() {
           <Card className="p-6">
             <h3 className="font-semibold text-slate-900 mb-3">About</h3>
             <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{user.bio}</p>
+          </Card>
+        )}
+
+        {/* About Me - Detailed */}
+        {user.about_me && (
+          <Card className="p-6">
+            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+              <User className="w-5 h-5 text-violet-600" />
+              About Me
+            </h3>
+            <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{user.about_me}</p>
+          </Card>
+        )}
+
+        {/* Skills */}
+        {user.skills?.length > 0 && (
+          <Card className="p-6">
+            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-indigo-600" />
+              Skills & Specializations
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {user.skills.map((skill, idx) => (
+                <Badge key={idx} className="bg-indigo-100 text-indigo-700 border-indigo-200">
+                  ✓ {skill}
+                </Badge>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Portfolio */}
+        {user.portfolio_urls?.length > 0 && (
+          <Card className="p-6">
+            <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              <Camera className="w-5 h-5 text-violet-600" />
+              Portfolio
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {user.portfolio_urls.map((url, idx) => (
+                <div
+                  key={idx}
+                  className="aspect-square rounded-xl overflow-hidden bg-slate-100"
+                >
+                  {url.includes('video') || url.includes('.mp4') || url.includes('.mov') ? (
+                    <video
+                      src={url}
+                      controls
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      src={url}
+                      alt={`Portfolio ${idx + 1}`}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                      onClick={() => window.open(url, '_blank')}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </Card>
         )}
 
