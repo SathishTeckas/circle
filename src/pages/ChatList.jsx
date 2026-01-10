@@ -100,9 +100,9 @@ export default function ChatList() {
                       <div className="flex items-center gap-4">
                         <div className="relative">
                           <img
-                            src={otherPhoto || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'}
+                            src={otherPhoto || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200'}
                             alt={otherName}
-                            className="w-14 h-14 rounded-xl object-cover"
+                            className="w-16 h-16 rounded-xl object-cover ring-2 ring-slate-200"
                           />
                           {unreadCount > 0 && (
                             <span className="absolute -top-1 -right-1 w-5 h-5 bg-violet-600 text-white text-xs rounded-full flex items-center justify-center">
