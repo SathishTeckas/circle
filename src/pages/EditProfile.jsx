@@ -18,6 +18,7 @@ const LANGUAGES = ['English', 'Hindi', 'Tamil', 'Telugu', 'Bengali', 'Marathi', 
 const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata', 'Ahmedabad'];
 const HOBBIES = ['Reading', 'Writing', 'Painting', 'Drawing', 'Photography', 'Cooking', 'Baking', 'Gardening', 'Hiking', 'Cycling'];
 const PERSONALITY_TRAITS = ['Outgoing', 'Introverted', 'Adventurous', 'Calm', 'Spontaneous', 'Organized', 'Creative', 'Logical', 'Empathetic', 'Confident'];
+const SKILLS = ['Great Listener', 'Storyteller', 'Conversationalist', 'Foodie', 'Adventure Guide', 'Event Companion', 'Cultural Expert', 'Fitness Enthusiast', 'Music Lover', 'Tech Savvy', 'Fashion Expert', 'Photographer', 'Translator', 'Local Guide'];
 
 export default function EditProfile() {
   const [user, setUser] = useState(null);
@@ -26,6 +27,9 @@ export default function EditProfile() {
   const [formData, setFormData] = useState({
     full_name: '',
     bio: '',
+    about_me: '',
+    skills: [],
+    portfolio_urls: [],
     city: '',
     interests: [],
     languages: [],
@@ -42,6 +46,9 @@ export default function EditProfile() {
       setFormData({
         full_name: userData.full_name || '',
         bio: userData.bio || '',
+        about_me: userData.about_me || '',
+        skills: userData.skills || [],
+        portfolio_urls: userData.portfolio_urls || [],
         city: userData.city || '',
         interests: userData.interests || [],
         languages: userData.languages || [],
@@ -222,14 +229,28 @@ export default function EditProfile() {
           </div>
 
           <div>
-            <Label>Bio</Label>
-            <Textarea
-              placeholder="Tell us about yourself..."
+            <Label>Bio (One-liner)</Label>
+            <Input
+              placeholder="A brief tagline about yourself..."
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              className="mt-1 h-24"
+              className="mt-1"
             />
+            <p className="text-xs text-slate-500 mt-1">Short description that appears on cards</p>
           </div>
+
+          {user?.user_role === 'companion' && (
+            <div>
+              <Label>About Me</Label>
+              <Textarea
+                placeholder="Write a detailed description about yourself, your personality, what makes you unique..."
+                value={formData.about_me}
+                onChange={(e) => setFormData({ ...formData, about_me: e.target.value })}
+                className="mt-1 h-32"
+              />
+              <p className="text-xs text-slate-500 mt-1">Share your story and what seekers can expect from you</p>
+            </div>
+          )}
 
           <div>
             <Label>City</Label>
@@ -335,6 +356,109 @@ export default function EditProfile() {
             ))}
           </div>
         </Card>
+
+        {/* Skills/Specializations - For Companions */}
+        {user?.user_role === 'companion' && (
+          <Card className="p-4">
+            <Label className="mb-3 block">Skills & Specializations</Label>
+            <p className="text-xs text-slate-500 mb-3">Showcase what makes you a great companion</p>
+            <div className="flex flex-wrap gap-2">
+              {SKILLS.map((skill) => (
+                <Badge
+                  key={skill}
+                  onClick={() => setFormData({
+                    ...formData,
+                    skills: formData.skills.includes(skill)
+                      ? formData.skills.filter(s => s !== skill)
+                      : [...formData.skills, skill]
+                  })}
+                  className={
+                    formData.skills.includes(skill)
+                      ? 'bg-indigo-600 text-white cursor-pointer'
+                      : 'bg-slate-100 text-slate-700 cursor-pointer hover:bg-slate-200'
+                  }
+                >
+                  {skill}
+                </Badge>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Portfolio Section - For Companions */}
+        {user?.user_role === 'companion' && (
+          <Card className="p-4">
+            <Label className="mb-3 block">Portfolio</Label>
+            <p className="text-xs text-slate-500 mb-3">Share photos or videos showcasing your personality and what you offer</p>
+            <div className="grid grid-cols-2 gap-3">
+              {formData.portfolio_urls.map((url, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="relative aspect-square"
+                >
+                  {url.includes('video') || url.includes('.mp4') || url.includes('.mov') ? (
+                    <video
+                      src={url}
+                      className="w-full h-full object-cover rounded-xl"
+                      controls
+                    />
+                  ) : (
+                    <img
+                      src={url}
+                      alt={`Portfolio ${idx + 1}`}
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                  )}
+                  <button
+                    onClick={() => setFormData({
+                      ...formData,
+                      portfolio_urls: formData.portfolio_urls.filter((_, i) => i !== idx)
+                    })}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg"
+                  >
+                    <X className="w-3 h-3 text-white" />
+                  </button>
+                </motion.div>
+              ))}
+              {formData.portfolio_urls.length < 8 && (
+                <label className="aspect-square border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-colors">
+                  {uploading ? (
+                    <Loader2 className="w-6 h-6 text-slate-400 animate-spin" />
+                  ) : (
+                    <>
+                      <Upload className="w-6 h-6 text-slate-400 mb-1" />
+                      <span className="text-xs text-slate-500 text-center px-2">Add Media</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploading(true);
+                      try {
+                        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                        setFormData({ 
+                          ...formData, 
+                          portfolio_urls: [...formData.portfolio_urls, file_url] 
+                        });
+                      } catch (error) {
+                        alert('Failed to upload file');
+                      } finally {
+                        setUploading(false);
+                      }
+                    }}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          </Card>
+        )}
 
         {/* Video Introduction */}
         <Card className="p-4">
