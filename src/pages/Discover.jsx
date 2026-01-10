@@ -140,12 +140,13 @@ export default function Discover() {
                   )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
-                <SheetHeader className="mb-6">
+              <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl flex flex-col">
+                <SheetHeader className="flex-shrink-0 mb-4">
                   <SheetTitle className="text-xl">Filters</SheetTitle>
                 </SheetHeader>
                 
-                <div className="space-y-6 overflow-y-auto pb-24 pr-2">
+                <div className="flex-1 overflow-y-auto px-1">
+                  <div className="space-y-6 pb-6">
                   {/* Date */}
                   <div>
                     <label className="text-sm font-medium text-slate-700 mb-2 block">Date</label>
@@ -284,10 +285,11 @@ export default function Discover() {
                       </SelectContent>
                     </Select>
                   </div>
+                  </div>
                 </div>
 
                 {/* Filter Actions */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 flex gap-3">
+                <div className="flex-shrink-0 p-4 bg-white border-t border-slate-100 flex gap-3">
                   <Button
                     variant="outline"
                     onClick={clearFilters}
