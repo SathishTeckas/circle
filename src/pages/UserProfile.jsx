@@ -83,17 +83,17 @@ export default function UserProfile() {
 
       <div className="px-4 py-6 max-w-lg mx-auto space-y-4">
         {/* Photo Section */}
-        {photos.length > 0 ? (
+        {photos && photos.length > 0 ? (
           <PhotoCarousel photos={photos} />
-        ) : (
+        ) : (photos?.[0] || user.profile_photo) ? (
           <Card className="p-0 overflow-hidden">
             <img 
-              src={user.profile_photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600'}
+              src={photos?.[0] || user.profile_photo}
               alt={user.full_name}
               className="w-full h-96 object-cover"
             />
           </Card>
-        )}
+        ) : null}
 
         {/* User Info */}
         <Card className="p-6">
