@@ -443,7 +443,7 @@ export default function Wallet() {
             <div>
               <h4 className="font-medium text-slate-900">Platform Fee</h4>
               <p className="text-sm text-slate-600 mt-1">
-                Circle charges a 15% platform fee on each booking. Your payout shown above is the net amount after fees.
+                Circle charges a platform fee on each booking. Your payout shown above is the net amount after fees.
               </p>
             </div>
           </div>

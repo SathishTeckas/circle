@@ -47,6 +47,14 @@ export default function AdminDashboard() {
     queryFn: () => base44.entities.GroupEvent.list('-date', 20)
   });
 
+  const { data: appSettings } = useQuery({
+    queryKey: ['app-settings'],
+    queryFn: async () => {
+      const settings = await base44.entities.AppSettings.list();
+      return settings[0] || { platform_fee: 15, no_show_penalty_percent: 100 };
+    }
+  });
+
   const companions = allUsers.filter(u => u.user_role === 'companion');
   const seekers = allUsers.filter(u => u.user_role === 'seeker');
   const pendingKYC = allUsers.filter(u => u.kyc_status === 'pending');
@@ -171,15 +179,23 @@ export default function AdminDashboard() {
 
         {/* Platform Settings */}
         <Card className="p-4">
-          <h3 className="font-semibold text-slate-900 mb-4">Platform Settings</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-slate-900">Platform Settings</h3>
+            <Link to={createPageUrl('AdminSettings')}>
+              <Button variant="outline" size="sm">
+                <Settings className="w-4 h-4 mr-2" />
+                Configure
+              </Button>
+            </Link>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-slate-50 rounded-xl">
               <p className="text-sm text-slate-600">Platform Fee</p>
-              <p className="text-2xl font-bold text-slate-900">15%</p>
+              <p className="text-2xl font-bold text-slate-900">{appSettings?.platform_fee || 15}%</p>
             </div>
             <div className="p-4 bg-slate-50 rounded-xl">
               <p className="text-sm text-slate-600">No-Show Penalty</p>
-              <p className="text-2xl font-bold text-slate-900">100%</p>
+              <p className="text-2xl font-bold text-slate-900">{appSettings?.no_show_penalty_percent || 100}%</p>
             </div>
           </div>
         </Card>

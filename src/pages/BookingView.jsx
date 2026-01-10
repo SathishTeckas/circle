@@ -53,6 +53,14 @@ export default function BookingView() {
     refetchInterval: 5000
   });
 
+  const { data: appSettings } = useQuery({
+    queryKey: ['app-settings'],
+    queryFn: async () => {
+      const settings = await base44.entities.AppSettings.list();
+      return settings[0] || { platform_fee: 15 };
+    }
+  });
+
   const acceptMutation = useMutation({
     mutationFn: async () => {
       await base44.entities.Booking.update(bookingId, { 
@@ -372,7 +380,7 @@ export default function BookingView() {
               <span className="text-slate-900">₹{booking.base_price?.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-600">Platform Fee (15%)</span>
+              <span className="text-slate-600">Platform Fee ({appSettings?.platform_fee || 15}%)</span>
               <span className="text-slate-900">₹{booking.platform_fee?.toFixed(2)}</span>
             </div>
             <div className="flex justify-between border-t border-slate-100 pt-2 font-semibold">
