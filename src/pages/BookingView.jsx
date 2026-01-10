@@ -150,6 +150,76 @@ export default function BookingView() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
   });
 
+  const [uploadingSelfie, setUploadingSelfie] = useState(false);
+
+  const completeMeetingMutation = useMutation({
+    mutationFn: async (selfieFile) => {
+      // Upload selfie
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: selfieFile });
+      
+      // Update booking as completed and release funds
+      await base44.entities.Booking.update(bookingId, { 
+        status: 'completed',
+        escrow_status: 'released',
+        meetup_photo: file_url
+      });
+
+      // Update availability as completed
+      if (booking?.availability_id) {
+        await base44.entities.Availability.update(booking.availability_id, { 
+          status: 'completed'
+        });
+      }
+
+      // Notify seeker
+      await base44.entities.Notification.create({
+        user_id: booking.seeker_id,
+        type: 'booking_reminder',
+        title: '✅ Meeting Completed',
+        message: `Your meeting with ${booking.companion_name} has been completed. Please leave a review!`,
+        booking_id: bookingId,
+        action_url: createPageUrl(`LeaveReview?bookingId=${bookingId}`)
+      });
+
+      // Notify companion about payout
+      await base44.entities.Notification.create({
+        user_id: booking.companion_id,
+        type: 'payout_processed',
+        title: '💰 Payment Released',
+        message: `₹${booking.companion_payout?.toFixed(2)} has been credited to your wallet`,
+        amount: booking.companion_payout,
+        action_url: createPageUrl('Wallet')
+      });
+    },
+    onSuccess: () => {
+      setUploadingSelfie(false);
+      queryClient.invalidateQueries({ queryKey: ['booking', bookingId] });
+    },
+    onError: () => {
+      setUploadingSelfie(false);
+    }
+  });
+
+  const handleSelfieUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file is image
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be less than 5MB');
+      return;
+    }
+
+    setUploadingSelfie(true);
+    completeMeetingMutation.mutate(file);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -425,8 +495,74 @@ export default function BookingView() {
           </Card>
         )}
 
+        {/* Complete Meeting - Companion Only */}
+        {booking.status === 'accepted' && isCompanion && (
+          <Card className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+            <h3 className="font-semibold text-emerald-900 mb-2 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5" />
+              Complete Meeting
+            </h3>
+            <p className="text-sm text-emerald-700 mb-4">
+              Upload a selfie from your meetup to confirm completion and receive payment.
+            </p>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleSelfieUpload}
+              disabled={uploadingSelfie || completeMeetingMutation.isPending}
+              className="hidden"
+              id="selfie-upload"
+            />
+            <label htmlFor="selfie-upload">
+              <Button 
+                asChild
+                disabled={uploadingSelfie || completeMeetingMutation.isPending}
+                className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 rounded-xl cursor-pointer"
+              >
+                <span>
+                  {uploadingSelfie || completeMeetingMutation.isPending ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      Upload Selfie & Complete
+                    </>
+                  )}
+                </span>
+              </Button>
+            </label>
+          </Card>
+        )}
+
+        {/* Meeting Completed */}
+        {booking.status === 'completed' && (
+          <Card className="p-6 bg-violet-50 border-violet-200">
+            <div className="text-center">
+              <CheckCircle className="w-12 h-12 text-emerald-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-slate-900 mb-2">Meeting Completed</h3>
+              <p className="text-sm text-slate-600 mb-4">
+                {isCompanion 
+                  ? `Payment of ₹${booking.companion_payout?.toFixed(2)} has been credited to your wallet`
+                  : 'Thank you for using Circle! Please leave a review.'
+                }
+              </p>
+              {isSeeker && (
+                <Link to={createPageUrl(`LeaveReview?bookingId=${bookingId}`)}>
+                  <Button className="w-full h-12 bg-violet-600 hover:bg-violet-700 rounded-xl">
+                    <Star className="w-5 h-5 mr-2" />
+                    Leave Review
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </Card>
+        )}
+
         {/* Open Chat Button */}
-        {booking.chat_enabled && (
+        {booking.chat_enabled && booking.status !== 'completed' && (
           <Link to={createPageUrl(`ChatView?id=${bookingId}`)}>
             <Button className="w-full h-14 bg-violet-600 hover:bg-violet-700 rounded-xl">
               <MessageCircle className="w-5 h-5 mr-2" />
