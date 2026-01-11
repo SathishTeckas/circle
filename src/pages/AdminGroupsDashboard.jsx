@@ -38,19 +38,7 @@ export default function AdminGroupsDashboard() {
     enabled: !!eventId
   });
 
-  const { data: userDetails = {} } = useQuery({
-    queryKey: ['participant-details', participants],
-    queryFn: async () => {
-      const details = {};
-      for (const p of participants) {
-        const user = await base44.auth.me(); // This won't work for service role
-        // Instead fetch user data directly
-        details[p.user_id] = p.user_name;
-      }
-      return details;
-    },
-    enabled: participants.length > 0
-  });
+  // No need to fetch user details separately - they come with GroupParticipant
 
   const assignTablesMutation = useMutation({
     mutationFn: async () => {

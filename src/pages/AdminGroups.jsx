@@ -499,10 +499,15 @@ export default function AdminGroups() {
                      </div>
                    )}
                    <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="font-semibold text-slate-900 text-lg">
-                        {event.title || 'Group Meetup'}
-                      </h3>
+                     <div>
+                       <div className="flex items-center gap-2">
+                         <h3 className="font-semibold text-slate-900 text-lg">
+                           {event.title || 'Group Meetup'}
+                         </h3>
+                         <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md font-mono">
+                           {event.id}
+                         </span>
+                       </div>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge className={statusColors[event.status]}>
                           {event.status}
