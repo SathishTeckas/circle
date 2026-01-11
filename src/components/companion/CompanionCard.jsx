@@ -99,14 +99,17 @@ export default function CompanionCard({ availability, availabilities, variant = 
                 if (uniqueAreas.includes('Any Area')) {
                   return allSlots[0].city;
                 }
-                return uniqueAreas.join(', ');
+                return `${uniqueAreas.join(', ')}, ${allSlots[0].city}`;
               })()}
             </span>
           </div>
           {primaryAvailability.languages?.length > 0 && (
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <Globe className="w-4 h-4 text-violet-500" />
-              <span>{primaryAvailability.languages.slice(0, 2).join(', ')}</span>
+              <span>
+                {primaryAvailability.languages.join(', ')}
+                {primaryAvailability.languages.length > 3 && ` +${primaryAvailability.languages.length - 3} more`}
+              </span>
             </div>
           )}
         </div>
