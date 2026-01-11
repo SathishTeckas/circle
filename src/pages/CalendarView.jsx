@@ -14,9 +14,6 @@ import { cn } from '@/lib/utils';
 
 export default function CalendarView() {
   const [user, setUser] = useState(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [showCalendar, setShowCalendar] = useState(false);
   const [statusFilter, setStatusFilter] = useState(['pending', 'accepted', 'in_progress']);
 
   useEffect(() => {
