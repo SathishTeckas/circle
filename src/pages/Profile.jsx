@@ -141,7 +141,7 @@ export default function Profile() {
         {/* Profile Card */}
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-xl font-bold text-slate-900">{user.full_name}</h2>
+            <h2 className="text-xl font-bold text-slate-900">{user.display_name || user.full_name}</h2>
             <SafetyBadge verified={user.kyc_status === 'verified'} />
           </div>
           <p className="text-sm text-slate-600 mb-3">{user.email}</p>

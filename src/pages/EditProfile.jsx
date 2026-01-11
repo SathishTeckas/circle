@@ -24,7 +24,7 @@ export default function EditProfile() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
-    full_name: '',
+    display_name: '',
     bio: '',
     city: '',
     interests: [],
@@ -40,7 +40,7 @@ export default function EditProfile() {
       const userData = await base44.auth.me();
       setUser(userData);
       setFormData({
-        full_name: userData.full_name || '',
+        display_name: userData.display_name || userData.full_name || '',
         bio: userData.bio || '',
         city: userData.city || '',
         interests: userData.interests || [],
@@ -201,11 +201,12 @@ export default function EditProfile() {
         {/* Basic Info */}
         <Card className="p-4 space-y-4">
           <div>
-            <Label>Full Name</Label>
+            <Label>Display Name</Label>
             <Input
-              value={formData.full_name}
-              onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+              value={formData.display_name}
+              onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
               className="mt-1"
+              placeholder="How you want to be called"
             />
           </div>
 
