@@ -60,12 +60,21 @@ export default function BookingDetails() {
     enabled: !!availability?.companion_id
   });
 
+  const { data: appSettings } = useQuery({
+    queryKey: ['app-settings'],
+    queryFn: async () => {
+      const settings = await base44.entities.AppSettings.list();
+      return settings[0] || { platform_fee: 15 };
+    }
+  });
+
   const bookingMutation = useMutation({
     mutationFn: async () => {
+      const platformFeePercent = appSettings?.platform_fee || 15;
       const basePrice = availability.price_per_hour * selectedHours;
-      const platformFee = basePrice * 0.15;
+      const platformFee = basePrice * (platformFeePercent / 100);
       const totalAmount = basePrice + platformFee;
-      const companionPayout = basePrice * 0.85;
+      const companionPayout = basePrice * (1 - platformFeePercent / 100);
       
       const booking = await base44.entities.Booking.create({
         availability_id: availabilityId,
@@ -135,8 +144,9 @@ export default function BookingDetails() {
     );
   }
 
+  const platformFeePercent = appSettings?.platform_fee || 15;
   const basePrice = availability.price_per_hour * selectedHours;
-  const platformFee = basePrice * 0.15;
+  const platformFee = basePrice * (platformFeePercent / 100);
   const totalAmount = basePrice + platformFee;
 
   return (
@@ -346,7 +356,7 @@ export default function BookingDetails() {
             <div>
               <p className="text-sm text-slate-500">Total</p>
               <p className="text-2xl font-bold text-slate-900">₹{totalAmount.toFixed(2)}</p>
-              <p className="text-xs text-slate-500">incl. 15% platform fee</p>
+              <p className="text-xs text-slate-500">incl. {platformFeePercent}% platform fee</p>
             </div>
             <Button
               onClick={handleBook}
