@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   ArrowLeft, MapPin, Clock, Calendar, Globe, Heart, Shield, Star, 
-  MessageCircle, ChevronRight, AlertCircle, CheckCircle
+  MessageCircle, ChevronRight, AlertCircle, CheckCircle, CalendarDays
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -66,6 +66,17 @@ export default function BookingDetails() {
       const settings = await base44.entities.AppSettings.list();
       return settings[0] || { platform_fee: 15 };
     }
+  });
+
+  const { data: companionAvailabilities = [] } = useQuery({
+    queryKey: ['companion-availabilities', availability?.companion_id],
+    queryFn: async () => {
+      return await base44.entities.Availability.filter({ 
+        companion_id: availability.companion_id,
+        status: 'available'
+      }, 'date');
+    },
+    enabled: !!availability?.companion_id
   });
 
   const bookingMutation = useMutation({
@@ -265,6 +276,42 @@ export default function BookingDetails() {
             </div>
           </div>
         </Card>
+
+        {/* Other Available Slots */}
+        {companionAvailabilities.length > 1 && (
+          <Card className="p-4">
+            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+              <CalendarDays className="w-5 h-5 text-violet-500" />
+              Other Available Times
+            </h3>
+            <div className="space-y-2">
+              {companionAvailabilities.filter(a => a.id !== availabilityId).slice(0, 4).map((slot) => (
+                <a
+                  key={slot.id}
+                  href={createPageUrl(`BookingDetails?id=${slot.id}`)}
+                  className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-violet-100 rounded-lg flex items-center justify-center">
+                      <Clock className="w-5 h-5 text-violet-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">
+                        {format(new Date(slot.date), 'EEE, MMM d')}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {formatTime12Hour(slot.start_time)} - {formatTime12Hour(slot.end_time)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-slate-900">₹{slot.price_per_hour}/hr</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </Card>
+        )}
 
         {/* Interests */}
         {availability.interests?.length > 0 && (
