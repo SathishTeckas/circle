@@ -61,6 +61,24 @@ export default function BookingView() {
     }
   });
 
+  const { data: companionUser } = useQuery({
+    queryKey: ['companion-user', booking?.companion_id],
+    queryFn: async () => {
+      const response = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
+      return response.data.user;
+    },
+    enabled: !!booking?.companion_id
+  });
+
+  const { data: seekerUser } = useQuery({
+    queryKey: ['seeker-user', booking?.seeker_id],
+    queryFn: async () => {
+      const response = await base44.functions.invoke('getUserProfile', { userId: booking.seeker_id });
+      return response.data.user;
+    },
+    enabled: !!booking?.seeker_id
+  });
+
   const acceptMutation = useMutation({
     mutationFn: async () => {
       await base44.entities.Booking.update(bookingId, { 
@@ -249,7 +267,9 @@ export default function BookingView() {
 
   const isCompanion = user?.id === booking.companion_id;
   const isSeeker = user?.id === booking.seeker_id;
-  const otherPartyName = isSeeker ? booking.companion_name : booking.seeker_name;
+  const otherPartyName = isSeeker 
+    ? (companionUser?.display_name || booking.companion_name) 
+    : (seekerUser?.display_name || booking.seeker_name);
   const otherPartyPhoto = isSeeker ? booking.companion_photo : booking.seeker_photo;
   const status = statusConfig[booking.status] || statusConfig.pending;
   const StatusIcon = status.icon;
