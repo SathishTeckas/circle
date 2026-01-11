@@ -26,11 +26,13 @@ export default function ChatList() {
     queryKey: ['chat-bookings', user?.id, isCompanion],
     queryFn: async () => {
       const query = isCompanion 
-        ? { companion_id: user.id, chat_enabled: true }
-        : { seeker_id: user.id, chat_enabled: true };
+        ? { companion_id: user.id }
+        : { seeker_id: user.id };
       return await base44.entities.Booking.filter(query, '-updated_date', 50);
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    refetchInterval: 2000,
+    staleTime: 0
   });
 
   const { data: unreadMessages = [] } = useQuery({
