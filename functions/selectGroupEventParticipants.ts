@@ -1,0 +1,185 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+
+Deno.serve(async (req) => {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+
+    if (!user || user.role !== 'admin') {
+      return Response.json({ error: 'Unauthorized: Admin only' }, { status: 403 });
+    }
+
+    const { eventId } = await req.json();
+
+    if (!eventId) {
+      return Response.json({ error: 'Missing eventId' }, { status: 400 });
+    }
+
+    // Fetch event details
+    const event = await base44.entities.GroupEvent.filter({ id: eventId });
+    if (!event || event.length === 0) {
+      return Response.json({ error: 'Event not found' }, { status: 404 });
+    }
+
+    const eventData = event[0];
+    console.log(`Processing event: ${eventData.title}`);
+
+    // Fetch all registered participants
+    const participants = await base44.entities.GroupParticipant.filter({
+      event_id: eventId,
+      status: 'registered'
+    });
+
+    if (participants.length === 0) {
+      console.log('No registered participants');
+      return Response.json({ message: 'No participants to process' });
+    }
+
+    console.log(`Found ${participants.length} registered participants`);
+
+    // Fetch user details for all participants
+    const userIds = participants.map(p => p.user_id);
+    const users = await base44.entities.User.filter({});
+    const userMap = {};
+    users.forEach(u => {
+      userMap[u.id] = u;
+    });
+
+    // Use AI to select balanced participants
+    const selectionPrompt = `
+You are a social event matching algorithm. Given a list of participants, select the best ${eventData.max_participants} participants based on:
+1. Age range compatibility (${eventData.age_range_min} - ${eventData.age_range_max} years)
+2. Gender balance (aim for 60% one gender, 40% other - roughly)
+3. Personality diversity (mix introverts with extroverts, adventurous with calm)
+4. Language preferences (prioritize those who speak: ${eventData.language})
+
+Participants data:
+${participants.map(p => {
+  const userData = userMap[p.user_id];
+  const ageRange = userData?.date_of_birth ? Math.floor((new Date() - new Date(userData.date_of_birth)) / (365.25 * 24 * 60 * 60 * 1000)) : 'unknown';
+  return `
+ID: ${p.user_id}
+Name: ${p.user_name}
+Gender: ${userData?.gender || 'unknown'}
+Age: ${ageRange}
+Personality: ${userData?.personality || 'unknown'}
+Languages: ${(userData?.languages || []).join(', ') || 'unknown'}`;
+}).join('\n---\n')}
+
+Return a JSON object with:
+{
+  "selected_ids": ["user_id_1", "user_id_2", ...],
+  "reasoning": "Brief explanation of selection"
+}
+
+Make sure the selected count equals or is less than ${eventData.max_participants}.
+`;
+
+    const aiResponse = await base44.integrations.Core.InvokeLLM({
+      prompt: selectionPrompt,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          selected_ids: {
+            type: 'array',
+            items: { type: 'string' }
+          },
+          reasoning: { type: 'string' }
+        }
+      }
+    });
+
+    const selectedIds = aiResponse.selected_ids || [];
+    console.log(`AI selected ${selectedIds.length} participants`);
+
+    // Create group chat name
+    const groupChatName = `${eventData.title} - Table Assignments`;
+
+    // Update participants status
+    const refundList = [];
+    for (const participant of participants) {
+      if (selectedIds.includes(participant.user_id)) {
+        // Mark as confirmed and selected
+        await base44.asServiceRole.entities.GroupParticipant.update(participant.id, {
+          selected_for_event: true,
+          status: 'confirmed',
+          group_chat_id: groupChatName
+        });
+      } else {
+        // Mark for refund
+        await base44.asServiceRole.entities.GroupParticipant.update(participant.id, {
+          status: 'refunded',
+          payment_status: 'refunded'
+        });
+        refundList.push({
+          email: participant.user_email,
+          name: participant.user_name,
+          amount: participant.amount_paid
+        });
+      }
+    }
+
+    // Update event status to pending (waiting for event date)
+    await base44.asServiceRole.entities.GroupEvent.update(eventId, {
+      status: 'pending',
+      tables_assigned: true,
+      assignment_date: new Date().toISOString()
+    });
+
+    // Create group chat in Slack for selected participants
+    const selectedParticipants = participants.filter(p => selectedIds.includes(p.user_id));
+    const slackUserEmails = selectedParticipants.map(p => p.user_email).filter(Boolean);
+
+    if (slackUserEmails.length > 0) {
+      try {
+        // Get Slack access token
+        const slackToken = await base44.asServiceRole.connectors.getAccessToken('slack');
+        
+        // Create private channel
+        const channelResponse = await fetch('https://slack.com/api/conversations.create', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${slackToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: groupChatName.toLowerCase().replace(/\s+/g, '-').slice(0, 80),
+            is_private: true,
+            user_ids: slackUserEmails
+          })
+        });
+
+        const channelData = await channelResponse.json();
+        if (channelData.ok) {
+          console.log(`Created Slack channel: ${channelData.channel.id}`);
+          
+          // Send welcome message
+          await fetch('https://slack.com/api/chat.postMessage', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${slackToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              channel: channelData.channel.id,
+              text: `Welcome to ${eventData.title}! 🎉\n\nYou've been selected for this event. Event details:\n📅 Date: ${eventData.date}\n🕐 Time: ${eventData.time}\n📍 Venue: ${eventData.venue_name}\n\nFeel free to introduce yourself and get to know fellow participants!`
+            })
+          });
+        }
+      } catch (slackError) {
+        console.log('Slack integration skipped or failed:', slackError.message);
+      }
+    }
+
+    return Response.json({
+      success: true,
+      selected_count: selectedIds.length,
+      refund_count: refundList.length,
+      refunds: refundList,
+      reasoning: aiResponse.reasoning
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+});
