@@ -322,7 +322,7 @@ export default function BookingView() {
         </div>
       </div>
 
-      <div className="px-4 py-6 max-w-lg mx-auto space-y-4">
+      <div className="px-4 py-6 max-w-lg mx-auto space-y-6">
         {/* Companion/Seeker Info */}
         <Link to={createPageUrl(`UserProfile?id=${isSeeker ? booking.companion_id : booking.seeker_id}`)}>
           <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
