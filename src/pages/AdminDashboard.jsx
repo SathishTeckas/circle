@@ -170,7 +170,7 @@ export default function AdminDashboard() {
                   }>
                     {booking.status}
                   </Badge>
-                  <span className="font-semibold text-slate-900">₹{booking.total_amount}</span>
+                  <span className="font-semibold text-slate-900">₹{booking.total_amount.toFixed(2)}</span>
                 </div>
               ))}
             </div>
