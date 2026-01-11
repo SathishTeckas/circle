@@ -385,7 +385,7 @@ export default function CompanionDashboard() {
         </Card>
 
         {/* Referral Card */}
-        <Link to={createPageUrl('Referrals')}>
+        <Link to={createPageUrl('Referrals')} className="block mt-6">
           <Card className="p-4 bg-gradient-to-br from-violet-50 to-fuchsia-50 border-violet-200 hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
