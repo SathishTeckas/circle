@@ -625,7 +625,7 @@ export default function BookingView() {
 
         {/* Open Chat Button */}
         {booking.chat_enabled && !['completed', 'disputed'].includes(booking.status) && (
-          <Link to={createPageUrl(`ChatView?id=${bookingId}`)}>
+          <Link to={createPageUrl(`ChatView?id=${bookingId}`)} className="block">
             <Button className="w-full h-14 bg-violet-600 hover:bg-violet-700 rounded-xl">
               <MessageCircle className="w-5 h-5 mr-2" />
               Open Chat
