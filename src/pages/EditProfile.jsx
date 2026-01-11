@@ -58,14 +58,8 @@ export default function EditProfile() {
   const updateMutation = useMutation({
     mutationFn: async () => {
       try {
-        // Update full_name using User entity (built-in field)
-        console.log('Updating full_name to:', formData.full_name);
-        await base44.entities.User.update(user.id, { full_name: formData.full_name });
-        console.log('Full name updated successfully');
-        
-        // Update other fields using updateMe
-        const { full_name, ...otherFields } = formData;
-        await base44.auth.updateMe(otherFields);
+        // Update all fields including full_name using updateMe
+        await base44.auth.updateMe(formData);
         console.log('Profile updated successfully');
       } catch (error) {
         console.error('Update error:', error);
