@@ -33,7 +33,7 @@ export default function AdminGroupsDashboard() {
   const { data: participants = [], isLoading: participantsLoading } = useQuery({
     queryKey: ['event-participants', eventId],
     queryFn: async () => {
-      return await base44.asServiceRole.entities.GroupParticipant.filter({ event_id: eventId }, '-created_date', 500);
+      return await base44.entities.GroupParticipant.filter({ event_id: eventId }, '-created_date', 500);
     },
     enabled: !!eventId
   });
@@ -97,6 +97,12 @@ export default function AdminGroupsDashboard() {
       </div>
 
       <div className="px-4 md:px-8 py-6 max-w-7xl mx-auto space-y-6">
+        {participantsLoading && (
+          <Card className="p-6 flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-fuchsia-600 border-t-transparent rounded-full animate-spin" />
+          </Card>
+        )}
+
         {/* Event Details */}
         <Card className="p-6">
           <h2 className="font-semibold text-slate-900 mb-4">Event Details</h2>
@@ -240,10 +246,35 @@ export default function AdminGroupsDashboard() {
           </Card>
         )}
 
-        {participants.length === 0 && (
+        {!participantsLoading && participants.length === 0 && (
           <Card className="p-12 text-center">
             <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
             <p className="text-slate-600">No registrations yet</p>
+          </Card>
+        )}
+
+        {!participantsLoading && participants.length > 0 && selectedParticipants.length === 0 && registeredParticipants.length === 0 && notSelectedParticipants.length === 0 && (
+          <Card className="p-6">
+            <h2 className="font-semibold text-slate-900 mb-4">All Participants ({participants.length})</h2>
+            <div className="space-y-3">
+              {participants.map((participant, idx) => (
+                <motion.div
+                  key={participant.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.02 }}
+                  className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100"
+                >
+                  <div>
+                    <p className="font-medium text-slate-900">{participant.user_name}</p>
+                    <p className="text-sm text-slate-600">Status: {participant.status || 'registered'}</p>
+                  </div>
+                  <Badge variant="outline">
+                    {participant.status || 'registered'}
+                  </Badge>
+                </motion.div>
+              ))}
+            </div>
           </Card>
         )}
       </div>
