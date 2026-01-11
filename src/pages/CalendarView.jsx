@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 
 export default function CalendarView() {
   const [user, setUser] = useState(null);
-  const [statusFilter, setStatusFilter] = useState(['pending', 'accepted', 'in_progress']);
+  const [statusFilter, setStatusFilter] = useState(['pending', 'accepted', 'in_progress', 'completed', 'rejected', 'cancelled']);
 
   useEffect(() => {
     const loadUser = async () => {
