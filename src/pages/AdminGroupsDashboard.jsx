@@ -106,38 +106,51 @@ export default function AdminGroupsDashboard() {
         {/* Event Details */}
         <Card className="p-6">
           <h2 className="font-semibold text-slate-900 mb-4">Event Details</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-slate-600">Date & Time</p>
-              <p className="font-medium text-slate-900">
-                {event?.date ? format(new Date(event.date), 'EEEE, MMMM d, yyyy') : 'TBD'} at {event?.time}
-              </p>
+          <div className="grid md:grid-cols-3 gap-4 mb-6">
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <p className="text-sm text-slate-600 mb-1">Total Registrations</p>
+              <p className="text-3xl font-bold text-blue-600">{participants.length}</p>
+              <p className="text-xs text-slate-500 mt-1">of {event?.max_participants || '∞'} max</p>
             </div>
-            <div>
-              <p className="text-sm text-slate-600">Location</p>
-              <p className="font-medium text-slate-900">
-                {event?.venue_name}, {event?.city}
-              </p>
+            <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
+              <p className="text-sm text-slate-600 mb-1">Total Amount Collected</p>
+              <p className="text-3xl font-bold text-emerald-600">₹{(participants.length * (event?.price || 0)).toFixed(0)}</p>
+              <p className="text-xs text-slate-500 mt-1">@ ₹{event?.price || 0} per person</p>
             </div>
-            <div>
-              <p className="text-sm text-slate-600">Language</p>
-              <p className="font-medium text-slate-900">{event?.language}</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-600">Price</p>
-              <p className="font-medium text-slate-900">₹{event?.price || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-600">Age Range</p>
-              <p className="font-medium text-slate-900">{event?.age_range_min}-{event?.age_range_max}</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-600">Status</p>
-              <Badge className={event?.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}>
-                {event?.status}
+            <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
+              <p className="text-sm text-slate-600 mb-1">Event Status</p>
+              <Badge className={event?.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : event?.status === 'completed' ? 'bg-violet-100 text-violet-700' : 'bg-blue-100 text-blue-700'}>
+                {event?.status?.toUpperCase()}
               </Badge>
             </div>
           </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-slate-600">Date & Time</p>
+              <p className="font-medium text-slate-900 mt-1">
+                {event?.date ? format(new Date(event.date), 'EEE, MMM d') : 'TBD'}
+              </p>
+              <p className="text-sm text-slate-600">{event?.time}</p>
+            </div>
+            <div>
+              <p className="text-sm text-slate-600">Location</p>
+              <p className="font-medium text-slate-900 mt-1">{event?.venue_name}</p>
+              <p className="text-sm text-slate-600">{event?.area}, {event?.city}</p>
+            </div>
+            <div>
+              <p className="text-sm text-slate-600">Details</p>
+              <p className="font-medium text-slate-900 mt-1">{event?.language}</p>
+              <p className="text-sm text-slate-600">Ages {event?.age_range_min}-{event?.age_range_max}</p>
+            </div>
+          </div>
+
+          {event?.description && (
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <p className="text-sm text-slate-600">Description</p>
+              <p className="text-slate-900 mt-1">{event.description}</p>
+            </div>
+          )}
         </Card>
 
         {/* Action Button */}
