@@ -30,10 +30,9 @@ export default function UserProfile() {
     queryFn: async () => {
       if (!userId) return null;
       try {
-        // Try listing all users first as User entity filter by ID might have permission issues
-        const allUsers = await base44.entities.User.list();
-        const foundUser = allUsers.find(u => u.id === userId);
-        return foundUser || null;
+        // Use backend function to fetch user profile (bypasses User entity security restrictions)
+        const response = await base44.functions.invoke('getUserProfile', { userId });
+        return response.data.user;
       } catch (e) {
         console.error('Error fetching user:', e);
         return null;
