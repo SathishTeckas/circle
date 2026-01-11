@@ -14,7 +14,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Users, Plus, Calendar as CalendarIcon, Clock, MapPin,
-  ArrowLeft, Trash2, Edit, Image as ImageIcon, X
+  ArrowLeft, Trash2, Edit, Image as ImageIcon, X, Check
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -61,7 +61,7 @@ export default function AdminGroups() {
     city: '',
     area: '',
     time: '',
-    language: 'Hindi',
+    languages: [],
     age_range_min: '25',
     age_range_max: '40',
     max_participants: '8',
@@ -128,6 +128,7 @@ export default function AdminGroups() {
           age_range_max: parseInt(formData.age_range_max),
           max_participants: parseInt(formData.max_participants),
           price: formData.price ? parseFloat(formData.price) : editingEvent.price,
+          language: formData.languages.join(', '),
           photos: formData.photos || []
         });
       } else {
@@ -138,6 +139,7 @@ export default function AdminGroups() {
           age_range_max: parseInt(formData.age_range_max),
           max_participants: parseInt(formData.max_participants),
           price: parseFloat(formData.price),
+          language: formData.languages.join(', '),
           photos: formData.photos || [],
           current_participants: 0,
           status: 'open'
@@ -149,7 +151,7 @@ export default function AdminGroups() {
       setShowForm(false);
       setEditingEvent(null);
       setFormData({
-        title: '', city: '', area: '', time: '', language: 'Hindi',
+        title: '', city: '', area: '', time: '', languages: [],
         age_range_min: '25', age_range_max: '40', max_participants: '8',
         venue_name: '', venue_address: '', description: '', price: '', photos: []
       });
@@ -159,12 +161,13 @@ export default function AdminGroups() {
 
   const handleEditEvent = (event) => {
     setEditingEvent(event);
+    const languages = event.language ? event.language.split(', ').map(l => l.trim()) : [];
     setFormData({
       title: event.title || '',
       city: event.city,
       area: event.area || '',
       time: event.time,
-      language: event.language,
+      languages: languages,
       age_range_min: event.age_range_min.toString(),
       age_range_max: event.age_range_max.toString(),
       max_participants: event.max_participants.toString(),
@@ -182,11 +185,20 @@ export default function AdminGroups() {
     setShowForm(false);
     setEditingEvent(null);
     setFormData({
-      title: '', city: '', area: '', time: '', language: 'Hindi',
+      title: '', city: '', area: '', time: '', languages: [],
       age_range_min: '25', age_range_max: '40', max_participants: '8',
       venue_name: '', venue_address: '', description: '', price: '', photos: []
     });
     setSelectedDate(null);
+  };
+
+  const toggleLanguage = (lang) => {
+    setFormData({
+      ...formData,
+      languages: formData.languages.includes(lang)
+        ? formData.languages.filter(l => l !== lang)
+        : [...formData.languages, lang]
+    });
   };
 
   const deleteMutation = useMutation({
@@ -315,17 +327,29 @@ export default function AdminGroups() {
                   </div>
 
                   <div>
-                    <Label>Language</Label>
-                    <Select value={formData.language} onValueChange={(v) => setFormData({ ...formData, language: v })}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {LANGUAGES.map(lang => (
-                          <SelectItem key={lang} value={lang}>{lang}</SelectItem>
+                    <Label>Languages (Select Multiple)</Label>
+                    <div className="mt-2 space-y-2">
+                      {LANGUAGES.map(lang => (
+                        <label key={lang} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.languages.includes(lang)}
+                            onChange={() => toggleLanguage(lang)}
+                            className="w-4 h-4 rounded"
+                          />
+                          <span className="text-sm text-slate-700">{lang}</span>
+                        </label>
+                      ))}
+                    </div>
+                    {formData.languages.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {formData.languages.map(lang => (
+                          <Badge key={lang} variant="secondary" className="bg-fuchsia-100 text-fuchsia-700">
+                            {lang}
+                          </Badge>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
