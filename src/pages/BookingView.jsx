@@ -311,10 +311,13 @@ export default function BookingView() {
           </button>
           <div className="flex-1">
             <h1 className="font-semibold text-slate-900">Booking Details</h1>
-            <Badge className={cn("mt-1", status.color)}>
-              <StatusIcon className="w-3.5 h-3.5 mr-1" />
-              {status.label}
-            </Badge>
+            <div className="flex items-center gap-2 mt-1">
+              <Badge className={cn(status.color)}>
+                <StatusIcon className="w-3.5 h-3.5 mr-1" />
+                {status.label}
+              </Badge>
+              <p className="text-xs text-slate-500">ID: {bookingId?.slice(0, 8)}</p>
+            </div>
           </div>
         </div>
       </div>
