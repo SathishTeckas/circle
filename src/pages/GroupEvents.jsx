@@ -253,11 +253,13 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
         </div>
 
         <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-          <div className="text-sm text-slate-500">
+          <div className="text-sm">
             {event.tables_assigned ? (
               <span className="text-emerald-600 font-medium">Groups assigned</span>
             ) : (
-              <span>Spot reserved</span>
+              <span className="text-slate-500">
+                {spotsLeft > 0 ? `${spotsLeft} spot${spotsLeft > 1 ? 's' : ''} left` : 'Event full'}
+              </span>
             )}
           </div>
           
