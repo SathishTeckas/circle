@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPageUrl } from '../utils';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -19,29 +19,28 @@ import RoleSwitcher from '../components/profile/RoleSwitcher';
 import { cn } from '@/lib/utils';
 
 export default function Profile() {
-  const [user, setUser] = useState(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = React.useRef(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const userData = await base44.auth.me();
-      setUser(userData);
-    };
-    loadUser();
+  const { data: user, isLoading } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 0, // Always fetch fresh data
+    refetchOnMount: 'always'
+  });
 
-    // Reload user data when page becomes visible
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        loadUser();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
+  const uploadPhotoMutation = useMutation({
+    mutationFn: async (file) => {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const currentPhotos = user.profile_photos || [];
+      const newPhotos = [file_url, ...currentPhotos.filter((_, idx) => idx < 4)];
+      await base44.auth.updateMe({ profile_photos: newPhotos });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    }
+  });
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -49,13 +48,7 @@ export default function Profile() {
 
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      const currentPhotos = user.profile_photos || [];
-      const newPhotos = [file_url, ...currentPhotos.filter((_, idx) => idx < 4)];
-      
-      await base44.auth.updateMe({ profile_photos: newPhotos });
-      const updatedUser = await base44.auth.me();
-      setUser(updatedUser);
+      await uploadPhotoMutation.mutateAsync(file);
     } catch (error) {
       console.error('Failed to upload photo:', error);
     } finally {
@@ -75,7 +68,7 @@ export default function Profile() {
     await base44.auth.logout(createPageUrl('Welcome'));
   };
 
-  if (!user) {
+  if (isLoading || !user) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />

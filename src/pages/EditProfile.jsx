@@ -57,21 +57,15 @@ export default function EditProfile() {
 
   const updateMutation = useMutation({
     mutationFn: async () => {
-      try {
-        // Update all fields including full_name using updateMe
-        await base44.auth.updateMe(formData);
-        console.log('Profile updated successfully');
-      } catch (error) {
-        console.error('Update error:', error);
-        alert('Error updating profile: ' + error.message);
-        throw error;
-      }
+      await base44.auth.updateMe(formData);
     },
     onSuccess: () => {
-      // Force reload to get updated user data
-      setTimeout(() => {
-        window.location.href = createPageUrl('Profile');
-      }, 500);
+      // Navigate back to profile
+      window.location.href = createPageUrl('Profile');
+    },
+    onError: (error) => {
+      console.error('Update error:', error);
+      alert('Error updating profile: ' + error.message);
     }
   });
 
