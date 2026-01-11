@@ -108,7 +108,7 @@ export default function UserProfile() {
         <Card className="p-6">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">{user.full_name}</h2>
+              <h2 className="text-2xl font-bold text-slate-900">{user.display_name || user.full_name}</h2>
               {user.age && (
                 <p className="text-slate-600">{user.age} years old</p>
               )}
