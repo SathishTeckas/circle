@@ -54,9 +54,10 @@ export default function Layout({ children, currentPageName }) {
     return null;
   }
 
-  const isCompanion = user?.user_role === 'companion';
+  const activeRole = user?.active_role || user?.user_role;
+  const isCompanion = activeRole === 'companion';
   const isAdmin = user?.user_role === 'admin';
-  const isSeeker = user?.user_role === 'seeker';
+  const isSeeker = activeRole === 'seeker';
 
   const seekerNav = [
     { name: 'Discover', icon: Search, page: 'Discover' },

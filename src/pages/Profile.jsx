@@ -15,6 +15,7 @@ import SafetyBadge from '@/components/ui/SafetyBadge';
 import RatingStars from '@/components/ui/RatingStars';
 import PhotoCarousel from '@/components/profile/PhotoCarousel';
 import NotificationBell from '../components/layout/NotificationBell';
+import RoleSwitcher from '../components/profile/RoleSwitcher';
 import { cn } from '@/lib/utils';
 
 export default function Profile() {
@@ -286,6 +287,9 @@ export default function Profile() {
             </div>
           </Card>
         )}
+
+        {/* Role Switcher */}
+        <RoleSwitcher user={user} />
 
         {/* Admin Panel Access */}
         {(user?.user_role === 'admin' || user?.role === 'admin') && (
