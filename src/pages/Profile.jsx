@@ -29,6 +29,18 @@ export default function Profile() {
       setUser(userData);
     };
     loadUser();
+
+    // Reload user data when page becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadUser();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const handlePhotoUpload = async (e) => {
