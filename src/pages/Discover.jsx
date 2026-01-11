@@ -66,11 +66,16 @@ export default function Discover() {
     queryFn: async () => {
       const query = { status: 'available' };
       if (filters.city) query.city = filters.city;
-      if (filters.area) query.area = filters.area;
       if (filters.gender) query.gender = filters.gender;
       if (selectedDate) query.date = format(selectedDate, 'yyyy-MM-dd');
       
-      const results = await base44.entities.Availability.filter(query, '-created_date', 50);
+      let results = await base44.entities.Availability.filter(query, '-created_date', 50);
+      
+      // Filter by area if specified, including "Any Area" companions
+      if (filters.area) {
+        results = results.filter(a => a.area === filters.area || a.area === 'Any Area');
+      }
+      
       return results;
     }
   });
