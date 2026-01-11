@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const INTERESTS = ['Movies', 'Music', 'Travel', 'Food', 'Sports', 'Art', 'Reading', 'Gaming', 'Photography', 'Fitness'];
+const INTERESTS = ['Movies', 'Music', 'Travel', 'Food', 'Sports', 'Art', 'Reading', 'Gaming', 'Photography', 'Fitness', 'Dancing', 'Theater', 'Comedy', 'Fashion', 'Technology', 'Science', 'Nature', 'Yoga', 'Meditation', 'Cooking', 'Wine & Dining', 'Coffee Culture', 'Nightlife', 'Adventure Sports', 'Spirituality', 'Politics', 'History', 'Architecture', 'Astronomy', 'Volunteering', 'Pets & Animals', 'Shopping', 'Cars & Bikes', 'Startups', 'Investing', 'Psychology', 'Podcasts', 'Blogging', 'Social Media', 'Board Games'];
 const LANGUAGES = ['English', 'Hindi', 'Tamil', 'Telugu', 'Bengali', 'Marathi', 'Gujarati', 'Kannada', 'Malayalam', 'Punjabi'];
 const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata', 'Ahmedabad'];
 const HOBBIES = ['Reading', 'Writing', 'Painting', 'Drawing', 'Photography', 'Cooking', 'Baking', 'Gardening', 'Hiking', 'Cycling'];
