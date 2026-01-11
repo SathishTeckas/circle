@@ -600,7 +600,7 @@ export default function BookingView() {
 
         {/* Raise Dispute */}
         {['accepted', 'completed'].includes(booking.status) && (
-          <Link to={createPageUrl(`RaiseDispute?id=${bookingId}`)}>
+          <Link to={createPageUrl(`RaiseDispute?id=${bookingId}`)} className="block">
             <Button variant="outline" className="w-full h-12 border-orange-200 text-orange-600 hover:bg-orange-50 rounded-xl">
               <AlertCircle className="w-5 h-5 mr-2" />
               Raise Dispute
