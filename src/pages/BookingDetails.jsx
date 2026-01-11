@@ -157,10 +157,12 @@ export default function BookingDetails() {
                 <h1 className="text-3xl font-bold text-white mb-2">
                   {availability.companion_name || 'Anonymous'}
                 </h1>
-                <div className="flex items-center gap-3">
-                  <RatingStars rating={4.8} />
-                  <span className="text-white/80 text-sm">({reviews.length} reviews)</span>
-                </div>
+                {reviews.length > 0 && companionUser?.average_rating > 0 && (
+                  <div className="flex items-center gap-3">
+                    <RatingStars rating={companionUser.average_rating} />
+                    <span className="text-white/80 text-sm">({reviews.length} reviews)</span>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -177,10 +179,12 @@ export default function BookingDetails() {
                 <h1 className="text-3xl font-bold text-white mb-2">
                   {availability.companion_name || 'Anonymous'}
                 </h1>
-                <div className="flex items-center gap-3">
-                  <RatingStars rating={4.8} />
-                  <span className="text-white/80 text-sm">({reviews.length} reviews)</span>
-                </div>
+                {reviews.length > 0 && companionUser?.average_rating > 0 && (
+                  <div className="flex items-center gap-3">
+                    <RatingStars rating={companionUser.average_rating} />
+                    <span className="text-white/80 text-sm">({reviews.length} reviews)</span>
+                  </div>
+                )}
               </div>
             </div>
           )}
