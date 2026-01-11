@@ -239,18 +239,19 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
               {event.venue_name}, {event.city}
             </div>
           )}
+          {event.price && (
+            <div className="flex items-center gap-2 text-sm font-medium text-fuchsia-600">
+              ₹{event.price} per person
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-slate-400" />
-            <span className="text-sm text-slate-600">
-              {event.current_participants || 0}/{event.max_participants || 8} joined
-            </span>
-            {spotsLeft <= 2 && spotsLeft > 0 && (
-              <Badge variant="secondary" className="bg-amber-100 text-amber-700">
-                {spotsLeft} left!
-              </Badge>
+          <div className="text-sm text-slate-500">
+            {event.tables_assigned ? (
+              <span className="text-emerald-600 font-medium">Groups assigned</span>
+            ) : (
+              <span>Spot reserved</span>
             )}
           </div>
           
