@@ -328,28 +328,25 @@ export default function AdminGroups() {
 
                   <div>
                     <Label>Languages (Select Multiple)</Label>
-                    <div className="mt-2 space-y-2">
+                    <div className="mt-3 flex flex-wrap gap-2">
                       {LANGUAGES.map(lang => (
-                        <label key={lang} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={formData.languages.includes(lang)}
-                            onChange={() => toggleLanguage(lang)}
-                            className="w-4 h-4 rounded"
-                          />
-                          <span className="text-sm text-slate-700">{lang}</span>
-                        </label>
+                        <button
+                          key={lang}
+                          onClick={() => toggleLanguage(lang)}
+                          className={cn(
+                            "px-4 py-2 rounded-full text-sm font-medium transition-all border-2",
+                            formData.languages.includes(lang)
+                              ? "bg-fuchsia-600 text-white border-fuchsia-600"
+                              : "bg-white text-slate-700 border-slate-200 hover:border-fuchsia-300"
+                          )}
+                        >
+                          {formData.languages.includes(lang) && (
+                            <Check className="w-3 h-3 inline mr-1" />
+                          )}
+                          {lang}
+                        </button>
                       ))}
                     </div>
-                    {formData.languages.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {formData.languages.map(lang => (
-                          <Badge key={lang} variant="secondary" className="bg-fuchsia-100 text-fuchsia-700">
-                            {lang}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
