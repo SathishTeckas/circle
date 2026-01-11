@@ -57,18 +57,28 @@ export default function GroupEvents() {
 
   const joinMutation = useMutation({
     mutationFn: async (eventId) => {
+      const eventData = events.find(e => e.id === eventId);
+      const amount = eventData?.price || 0;
+      
       await base44.entities.GroupParticipant.create({
         event_id: eventId,
         user_id: user.id,
         user_name: user.full_name,
-        status: 'registered'
+        user_email: user.email,
+        user_gender: user.gender,
+        user_age: user.date_of_birth ? Math.floor((new Date() - new Date(user.date_of_birth)) / (365.25 * 24 * 60 * 60 * 1000)) : null,
+        user_personality: user.personality,
+        user_languages: user.languages || [],
+        status: 'registered',
+        payment_status: 'completed',
+        amount_paid: amount
       });
       
-      // Update participant count
-      const event = events.find(e => e.id === eventId);
-      if (event) {
+      // Update participant count and total amount collected
+      if (eventData) {
         await base44.entities.GroupEvent.update(eventId, {
-          current_participants: (event.current_participants || 0) + 1
+          current_participants: (eventData.current_participants || 0) + 1,
+          total_amount_collected: (eventData.total_amount_collected || 0) + amount
         });
       }
     },
