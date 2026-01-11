@@ -198,7 +198,7 @@ export default function BookingDetails() {
   const totalAmount = basePrice + platformFee;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-32">
+    <div className="min-h-screen bg-slate-50 pb-48">
       {/* Header - Photo Carousel */}
       <div className="relative bg-black">
         <div className="max-w-lg mx-auto">
