@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { createPageUrl } from '../utils';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
@@ -8,12 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Users, IndianRupee, Calendar, Shield, TrendingUp, 
-  AlertTriangle, MapPin, ChevronRight, Building, Settings
+  AlertTriangle, MapPin, ChevronRight, Building, Settings, Download
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
+  const [exporting, setExporting] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -63,6 +64,29 @@ export default function AdminDashboard() {
   
   const totalRevenue = completedBookings.reduce((sum, b) => sum + (b.platform_fee || 0), 0);
   const totalGMV = completedBookings.reduce((sum, b) => sum + (b.total_amount || 0), 0);
+
+  const exportMutation = useMutation({
+    mutationFn: async (dataType) => {
+      setExporting(dataType);
+      const response = await base44.functions.invoke('exportAdminData', { dataType });
+      return response.data;
+    },
+    onSuccess: (data, dataType) => {
+      const blob = new Blob([data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${dataType}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      setExporting(null);
+    },
+    onError: () => {
+      setExporting(null);
+    }
+  });
 
   const stats = [
     { label: 'Total Users', value: allUsers.length, icon: Users, color: 'bg-blue-500' },
@@ -142,6 +166,49 @@ export default function AdminDashboard() {
               <ChevronRight className="w-5 h-5 text-slate-400" />
             </Link>
           ))}
+        </Card>
+
+        {/* Export Data */}
+        <Card className="p-4">
+          <h3 className="font-semibold text-slate-900 mb-4">Export Data for Analysis</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Button
+              onClick={() => exportMutation.mutate('users')}
+              disabled={exporting === 'users'}
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-auto py-3"
+            >
+              <Download className="w-5 h-5" />
+              <span className="text-xs">Users</span>
+            </Button>
+            <Button
+              onClick={() => exportMutation.mutate('bookings')}
+              disabled={exporting === 'bookings'}
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-auto py-3"
+            >
+              <Download className="w-5 h-5" />
+              <span className="text-xs">Bookings</span>
+            </Button>
+            <Button
+              onClick={() => exportMutation.mutate('groupEvents')}
+              disabled={exporting === 'groupEvents'}
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-auto py-3"
+            >
+              <Download className="w-5 h-5" />
+              <span className="text-xs">Group Events</span>
+            </Button>
+            <Button
+              onClick={() => exportMutation.mutate('groupParticipants')}
+              disabled={exporting === 'groupParticipants'}
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-auto py-3"
+            >
+              <Download className="w-5 h-5" />
+              <span className="text-xs">Attendance</span>
+            </Button>
+          </div>
         </Card>
 
         {/* Recent Bookings */}
