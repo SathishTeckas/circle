@@ -211,7 +211,7 @@ export default function AdminGroups() {
     }
   });
 
-  const canSubmit = selectedDate && formData.city && formData.area && formData.time && formData.language;
+  const canSubmit = selectedDate && formData.city && formData.area && formData.time && formData.languages.length > 0;
 
   const statusColors = {
     open: 'bg-emerald-100 text-emerald-700',

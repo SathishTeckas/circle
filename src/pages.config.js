@@ -1,6 +1,7 @@
 import AdminDashboard from './pages/AdminDashboard';
 import AdminDisputes from './pages/AdminDisputes';
 import AdminGroups from './pages/AdminGroups';
+import AdminGroupsDashboard from './pages/AdminGroupsDashboard';
 import AdminManagement from './pages/AdminManagement';
 import AdminPayouts from './pages/AdminPayouts';
 import AdminSettings from './pages/AdminSettings';
@@ -15,6 +16,7 @@ import CompanionBookings from './pages/CompanionBookings';
 import CompanionDashboard from './pages/CompanionDashboard';
 import Discover from './pages/Discover';
 import EditProfile from './pages/EditProfile';
+import GroupEvents from './pages/GroupEvents';
 import HelpSupport from './pages/HelpSupport';
 import KYCVerification from './pages/KYCVerification';
 import LeaveReview from './pages/LeaveReview';
@@ -31,8 +33,6 @@ import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
-import GroupEvents from './pages/GroupEvents';
-import AdminGroupsDashboard from './pages/AdminGroupsDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -40,6 +40,7 @@ export const PAGES = {
     "AdminDashboard": AdminDashboard,
     "AdminDisputes": AdminDisputes,
     "AdminGroups": AdminGroups,
+    "AdminGroupsDashboard": AdminGroupsDashboard,
     "AdminManagement": AdminManagement,
     "AdminPayouts": AdminPayouts,
     "AdminSettings": AdminSettings,
@@ -54,6 +55,7 @@ export const PAGES = {
     "CompanionDashboard": CompanionDashboard,
     "Discover": Discover,
     "EditProfile": EditProfile,
+    "GroupEvents": GroupEvents,
     "HelpSupport": HelpSupport,
     "KYCVerification": KYCVerification,
     "LeaveReview": LeaveReview,
@@ -70,8 +72,6 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "Wallet": Wallet,
     "Welcome": Welcome,
-    "GroupEvents": GroupEvents,
-    "AdminGroupsDashboard": AdminGroupsDashboard,
 }
 
 export const pagesConfig = {
