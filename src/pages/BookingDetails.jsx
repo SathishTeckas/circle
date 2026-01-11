@@ -87,6 +87,11 @@ export default function BookingDetails() {
       const totalAmount = basePrice + platformFee;
       const companionPayout = basePrice * (1 - platformFeePercent / 100);
       
+      // Calculate end time based on selected hours
+      const [startHour, startMinute] = availability.start_time.split(':').map(Number);
+      const endHour = startHour + selectedHours;
+      const endTime = `${endHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
+      
       const booking = await base44.entities.Booking.create({
         availability_id: availabilityId,
         companion_id: availability.companion_id,
@@ -97,7 +102,7 @@ export default function BookingDetails() {
         seeker_photo: user.profile_photos?.[0],
         date: availability.date,
         start_time: availability.start_time,
-        end_time: availability.end_time,
+        end_time: endTime,
         duration_hours: selectedHours,
         area: availability.area,
         city: availability.city,
