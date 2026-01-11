@@ -32,6 +32,7 @@ import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
 import GroupEvents from './pages/GroupEvents';
+import AdminGroupsDashboard from './pages/AdminGroupsDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -70,6 +71,7 @@ export const PAGES = {
     "Wallet": Wallet,
     "Welcome": Welcome,
     "GroupEvents": GroupEvents,
+    "AdminGroupsDashboard": AdminGroupsDashboard,
 }
 
 export const pagesConfig = {
