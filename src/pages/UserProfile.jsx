@@ -25,10 +25,17 @@ export default function UserProfile() {
     loadUser();
   }, []);
 
-  const { data: user, isLoading } = useQuery({
+  const { data: user, isLoading, error } = useQuery({
     queryKey: ['user-profile', userId],
     queryFn: async () => {
+      if (!userId) return null;
       const users = await base44.entities.User.filter({ id: userId });
+      if (!users || users.length === 0) {
+        // Try fetching by listing all users and finding the match
+        const allUsers = await base44.entities.User.list();
+        const foundUser = allUsers.find(u => u.id === userId);
+        return foundUser || null;
+      }
       return users[0];
     },
     enabled: !!userId
