@@ -527,7 +527,13 @@ export default function BookingView() {
         )}
 
         {/* Complete Meeting - Companion Only */}
-        {booking.status === 'accepted' && isCompanion && (
+        {booking.status === 'accepted' && isCompanion && (() => {
+          const [hours, minutes] = (booking.start_time || '').split(':').map(Number);
+          const meetupDateTime = new Date(booking.date);
+          meetupDateTime.setHours(hours, minutes, 0, 0);
+          const canComplete = new Date() >= new Date(meetupDateTime.getTime() + 10 * 60 * 1000);
+          return canComplete;
+        })() && (
           <Card className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
             <h3 className="font-semibold text-emerald-900 mb-2 flex items-center gap-2">
               <CheckCircle className="w-5 h-5" />
