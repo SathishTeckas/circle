@@ -206,8 +206,14 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: idx * 0.05 }}
     >
-      <Card className="p-4 overflow-hidden">
-        <div className="flex items-start justify-between mb-4">
+      <Card className="p-0 overflow-hidden">
+        {event.photos && event.photos.length > 0 && (
+          <div className="h-48 bg-slate-100 overflow-hidden">
+            <img src={event.photos[0]} alt="Event" className="w-full h-full object-cover" />
+          </div>
+        )}
+        <div className="p-4">
+          <div className="flex items-start justify-between mb-4">
           <div>
             <h3 className="font-semibold text-slate-900 text-lg">
               {event.title || 'Group Meetup'}
@@ -270,6 +276,7 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
               Join
             </Button>
           )}
+        </div>
         </div>
       </Card>
     </motion.div>
