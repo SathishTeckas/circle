@@ -118,12 +118,12 @@ export default function BookingDetails() {
       const platformFee = basePrice * (platformFeePercent / 100);
       const totalAmount = basePrice + platformFee;
       const companionPayout = basePrice * (1 - platformFeePercent / 100);
-      
+
       // Calculate end time based on selected start time and hours
       const [startHour, startMinute] = selectedStartTime.split(':').map(Number);
       const endHour = startHour + selectedHours;
       const endTime = `${endHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
-      
+
       const booking = await base44.entities.Booking.create({
         availability_id: availabilityId,
         companion_id: availability.companion_id,
@@ -147,9 +147,9 @@ export default function BookingDetails() {
         chat_enabled: true,
         request_expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString()
       });
-      
+
       await base44.entities.Availability.update(availabilityId, { status: 'pending' });
-      
+
       // Create notification for companion
       await base44.entities.Notification.create({
         user_id: availability.companion_id,
@@ -160,11 +160,15 @@ export default function BookingDetails() {
         amount: companionPayout,
         action_url: createPageUrl(`BookingView?id=${booking.id}`)
       });
-      
+
       return booking;
     },
     onSuccess: (booking) => {
       window.location.href = createPageUrl(`BookingView?id=${booking.id}`);
+    },
+    onError: (error) => {
+      console.error('Booking creation failed:', error);
+      setBooking(false);
     }
   });
 
