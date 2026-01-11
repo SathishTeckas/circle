@@ -144,6 +144,7 @@ export default function BookingDetails() {
         companion_payout: companionPayout,
         status: 'pending',
         escrow_status: 'held',
+        chat_enabled: true,
         request_expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString()
       });
       
