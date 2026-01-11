@@ -355,8 +355,8 @@ export default function BookingDetails() {
           <div className="flex items-center justify-between mb-4">
             <div className="min-w-0 flex-shrink">
               <p className="text-sm text-slate-500">Total</p>
-              <p className="text-2xl font-bold text-slate-900">₹{Math.ceil(totalAmount)}</p>
-              <p className="text-xs text-slate-500">incl. {platformFeePercent}% platform fee</p>
+              <p className="text-2xl font-bold text-slate-900">₹{Math.ceil(basePrice)}</p>
+              <p className="text-xs text-slate-500">for {selectedHours} hour{selectedHours > 1 ? 's' : ''}</p>
             </div>
             <Button
               onClick={handleBook}
