@@ -50,20 +50,7 @@ export default function CalendarView() {
     enabled: !!user?.id && isCompanion
   });
 
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
-
   const filteredBookings = bookings.filter(b => statusFilter.includes(b.status));
-
-  const getEventsForDate = (date) => {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const dayBookings = filteredBookings.filter(b => b.date === dateStr);
-    const dayAvailabilities = availabilities.filter(a => a.date === dateStr && a.status === 'available');
-    return { bookings: dayBookings, availabilities: dayAvailabilities };
-  };
-
-  const selectedEvents = selectedDate ? getEventsForDate(selectedDate) : null;
 
   const allStatuses = [
     { value: 'pending', label: 'Pending', color: 'bg-amber-100 text-amber-700' },
