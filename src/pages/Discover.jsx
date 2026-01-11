@@ -83,6 +83,9 @@ export default function Discover() {
   });
 
   const filteredAvailabilities = availabilities.filter(a => {
+    // Don't show user's own availabilities
+    if (user && a.companion_id === user.id) return false;
+    
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       const matchesName = a.companion_name?.toLowerCase().includes(query);
