@@ -172,7 +172,7 @@ export default function Notifications() {
                         )}
                         <div className="flex items-center gap-2 text-xs text-slate-500">
                           <Clock className="w-3 h-3" />
-                          {format(new Date(notification.created_date), 'MMM d, h:mm a')}
+                          {format(new Date(notification.created_date + 'Z'), 'MMM d, yyyy h:mm a')}
                         </div>
                       </div>
                     </div>
