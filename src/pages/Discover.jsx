@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
@@ -109,6 +109,28 @@ export default function Discover() {
     }
     return true;
   });
+
+  // Group availabilities by companion
+  const groupedCompanions = React.useMemo(() => {
+    const grouped = {};
+    filteredAvailabilities.forEach(avail => {
+      if (!grouped[avail.companion_id]) {
+        grouped[avail.companion_id] = [];
+      }
+      grouped[avail.companion_id].push(avail);
+    });
+    // Sort each companion's slots by date and time
+    Object.keys(grouped).forEach(companionId => {
+      grouped[companionId].sort((a, b) => {
+        const dateCompare = new Date(a.date) - new Date(b.date);
+        if (dateCompare !== 0) return dateCompare;
+        return a.start_time.localeCompare(b.start_time);
+      });
+    });
+    return grouped;
+  }, [filteredAvailabilities]);
+
+  const companionsList = Object.values(groupedCompanions);
 
   const clearFilters = () => {
     setFilters({ city: '', area: '', gender: '', priceMin: '', priceMax: '', language: '', minRating: '' });
@@ -391,7 +413,7 @@ export default function Discover() {
               <div key={i} className="bg-white rounded-2xl h-80 animate-pulse" />
             ))}
           </div>
-        ) : filteredAvailabilities.length === 0 ? (
+        ) : companionsList.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-slate-400" />
@@ -403,16 +425,16 @@ export default function Discover() {
         ) : (
           <div className="space-y-4">
             <p className="text-sm text-slate-600">
-              {filteredAvailabilities.length} companion{filteredAvailabilities.length !== 1 ? 's' : ''} available
+              {companionsList.length} companion{companionsList.length !== 1 ? 's' : ''} available
             </p>
-            {filteredAvailabilities.map((availability, idx) => (
+            {companionsList.map((slots, idx) => (
               <motion.div
-                key={availability.id}
+                key={slots[0].companion_id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
               >
-                <CompanionCard availability={availability} />
+                <CompanionCard availability={slots[0]} availabilities={slots} />
               </motion.div>
             ))}
           </div>
