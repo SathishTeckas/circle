@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Users, IndianRupee, Calendar, Shield, TrendingUp, 
-  AlertTriangle, MapPin, ChevronRight, Building, Settings, Download
+  AlertTriangle, MapPin, ChevronRight, Building, Settings, Download, Wallet
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -97,10 +97,19 @@ export default function AdminDashboard() {
     { label: 'Bookings', value: allBookings.length, icon: Calendar, color: 'bg-amber-500' },
   ];
 
+  const { data: payouts = [] } = useQuery({
+    queryKey: ['admin-payouts'],
+    queryFn: () => base44.entities.Payout.list('-created_date', 50)
+  });
+
+  const pendingPayouts = payouts.filter(p => p.status === 'pending');
+
   const quickLinks = [
     { label: 'Manage Users', desc: `${pendingKYC.length} pending verification`, icon: Users, page: 'AdminUsers', alert: pendingKYC.length > 0 },
     { label: 'Manage Venues', desc: `${venues.length} registered venues`, icon: Building, page: 'AdminVenues' },
     { label: 'Group Events', desc: `${groupEvents.length} events`, icon: Calendar, page: 'AdminGroups' },
+    { label: 'Manage Payouts', desc: `${pendingPayouts.length} pending payouts`, icon: Wallet, page: 'AdminPayouts', alert: pendingPayouts.length > 0 },
+    { label: 'Admin Management', desc: 'Manage administrators', icon: Shield, page: 'AdminManagement' },
     { label: 'Disputes', desc: `${disputedBookings.length} open disputes`, icon: AlertTriangle, page: 'AdminDisputes', alert: disputedBookings.length > 0 },
     { label: 'Platform Settings', desc: 'Configure fees and policies', icon: Settings, page: 'AdminSettings' },
   ];
