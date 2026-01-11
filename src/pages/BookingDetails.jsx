@@ -350,10 +350,10 @@ export default function BookingDetails() {
       </div>
 
       {/* Fixed Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 pb-6">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 safe-bottom">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-4">
-            <div>
+            <div className="min-w-0 flex-shrink">
               <p className="text-sm text-slate-500">Total</p>
               <p className="text-2xl font-bold text-slate-900">₹{totalAmount.toFixed(2)}</p>
               <p className="text-xs text-slate-500">incl. {platformFeePercent}% platform fee</p>
@@ -361,7 +361,7 @@ export default function BookingDetails() {
             <Button
               onClick={handleBook}
               disabled={booking || bookingMutation.isPending}
-              className="h-14 px-8 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white text-lg font-semibold rounded-xl"
+              className="h-14 px-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white text-base font-semibold rounded-xl flex-shrink-0 ml-3"
             >
               {bookingMutation.isPending ? (
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
