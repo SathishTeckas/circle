@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import NotificationBell from '../components/layout/NotificationBell';
 import { 
   Calendar, Clock, IndianRupee, Star, TrendingUp, Bell, 
-  ChevronRight, Plus, Users as UsersIcon, CheckCircle, XCircle
+  ChevronRight, Plus, Users as UsersIcon, CheckCircle, XCircle, Gift
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -363,6 +363,24 @@ export default function CompanionDashboard() {
             </p>
           </div>
         </Card>
+
+        {/* Referral Card */}
+        <Link to={createPageUrl('Referrals')}>
+          <Card className="p-4 bg-gradient-to-br from-violet-50 to-fuchsia-50 border-violet-200 hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
+                  <Gift className="w-6 h-6 text-violet-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900">Refer & Earn</h3>
+                  <p className="text-sm text-slate-600">Get ₹100 per referral</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-slate-400" />
+            </div>
+          </Card>
+        </Link>
       </div>
 
       {/* Cancel Confirmation Dialog */}

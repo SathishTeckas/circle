@@ -257,7 +257,7 @@ export default function BookingDetails() {
                 <MapPin className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Location</p>
+                <p className="text-xs text-slate-500">Area</p>
                 <p className="font-medium text-slate-900">
                   {availability.area}, {availability.city}
                 </p>
@@ -270,7 +270,7 @@ export default function BookingDetails() {
               <div>
                 <p className="text-xs text-slate-500">Languages</p>
                 <p className="font-medium text-slate-900">
-                  {availability.languages?.slice(0, 2).join(', ') || 'English'}
+                  {availability.languages?.join(', ') || 'English'}
                 </p>
               </div>
             </div>
@@ -313,20 +313,50 @@ export default function BookingDetails() {
           </Card>
         )}
 
-        {/* Interests */}
-        {availability.interests?.length > 0 && (
+        {/* Interests & About */}
+        {(availability.interests?.length > 0 || companionUser?.hobbies?.length > 0 || companionUser?.personality_traits?.length > 0) && (
           <Card className="p-4">
-            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Heart className="w-5 h-5 text-pink-500" />
-              Interests
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {availability.interests.map((interest, idx) => (
-                <Badge key={idx} variant="secondary" className="bg-slate-100">
-                  {interest}
-                </Badge>
-              ))}
-            </div>
+            {availability.interests?.length > 0 && (
+              <div className="mb-4">
+                <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <Heart className="w-5 h-5 text-pink-500" />
+                  Interests
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {availability.interests.map((interest, idx) => (
+                    <Badge key={idx} variant="secondary" className="bg-violet-100 text-violet-700">
+                      {interest}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {companionUser?.hobbies?.length > 0 && (
+              <div className="mb-4">
+                <h3 className="font-semibold text-slate-900 mb-3 text-sm">Hobbies</h3>
+                <div className="flex flex-wrap gap-2">
+                  {companionUser.hobbies.map((hobby, idx) => (
+                    <Badge key={idx} variant="secondary" className="bg-blue-100 text-blue-700">
+                      {hobby}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {companionUser?.personality_traits?.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-slate-900 mb-3 text-sm">Personality</h3>
+                <div className="flex flex-wrap gap-2">
+                  {companionUser.personality_traits.map((trait, idx) => (
+                    <Badge key={idx} variant="secondary" className="bg-emerald-100 text-emerald-700">
+                      {trait}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
           </Card>
         )}
 
