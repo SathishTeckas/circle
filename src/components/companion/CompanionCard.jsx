@@ -93,7 +93,14 @@ export default function CompanionCard({ availability, availabilities, variant = 
         <div className="space-y-1.5 mb-3">
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <MapPin className="w-4 h-4 text-violet-500" />
-            <span>{primaryAvailability.area}, {primaryAvailability.city}</span>
+            <span>
+              {(() => {
+                const uniqueLocations = [...new Set(allSlots.map(s => `${s.area}, ${s.city}`))];
+                if (uniqueLocations.length === 1) return uniqueLocations[0];
+                if (uniqueLocations.length === 2) return uniqueLocations.join(' • ');
+                return 'Chennai';
+              })()}
+            </span>
           </div>
           {primaryAvailability.languages?.length > 0 && (
             <div className="flex items-center gap-2 text-sm text-slate-600">
