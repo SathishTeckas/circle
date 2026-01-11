@@ -15,14 +15,13 @@ import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-const LANGUAGES = ['English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese'];
+const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow'];
 
 export default function GroupEvents() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [filters, setFilters] = useState({
-    city: '',
-    language: ''
+    city: ''
   });
   const [activeTab, setActiveTab] = useState('discover');
 
@@ -42,7 +41,6 @@ export default function GroupEvents() {
     queryFn: async () => {
       const query = { status: 'open' };
       if (filters.city) query.city = filters.city;
-      if (filters.language) query.language = filters.language;
       return await base44.entities.GroupEvent.filter(query, 'date', 20);
     }
   });
@@ -115,17 +113,17 @@ export default function GroupEvents() {
         {/* Filters */}
         <div className="flex gap-2">
           <Select 
-            value={filters.language} 
-            onValueChange={(v) => setFilters({ ...filters, language: v })}
+            value={filters.city} 
+            onValueChange={(v) => setFilters({ ...filters, city: v })}
           >
             <SelectTrigger className="h-11 rounded-xl flex-1">
-              <Globe className="w-4 h-4 mr-2 text-slate-400" />
-              <SelectValue placeholder="Language" />
+              <MapPin className="w-4 h-4 mr-2 text-slate-400" />
+              <SelectValue placeholder="All Cities" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={null}>All Languages</SelectItem>
-              {LANGUAGES.map(lang => (
-                <SelectItem key={lang} value={lang}>{lang}</SelectItem>
+              <SelectItem value={null}>All Cities</SelectItem>
+              {CITIES.map(city => (
+                <SelectItem key={city} value={city}>{city}</SelectItem>
               ))}
             </SelectContent>
           </Select>
