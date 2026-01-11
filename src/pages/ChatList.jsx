@@ -20,18 +20,9 @@ export default function ChatList() {
     loadUser();
   }, []);
 
-  // Refetch when window regains focus
-  useEffect(() => {
-    const handleFocus = () => {
-      refetch();
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [refetch]);
-
   const isCompanion = user?.user_role === 'companion';
 
-  const { data: bookings = [], isLoading } = useQuery({
+  const { data: bookings = [], isLoading, refetch } = useQuery({
     queryKey: ['chat-bookings', user?.id, isCompanion],
     queryFn: async () => {
       const query = isCompanion 
