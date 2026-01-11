@@ -40,9 +40,9 @@ export default function AdminGroupsDashboard() {
 
   // No need to fetch user details separately - they come with GroupParticipant
 
-  const assignTablesMutation = useMutation({
+  const selectParticipantsMutation = useMutation({
     mutationFn: async () => {
-      await base44.asServiceRole.functions.invoke('assignGroupTables', { eventId });
+      await base44.asServiceRole.functions.invoke('selectGroupEventParticipants', { eventId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['group-event', eventId] });
@@ -113,9 +113,9 @@ export default function AdminGroupsDashboard() {
               <p className="text-xs text-slate-500 mt-1">of {event?.max_participants || '∞'} max</p>
             </div>
             <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-100">
-              <p className="text-sm text-slate-600 mb-1">Total Amount Collected</p>
-              <p className="text-3xl font-bold text-emerald-600">₹{(participants.length * (event?.price || 0)).toFixed(0)}</p>
-              <p className="text-xs text-slate-500 mt-1">@ ₹{event?.price || 0} per person</p>
+             <p className="text-sm text-slate-600 mb-1">Total Amount Collected</p>
+             <p className="text-3xl font-bold text-emerald-600">₹{event?.total_amount_collected ? event.total_amount_collected.toFixed(0) : (participants.length * (event?.price || 0)).toFixed(0)}</p>
+             <p className="text-xs text-slate-500 mt-1">from {participants.filter(p => p.payment_status === 'completed').length} paid registrations</p>
             </div>
             <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
               <p className="text-sm text-slate-600 mb-1">Event Status</p>
@@ -156,11 +156,11 @@ export default function AdminGroupsDashboard() {
         {/* Action Button */}
         {!event?.tables_assigned && registeredParticipants.length > 0 && (
           <Button
-            onClick={() => assignTablesMutation.mutate()}
-            disabled={assignTablesMutation.isPending}
+            onClick={() => selectParticipantsMutation.mutate()}
+            disabled={selectParticipantsMutation.isPending}
             className="w-full h-12 bg-fuchsia-600 hover:bg-fuchsia-700 rounded-xl text-white font-semibold"
           >
-            {assignTablesMutation.isPending ? 'Assigning Tables...' : 'Assign Tables with AI'}
+            {selectParticipantsMutation.isPending ? 'Selecting Participants...' : 'Select Participants & Send Refunds'}
           </Button>
         )}
 
