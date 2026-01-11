@@ -149,7 +149,7 @@ export default function CalendarView() {
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                      <span className="text-sm font-medium text-slate-900">₹{booking.total_amount}</span>
+                      <span className="text-sm font-medium text-slate-900">₹{booking.total_amount?.toFixed(2)}</span>
                       <span className="text-xs text-slate-500">{booking.duration_hours}h</span>
                     </div>
                   </Card>
