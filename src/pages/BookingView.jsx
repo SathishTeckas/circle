@@ -110,7 +110,7 @@ export default function BookingView() {
         user_id: booking.seeker_id,
         type: 'payment_refunded',
         title: '💰 Refund Processed',
-        message: `₹${booking.total_amount.toFixed(2)} has been refunded to your account`,
+        message: `₹${Math.ceil(booking.total_amount)} has been refunded to your account`,
         amount: booking.total_amount,
         action_url: createPageUrl('MyBookings')
       });
@@ -149,7 +149,7 @@ export default function BookingView() {
           user_id: booking.seeker_id,
           type: 'payment_refunded',
           title: '💰 Refund Processed',
-          message: `₹${refundAmount.toFixed(2)} (${refundPercentage}%) has been refunded to your account`,
+          message: `₹${Math.ceil(refundAmount)} (${refundPercentage}%) has been refunded to your account`,
           amount: refundAmount,
           action_url: createPageUrl('MyBookings')
         });
@@ -194,7 +194,7 @@ export default function BookingView() {
         user_id: booking.companion_id,
         type: 'payout_processed',
         title: '💰 Payment Released',
-        message: `₹${booking.companion_payout?.toFixed(2)} has been credited to your wallet`,
+        message: `₹${Math.ceil(booking.companion_payout || 0)} has been credited to your wallet`,
         amount: booking.companion_payout,
         action_url: createPageUrl('Wallet')
       });
@@ -377,15 +377,15 @@ export default function BookingView() {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-slate-600">Base Price ({booking.duration_hours}h)</span>
-              <span className="text-slate-900">₹{booking.base_price?.toFixed(2)}</span>
+              <span className="text-slate-900">₹{Math.ceil(booking.base_price || 0)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-600">Platform Fee ({appSettings?.platform_fee || 15}%)</span>
-              <span className="text-slate-900">₹{booking.platform_fee?.toFixed(2)}</span>
+              <span className="text-slate-900">₹{Math.ceil(booking.platform_fee || 0)}</span>
             </div>
             <div className="flex justify-between border-t border-slate-100 pt-2 font-semibold">
               <span className="text-slate-900">Total</span>
-              <span className="text-slate-900">₹{booking.total_amount?.toFixed(2)}</span>
+              <span className="text-slate-900">₹{Math.ceil(booking.total_amount || 0)}</span>
             </div>
           </div>
 
@@ -464,7 +464,7 @@ export default function BookingView() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-600">Refund Amount</span>
                 <span className="text-lg font-bold text-slate-900">
-                  ₹{((booking.total_amount * refundInfo.percentage) / 100).toFixed(2)}
+                  ₹{Math.ceil((booking.total_amount * refundInfo.percentage) / 100)}
                 </span>
               </div>
             </div>
@@ -553,7 +553,7 @@ export default function BookingView() {
               <h3 className="font-semibold text-slate-900 mb-2">Meeting Completed</h3>
               <p className="text-sm text-slate-600 mb-4">
                 {isCompanion 
-                  ? `Payment of ₹${booking.companion_payout?.toFixed(2)} has been credited to your wallet`
+                  ? `Payment of ₹${Math.ceil(booking.companion_payout || 0)} has been credited to your wallet`
                   : 'Thank you for using Circle! Please leave a review.'
                 }
               </p>
