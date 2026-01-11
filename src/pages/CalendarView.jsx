@@ -159,15 +159,7 @@ export default function CalendarView() {
           )}
         </div>
 
-        {/* Quick Actions */}
-        {isCompanion && (
-          <Link to={createPageUrl('ManageAvailability')}>
-            <Button className="w-full h-12 bg-violet-600 hover:bg-violet-700 rounded-xl">
-              <Plus className="w-5 h-5 mr-2" />
-              Add Availability
-            </Button>
-          </Link>
-        )}
+
       </div>
     </div>
   );
