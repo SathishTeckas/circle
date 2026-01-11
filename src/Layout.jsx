@@ -148,8 +148,8 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Mobile Bottom Nav */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 z-50">
-          <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
-            {adminNav.slice(0, 5).map((item) => {
+          <div className="flex justify-around items-center h-16 max-w-lg mx-auto overflow-x-auto">
+            {adminNav.map((item) => {
               const isActive = currentPageName === item.page;
               return (
                 <Link
