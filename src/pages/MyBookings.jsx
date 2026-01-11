@@ -18,6 +18,15 @@ export default function MyBookings() {
     loadUser();
   }, []);
 
+  // Refetch when window regains focus
+  useEffect(() => {
+    const handleFocus = () => {
+      refetch();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [refetch]);
+
   const { data: bookings = [], isLoading, refetch } = useQuery({
     queryKey: ['my-bookings', user?.id],
     queryFn: async () => {
