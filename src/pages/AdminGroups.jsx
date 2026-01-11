@@ -39,6 +39,7 @@ const TIME_SLOTS = ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00
 export default function AdminGroups() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -51,7 +52,8 @@ export default function AdminGroups() {
     max_participants: '8',
     venue_name: '',
     venue_address: '',
-    description: ''
+    description: '',
+    price: ''
   });
 
   useEffect(() => {
@@ -76,27 +78,71 @@ export default function AdminGroups() {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      await base44.entities.GroupEvent.create({
-        ...formData,
-        date: format(selectedDate, 'yyyy-MM-dd'),
-        age_range_min: parseInt(formData.age_range_min),
-        age_range_max: parseInt(formData.age_range_max),
-        max_participants: parseInt(formData.max_participants),
-        current_participants: 0,
-        status: 'open'
-      });
+      if (editingEvent) {
+        await base44.entities.GroupEvent.update(editingEvent.id, {
+          ...formData,
+          date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : editingEvent.date,
+          age_range_min: parseInt(formData.age_range_min),
+          age_range_max: parseInt(formData.age_range_max),
+          max_participants: parseInt(formData.max_participants),
+          price: formData.price ? parseFloat(formData.price) : editingEvent.price
+        });
+      } else {
+        await base44.entities.GroupEvent.create({
+          ...formData,
+          date: format(selectedDate, 'yyyy-MM-dd'),
+          age_range_min: parseInt(formData.age_range_min),
+          age_range_max: parseInt(formData.age_range_max),
+          max_participants: parseInt(formData.max_participants),
+          price: parseFloat(formData.price),
+          current_participants: 0,
+          status: 'open'
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-group-events'] });
       setShowForm(false);
+      setEditingEvent(null);
       setFormData({
         title: '', city: '', area: '', time: '', language: 'Hindi',
         age_range_min: '25', age_range_max: '40', max_participants: '8',
-        venue_name: '', venue_address: '', description: ''
+        venue_name: '', venue_address: '', description: '', price: ''
       });
       setSelectedDate(null);
     }
   });
+
+  const handleEditEvent = (event) => {
+    setEditingEvent(event);
+    setFormData({
+      title: event.title || '',
+      city: event.city,
+      area: event.area || '',
+      time: event.time,
+      language: event.language,
+      age_range_min: event.age_range_min.toString(),
+      age_range_max: event.age_range_max.toString(),
+      max_participants: event.max_participants.toString(),
+      venue_name: event.venue_name || '',
+      venue_address: event.venue_address || '',
+      description: event.description || '',
+      price: event.price?.toString() || ''
+    });
+    setSelectedDate(event.date ? new Date(event.date) : null);
+    setShowForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setEditingEvent(null);
+    setFormData({
+      title: '', city: '', area: '', time: '', language: 'Hindi',
+      age_range_min: '25', age_range_max: '40', max_participants: '8',
+      venue_name: '', venue_address: '', description: '', price: ''
+    });
+    setSelectedDate(null);
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (eventId) => {
@@ -145,9 +191,9 @@ export default function AdminGroups() {
                   Create Event
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+              <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto" onOpenChange={handleCloseForm}>
                 <SheetHeader>
-                  <SheetTitle>Create Group Event</SheetTitle>
+                  <SheetTitle>{editingEvent ? 'Edit Event' : 'Create Group Event'}</SheetTitle>
                 </SheetHeader>
 
                 <div className="space-y-4 mt-6 pb-6">
@@ -289,6 +335,17 @@ export default function AdminGroups() {
                   </div>
 
                   <div>
+                    <Label>Price Per Person (₹)</Label>
+                    <Input
+                      type="number"
+                      placeholder="e.g., 299"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
                     <Label>Description (Optional)</Label>
                     <Textarea
                       placeholder="Any additional details..."
@@ -303,7 +360,7 @@ export default function AdminGroups() {
                     disabled={!canSubmit || createMutation.isPending}
                     className="w-full h-12 bg-fuchsia-600 hover:bg-fuchsia-700 rounded-xl"
                   >
-                    {createMutation.isPending ? 'Creating...' : 'Create Event'}
+                    {createMutation.isPending ? (editingEvent ? 'Updating...' : 'Creating...') : (editingEvent ? 'Update Event' : 'Create Event')}
                   </Button>
                 </div>
               </SheetContent>
@@ -336,28 +393,38 @@ export default function AdminGroups() {
               >
                 <Card className="p-4">
                   <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="font-semibold text-slate-900 text-lg">
-                        {event.title || 'Group Meetup'}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge className={statusColors[event.status]}>
-                          {event.status}
-                        </Badge>
-                        <Badge variant="outline">{event.language}</Badge>
-                        <span className="text-sm text-slate-500">
-                          Ages {event.age_range_min}-{event.age_range_max}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => deleteMutation.mutate(event.id)}
-                      className="border-red-200 text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                   <div>
+                     <h3 className="font-semibold text-slate-900 text-lg">
+                       {event.title || 'Group Meetup'}
+                     </h3>
+                     <div className="flex items-center gap-2 mt-1">
+                       <Badge className={statusColors[event.status]}>
+                         {event.status}
+                       </Badge>
+                       <Badge variant="outline">{event.language}</Badge>
+                       <span className="text-sm text-slate-500">
+                         Ages {event.age_range_min}-{event.age_range_max}
+                       </span>
+                     </div>
+                   </div>
+                   <div className="flex gap-2">
+                     <Button
+                       size="sm"
+                       variant="outline"
+                       onClick={() => handleEditEvent(event)}
+                       className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                     >
+                       <Edit className="w-4 h-4" />
+                     </Button>
+                     <Button
+                       size="sm"
+                       variant="outline"
+                       onClick={() => deleteMutation.mutate(event.id)}
+                       className="border-red-200 text-red-600 hover:bg-red-50"
+                     >
+                       <Trash2 className="w-4 h-4" />
+                     </Button>
+                   </div>
                   </div>
 
                   <div className="space-y-2 text-sm text-slate-600">
@@ -379,11 +446,18 @@ export default function AdminGroups() {
 
                   <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-slate-400" />
-                      <span className="text-sm text-slate-600">
-                        {event.current_participants || 0}/{event.max_participants || 8} participants
-                      </span>
+                      {event.price && (
+                        <span className="text-sm font-medium text-fuchsia-600">
+                          ₹{event.price}
+                        </span>
+                      )}
                     </div>
+                    <a
+                      href={createPageUrl('AdminGroupsDashboard') + `?eventId=${event.id}`}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      View Participants →
+                    </a>
                   </div>
                 </Card>
               </motion.div>
