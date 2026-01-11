@@ -84,18 +84,7 @@ export default function CalendarView() {
       <div className="px-4 py-6 max-w-4xl mx-auto space-y-6">
         {/* All Bookings List */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-slate-900">Your Bookings</h2>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowCalendar(!showCalendar)}
-              className="rounded-xl"
-            >
-              <CalendarIcon className="w-4 h-4 mr-2" />
-              {showCalendar ? 'Hide Calendar' : 'Show Calendar'}
-            </Button>
-          </div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Your Bookings</h2>
 
           {/* Status Filters */}
           <div className="flex flex-wrap gap-2 mb-4">
