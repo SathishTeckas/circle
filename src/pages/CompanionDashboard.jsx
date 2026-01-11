@@ -266,7 +266,7 @@ export default function CompanionDashboard() {
               <Calendar className="w-5 h-5 text-violet-600" />
               Upcoming Meetups
             </h3>
-            <Link to={createPageUrl('ChatList')} className="text-sm text-violet-600 font-medium">
+            <Link to={createPageUrl('CalendarView')} className="text-sm text-violet-600 font-medium">
               View All
             </Link>
           </div>
