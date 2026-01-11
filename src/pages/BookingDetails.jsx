@@ -93,7 +93,7 @@ export default function BookingDetails() {
         companion_name: availability.companion_name,
         companion_photo: availability.companion_photo,
         seeker_id: user.id,
-        seeker_name: user.full_name,
+        seeker_name: user.display_name || user.full_name,
         seeker_photo: user.profile_photos?.[0],
         date: availability.date,
         start_time: availability.start_time,
@@ -117,7 +117,7 @@ export default function BookingDetails() {
         user_id: availability.companion_id,
         type: 'booking_request',
         title: '🔔 New Booking Request!',
-        message: `${user.full_name} wants to book you for ${selectedHours}h on ${format(new Date(availability.date), 'MMM d')}`,
+        message: `${user.display_name || user.full_name} wants to book you for ${selectedHours}h on ${format(new Date(availability.date), 'MMM d')}`,
         booking_id: booking.id,
         amount: companionPayout,
         action_url: createPageUrl(`BookingView?id=${booking.id}`)
