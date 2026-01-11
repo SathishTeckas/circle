@@ -421,13 +421,27 @@ export default function BookingDetails() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {[1, 2, 3, 4].map(h => (
-                <SelectItem key={h} value={String(h)}>
-                  {h} hour{h > 1 ? 's' : ''} - ₹{availability.price_per_hour * h}
-                </SelectItem>
-              ))}
+              {[1, 2, 3, 4].map(h => {
+                const [startHour, startMinute] = availability.start_time.split(':').map(Number);
+                const endHour = startHour + h;
+                const calculatedEndTime = `${endHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
+                return (
+                  <SelectItem key={h} value={String(h)}>
+                    {h} hour{h > 1 ? 's' : ''} ({formatTime12Hour(availability.start_time)} - {formatTime12Hour(calculatedEndTime)}) - ₹{availability.price_per_hour * h}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
+          <div className="mt-3 p-3 bg-violet-50 rounded-lg">
+            <p className="text-sm text-violet-700">
+              <span className="font-medium">Meetup Time:</span> {formatTime12Hour(availability.start_time)} - {formatTime12Hour((() => {
+                const [startHour, startMinute] = availability.start_time.split(':').map(Number);
+                const endHour = startHour + selectedHours;
+                return `${endHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
+              })())}
+            </p>
+          </div>
         </Card>
       </div>
 
