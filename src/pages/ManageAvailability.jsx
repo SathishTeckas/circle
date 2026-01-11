@@ -88,7 +88,7 @@ export default function ManageAvailability() {
 
       await base44.entities.Availability.create({
         companion_id: user.id,
-        companion_name: user.full_name,
+        companion_name: user.display_name || user.full_name,
         companion_photo: user.profile_photos?.[0],
         date: format(selectedDate, 'yyyy-MM-dd'),
         start_time: formData.start_time,
