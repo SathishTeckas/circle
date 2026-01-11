@@ -7,9 +7,9 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Filter, X } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export default function CalendarView() {
@@ -17,6 +17,7 @@ export default function CalendarView() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [statusFilter, setStatusFilter] = useState(['pending', 'accepted', 'in_progress']);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -55,14 +56,33 @@ export default function CalendarView() {
   const monthEnd = endOfMonth(currentMonth);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
+  const filteredBookings = bookings.filter(b => statusFilter.includes(b.status));
+
   const getEventsForDate = (date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    const dayBookings = bookings.filter(b => b.date === dateStr);
+    const dayBookings = filteredBookings.filter(b => b.date === dateStr);
     const dayAvailabilities = availabilities.filter(a => a.date === dateStr && a.status === 'available');
     return { bookings: dayBookings, availabilities: dayAvailabilities };
   };
 
   const selectedEvents = selectedDate ? getEventsForDate(selectedDate) : null;
+
+  const allStatuses = [
+    { value: 'pending', label: 'Pending', color: 'bg-amber-100 text-amber-700' },
+    { value: 'accepted', label: 'Accepted', color: 'bg-emerald-100 text-emerald-700' },
+    { value: 'in_progress', label: 'In Progress', color: 'bg-blue-100 text-blue-700' },
+    { value: 'completed', label: 'Completed', color: 'bg-slate-100 text-slate-700' },
+    { value: 'rejected', label: 'Rejected', color: 'bg-red-100 text-red-700' },
+    { value: 'cancelled', label: 'Cancelled', color: 'bg-slate-100 text-slate-700' },
+  ];
+
+  const toggleStatus = (status) => {
+    if (statusFilter.includes(status)) {
+      setStatusFilter(statusFilter.filter(s => s !== status));
+    } else {
+      setStatusFilter([...statusFilter, status]);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
@@ -92,7 +112,28 @@ export default function CalendarView() {
             </Button>
           </div>
 
-          {bookings.length === 0 ? (
+          {/* Status Filters */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {allStatuses.map((status) => (
+              <Badge
+                key={status.value}
+                onClick={() => toggleStatus(status.value)}
+                className={cn(
+                  "cursor-pointer transition-all",
+                  statusFilter.includes(status.value)
+                    ? status.color
+                    : "bg-slate-100 text-slate-400 opacity-50 hover:opacity-70"
+                )}
+              >
+                {status.label}
+                {statusFilter.includes(status.value) && (
+                  <X className="w-3 h-3 ml-1" />
+                )}
+              </Badge>
+            ))}
+          </div>
+
+          {filteredBookings.length === 0 ? (
             <Card className="p-8 text-center">
               <CalendarIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
               <h3 className="font-semibold text-slate-900 mb-1">No bookings yet</h3>
@@ -102,7 +143,7 @@ export default function CalendarView() {
             </Card>
           ) : (
             <div className="space-y-3">
-              {bookings.map((booking) => (
+              {filteredBookings.map((booking) => (
                 <Link 
                   key={booking.id} 
                   to={createPageUrl(`BookingView?id=${booking.id}`)}
