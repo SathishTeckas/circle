@@ -29,16 +29,18 @@ export default function UserProfile() {
     queryKey: ['user-profile', userId],
     queryFn: async () => {
       if (!userId) return null;
-      const users = await base44.entities.User.filter({ id: userId });
-      if (!users || users.length === 0) {
-        // Try fetching by listing all users and finding the match
+      try {
+        // Try listing all users first as User entity filter by ID might have permission issues
         const allUsers = await base44.entities.User.list();
         const foundUser = allUsers.find(u => u.id === userId);
         return foundUser || null;
+      } catch (e) {
+        console.error('Error fetching user:', e);
+        return null;
       }
-      return users[0];
     },
-    enabled: !!userId
+    enabled: !!userId,
+    retry: false
   });
 
   const { data: reviews = [] } = useQuery({
