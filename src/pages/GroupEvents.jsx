@@ -258,7 +258,7 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
               <span className="text-emerald-600 font-medium">Groups assigned</span>
             ) : (
               <span className="text-slate-500">
-                {spotsLeft > 0 ? `${spotsLeft} spot${spotsLeft > 1 ? 's' : ''} left` : 'Event full'}
+                {event.current_participants || 0}/{event.max_participants || 8}
               </span>
             )}
           </div>
