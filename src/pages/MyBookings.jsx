@@ -18,14 +18,15 @@ export default function MyBookings() {
     loadUser();
   }, []);
 
-  const { data: bookings = [], isLoading } = useQuery({
+  const { data: bookings = [], isLoading, refetch } = useQuery({
     queryKey: ['my-bookings', user?.id],
     queryFn: async () => {
-      return await base44.entities.Booking.filter({ seeker_id: user.id }, '-created_date', 50);
+      const allBookings = await base44.entities.Booking.filter({ seeker_id: user.id }, '-created_date', 100);
+      return allBookings;
     },
     enabled: !!user?.id,
-    refetchInterval: 3000,
-    staleTime: 1000
+    refetchInterval: 2000,
+    staleTime: 0
   });
 
   const upcomingStatuses = ['pending', 'accepted', 'in_progress'];
