@@ -35,6 +35,15 @@ export default function ChatList() {
     staleTime: 0
   });
 
+  // Refetch when window regains focus
+  useEffect(() => {
+    const handleFocus = () => {
+      refetch();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [refetch]);
+
   const { data: unreadMessages = [] } = useQuery({
     queryKey: ['unread-messages', user?.id],
     queryFn: async () => {
