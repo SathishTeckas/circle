@@ -106,12 +106,7 @@ export default function Layout({ children, currentPageName }) {
               <h1 className="text-xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
                 Circle Admin
               </h1>
-              <button
-                onClick={() => window.history.back()}
-                className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center hover:bg-slate-200 transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4 text-slate-600" />
-              </button>
+              {/* Remove back button - not needed in admin panel */}
             </div>
             
             {/* Navigation */}
