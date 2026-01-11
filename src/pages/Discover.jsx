@@ -87,9 +87,34 @@ export default function Discover() {
     }
   });
 
+  // Check if availability is in the past
+  const isAvailabilityPast = (availability) => {
+    const now = new Date();
+    const availDate = new Date(availability.date);
+    
+    // If date is in the past, it's expired
+    if (availDate < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
+      return true;
+    }
+    
+    // If date is today, check if the end_time has passed
+    if (availDate.toDateString() === now.toDateString()) {
+      const [endHour, endMinute] = availability.end_time.split(':').map(Number);
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      
+      return endHour < currentHour || (endHour === currentHour && endMinute <= currentMinute);
+    }
+    
+    return false;
+  };
+
   const filteredAvailabilities = availabilities.filter(a => {
     // Don't show user's own availabilities
     if (user && a.companion_id === user.id) return false;
+    
+    // Filter out past availabilities
+    if (isAvailabilityPast(a)) return false;
     
     if (searchQuery) {
       const query = searchQuery.toLowerCase();

@@ -121,7 +121,29 @@ export default function ManageAvailability() {
     }
   });
 
-  const activeAvailabilities = availabilities.filter(a => a.status === 'available');
+  // Check if availability is in the past
+  const isAvailabilityPast = (availability) => {
+    const now = new Date();
+    const availDate = new Date(availability.date);
+    
+    // If date is in the past, it's expired
+    if (availDate < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
+      return true;
+    }
+    
+    // If date is today, check if the end_time has passed
+    if (availDate.toDateString() === now.toDateString()) {
+      const [endHour, endMinute] = availability.end_time.split(':').map(Number);
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      
+      return endHour < currentHour || (endHour === currentHour && endMinute <= currentMinute);
+    }
+    
+    return false;
+  };
+
+  const activeAvailabilities = availabilities.filter(a => a.status === 'available' && !isAvailabilityPast(a));
   const bookedAvailabilities = availabilities.filter(a => a.status === 'booked');
 
   const canSubmit = selectedDate && formData.start_time && formData.end_time && 
