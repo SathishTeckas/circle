@@ -23,7 +23,9 @@ export default function MyBookings() {
     queryFn: async () => {
       return await base44.entities.Booking.filter({ seeker_id: user.id }, '-created_date', 50);
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    refetchInterval: 3000,
+    staleTime: 1000
   });
 
   const upcomingStatuses = ['pending', 'accepted', 'in_progress'];
@@ -33,14 +35,15 @@ export default function MyBookings() {
   today.setHours(0, 0, 0, 0);
 
   const upcomingBookings = bookings.filter(b => {
-    if (!upcomingStatuses.includes(b.status)) return false;
-    if (!b.date) return true;
+    if (upcomingStatuses.includes(b.status)) return true;
+    if (!b.date) return false;
     const bookingDate = new Date(b.date);
     return bookingDate >= today;
   });
   
   const pastBookings = bookings.filter(b => {
     if (pastStatuses.includes(b.status)) return true;
+    if (upcomingStatuses.includes(b.status)) return false;
     if (!b.date) return false;
     const bookingDate = new Date(b.date);
     return bookingDate < today;
