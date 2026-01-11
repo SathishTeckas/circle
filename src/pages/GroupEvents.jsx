@@ -258,7 +258,7 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
               <span className="text-emerald-600 font-medium">Groups assigned</span>
             ) : (
               <span className="text-slate-500">
-                {event.max_participants || 8} spot${(event.max_participants || 8) > 1 ? 's' : ''}
+                {`${event.max_participants || 8} spot${(event.max_participants || 8) > 1 ? 's' : ''}`}
               </span>
             )}
           </div>
