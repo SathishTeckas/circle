@@ -23,6 +23,7 @@ export default function BookingDetails() {
   const availabilityId = urlParams.get('id');
   
   const [user, setUser] = useState(null);
+  const [selectedStartTime, setSelectedStartTime] = useState(null);
   const [selectedHours, setSelectedHours] = useState(1);
   const [booking, setBooking] = useState(false);
 
@@ -79,6 +80,37 @@ export default function BookingDetails() {
     enabled: !!availability?.companion_id
   });
 
+  // Calculate available start times (hourly slots within availability window)
+  const availableStartTimes = React.useMemo(() => {
+    if (!availability?.start_time || !availability?.end_time) return [];
+    
+    const [startHour, startMinute] = availability.start_time.split(':').map(Number);
+    const [endHour] = availability.end_time.split(':').map(Number);
+    
+    const times = [];
+    for (let hour = startHour; hour < endHour; hour++) {
+      times.push(`${hour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`);
+    }
+    return times;
+  }, [availability]);
+
+  // Calculate max hours available for selected start time
+  const maxHoursAvailable = React.useMemo(() => {
+    if (!selectedStartTime || !availability?.end_time) return 4;
+    
+    const [startHour] = selectedStartTime.split(':').map(Number);
+    const [endHour] = availability.end_time.split(':').map(Number);
+    
+    return Math.min(endHour - startHour, 4);
+  }, [selectedStartTime, availability]);
+
+  // Initialize selected start time to availability start
+  React.useEffect(() => {
+    if (availability?.start_time && !selectedStartTime) {
+      setSelectedStartTime(availability.start_time);
+    }
+  }, [availability, selectedStartTime]);
+
   const bookingMutation = useMutation({
     mutationFn: async () => {
       const platformFeePercent = appSettings?.platform_fee || 15;
@@ -87,8 +119,8 @@ export default function BookingDetails() {
       const totalAmount = basePrice + platformFee;
       const companionPayout = basePrice * (1 - platformFeePercent / 100);
       
-      // Calculate end time based on selected hours
-      const [startHour, startMinute] = availability.start_time.split(':').map(Number);
+      // Calculate end time based on selected start time and hours
+      const [startHour, startMinute] = selectedStartTime.split(':').map(Number);
       const endHour = startHour + selectedHours;
       const endTime = `${endHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
       
@@ -101,7 +133,7 @@ export default function BookingDetails() {
         seeker_name: user.display_name || user.full_name,
         seeker_photo: user.profile_photos?.[0],
         date: availability.date,
-        start_time: availability.start_time,
+        start_time: selectedStartTime,
         end_time: endTime,
         duration_hours: selectedHours,
         area: availability.area,
@@ -413,34 +445,63 @@ export default function BookingDetails() {
           </Card>
         )}
 
-        {/* Duration Selection */}
+        {/* Time & Duration Selection */}
         <Card className="p-4">
-          <h3 className="font-semibold text-slate-900 mb-3">Select Duration</h3>
-          <Select value={String(selectedHours)} onValueChange={(v) => setSelectedHours(Number(v))}>
-            <SelectTrigger className="h-12 rounded-xl">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[1, 2, 3, 4].map(h => {
-                const [startHour, startMinute] = availability.start_time.split(':').map(Number);
-                const endHour = startHour + h;
-                const calculatedEndTime = `${endHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
-                return (
-                  <SelectItem key={h} value={String(h)}>
-                    {h} hour{h > 1 ? 's' : ''} ({formatTime12Hour(availability.start_time)} - {formatTime12Hour(calculatedEndTime)}) - ₹{availability.price_per_hour * h}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-          <div className="mt-3 p-3 bg-violet-50 rounded-lg">
-            <p className="text-sm text-violet-700">
-              <span className="font-medium">Meetup Time:</span> {formatTime12Hour(availability.start_time)} - {formatTime12Hour((() => {
-                const [startHour, startMinute] = availability.start_time.split(':').map(Number);
-                const endHour = startHour + selectedHours;
-                return `${endHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
-              })())}
-            </p>
+          <h3 className="font-semibold text-slate-900 mb-4">Choose Your Time Slot</h3>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm text-slate-600 mb-2 block">Start Time</label>
+              <Select value={selectedStartTime} onValueChange={(v) => {
+                setSelectedStartTime(v);
+                // Reset hours if current selection exceeds new max
+                const [newStartHour] = v.split(':').map(Number);
+                const [endHour] = availability.end_time.split(':').map(Number);
+                const newMax = Math.min(endHour - newStartHour, 4);
+                if (selectedHours > newMax) {
+                  setSelectedHours(newMax);
+                }
+              }}>
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableStartTimes.map(time => (
+                    <SelectItem key={time} value={time}>
+                      {formatTime12Hour(time)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm text-slate-600 mb-2 block">Duration</label>
+              <Select value={String(selectedHours)} onValueChange={(v) => setSelectedHours(Number(v))}>
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: maxHoursAvailable }, (_, i) => i + 1).map(h => (
+                    <SelectItem key={h} value={String(h)}>
+                      {h} hour{h > 1 ? 's' : ''} - ₹{availability.price_per_hour * h}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedStartTime && (
+              <div className="p-3 bg-violet-50 rounded-lg">
+                <p className="text-sm text-violet-700">
+                  <span className="font-medium">Selected:</span> {formatTime12Hour(selectedStartTime)} - {formatTime12Hour((() => {
+                    const [startHour, startMinute] = selectedStartTime.split(':').map(Number);
+                    const endHour = startHour + selectedHours;
+                    return `${endHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
+                  })())} ({selectedHours}h)
+                </p>
+              </div>
+            )}
           </div>
         </Card>
       </div>
