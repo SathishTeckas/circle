@@ -14,7 +14,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Users, Plus, Calendar as CalendarIcon, Clock, MapPin,
-  ArrowLeft, Trash2, Edit
+  ArrowLeft, Trash2, Edit, Image as ImageIcon, X
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -53,8 +53,10 @@ export default function AdminGroups() {
     venue_name: '',
     venue_address: '',
     description: '',
-    price: ''
+    price: '',
+    photos: []
   });
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -76,6 +78,31 @@ export default function AdminGroups() {
     queryFn: () => base44.entities.Venue.filter({ verified: true }, 'name', 50)
   });
 
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingPhoto(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setFormData({
+        ...formData,
+        photos: [...(formData.photos || []), file_url]
+      });
+    } catch (error) {
+      console.error('Photo upload failed:', error);
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const removePhoto = (index) => {
+    setFormData({
+      ...formData,
+      photos: formData.photos.filter((_, i) => i !== index)
+    });
+  };
+
   const createMutation = useMutation({
     mutationFn: async () => {
       if (editingEvent) {
@@ -85,7 +112,8 @@ export default function AdminGroups() {
           age_range_min: parseInt(formData.age_range_min),
           age_range_max: parseInt(formData.age_range_max),
           max_participants: parseInt(formData.max_participants),
-          price: formData.price ? parseFloat(formData.price) : editingEvent.price
+          price: formData.price ? parseFloat(formData.price) : editingEvent.price,
+          photos: formData.photos || []
         });
       } else {
         await base44.entities.GroupEvent.create({
@@ -95,6 +123,7 @@ export default function AdminGroups() {
           age_range_max: parseInt(formData.age_range_max),
           max_participants: parseInt(formData.max_participants),
           price: parseFloat(formData.price),
+          photos: formData.photos || [],
           current_participants: 0,
           status: 'open'
         });
@@ -107,7 +136,7 @@ export default function AdminGroups() {
       setFormData({
         title: '', city: '', area: '', time: '', language: 'Hindi',
         age_range_min: '25', age_range_max: '40', max_participants: '8',
-        venue_name: '', venue_address: '', description: '', price: ''
+        venue_name: '', venue_address: '', description: '', price: '', photos: []
       });
       setSelectedDate(null);
     }
@@ -127,7 +156,8 @@ export default function AdminGroups() {
       venue_name: event.venue_name || '',
       venue_address: event.venue_address || '',
       description: event.description || '',
-      price: event.price?.toString() || ''
+      price: event.price?.toString() || '',
+      photos: event.photos || []
     });
     setSelectedDate(event.date ? new Date(event.date) : null);
     setShowForm(true);
@@ -139,7 +169,7 @@ export default function AdminGroups() {
     setFormData({
       title: '', city: '', area: '', time: '', language: 'Hindi',
       age_range_min: '25', age_range_max: '40', max_participants: '8',
-      venue_name: '', venue_address: '', description: '', price: ''
+      venue_name: '', venue_address: '', description: '', price: '', photos: []
     });
     setSelectedDate(null);
   };
@@ -355,6 +385,40 @@ export default function AdminGroups() {
                     />
                   </div>
 
+                  <div>
+                    <Label>Event Photos</Label>
+                    <div className="mt-1">
+                      <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50">
+                        <div className="flex flex-col items-center justify-center">
+                          <ImageIcon className="w-6 h-6 text-slate-400" />
+                          <span className="text-sm text-slate-600">Upload photos</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handlePhotoUpload}
+                          disabled={uploadingPhoto}
+                          className="hidden"
+                        />
+                      </label>
+                      {formData.photos && formData.photos.length > 0 && (
+                        <div className="grid grid-cols-2 gap-2 mt-3">
+                          {formData.photos.map((photo, idx) => (
+                            <div key={idx} className="relative group">
+                              <img src={photo} alt="Event" className="w-full h-20 object-cover rounded-lg" />
+                              <button
+                                onClick={() => removePhoto(idx)}
+                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <Button
                     onClick={() => createMutation.mutate()}
                     disabled={!canSubmit || createMutation.isPending}
@@ -392,42 +456,47 @@ export default function AdminGroups() {
                 transition={{ delay: idx * 0.02 }}
               >
                 <Card className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                   <div>
-                     <h3 className="font-semibold text-slate-900 text-lg">
-                       {event.title || 'Group Meetup'}
-                     </h3>
-                     <div className="flex items-center gap-2 mt-1">
-                       <Badge className={statusColors[event.status]}>
-                         {event.status}
-                       </Badge>
-                       <Badge variant="outline">{event.language}</Badge>
-                       <span className="text-sm text-slate-500">
-                         Ages {event.age_range_min}-{event.age_range_max}
-                       </span>
+                   {event.photos && event.photos.length > 0 && (
+                     <div className="mb-3 rounded-lg overflow-hidden h-40 bg-slate-100">
+                       <img src={event.photos[0]} alt="Event" className="w-full h-full object-cover" />
                      </div>
+                   )}
+                   <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-semibold text-slate-900 text-lg">
+                        {event.title || 'Group Meetup'}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge className={statusColors[event.status]}>
+                          {event.status}
+                        </Badge>
+                        <Badge variant="outline">{event.language}</Badge>
+                        <span className="text-sm text-slate-500">
+                          Ages {event.age_range_min}-{event.age_range_max}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditEvent(event)}
+                        className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => deleteMutation.mutate(event.id)}
+                        className="border-red-200 text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                    </div>
-                   <div className="flex gap-2">
-                     <Button
-                       size="sm"
-                       variant="outline"
-                       onClick={() => handleEditEvent(event)}
-                       className="border-blue-200 text-blue-600 hover:bg-blue-50"
-                     >
-                       <Edit className="w-4 h-4" />
-                     </Button>
-                     <Button
-                       size="sm"
-                       variant="outline"
-                       onClick={() => deleteMutation.mutate(event.id)}
-                       className="border-red-200 text-red-600 hover:bg-red-50"
-                     >
-                       <Trash2 className="w-4 h-4" />
-                     </Button>
-                   </div>
-                  </div>
 
-                  <div className="space-y-2 text-sm text-slate-600">
+                   <div className="space-y-2 text-sm text-slate-600">
                     <div className="flex items-center gap-2">
                       <CalendarIcon className="w-4 h-4 text-fuchsia-600" />
                       {event.date ? format(new Date(event.date), 'EEEE, MMMM d, yyyy') : 'TBD'}
