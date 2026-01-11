@@ -48,7 +48,7 @@ export default function CompanionCard({ availability, variant = 'default', showC
         {!isCompact && (
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
             <h3 className="text-white font-semibold text-lg">
-              {availability.companion_name || 'Anonymous'}
+              {companion?.display_name || availability.companion_name || 'Anonymous'}
             </h3>
           </div>
         )}
@@ -61,7 +61,7 @@ export default function CompanionCard({ availability, variant = 'default', showC
       )}>
         {isCompact && (
           <h3 className="font-semibold text-slate-900 mb-1">
-            {availability.companion_name || 'Anonymous'}
+            {companion?.display_name || availability.companion_name || 'Anonymous'}
           </h3>
         )}
         
