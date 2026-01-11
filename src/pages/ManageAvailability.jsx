@@ -251,6 +251,7 @@ export default function ManageAvailability() {
                     <SelectValue placeholder={formData.city ? "Select area" : "Select city first"} />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="Any Area">Any Area (Available across {formData.city})</SelectItem>
                     {availableAreas.map(area => (
                       <SelectItem key={area} value={area}>{area}</SelectItem>
                     ))}

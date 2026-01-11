@@ -96,6 +96,9 @@ export default function CompanionCard({ availability, availabilities, variant = 
             <span>
               {(() => {
                 const uniqueAreas = [...new Set(allSlots.map(s => s.area))];
+                if (uniqueAreas.includes('Any Area')) {
+                  return allSlots[0].city;
+                }
                 return uniqueAreas.join(', ');
               })()}
             </span>
