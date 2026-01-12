@@ -57,7 +57,32 @@ export default function AdminDisputes() {
   const { data: disputes = [] } = useQuery({
     queryKey: ['all-disputes'],
     queryFn: async () => {
-      return await base44.entities.Dispute.list('-created_date', 100);
+      const disputes = await base44.entities.Dispute.list('-created_date', 100);
+      
+      // Fetch display names for all users
+      const userIds = new Set();
+      disputes.forEach(d => {
+        userIds.add(d.raised_by);
+        userIds.add(d.against_user_id);
+      });
+      
+      const users = await Promise.all(
+        Array.from(userIds).map(id => 
+          base44.entities.User.filter({ id }).then(r => r[0]).catch(() => null)
+        )
+      );
+      
+      const userMap = users.reduce((acc, u) => {
+        if (u) acc[u.id] = u.display_name || u.full_name;
+        return acc;
+      }, {});
+      
+      // Update disputes with display names
+      return disputes.map(d => ({
+        ...d,
+        raised_by_name: userMap[d.raised_by] || d.raised_by_name,
+        against_user_name: userMap[d.against_user_id] || d.against_user_name
+      }));
     }
   });
 
