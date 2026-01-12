@@ -93,7 +93,7 @@ export default function BookingView() {
         user_id: booking.seeker_id,
         type: 'booking_accepted',
         title: '🎉 Booking Confirmed!',
-        message: `${companionUser?.display_name || booking.companion_name} accepted your booking request`,
+        message: `${companionUser?.display_name || companionUser?.full_name || booking.companion_name} accepted your booking request`,
         booking_id: bookingId,
         action_url: createPageUrl(`BookingView?id=${bookingId}`)
       });
@@ -118,7 +118,7 @@ export default function BookingView() {
         user_id: booking.seeker_id,
         type: 'booking_rejected',
         title: 'Booking Declined',
-        message: `${companionUser?.display_name || booking.companion_name} declined your booking request. Full refund processed.`,
+        message: `${companionUser?.display_name || companionUser?.full_name || booking.companion_name} declined your booking request. Full refund processed.`,
         booking_id: bookingId,
         amount: booking.total_amount,
         action_url: createPageUrl('Discover')
@@ -202,7 +202,7 @@ export default function BookingView() {
         user_id: booking.seeker_id,
         type: 'booking_reminder',
         title: '✅ Meeting Completed',
-        message: `Your meeting with ${companionUser?.display_name || booking.companion_name} has been completed. Please leave a review!`,
+        message: `Your meeting with ${companionUser?.display_name || companionUser?.full_name || booking.companion_name} has been completed. Please leave a review!`,
         booking_id: bookingId,
         action_url: createPageUrl(`LeaveReview?bookingId=${bookingId}`)
       });
