@@ -505,7 +505,7 @@ export default function AdminGroups() {
                            {event.title || 'Group Meetup'}
                          </h3>
                          <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md font-mono">
-                           {event.id}
+                           #{event.id.slice(-5)}
                          </span>
                        </div>
                       <div className="flex items-center gap-2 mt-1">
