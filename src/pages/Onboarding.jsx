@@ -49,7 +49,7 @@ export default function Onboarding() {
         const user = await base44.auth.me();
         setUserData(prev => ({
           ...prev,
-          full_name: user.full_name || '',
+          display_name: user.display_name || '',
           phone: user.phone || '',
           date_of_birth: user.date_of_birth || '',
           gender: user.gender || '',
@@ -114,15 +114,9 @@ export default function Onboarding() {
   const handleComplete = async () => {
     setLoading(true);
     try {
-      // Update full_name in User entity (built-in field)
-      const user = await base44.auth.me();
-      if (userData.full_name !== user.full_name) {
-        await base44.entities.User.update(user.id, { full_name: userData.full_name });
-      }
-      // Update other custom fields
-      const { full_name, ...otherFields } = userData;
+      // Save all data including display_name via updateMe
       await base44.auth.updateMe({
-        ...otherFields,
+        ...userData,
         onboarding_completed: false // Will be true after KYC
       });
       window.location.href = createPageUrl('KYCVerification');
@@ -135,7 +129,7 @@ export default function Onboarding() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return userData.full_name && phoneVerified && userData.phone && userData.date_of_birth && !ageError && userData.gender;
+        return userData.display_name && phoneVerified && userData.phone && userData.date_of_birth && !ageError && userData.gender;
       case 2:
         return userData.profile_photos.length >= 1;
       case 3:
@@ -207,8 +201,8 @@ export default function Onboarding() {
                   <Input
                     type="text"
                     placeholder="How you want to be called"
-                    value={userData.full_name}
-                    onChange={(e) => setUserData({ ...userData, full_name: e.target.value })}
+                    value={userData.display_name}
+                    onChange={(e) => setUserData({ ...userData, display_name: e.target.value })}
                     className="h-14 rounded-xl border-slate-200"
                   />
                   <p className="text-xs text-slate-500 mt-1">This is how others will see you on the platform</p>
