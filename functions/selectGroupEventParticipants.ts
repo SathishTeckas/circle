@@ -37,6 +37,67 @@ Deno.serve(async (req) => {
 
     console.log(`Found ${participants.length} registered participants`);
 
+    // Check if participants meet minimum or maximum requirements
+    if (participants.length < eventData.max_participants) {
+      // Cancel event and refund everyone
+      console.log(`Not enough participants (${participants.length}/${eventData.max_participants}). Cancelling event.`);
+      
+      const refundList = [];
+      for (const participant of participants) {
+        await base44.asServiceRole.entities.GroupParticipant.update(participant.id, {
+          status: 'refunded',
+          payment_status: 'refunded'
+        });
+        refundList.push({
+          email: participant.user_email,
+          name: participant.user_name,
+          amount: participant.amount_paid
+        });
+      }
+
+      await base44.asServiceRole.entities.GroupEvent.update(eventId, {
+        status: 'cancelled'
+      });
+
+      return Response.json({
+        success: true,
+        cancelled: true,
+        reason: 'Not enough participants',
+        refund_count: refundList.length,
+        refunds: refundList
+      });
+    }
+
+    if (participants.length === eventData.max_participants) {
+      // All participants get in
+      console.log(`Exact participants (${participants.length}). All selected.`);
+      
+      const groupChatName = `${eventData.title} - All Participants`;
+      for (const participant of participants) {
+        await base44.asServiceRole.entities.GroupParticipant.update(participant.id, {
+          selected_for_event: true,
+          status: 'confirmed',
+          group_chat_id: groupChatName
+        });
+      }
+
+      await base44.asServiceRole.entities.GroupEvent.update(eventId, {
+        status: 'confirmed',
+        tables_assigned: true,
+        assignment_date: new Date().toISOString()
+      });
+
+      return Response.json({
+        success: true,
+        all_selected: true,
+        selected_count: participants.length,
+        refund_count: 0
+      });
+    }
+
+    // More than max - AI selection required
+    console.log(`Overbooked (${participants.length}/${eventData.max_participants}). Using AI selection.`);
+
     // Fetch user details for all participants
     const userIds = participants.map(p => p.user_id);
     const users = await base44.entities.User.filter({});
