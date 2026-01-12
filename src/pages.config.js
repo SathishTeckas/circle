@@ -34,6 +34,7 @@ import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
 import EventFeedback from './pages/EventFeedback';
+import AdminFeedbackView from './pages/AdminFeedbackView';
 import __Layout from './Layout.jsx';
 
 
@@ -74,6 +75,7 @@ export const PAGES = {
     "Wallet": Wallet,
     "Welcome": Welcome,
     "EventFeedback": EventFeedback,
+    "AdminFeedbackView": AdminFeedbackView,
 }
 
 export const pagesConfig = {

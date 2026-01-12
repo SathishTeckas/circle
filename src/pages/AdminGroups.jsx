@@ -563,12 +563,22 @@ export default function AdminGroups() {
                         </span>
                       )}
                     </div>
-                    <a
-                      href={createPageUrl('AdminGroupsDashboard') + `?eventId=${event.id}`}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                    >
-                      View Participants →
-                    </a>
+                    <div className="flex gap-2">
+                      <a
+                        href={createPageUrl('AdminGroupsDashboard') + `?eventId=${event.id}`}
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        View Participants →
+                      </a>
+                      {event.status === 'completed' && (
+                        <a
+                          href={createPageUrl('AdminFeedbackView') + `?eventId=${event.id}`}
+                          className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+                        >
+                          View Feedback
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </Card>
               </motion.div>
