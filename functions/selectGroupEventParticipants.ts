@@ -45,6 +45,30 @@ Deno.serve(async (req) => {
       userMap[u.id] = u;
     });
 
+    // Fetch past feedback to improve matching
+    const pastFeedback = await base44.asServiceRole.entities.EventFeedback.filter({}, '-created_date', 100);
+    
+    // Analyze feedback patterns
+    const feedbackInsights = pastFeedback.length > 0 ? `
+
+PAST EVENT INSIGHTS (from ${pastFeedback.length} feedback responses):
+- Average matching quality: ${(pastFeedback.reduce((sum, f) => sum + f.matching_quality, 0) / pastFeedback.length).toFixed(1)}/5
+- Average personality mix rating: ${(pastFeedback.reduce((sum, f) => sum + f.personality_mix_rating, 0) / pastFeedback.length).toFixed(1)}/5
+- ${pastFeedback.filter(f => f.met_compatible_people).length}/${pastFeedback.length} said they met compatible people
+- Preferred group size: ${pastFeedback.filter(f => f.preferred_group_size === 'smaller').length} want smaller, ${pastFeedback.filter(f => f.preferred_group_size === 'same').length} happy with current
+- Age diversity: ${pastFeedback.filter(f => f.age_diversity_preference === 'good_mix').length} liked the mix, ${pastFeedback.filter(f => f.age_diversity_preference === 'more_similar').length} want similar ages
+
+SUCCESSFUL PAIRINGS (people who connected):
+${pastFeedback.filter(f => f.liked_participants?.length > 0).slice(0, 10).map(f => {
+  const feedbackUser = userMap[f.participant_id];
+  const likedUsers = f.liked_participants.map(id => userMap[id]).filter(Boolean);
+  if (!feedbackUser || likedUsers.length === 0) return '';
+  return `- ${feedbackUser.personality} person (${feedbackUser.gender}, age ${feedbackUser.date_of_birth ? Math.floor((new Date() - new Date(feedbackUser.date_of_birth)) / (365.25 * 24 * 60 * 60 * 1000)) : 'unknown'}) connected well with: ${likedUsers.map(u => `${u.personality} (${u.gender})`).join(', ')}`;
+}).filter(Boolean).join('\n')}
+
+Use these insights to create better matches.
+` : '';
+
     // Use AI to select balanced participants
     const selectionPrompt = `
 You are a social event matching algorithm. Given a list of participants, select the best ${eventData.max_participants} participants based on:
@@ -52,6 +76,7 @@ You are a social event matching algorithm. Given a list of participants, select 
 2. Gender balance (aim for 60% one gender, 40% other - roughly)
 3. Personality diversity (mix introverts with extroverts, adventurous with calm)
 4. Language preferences (prioritize those who speak: ${eventData.language})
+5. LEARN FROM PAST FEEDBACK: Use the insights below to create successful personality pairings
 
 Participants data:
 ${participants.map(p => {
@@ -65,11 +90,12 @@ Age: ${ageRange}
 Personality: ${userData?.personality || 'unknown'}
 Languages: ${(userData?.languages || []).join(', ') || 'unknown'}`;
 }).join('\n---\n')}
+${feedbackInsights}
 
 Return a JSON object with:
 {
   "selected_ids": ["user_id_1", "user_id_2", ...],
-  "reasoning": "Brief explanation of selection"
+  "reasoning": "Brief explanation of selection based on criteria and past feedback insights"
 }
 
 Make sure the selected count equals or is less than ${eventData.max_participants}.
