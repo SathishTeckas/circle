@@ -119,6 +119,19 @@ export default function Onboarding() {
         ...userData,
         onboarding_completed: false // Will be true after KYC
       });
+
+      // Process referral code if provided
+      if (userData.referral_code && userData.referral_code.trim()) {
+        try {
+          await base44.functions.invoke('processReferral', {
+            referral_code: userData.referral_code.trim()
+          });
+        } catch (referralError) {
+          console.error('Referral processing failed:', referralError);
+          // Don't block onboarding if referral fails
+        }
+      }
+
       window.location.href = createPageUrl('KYCVerification');
     } catch (e) {
       console.error(e);

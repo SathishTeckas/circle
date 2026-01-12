@@ -24,7 +24,9 @@ export default function Referrals() {
     loadUser();
   }, []);
 
-  const referralCode = user?.referral_code || user?.id?.substring(0, 8).toUpperCase();
+  // Generate or use existing referral code for sharing (not the one they used)
+  const myReferralCode = user?.id?.substring(0, 8).toUpperCase() || 'CODE123';
+  const referralCode = myReferralCode;
   const referralLink = `${window.location.origin}?ref=${referralCode}`;
 
   const { data: referrals = [] } = useQuery({
