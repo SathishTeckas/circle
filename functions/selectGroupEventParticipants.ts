@@ -208,9 +208,9 @@ Make sure the selected count equals or is less than ${eventData.max_participants
       }
     }
 
-    // Update event status to pending (waiting for event date)
+    // Update event status to confirmed (participants selected)
     await base44.asServiceRole.entities.GroupEvent.update(eventId, {
-      status: 'pending',
+      status: 'confirmed',
       tables_assigned: true,
       assignment_date: new Date().toISOString()
     });
