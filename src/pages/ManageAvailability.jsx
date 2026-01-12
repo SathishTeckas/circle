@@ -33,8 +33,19 @@ const CITY_AREAS = {
   'Kochi': ['Aluva', 'Angamaly', 'Banerjee Road', 'Broadway', 'Bolgatty', 'Chilavannoor', 'Chittoor', 'Edakochi', 'Edappally', 'Elamakkara', 'Elamkulam', 'Ernakulam North', 'Ernakulam South', 'Fort Kochi', 'Giri Nagar', 'High Court Junction', 'Island', 'Kadavanthra', 'Kakkanad', 'Kalamassery', 'Kaloor', 'Marine Drive', 'Mattancherry', 'Maradu', 'Menaka', 'MG Road', 'Mundamveli', 'Nedumbassery', 'Pachalam', 'Palarivattom', 'Palluruthy', 'Panampilly Nagar', 'Paravur', 'Ravipuram', 'Shanmugham Road', 'Thevara', 'Thoppumpady', 'Thripunithura', 'Vaduthala', 'Vypeen', 'Vyttila', 'Willington Island']
 };
 const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kochi'];
-const TIME_SLOTS_24H = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
-const TIME_SLOTS = TIME_SLOTS_24H.map(time => ({ value: time, label: formatTime12Hour(time) }));
+// Generate time slots with 15-minute intervals
+const generateTimeSlots = () => {
+  const slots = [];
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 15) {
+      const time24 = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+      slots.push({ value: time24, label: formatTime12Hour(time24) });
+    }
+  }
+  return slots;
+};
+
+const TIME_SLOTS = generateTimeSlots();
 
 export default function ManageAvailability() {
   const queryClient = useQueryClient();
@@ -82,9 +93,10 @@ export default function ManageAvailability() {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      const startHour = parseInt(formData.start_time.split(':')[0]);
-      const endHour = parseInt(formData.end_time.split(':')[0]);
-      const duration = endHour - startHour;
+      // Calculate duration in hours (with decimal for minutes)
+      const [startHour, startMin] = formData.start_time.split(':').map(Number);
+      const [endHour, endMin] = formData.end_time.split(':').map(Number);
+      const duration = (endHour + endMin / 60) - (startHour + startMin / 60);
 
       await base44.entities.Availability.create({
         companion_id: user.id,
@@ -214,12 +226,12 @@ export default function ManageAvailability() {
                   <Label className="mb-2 block">Start Time</Label>
                   <Select 
                     value={formData.start_time} 
-                    onValueChange={(v) => setFormData({ ...formData, start_time: v })}
+                    onValueChange={(v) => setFormData({ ...formData, start_time: v, end_time: '' })}
                   >
                     <SelectTrigger className="h-12 rounded-xl">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[300px]">
                       {TIME_SLOTS.map(time => (
                         <SelectItem key={time.value} value={time.value}>{time.label}</SelectItem>
                       ))}
@@ -231,11 +243,12 @@ export default function ManageAvailability() {
                   <Select 
                     value={formData.end_time} 
                     onValueChange={(v) => setFormData({ ...formData, end_time: v })}
+                    disabled={!formData.start_time}
                   >
                     <SelectTrigger className="h-12 rounded-xl">
-                      <SelectValue placeholder="Select" />
+                      <SelectValue placeholder={formData.start_time ? "Select" : "Start first"} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[300px]">
                       {TIME_SLOTS.filter(t => t.value > formData.start_time).map(time => (
                         <SelectItem key={time.value} value={time.value}>{time.label}</SelectItem>
                       ))}
@@ -243,6 +256,28 @@ export default function ManageAvailability() {
                   </Select>
                 </div>
               </div>
+              
+              {/* Duration Display */}
+              {formData.start_time && formData.end_time && (
+                <div className="bg-violet-50 border border-violet-200 rounded-xl p-3">
+                  <p className="text-sm text-slate-600">
+                    Duration: <span className="font-semibold text-violet-700">
+                      {(() => {
+                        const [startHour, startMin] = formData.start_time.split(':').map(Number);
+                        const [endHour, endMin] = formData.end_time.split(':').map(Number);
+                        const totalMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+                        const hours = Math.floor(totalMinutes / 60);
+                        const minutes = totalMinutes % 60;
+                        return hours > 0 && minutes > 0 
+                          ? `${hours}h ${minutes}m` 
+                          : hours > 0 
+                            ? `${hours} hour${hours > 1 ? 's' : ''}` 
+                            : `${minutes} minutes`;
+                      })()}
+                    </span>
+                  </p>
+                </div>
+              )}
 
               {/* Location */}
               <div>
