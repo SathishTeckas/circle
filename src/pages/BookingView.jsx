@@ -93,7 +93,7 @@ export default function BookingView() {
         user_id: booking.seeker_id,
         type: 'booking_accepted',
         title: '🎉 Booking Confirmed!',
-        message: `${booking.companion_name} accepted your booking request`,
+        message: `${companionUser?.display_name || booking.companion_name} accepted your booking request`,
         booking_id: bookingId,
         action_url: createPageUrl(`BookingView?id=${bookingId}`)
       });
@@ -118,7 +118,7 @@ export default function BookingView() {
         user_id: booking.seeker_id,
         type: 'booking_rejected',
         title: 'Booking Declined',
-        message: `${booking.companion_name} declined your booking request. Full refund processed.`,
+        message: `${companionUser?.display_name || booking.companion_name} declined your booking request. Full refund processed.`,
         booking_id: bookingId,
         amount: booking.total_amount,
         action_url: createPageUrl('Discover')
@@ -157,7 +157,7 @@ export default function BookingView() {
         user_id: otherUserId,
         type: 'booking_cancelled',
         title: '❌ Booking Cancelled',
-        message: `${user.full_name} cancelled the booking${refundPercentage === 100 ? ' (Full refund issued)' : ''}`,
+        message: `${user.display_name || user.full_name} cancelled the booking${refundPercentage === 100 ? ' (Full refund issued)' : ''}`,
         booking_id: bookingId,
         action_url: createPageUrl('CalendarView')
       });
@@ -202,7 +202,7 @@ export default function BookingView() {
         user_id: booking.seeker_id,
         type: 'booking_reminder',
         title: '✅ Meeting Completed',
-        message: `Your meeting with ${booking.companion_name} has been completed. Please leave a review!`,
+        message: `Your meeting with ${companionUser?.display_name || booking.companion_name} has been completed. Please leave a review!`,
         booking_id: bookingId,
         action_url: createPageUrl(`LeaveReview?bookingId=${bookingId}`)
       });
