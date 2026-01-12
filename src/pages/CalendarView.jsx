@@ -143,12 +143,46 @@ export default function CalendarView() {
                         )}
                       </div>
                       <Badge className={
-                        booking.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
-                        booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                        booking.status === 'completed' ? 'bg-blue-100 text-blue-700' :
-                        'bg-slate-100 text-slate-700'
+                        (() => {
+                          // Check if booking is currently in progress
+                          const now = new Date();
+                          const bookingDate = new Date(booking.date);
+                          const [startHour, startMinute] = booking.start_time.split(':').map(Number);
+                          const [endHour, endMinute] = booking.end_time.split(':').map(Number);
+                          
+                          const startTime = new Date(bookingDate);
+                          startTime.setHours(startHour, startMinute, 0);
+                          
+                          const endTime = new Date(bookingDate);
+                          endTime.setHours(endHour, endMinute, 0);
+                          
+                          const isHappeningNow = booking.status === 'accepted' && now >= startTime && now <= endTime;
+                          
+                          if (isHappeningNow) return 'bg-blue-100 text-blue-700';
+                          if (booking.status === 'accepted') return 'bg-emerald-100 text-emerald-700';
+                          if (booking.status === 'pending') return 'bg-amber-100 text-amber-700';
+                          if (booking.status === 'completed') return 'bg-slate-100 text-slate-700';
+                          if (booking.status === 'in_progress') return 'bg-blue-100 text-blue-700';
+                          return 'bg-slate-100 text-slate-700';
+                        })()
                       }>
-                        {booking.status}
+                        {(() => {
+                          // Check if booking is currently in progress
+                          const now = new Date();
+                          const bookingDate = new Date(booking.date);
+                          const [startHour, startMinute] = booking.start_time.split(':').map(Number);
+                          const [endHour, endMinute] = booking.end_time.split(':').map(Number);
+                          
+                          const startTime = new Date(bookingDate);
+                          startTime.setHours(startHour, startMinute, 0);
+                          
+                          const endTime = new Date(bookingDate);
+                          endTime.setHours(endHour, endMinute, 0);
+                          
+                          const isHappeningNow = booking.status === 'accepted' && now >= startTime && now <= endTime;
+                          
+                          return isHappeningNow ? 'In Progress' : booking.status;
+                        })()}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t border-slate-100">
