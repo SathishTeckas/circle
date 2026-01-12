@@ -29,6 +29,14 @@ export default function Notifications() {
   const [user, setUser] = useState(null);
   const queryClient = useQueryClient();
 
+  const formatMessage = (message) => {
+    // Check if message contains an image URL
+    if (message.includes('http') && /\.(jpg|jpeg|png|gif|webp)/i.test(message)) {
+      return 'sent an image!';
+    }
+    return message;
+  };
+
   useEffect(() => {
     const loadUser = async () => {
       const userData = await base44.auth.me();
@@ -163,7 +171,7 @@ export default function Notifications() {
                             <div className="w-2 h-2 bg-violet-600 rounded-full" />
                           )}
                         </div>
-                        <p className="text-sm text-slate-600 mb-2">{notification.message}</p>
+                        <p className="text-sm text-slate-600 mb-2">{formatMessage(notification.message)}</p>
                         {notification.amount && (
                           <div className="flex items-center gap-1 text-sm font-semibold text-emerald-600 mb-2">
                             <IndianRupee className="w-4 h-4" />
