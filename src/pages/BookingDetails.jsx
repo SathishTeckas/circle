@@ -512,26 +512,35 @@ export default function BookingDetails() {
       </div>
 
       {/* Fixed Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 safe-bottom z-[60]">
+      <div className="fixed bottom-16 left-0 right-0 bg-white border-t border-slate-100 p-4 safe-bottom">
         <div className="max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <div className="min-w-0 flex-shrink">
-              <p className="text-sm text-slate-500">Total for {selectedHours}h</p>
-              <p className="text-2xl font-bold text-slate-900">₹{Math.ceil(totalAmount)}</p>
+          <div className="space-y-2 mb-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Base price ({selectedHours}h)</span>
+              <span className="text-slate-900">₹{Math.ceil(basePrice)}</span>
             </div>
-            <Button
-              onClick={handleBook}
-              disabled={booking || bookingMutation.isPending}
-              className="h-14 px-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white text-base font-semibold rounded-xl flex-shrink-0 ml-3"
-            >
-              {bookingMutation.isPending ? (
-                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                'Book Now'
-              )}
-            </Button>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Platform fee ({platformFeePercent}%)</span>
+              <span className="text-slate-900">₹{Math.ceil(platformFee)}</span>
+            </div>
+            <div className="h-px bg-slate-200" />
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-900">Total</span>
+              <span className="text-2xl font-bold text-slate-900">₹{Math.ceil(totalAmount)}</span>
+            </div>
           </div>
-          <p className="text-xs text-slate-500 text-center">
+          <Button
+            onClick={handleBook}
+            disabled={booking || bookingMutation.isPending}
+            className="w-full h-12 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white text-base font-semibold rounded-xl"
+          >
+            {bookingMutation.isPending ? (
+              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              'Book Now'
+            )}
+          </Button>
+          <p className="text-xs text-slate-500 text-center mt-2">
             Payment will be held in escrow until meetup is complete
           </p>
         </div>
