@@ -81,6 +81,10 @@ export default function BookingView() {
 
   const acceptMutation = useMutation({
     mutationFn: async () => {
+      // Fetch companion user to get display_name
+      const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
+      const companion = companionResponse.data.user;
+      
       await base44.entities.Booking.update(bookingId, { 
         status: 'accepted',
         chat_enabled: true
@@ -93,7 +97,7 @@ export default function BookingView() {
         user_id: booking.seeker_id,
         type: 'booking_accepted',
         title: '🎉 Booking Confirmed!',
-        message: `${companionUser?.display_name || companionUser?.full_name || booking.companion_name} accepted your booking request`,
+        message: `${companion?.display_name || companion?.full_name || booking.companion_name} accepted your booking request`,
         booking_id: bookingId,
         action_url: createPageUrl(`BookingView?id=${bookingId}`)
       });
@@ -103,6 +107,10 @@ export default function BookingView() {
 
   const rejectMutation = useMutation({
     mutationFn: async () => {
+      // Fetch companion user to get display_name
+      const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
+      const companion = companionResponse.data.user;
+      
       await base44.entities.Booking.update(bookingId, { 
         status: 'rejected',
         escrow_status: 'refunded'
@@ -118,7 +126,7 @@ export default function BookingView() {
         user_id: booking.seeker_id,
         type: 'booking_rejected',
         title: 'Booking Declined',
-        message: `${companionUser?.display_name || companionUser?.full_name || booking.companion_name} declined your booking request. Full refund processed.`,
+        message: `${companion?.display_name || companion?.full_name || booking.companion_name} declined your booking request. Full refund processed.`,
         booking_id: bookingId,
         amount: booking.total_amount,
         action_url: createPageUrl('Discover')
@@ -180,6 +188,10 @@ export default function BookingView() {
 
   const completeMeetingMutation = useMutation({
     mutationFn: async (selfieFile) => {
+      // Fetch companion user to get display_name
+      const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
+      const companion = companionResponse.data.user;
+      
       // Upload selfie
       const { file_url } = await base44.integrations.Core.UploadFile({ file: selfieFile });
       
@@ -202,7 +214,7 @@ export default function BookingView() {
         user_id: booking.seeker_id,
         type: 'booking_reminder',
         title: '✅ Meeting Completed',
-        message: `Your meeting with ${companionUser?.display_name || companionUser?.full_name || booking.companion_name} has been completed. Please leave a review!`,
+        message: `Your meeting with ${companion?.display_name || companion?.full_name || booking.companion_name} has been completed. Please leave a review!`,
         booking_id: bookingId,
         action_url: createPageUrl(`LeaveReview?bookingId=${bookingId}`)
       });
