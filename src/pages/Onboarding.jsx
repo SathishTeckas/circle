@@ -30,7 +30,7 @@ export default function Onboarding() {
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [ageError, setAgeError] = useState('');
   const [userData, setUserData] = useState({
-    full_name: '',
+    display_name: '',
     phone: '',
     date_of_birth: '',
     gender: '',
