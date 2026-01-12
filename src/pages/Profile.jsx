@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   User, Settings, Shield, Star, Heart, Globe, MapPin,
-  ChevronRight, LogOut, Camera, Edit, Bell, HelpCircle, Video, Sparkles
+  ChevronRight, LogOut, Camera, Edit, Bell, HelpCircle, Video, Sparkles, AlertCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import SafetyBadge from '@/components/ui/SafetyBadge';
@@ -85,6 +85,7 @@ export default function Profile() {
     { icon: Edit, label: 'Edit Profile', page: 'EditProfile' },
     { icon: Bell, label: 'Notifications', page: 'Notifications' },
     { icon: Shield, label: 'Privacy & Safety', page: 'PrivacySafety' },
+    { icon: AlertCircle, label: 'My Disputes', page: 'MyDisputes' },
     { icon: HelpCircle, label: 'Help & Support', page: 'HelpSupport' },
   ];
 
