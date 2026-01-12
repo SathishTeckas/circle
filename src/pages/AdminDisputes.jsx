@@ -43,6 +43,7 @@ export default function AdminDisputes() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [selectedDispute, setSelectedDispute] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [refundAmount, setRefundAmount] = useState('');
 
@@ -155,6 +156,7 @@ export default function AdminDisputes() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-disputes'] });
       setSelectedDispute(null);
+      setDialogOpen(false);
       setResolutionNotes('');
       setRefundAmount('');
     }
@@ -215,12 +217,21 @@ export default function AdminDisputes() {
             )}
           </div>
 
-          <Dialog>
+          <Dialog open={dialogOpen && selectedDispute?.id === dispute.id} onOpenChange={(open) => {
+            if (open) {
+              setSelectedDispute(dispute);
+              setDialogOpen(true);
+            } else {
+              setDialogOpen(false);
+              setSelectedDispute(null);
+              setResolutionNotes('');
+              setRefundAmount('');
+            }
+          }}>
             <DialogTrigger asChild>
               <Button 
                 variant="outline" 
                 className="w-full rounded-xl"
-                onClick={() => setSelectedDispute(dispute)}
               >
                 View Details & Resolve
               </Button>
