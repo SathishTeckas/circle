@@ -239,7 +239,7 @@ export default function ManageAvailability() {
                   </Select>
                 </div>
                 <div>
-                  <Label className="mb-2 block">End Time</Label>
+                  <Label className="mb-2 block">End Time (Min. 1hr)</Label>
                   <Select 
                     value={formData.end_time} 
                     onValueChange={(v) => setFormData({ ...formData, end_time: v })}
@@ -249,7 +249,14 @@ export default function ManageAvailability() {
                       <SelectValue placeholder={formData.start_time ? "Select" : "Start first"} />
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">
-                      {TIME_SLOTS.filter(t => t.value > formData.start_time).map(time => (
+                      {TIME_SLOTS.filter(t => {
+                        if (!formData.start_time) return false;
+                        const [startHour, startMin] = formData.start_time.split(':').map(Number);
+                        const [endHour, endMin] = t.value.split(':').map(Number);
+                        const startTotalMin = startHour * 60 + startMin;
+                        const endTotalMin = endHour * 60 + endMin;
+                        return endTotalMin >= startTotalMin + 60; // At least 1 hour gap
+                      }).map(time => (
                         <SelectItem key={time.value} value={time.value}>{time.label}</SelectItem>
                       ))}
                     </SelectContent>
