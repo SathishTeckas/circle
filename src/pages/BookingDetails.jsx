@@ -512,7 +512,7 @@ export default function BookingDetails() {
       </div>
 
       {/* Fixed Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 safe-bottom">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 safe-bottom z-[60]">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="min-w-0 flex-shrink">
