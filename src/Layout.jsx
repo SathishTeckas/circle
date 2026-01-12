@@ -139,7 +139,7 @@ export default function Layout({ children, currentPageName }) {
                   <Shield className="w-4 h-4 text-violet-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate">{user?.full_name || 'Admin'}</p>
+                  <p className="text-sm font-medium text-slate-900 truncate">{user?.display_name || user?.full_name || 'Admin'}</p>
                   <p className="text-xs text-slate-500">Administrator</p>
                 </div>
               </div>

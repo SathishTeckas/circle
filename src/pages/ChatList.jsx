@@ -92,7 +92,9 @@ export default function ChatList() {
         ) : (
           <div className="space-y-3">
             {bookings.map((booking, idx) => {
-              const otherName = isCompanion ? booking.seeker_name : booking.companion_name;
+              const otherName = isCompanion 
+                ? (booking.seeker_display_name || booking.seeker_name)
+                : (booking.companion_display_name || booking.companion_name);
               const otherPhoto = isCompanion ? booking.seeker_photo : booking.companion_photo;
               const unreadCount = getUnreadCount(booking.id);
 
@@ -134,11 +136,13 @@ export default function ChatList() {
                             Booking ID: {booking.id.slice(0, 8).toUpperCase()}
                           </p>
                           
-                          {unreadCount > 0 && (
-                            <Badge className="bg-violet-100 text-violet-700">
-                              {unreadCount} new {unreadCount === 1 ? 'message' : 'messages'}
-                            </Badge>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {unreadCount > 0 && (
+                              <Badge className="bg-violet-100 text-violet-700 animate-pulse">
+                                {unreadCount} new
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </Link>

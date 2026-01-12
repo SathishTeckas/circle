@@ -1,5 +1,6 @@
 import AdminDashboard from './pages/AdminDashboard';
 import AdminDisputes from './pages/AdminDisputes';
+import AdminFeedbackView from './pages/AdminFeedbackView';
 import AdminGroups from './pages/AdminGroups';
 import AdminGroupsDashboard from './pages/AdminGroupsDashboard';
 import AdminManagement from './pages/AdminManagement';
@@ -16,6 +17,8 @@ import CompanionBookings from './pages/CompanionBookings';
 import CompanionDashboard from './pages/CompanionDashboard';
 import Discover from './pages/Discover';
 import EditProfile from './pages/EditProfile';
+import EventAnalytics from './pages/EventAnalytics';
+import EventFeedback from './pages/EventFeedback';
 import GroupEvents from './pages/GroupEvents';
 import HelpSupport from './pages/HelpSupport';
 import KYCVerification from './pages/KYCVerification';
@@ -33,15 +36,13 @@ import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
-import EventFeedback from './pages/EventFeedback';
-import AdminFeedbackView from './pages/AdminFeedbackView';
-import EventAnalytics from './pages/EventAnalytics';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminDashboard": AdminDashboard,
     "AdminDisputes": AdminDisputes,
+    "AdminFeedbackView": AdminFeedbackView,
     "AdminGroups": AdminGroups,
     "AdminGroupsDashboard": AdminGroupsDashboard,
     "AdminManagement": AdminManagement,
@@ -58,6 +59,8 @@ export const PAGES = {
     "CompanionDashboard": CompanionDashboard,
     "Discover": Discover,
     "EditProfile": EditProfile,
+    "EventAnalytics": EventAnalytics,
+    "EventFeedback": EventFeedback,
     "GroupEvents": GroupEvents,
     "HelpSupport": HelpSupport,
     "KYCVerification": KYCVerification,
@@ -75,9 +78,6 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "Wallet": Wallet,
     "Welcome": Welcome,
-    "EventFeedback": EventFeedback,
-    "AdminFeedbackView": AdminFeedbackView,
-    "EventAnalytics": EventAnalytics,
 }
 
 export const pagesConfig = {

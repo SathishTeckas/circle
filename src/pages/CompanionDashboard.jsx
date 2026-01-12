@@ -171,7 +171,7 @@ export default function CompanionDashboard() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <p className="text-violet-200 text-sm">Welcome back</p>
-              <h1 className="text-2xl font-bold text-white">{user?.full_name || 'Companion'}</h1>
+              <h1 className="text-2xl font-bold text-white">{user?.display_name || user?.full_name || 'Companion'}</h1>
             </div>
             {user && (
               <div className="text-white">
@@ -349,7 +349,7 @@ export default function CompanionDashboard() {
                       </div>
                     </div>
                     <Badge className="bg-violet-200 text-violet-700">
-                      {event.current_participants || 0}/{event.max_participants || 8}
+                      {event.current_participants || 0}/{event.max_participants || 10}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-slate-600">

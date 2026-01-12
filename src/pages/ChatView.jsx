@@ -106,9 +106,11 @@ export default function ChatView() {
       const newMessages = messages.slice(lastMessageCount);
       const newFromOther = newMessages.filter(m => m.sender_id !== user.id);
       
-      if (newFromOther.length > 0 && document.hidden) {
+      if (newFromOther.length > 0) {
         const lastMsg = newFromOther[newFromOther.length - 1];
-        showNotification(lastMsg.sender_name, lastMsg.content);
+        if (document.hidden) {
+          showNotification(lastMsg.sender_name, lastMsg.content);
+        }
       }
     }
 
@@ -260,7 +262,10 @@ export default function ChatView() {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
-  const otherPartyName = isSeeker ? booking?.companion_name : booking?.seeker_name;
+  
+  const otherPartyName = isSeeker 
+    ? (booking?.companion_display_name || booking?.companion_name)
+    : (booking?.seeker_display_name || booking?.seeker_name);
   const otherPartyPhoto = isSeeker ? booking?.companion_photo : booking?.seeker_photo;
   const otherPartyId = isSeeker ? booking?.companion_id : booking?.seeker_id;
 

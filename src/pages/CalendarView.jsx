@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 
 export default function CalendarView() {
   const [user, setUser] = useState(null);
-  const [statusFilter, setStatusFilter] = useState(['pending', 'accepted', 'in_progress']);
+  const [statusFilter, setStatusFilter] = useState(['pending', 'accepted', 'in_progress', 'completed', 'rejected', 'cancelled']);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -127,7 +127,10 @@ export default function CalendarView() {
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <p className="font-semibold text-slate-900">
-                          {isCompanion ? booking.seeker_name : booking.companion_name}
+                          {isCompanion 
+                            ? (booking.seeker_display_name || booking.seeker_name)
+                            : (booking.companion_display_name || booking.companion_name)
+                          }
                         </p>
                         <p className="text-sm text-slate-600">
                           {format(new Date(booking.date), 'EEEE, MMMM d, yyyy')}

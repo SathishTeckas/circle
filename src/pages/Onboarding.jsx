@@ -11,11 +11,7 @@ import { Camera, ArrowRight, ArrowLeft, Plus, X, User, Phone, Globe, Heart, MapP
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-const INTERESTS = [
-  'Art & Culture', 'Books', 'Coffee', 'Cooking', 'Fashion', 'Fitness',
-  'Gaming', 'Hiking', 'Movies', 'Music', 'Photography', 'Sports',
-  'Technology', 'Travel', 'Wine & Dining', 'Yoga'
-];
+const INTERESTS = ['Movies', 'Music', 'Travel', 'Food', 'Sports', 'Art', 'Reading', 'Gaming', 'Photography', 'Fitness', 'Dancing', 'Theater', 'Comedy', 'Fashion', 'Technology', 'Science', 'Nature', 'Yoga', 'Meditation', 'Cooking', 'Wine & Dining', 'Coffee Culture', 'Nightlife', 'Adventure Sports', 'Spirituality', 'Politics', 'History', 'Architecture', 'Astronomy', 'Volunteering', 'Pets & Animals', 'Shopping', 'Cars & Bikes', 'Startups', 'Investing', 'Psychology', 'Podcasts', 'Blogging', 'Social Media', 'Board Games'];
 
 const LANGUAGES = [
   'English', 'Hindi', 'Bengali', 'Telugu', 'Marathi', 'Tamil',
@@ -43,7 +39,8 @@ export default function Onboarding() {
     personality_type: '',
     profile_photos: [],
     interests: [],
-    languages: []
+    languages: [],
+    referral_code: ''
   });
 
   useEffect(() => {
@@ -61,7 +58,8 @@ export default function Onboarding() {
           personality_type: user.personality_type || '',
           profile_photos: user.profile_photos || [],
           interests: user.interests || [],
-          languages: user.languages || []
+          languages: user.languages || [],
+          referral_code: user.referral_code || ''
         }));
         setPhoneVerified(user.phone_verified || false);
       } catch (e) {
@@ -205,14 +203,15 @@ export default function Onboarding() {
 
               <div className="space-y-4">
                 <div>
-                  <Label className="text-slate-700 mb-2 block">Full Name</Label>
+                  <Label className="text-slate-700 mb-2 block">Display Name</Label>
                   <Input
                     type="text"
-                    placeholder="Enter your full name"
+                    placeholder="How you want to be called"
                     value={userData.full_name}
                     onChange={(e) => setUserData({ ...userData, full_name: e.target.value })}
                     className="h-14 rounded-xl border-slate-200"
                   />
+                  <p className="text-xs text-slate-500 mt-1">This is how others will see you on the platform</p>
                 </div>
 
                 <div>
@@ -474,6 +473,17 @@ export default function Onboarding() {
                   <p className="text-xs text-slate-500 mt-1 text-right">
                     {userData.bio.length}/300
                   </p>
+                </div>
+
+                <div>
+                  <Label className="text-slate-700 mb-2 block">Referral Code (Optional)</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter referral code if you have one"
+                    value={userData.referral_code}
+                    onChange={(e) => setUserData({ ...userData, referral_code: e.target.value })}
+                    className="h-14 rounded-xl border-slate-200"
+                  />
                 </div>
               </div>
             </motion.div>

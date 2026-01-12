@@ -21,7 +21,11 @@ const statusConfig = {
 export default function BookingCard({ booking, userRole }) {
   const status = statusConfig[booking.status] || statusConfig.pending;
   const isSeeker = userRole === 'seeker';
-  const otherPartyName = isSeeker ? booking.companion_name : booking.seeker_name;
+  
+  // Use display_name if available, fallback to companion_name/seeker_name
+  const otherPartyName = isSeeker 
+    ? (booking.companion_display_name || booking.companion_name)
+    : (booking.seeker_display_name || booking.seeker_name);
   const otherPartyPhoto = isSeeker ? booking.companion_photo : booking.seeker_photo;
 
   return (
