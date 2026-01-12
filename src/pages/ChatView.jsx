@@ -555,52 +555,75 @@ export default function ChatView() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/95 z-50 flex flex-col"
-            onClick={handleCancelPreview}
+            className="fixed inset-0 bg-black z-[60] flex flex-col"
           >
-            <div className="flex items-center justify-between p-4 flex-shrink-0">
-              <button onClick={handleCancelPreview} className="text-white w-10 h-10 flex items-center justify-center">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 bg-black/50 backdrop-blur flex-shrink-0">
+              <button 
+                onClick={handleCancelPreview} 
+                className="text-white w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-full transition"
+              >
                 <ArrowLeft className="w-6 h-6" />
               </button>
               <span className="text-white text-sm font-medium">{previewImages.length} photo{previewImages.length > 1 ? 's' : ''}</span>
               <div className="w-10" />
             </div>
             
-            <div className="flex-1 flex items-center justify-center p-4 overflow-auto min-h-0" onClick={(e) => e.stopPropagation()}>
-              <div className="grid gap-4 w-full" style={{ gridTemplateColumns: previewImages.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))' }}>
-                {previewImages.map(({ preview }, idx) => (
-                  <img
-                    key={idx}
-                    src={preview}
-                    alt={`Preview ${idx + 1}`}
-                    className="max-h-[60vh] w-auto object-contain rounded-lg mx-auto"
-                  />
-                ))}
+            {/* Image Preview - scrollable middle section */}
+            <div 
+              className="flex-1 overflow-y-auto overflow-x-hidden" 
+              style={{ maxHeight: 'calc(100vh - 220px)' }}
+            >
+              <div className="flex items-center justify-center min-h-full p-4">
+                <div className="grid gap-4 w-full max-w-4xl" style={{ gridTemplateColumns: previewImages.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                  {previewImages.map(({ preview }, idx) => (
+                    <img
+                      key={idx}
+                      src={preview}
+                      alt={`Preview ${idx + 1}`}
+                      className="max-w-full h-auto object-contain rounded-lg mx-auto"
+                    />
+                  ))}
+                </div>
               </div>
             </div>
             
-            <div className="p-4 bg-black/80 backdrop-blur border-t border-white/10 flex-shrink-0 safe-bottom" onClick={(e) => e.stopPropagation()}>
-              <Input
-                placeholder="Add a caption..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="mb-3 bg-white/10 border-white/20 text-white placeholder:text-white/50 h-12"
-              />
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleCancelPreview}
-                  className="flex-1 h-12 border-white/30 text-white hover:bg-white/10 font-medium"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleConfirmSend}
-                  disabled={uploadingFile}
-                  className="flex-1 h-12 bg-violet-600 hover:bg-violet-700 font-semibold text-white"
-                >
-                  {uploadingFile ? 'Sending...' : 'Send'}
-                </Button>
+            {/* Bottom Controls - Always Visible */}
+            <div className="bg-black border-t border-white/20 p-4 flex-shrink-0" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+              <div className="max-w-4xl mx-auto space-y-3">
+                <Input
+                  placeholder="Add a caption..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="bg-white/10 border-white/30 text-white placeholder:text-white/60 h-12 focus:border-violet-500 focus:ring-violet-500"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={handleCancelPreview}
+                    className="flex-1 h-12 border-white/40 text-white hover:bg-white/20 font-medium text-base"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleConfirmSend}
+                    disabled={uploadingFile}
+                    className="flex-1 h-12 bg-violet-600 hover:bg-violet-700 font-semibold text-white text-base shadow-lg"
+                  >
+                    {uploadingFile ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Sending...
+                      </div>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Send
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           </motion.div>
