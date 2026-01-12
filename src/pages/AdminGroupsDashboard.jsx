@@ -42,7 +42,7 @@ export default function AdminGroupsDashboard() {
 
   const selectParticipantsMutation = useMutation({
     mutationFn: async () => {
-      await base44.asServiceRole.functions.invoke('selectGroupEventParticipants', { eventId });
+      await base44.functions.invoke('selectGroupEventParticipants', { eventId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['group-event', eventId] });
