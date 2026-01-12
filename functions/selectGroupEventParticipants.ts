@@ -130,14 +130,16 @@ ${pastFeedback.filter(f => f.liked_participants?.length > 0).slice(0, 10).map(f 
 Use these insights to create better matches.
 ` : '';
 
-    // Use AI to select balanced participants
+    // Use AI to select balanced participants with random variety
     const selectionPrompt = `
-You are a social event matching algorithm. Given a list of participants, select the best ${eventData.max_participants} participants based on:
-1. Age range compatibility (${eventData.age_range_min} - ${eventData.age_range_max} years)
-2. Gender balance (aim for 60% one gender, 40% other - roughly)
-3. Personality diversity (mix introverts with extroverts, adventurous with calm)
+You are a social event matching algorithm. Given a list of participants, select EXACTLY ${eventData.max_participants} participants based on:
+1. Gender balance: STRICT 60:40 male to female ratio (6 males, 4 females for 10 people, adjust proportionally)
+2. Age range compatibility (${eventData.age_range_min} - ${eventData.age_range_max} years) - mix different ages
+3. Personality diversity (mix different personalities - introverts, extroverts, adventurous, calm)
 4. Language preferences (prioritize those who speak: ${eventData.language})
-5. LEARN FROM PAST FEEDBACK: Use the insights below to create successful personality pairings
+5. Interests & Hobbies: Create diverse mix of interests to enable varied conversations
+6. RANDOMNESS: Add variety by not always picking the same type - mix it up
+7. LEARN FROM PAST FEEDBACK: Use the insights below to create successful personality pairings
 
 Participants data:
 ${participants.map(p => {
