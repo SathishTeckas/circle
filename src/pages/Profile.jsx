@@ -16,6 +16,7 @@ import RatingStars from '@/components/ui/RatingStars';
 import PhotoCarousel from '@/components/profile/PhotoCarousel';
 import NotificationBell from '../components/layout/NotificationBell';
 import RoleSwitcher from '../components/profile/RoleSwitcher';
+import FlagReviewButton from '../components/review/FlagReviewButton';
 import { cn } from '@/lib/utils';
 
 export default function Profile() {
@@ -280,9 +281,14 @@ export default function Profile() {
             <div className="space-y-4">
               {reviews.slice(0, 3).map((review) => (
                 <div key={review.id} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <RatingStars rating={review.rating} size="sm" showValue={false} />
-                    <span className="text-sm text-slate-500">{review.reviewer_name}</span>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <RatingStars rating={review.rating} size="sm" showValue={false} />
+                      <span className="text-sm text-slate-500">{review.reviewer_name}</span>
+                    </div>
+                    {user.user_role === 'companion' && (
+                      <FlagReviewButton review={review} currentUser={user} />
+                    )}
                   </div>
                   {review.comment && (
                     <p className="text-sm text-slate-600">{review.comment}</p>
