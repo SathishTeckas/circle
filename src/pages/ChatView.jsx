@@ -215,7 +215,7 @@ export default function ChatView() {
       const newMessage = await base44.entities.Message.create({
         booking_id: bookingId,
         sender_id: user.id,
-        sender_name: user.full_name || 'Anonymous',
+        sender_name: user.display_name || user.full_name || 'Anonymous',
         content: content.trim()
       });
 
@@ -230,7 +230,7 @@ export default function ChatView() {
           user_id: otherUserId,
           type: 'new_message',
           title: '💬 New Message',
-          message: `${user.full_name || 'Someone'}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+          message: `${user.display_name || user.full_name || 'Someone'}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
           booking_id: bookingId,
           action_url: createPageUrl(`ChatView?id=${bookingId}`)
         });
