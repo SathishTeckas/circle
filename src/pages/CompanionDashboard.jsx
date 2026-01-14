@@ -349,7 +349,7 @@ export default function CompanionDashboard() {
                       </div>
                     </div>
                     <Badge className="bg-violet-200 text-violet-700">
-                      {(event.max_participants || 10) - (event.current_participants || 0)} spots left
+                      Max {event.max_participants || 10}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-slate-600">
