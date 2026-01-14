@@ -153,7 +153,7 @@ export default function CompanionDashboard() {
   const avgRating = user?.average_rating;
   const hasRating = avgRating && user?.total_reviews > 0;
 
-  const { data: groupEvents = [] } = useQuery({
+  const { data: groupEventsRaw = [] } = useQuery({
     queryKey: ['group-events-upcoming', user?.city],
     queryFn: async () => {
       const query = { status: 'open' };
@@ -162,6 +162,30 @@ export default function CompanionDashboard() {
     },
     enabled: !!user?.id
   });
+
+  // Filter out past group events
+  const groupEvents = React.useMemo(() => {
+    const now = new Date();
+    return groupEventsRaw.filter(event => {
+      if (!event.date || !event.time) return true;
+      
+      const eventDate = new Date(event.date);
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      // If date is in the past
+      if (eventDate < todayStart) return false;
+      
+      // If date is today, check if time has passed
+      if (eventDate.toDateString() === now.toDateString()) {
+        const [eventHour, eventMinute] = event.time.split(':').map(Number);
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        return !(eventHour < currentHour || (eventHour === currentHour && eventMinute <= currentMinute));
+      }
+      
+      return true;
+    });
+  }, [groupEventsRaw]);
 
   return (
     <div className="min-h-screen bg-slate-50">
