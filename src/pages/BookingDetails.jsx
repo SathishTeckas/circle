@@ -80,16 +80,22 @@ export default function BookingDetails() {
     enabled: !!availability?.companion_id
   });
 
-  // Calculate available start times (hourly slots within availability window)
+  // Calculate available start times (every 15 min within availability window, ensuring 1hr min gap)
   const availableStartTimes = React.useMemo(() => {
     if (!availability?.start_time || !availability?.end_time) return [];
     
     const [startHour, startMinute] = availability.start_time.split(':').map(Number);
-    const [endHour] = availability.end_time.split(':').map(Number);
+    const [endHour, endMinute] = availability.end_time.split(':').map(Number);
     
     const times = [];
-    for (let hour = startHour; hour < endHour; hour++) {
-      times.push(`${hour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`);
+    const startTotalMin = startHour * 60 + startMinute;
+    const endTotalMin = endHour * 60 + endMinute;
+    
+    // Generate 15-minute intervals, ensuring at least 1 hour remains after selection
+    for (let totalMin = startTotalMin; totalMin <= endTotalMin - 60; totalMin += 15) {
+      const hour = Math.floor(totalMin / 60);
+      const min = totalMin % 60;
+      times.push(`${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`);
     }
     return times;
   }, [availability]);
