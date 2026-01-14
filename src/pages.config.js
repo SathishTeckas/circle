@@ -26,6 +26,7 @@ import KYCVerification from './pages/KYCVerification';
 import LeaveReview from './pages/LeaveReview';
 import ManageAvailability from './pages/ManageAvailability';
 import MyBookings from './pages/MyBookings';
+import MyDisputes from './pages/MyDisputes';
 import Notifications from './pages/Notifications';
 import Onboarding from './pages/Onboarding';
 import PrivacySafety from './pages/PrivacySafety';
@@ -37,7 +38,6 @@ import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
-import MyDisputes from './pages/MyDisputes';
 import __Layout from './Layout.jsx';
 
 
@@ -70,6 +70,7 @@ export const PAGES = {
     "LeaveReview": LeaveReview,
     "ManageAvailability": ManageAvailability,
     "MyBookings": MyBookings,
+    "MyDisputes": MyDisputes,
     "Notifications": Notifications,
     "Onboarding": Onboarding,
     "PrivacySafety": PrivacySafety,
@@ -81,7 +82,6 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "Wallet": Wallet,
     "Welcome": Welcome,
-    "MyDisputes": MyDisputes,
 }
 
 export const pagesConfig = {

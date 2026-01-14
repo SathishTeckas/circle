@@ -232,7 +232,29 @@ export default function ManageAvailability() {
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">
-                      {TIME_SLOTS.map(time => (
+                      {TIME_SLOTS.filter(time => {
+                        // If no date selected, show all times
+                        if (!selectedDate) return true;
+                        
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const selectedDateOnly = new Date(selectedDate);
+                        selectedDateOnly.setHours(0, 0, 0, 0);
+                        
+                        // If selected date is in the future, show all times
+                        if (selectedDateOnly > today) return true;
+                        
+                        // If selected date is today, filter out past times
+                        if (selectedDateOnly.getTime() === today.getTime()) {
+                          const now = new Date();
+                          const [slotHour, slotMin] = time.value.split(':').map(Number);
+                          const slotTime = new Date();
+                          slotTime.setHours(slotHour, slotMin, 0, 0);
+                          return slotTime > now;
+                        }
+                        
+                        return true;
+                      }).map(time => (
                         <SelectItem key={time.value} value={time.value}>{time.label}</SelectItem>
                       ))}
                     </SelectContent>
