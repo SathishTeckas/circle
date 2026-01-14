@@ -196,11 +196,11 @@ export default function ManageAvailability() {
             <div ref={sheetContentRef} className="space-y-6 overflow-y-auto flex-1 pb-24 pr-2">
               <style>{`
                 .rdp-day_selected {
-                  background-color: rgb(236 72 153) !important;
+                  background-color: rgb(139 92 246) !important;
                   color: white !important;
                 }
                 .rdp-day_selected:hover {
-                  background-color: rgb(219 39 119) !important;
+                  background-color: rgb(124 58 222) !important;
                   color: white !important;
                 }
               `}</style>
