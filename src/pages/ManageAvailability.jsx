@@ -33,10 +33,10 @@ const CITY_AREAS = {
   'Kochi': ['Aluva', 'Angamaly', 'Banerjee Road', 'Broadway', 'Bolgatty', 'Chilavannoor', 'Chittoor', 'Edakochi', 'Edappally', 'Elamakkara', 'Elamkulam', 'Ernakulam North', 'Ernakulam South', 'Fort Kochi', 'Giri Nagar', 'High Court Junction', 'Island', 'Kadavanthra', 'Kakkanad', 'Kalamassery', 'Kaloor', 'Marine Drive', 'Mattancherry', 'Maradu', 'Menaka', 'MG Road', 'Mundamveli', 'Nedumbassery', 'Pachalam', 'Palarivattom', 'Palluruthy', 'Panampilly Nagar', 'Paravur', 'Ravipuram', 'Shanmugham Road', 'Thevara', 'Thoppumpady', 'Thripunithura', 'Vaduthala', 'Vypeen', 'Vyttila', 'Willington Island']
 };
 const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kochi'];
-// Generate time slots with 15-minute intervals
+// Generate time slots with 15-minute intervals (9 AM to 9 PM)
 const generateTimeSlots = () => {
   const slots = [];
-  for (let hour = 0; hour < 24; hour++) {
+  for (let hour = 9; hour <= 21; hour++) {
     for (let minute = 0; minute < 60; minute += 15) {
       const time24 = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
       slots.push({ value: time24, label: formatTime12Hour(time24) });
