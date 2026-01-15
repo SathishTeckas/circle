@@ -80,6 +80,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Users', icon: Users, page: 'AdminUsers' },
     { name: 'Venues', icon: Home, page: 'AdminVenues' },
     { name: 'Analytics', icon: Shield, page: 'EventAnalytics' },
+    { name: 'Errors', icon: AlertCircle, page: 'AdminErrors' },
     { name: 'Payouts', icon: Wallet, page: 'AdminPayouts' },
     { name: 'Disputes', icon: AlertCircle, page: 'AdminDisputes' },
     { name: 'Reviews', icon: AlertCircle, page: 'AdminFlaggedReviews' },
