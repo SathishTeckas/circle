@@ -43,10 +43,34 @@ export default function AdminDashboard() {
     queryFn: () => base44.entities.Venue.list('-created_date', 50)
   });
 
-  const { data: groupEvents = [] } = useQuery({
+  const { data: groupEventsRaw = [] } = useQuery({
     queryKey: ['admin-groups'],
     queryFn: () => base44.entities.GroupEvent.list('-date', 20)
   });
+
+  // Filter out past group events
+  const groupEvents = React.useMemo(() => {
+    const now = new Date();
+    return groupEventsRaw.filter(event => {
+      if (!event.date || !event.time) return true;
+      
+      const eventDate = new Date(event.date);
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      // If date is in the past
+      if (eventDate < todayStart) return false;
+      
+      // If date is today, check if time has passed
+      if (eventDate.toDateString() === now.toDateString()) {
+        const [eventHour, eventMinute] = event.time.split(':').map(Number);
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        return !(eventHour < currentHour || (eventHour === currentHour && eventMinute <= currentMinute));
+      }
+      
+      return true;
+    });
+  }, [groupEventsRaw]);
 
   const { data: appSettings } = useQuery({
     queryKey: ['app-settings'],
