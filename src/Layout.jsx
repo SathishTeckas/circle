@@ -14,7 +14,8 @@ import {
   Shield,
   Menu,
   X,
-  AlertCircle
+  AlertCircle,
+  MapPin
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
