@@ -220,25 +220,25 @@ export default function AdminCities() {
           <div className="space-y-4">
             {cities.map((city, index) => (
               <Card key={city.id} className={cn(!city.is_active && 'opacity-50')}>
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <MapPin className="w-5 h-5 text-violet-600" />
-                        <h3 className="text-xl font-semibold text-slate-900">{city.name}</h3>
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-3 flex-wrap">
+                        <MapPin className="w-5 h-5 text-violet-600 flex-shrink-0" />
+                        <h3 className="text-lg md:text-xl font-semibold text-slate-900">{city.name}</h3>
                         <Badge variant={city.is_active ? 'default' : 'secondary'}>
                           {city.is_active ? 'Active' : 'Inactive'}
                         </Badge>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
                         {city.areas?.map((area, i) => (
-                          <Badge key={i} variant="outline" className="text-slate-600">
+                          <Badge key={i} variant="outline" className="text-xs md:text-sm text-slate-600">
                             {area}
                           </Badge>
                         ))}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <div className="flex flex-col gap-1">
                         <Button
                           size="icon"
@@ -263,8 +263,17 @@ export default function AdminCities() {
                         size="sm"
                         variant={city.is_active ? 'outline' : 'default'}
                         onClick={() => handleToggleActive(city)}
+                        className="hidden md:flex"
                       >
                         {city.is_active ? 'Deactivate' : 'Activate'}
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant={city.is_active ? 'outline' : 'default'}
+                        onClick={() => handleToggleActive(city)}
+                        className="md:hidden"
+                      >
+                        {city.is_active ? 'Hide' : 'Show'}
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => openDialog(city)}>
                         <Edit className="w-4 h-4" />
