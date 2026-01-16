@@ -90,14 +90,14 @@ export default function AdminDashboard() {
     enabled: !!user
   });
 
-  const companions = allUsers.filter(u => u?.user_role === 'companion');
-  const seekers = allUsers.filter(u => u?.user_role === 'seeker');
-  const pendingKYC = allUsers.filter(u => u?.kyc_status === 'pending');
-  const completedBookings = allBookings.filter(b => b?.status === 'completed');
-  const disputedBookings = allBookings.filter(b => b?.status === 'disputed');
+  const companions = allUsers?.filter(u => u?.user_role === 'companion') || [];
+  const seekers = allUsers?.filter(u => u?.user_role === 'seeker') || [];
+  const pendingKYC = allUsers?.filter(u => u?.kyc_status === 'pending') || [];
+  const completedBookings = allBookings?.filter(b => b?.status === 'completed') || [];
+  const disputedBookings = allBookings?.filter(b => b?.status === 'disputed') || [];
   
-  const totalRevenue = completedBookings.reduce((sum, b) => sum + (b?.platform_fee || 0), 0);
-  const totalGMV = completedBookings.reduce((sum, b) => sum + (b?.total_amount || 0), 0);
+  const totalRevenue = completedBookings?.reduce((sum, b) => sum + (b?.platform_fee || 0), 0) || 0;
+  const totalGMV = completedBookings?.reduce((sum, b) => sum + (b?.total_amount || 0), 0) || 0;
 
   const exportMutation = useMutation({
     mutationFn: async (dataType) => {
@@ -123,12 +123,12 @@ export default function AdminDashboard() {
   });
 
   const stats = [
-    { label: 'Total Users', value: allUsers.length, icon: Users, color: 'bg-blue-500' },
-    { label: 'Companions', value: companions.length, icon: Users, color: 'bg-violet-500' },
-    { label: 'Seekers', value: seekers.length, icon: Users, color: 'bg-fuchsia-500' },
-    { label: 'Revenue', value: `₹${totalRevenue.toFixed(0)}`, icon: IndianRupee, color: 'bg-emerald-500' },
-    { label: 'Total GMV', value: `₹${totalGMV.toFixed(0)}`, icon: TrendingUp, color: 'bg-teal-500' },
-    { label: 'Bookings', value: allBookings.length, icon: Calendar, color: 'bg-amber-500' },
+    { label: 'Total Users', value: allUsers?.length || 0, icon: Users, color: 'bg-blue-500' },
+    { label: 'Companions', value: companions?.length || 0, icon: Users, color: 'bg-violet-500' },
+    { label: 'Seekers', value: seekers?.length || 0, icon: Users, color: 'bg-fuchsia-500' },
+    { label: 'Revenue', value: `₹${totalRevenue?.toFixed(0) || 0}`, icon: IndianRupee, color: 'bg-emerald-500' },
+    { label: 'Total GMV', value: `₹${totalGMV?.toFixed(0) || 0}`, icon: TrendingUp, color: 'bg-teal-500' },
+    { label: 'Bookings', value: allBookings?.length || 0, icon: Calendar, color: 'bg-amber-500' },
   ];
 
   const { data: payouts = [] } = useQuery({
@@ -137,16 +137,16 @@ export default function AdminDashboard() {
     enabled: !!user
   });
 
-  const pendingPayouts = payouts.filter(p => p.status === 'pending');
+  const pendingPayouts = payouts?.filter(p => p?.status === 'pending') || [];
 
   const quickLinks = [
-    { label: 'Manage Users', desc: `${pendingKYC.length} pending verification`, icon: Users, page: 'AdminUsers', alert: pendingKYC.length > 0 },
-    { label: 'Manage Venues', desc: `${venues.length} registered venues`, icon: Building, page: 'AdminVenues' },
+    { label: 'Manage Users', desc: `${pendingKYC?.length || 0} pending verification`, icon: Users, page: 'AdminUsers', alert: (pendingKYC?.length || 0) > 0 },
+    { label: 'Manage Venues', desc: `${venues?.length || 0} registered venues`, icon: Building, page: 'AdminVenues' },
     { label: 'Manage Cities', desc: 'Add and manage cities & areas', icon: MapPin, page: 'AdminCities' },
-    { label: 'Group Events', desc: `${groupEvents.length} events`, icon: Calendar, page: 'AdminGroups' },
-    { label: 'Manage Payouts', desc: `${pendingPayouts.length} pending payouts`, icon: Wallet, page: 'AdminPayouts', alert: pendingPayouts.length > 0 },
+    { label: 'Group Events', desc: `${groupEvents?.length || 0} events`, icon: Calendar, page: 'AdminGroups' },
+    { label: 'Manage Payouts', desc: `${pendingPayouts?.length || 0} pending payouts`, icon: Wallet, page: 'AdminPayouts', alert: (pendingPayouts?.length || 0) > 0 },
     { label: 'Admin Management', desc: 'Manage administrators', icon: Shield, page: 'AdminManagement' },
-    { label: 'Disputes', desc: `${disputedBookings.length} open disputes`, icon: AlertTriangle, page: 'AdminDisputes', alert: disputedBookings.length > 0 },
+    { label: 'Disputes', desc: `${disputedBookings?.length || 0} open disputes`, icon: AlertTriangle, page: 'AdminDisputes', alert: (disputedBookings?.length || 0) > 0 },
     { label: 'Platform Settings', desc: 'Configure fees and policies', icon: Settings, page: 'AdminSettings' },
   ];
 
@@ -260,7 +260,7 @@ export default function AdminDashboard() {
         <Card className="p-4">
           <h3 className="font-semibold text-slate-900 mb-4">Recent Bookings</h3>
           
-          {allBookings.length === 0 ? (
+          {!allBookings || allBookings.length === 0 ? (
             <p className="text-slate-500 text-center py-6">No bookings yet</p>
           ) : (
             <div className="space-y-3">
@@ -282,7 +282,7 @@ export default function AdminDashboard() {
                   }>
                     {booking.status}
                   </Badge>
-                  <span className="font-semibold text-slate-900">₹{booking.total_amount.toFixed(2)}</span>
+                  <span className="font-semibold text-slate-900">₹{booking?.total_amount?.toFixed(2) || 0}</span>
                 </div>
               ))}
             </div>
