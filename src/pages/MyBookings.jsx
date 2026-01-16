@@ -12,8 +12,13 @@ export default function MyBookings() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const userData = await base44.auth.me();
-      setUser(userData);
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (error) {
+        console.error('Error loading user in MyBookings:', error);
+        setUser(null);
+      }
     };
     loadUser();
   }, []);
@@ -21,6 +26,7 @@ export default function MyBookings() {
   const { data: bookings = [], isLoading, refetch } = useQuery({
     queryKey: ['my-bookings', user?.id],
     queryFn: async () => {
+      if (!user?.id) return [];
       const allBookings = await base44.entities.Booking.filter({ seeker_id: user.id }, '-created_date', 100);
       return allBookings;
     },
@@ -45,16 +51,16 @@ export default function MyBookings() {
   today.setHours(0, 0, 0, 0);
 
   const upcomingBookings = bookings.filter(b => {
+    if (!b?.status || !b?.date) return false;
     if (upcomingStatuses.includes(b.status)) return true;
-    if (!b.date) return false;
     const bookingDate = new Date(b.date);
     return bookingDate >= today;
   });
   
   const pastBookings = bookings.filter(b => {
+    if (!b?.status || !b?.date) return false;
     if (pastStatuses.includes(b.status)) return true;
     if (upcomingStatuses.includes(b.status)) return false;
-    if (!b.date) return false;
     const bookingDate = new Date(b.date);
     return bookingDate < today;
   });
@@ -74,13 +80,13 @@ export default function MyBookings() {
                 value="upcoming" 
                 className="flex-1 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
               >
-                Upcoming ({upcomingBookings.length})
+                Upcoming ({upcomingBookings?.length || 0})
               </TabsTrigger>
               <TabsTrigger 
                 value="past"
                 className="flex-1 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
               >
-                Past ({pastBookings.length})
+                Past ({pastBookings?.length || 0})
               </TabsTrigger>
             </TabsList>
           </Tabs>

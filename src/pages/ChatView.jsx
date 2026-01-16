@@ -17,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from 'sonner';
 
 export default function ChatView() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -35,8 +36,13 @@ export default function ChatView() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const userData = await base44.auth.me();
-      setUser(userData);
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (error) {
+        console.error('Error loading user in ChatView:', error);
+        setUser(null);
+      }
     };
     loadUser();
 
@@ -60,14 +66,13 @@ export default function ChatView() {
     if (!booking?.chat_enabled) return false;
     
     if (['cancelled', 'completed'].includes(booking.status)) {
-      if (!booking.date || !booking.start_time) return false;
+      if (!booking?.date || !booking?.start_time) return false;
       
-      const [hours, minutes] = booking.start_time.split(':').map(Number);
+      const [hours, minutes] = (booking.start_time || '00:00').split(':').map(Number);
       const meetupDateTime = new Date(booking.date);
       meetupDateTime.setHours(hours, minutes, 0, 0);
       
-      const twentyFourHoursAfter = new Date(meetupDateTime);
-      twentyFourHoursAfter.setHours(twentyFourHoursAfter.getHours() + 24);
+      const twentyFourHoursAfter = new Date(meetupDateTime.getTime() + 24 * 60 * 60 * 1000);
       
       return new Date() < twentyFourHoursAfter;
     }
@@ -75,7 +80,7 @@ export default function ChatView() {
     return true;
   };
 
-  const chatAvailable = booking ? isChatAvailable() : false;
+  const chatAvailable = booking?.id ? isChatAvailable() : false;
 
   const { data: messages = [] } = useQuery({
     queryKey: ['messages', bookingId],
@@ -88,7 +93,7 @@ export default function ChatView() {
 
   // Mark messages as read and show notifications for new messages
   useEffect(() => {
-    if (!messages.length || !user?.id) return;
+    if (!messages?.length || !user?.id) return;
 
     const unreadMessages = messages.filter(m => !m.read && m.sender_id !== user.id);
     
@@ -109,7 +114,7 @@ export default function ChatView() {
       if (newFromOther.length > 0) {
         const lastMsg = newFromOther[newFromOther.length - 1];
         if (document.hidden) {
-          showNotification(lastMsg.sender_name, lastMsg.content);
+          showNotification(lastMsg?.sender_name || 'New Message', lastMsg?.content || 'New message received');
         }
       }
     }
@@ -138,10 +143,10 @@ export default function ChatView() {
   const { data: suggestedVenues = [] } = useQuery({
     queryKey: ['suggested-venues', booking?.city],
     queryFn: async () => {
+      if (!booking?.city) return [];
       const query = { verified: true };
-      if (booking?.city) query.city = booking.city;
+      query.city = booking.city;
       const results = await base44.entities.Venue.filter(query, '-created_date', 20);
-      // Prioritize venues in the same area if available
       if (booking?.area) {
         const areaMatches = results.filter(v => v.area === booking.area);
         const others = results.filter(v => v.area !== booking.area);
@@ -157,7 +162,6 @@ export default function ChatView() {
   const handleFileSelect = async (files) => {
     if (!files || files.length === 0) return;
     
-    // Create preview URLs
     const previews = Array.from(files).map(file => ({
       file,
       preview: URL.createObjectURL(file)
@@ -186,12 +190,12 @@ export default function ChatView() {
       
       await sendMessageMutation.mutateAsync(fileMessage);
       
-      // Cleanup preview URLs
       previewImages.forEach(({ preview }) => URL.revokeObjectURL(preview));
       setPreviewImages([]);
+      toast.success('Files uploaded and sent successfully!');
     } catch (error) {
       console.error('File upload error:', error);
-      alert('Failed to upload files');
+      toast.error('Failed to upload files');
     } finally {
       setUploadingFile(false);
       setSelectedFiles([]);
@@ -221,8 +225,7 @@ export default function ChatView() {
 
       console.log('Message created:', newMessage);
 
-      // Create notification for the other party
-      const currentIsSeeker = user.id === booking?.seeker_id;
+      const currentIsSeeker = user?.id === booking?.seeker_id;
       const otherUserId = currentIsSeeker ? booking?.companion_id : booking?.seeker_id;
       
       if (otherUserId) {
@@ -230,7 +233,7 @@ export default function ChatView() {
           user_id: otherUserId,
           type: 'new_message',
           title: '💬 New Message',
-          message: `${user.display_name || user.full_name || 'Someone'}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+          message: `${user?.display_name || user?.full_name || 'Someone'}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
           booking_id: bookingId,
           action_url: createPageUrl(`ChatView?id=${bookingId}`)
         });
@@ -246,7 +249,7 @@ export default function ChatView() {
     },
     onError: (error) => {
       console.error('Send message error:', error);
-      alert(`Failed to send message: ${error.message || 'Please try again'}`);
+      toast.error(`Failed to send message: ${error.message || 'Please try again'}`);
     }
   });
 
@@ -278,6 +281,17 @@ export default function ChatView() {
   });
 
   const isBlocked = blockedUsers.some(b => b.blocked_id === otherPartyId);
+
+  if (!bookingId) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-slate-900 mb-2">Chat Not Found</h2>
+          <Button onClick={() => window.history.back()}>Go Back</Button>
+        </div>
+      </div>
+    );
+  }
 
   if (!booking) {
     return (
@@ -335,13 +349,13 @@ export default function ChatView() {
           >
             <img
               src={otherPartyPhoto || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'}
-              alt={otherPartyName}
+              alt={otherPartyName || 'Profile Picture'}
               className="w-10 h-10 rounded-full object-cover"
             />
             <div className="flex-1 min-w-0">
               <h1 className="font-semibold text-slate-900">{otherPartyName || 'Chat'}</h1>
               <p className="text-xs text-slate-500 truncate">
-                Booking ID: {booking.id.slice(0, 8).toUpperCase()}
+                Booking ID: {booking?.id?.slice(0, 8).toUpperCase() || 'N/A'}
               </p>
             </div>
           </Link>
@@ -378,13 +392,12 @@ export default function ChatView() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-900">Suggested Restaurants</p>
-                  <p className="text-xs text-slate-600">{booking.area || booking.city} • Verified venues</p>
+                  <p className="text-xs text-slate-600">{booking?.area || booking?.city} • Verified venues</p>
                 </div>
               </div>
             </div>
             <div className="space-y-2">
               {(() => {
-                // Group venues by area
                 const venuesByArea = suggestedVenues.reduce((acc, venue) => {
                   const area = venue.area || venue.city;
                   if (!acc[area]) acc[area] = [];

@@ -55,8 +55,13 @@ export default function Discover() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const userData = await base44.auth.me();
-      setUser(userData);
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (error) {
+        console.error('Error loading user in Discover:', error);
+        setUser(null);
+      }
     };
     loadUser();
   }, []);
@@ -84,11 +89,14 @@ export default function Discover() {
     queryKey: ['companion-users'],
     queryFn: async () => {
       return await base44.entities.User.filter({ user_role: 'companion' });
-    }
+    },
+    enabled: !!user
   });
 
   // Check if availability is in the past
   const isAvailabilityPast = (availability) => {
+    if (!availability?.date || !availability?.end_time) return true;
+
     const now = new Date();
     const availDate = new Date(availability.date);
     
@@ -135,7 +143,7 @@ export default function Discover() {
     if (filters.language && !a.languages?.includes(filters.language)) return false;
     if (filters.minRating) {
       const companionUser = companionUsers.find(u => u.id === a.companion_id);
-      if (!companionUser || companionUser.average_rating < Number(filters.minRating)) return false;
+      if (!companionUser || companionUser.average_rating == null || companionUser.average_rating < Number(filters.minRating)) return false;
     }
     return true;
   });
@@ -160,7 +168,7 @@ export default function Discover() {
     return grouped;
   }, [filteredAvailabilities]);
 
-  const companionsList = Object.values(groupedCompanions);
+  const companionsList = Object.values(groupedCompanions || {});
 
   const clearFilters = () => {
     setFilters({ city: '', area: '', gender: '', priceMin: '', priceMax: '', language: '', minRating: '' });

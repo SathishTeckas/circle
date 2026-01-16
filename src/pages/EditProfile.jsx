@@ -12,6 +12,7 @@ import {
   ArrowLeft, Camera, X, Upload, Loader2, Save
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 const INTERESTS = ['Movies', 'Music', 'Travel', 'Food', 'Sports', 'Art', 'Reading', 'Gaming', 'Photography', 'Fitness', 'Dancing', 'Theater', 'Comedy', 'Fashion', 'Technology', 'Science', 'Nature', 'Yoga', 'Meditation', 'Cooking', 'Wine & Dining', 'Coffee Culture', 'Nightlife', 'Adventure Sports', 'Spirituality', 'Politics', 'History', 'Architecture', 'Astronomy', 'Volunteering', 'Pets & Animals', 'Shopping', 'Cars & Bikes', 'Startups', 'Investing', 'Psychology', 'Podcasts', 'Blogging', 'Social Media', 'Board Games'];
 const LANGUAGES = ['English', 'Hindi', 'Tamil', 'Telugu', 'Bengali', 'Marathi', 'Gujarati', 'Kannada', 'Malayalam', 'Punjabi'];
@@ -37,20 +38,26 @@ export default function EditProfile() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const userData = await base44.auth.me();
-      setUser(userData);
-      setFormData({
-        display_name: userData.display_name || userData.full_name || '',
-        bio: userData.bio || '',
-        city: userData.city || '',
-        interests: userData.interests || [],
-        languages: userData.languages || [],
-        hobbies: userData.hobbies || [],
-        personality_traits: userData.personality_traits || [],
-        video_intro_url: userData.video_intro_url || '',
-        profile_photos: userData.profile_photos || []
-      });
-      setLoading(false);
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+        setFormData({
+          display_name: userData.display_name || userData.full_name || '',
+          bio: userData.bio || '',
+          city: userData.city || '',
+          interests: userData.interests || [],
+          languages: userData.languages || [],
+          hobbies: userData.hobbies || [],
+          personality_traits: userData.personality_traits || [],
+          video_intro_url: userData.video_intro_url || '',
+          profile_photos: userData.profile_photos || []
+        });
+      } catch (error) {
+        console.error('Error loading user in EditProfile:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     };
     loadUser();
   }, []);
@@ -60,18 +67,28 @@ export default function EditProfile() {
       await base44.auth.updateMe(formData);
     },
     onSuccess: () => {
-      // Navigate back to profile
+      toast.success('Profile updated successfully!');
       window.location.href = createPageUrl('Profile');
     },
     onError: (error) => {
       console.error('Update error:', error);
-      alert('Error updating profile: ' + error.message);
+      toast.error('Error updating profile: ' + error.message);
     }
   });
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB.');
+      return;
+    }
 
     setUploading(true);
     try {
@@ -80,8 +97,9 @@ export default function EditProfile() {
         ...formData, 
         profile_photos: [...formData.profile_photos, file_url] 
       });
+      toast.success('Photo uploaded successfully!');
     } catch (error) {
-      alert('Failed to upload photo');
+      toast.error('Failed to upload photo');
     } finally {
       setUploading(false);
     }

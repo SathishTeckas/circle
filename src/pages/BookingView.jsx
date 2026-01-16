@@ -15,6 +15,7 @@ import {
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const statusConfig = {
   pending: { label: 'Pending Response', color: 'bg-amber-100 text-amber-700', icon: Clock },
@@ -37,8 +38,13 @@ export default function BookingView() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const userData = await base44.auth.me();
-      setUser(userData);
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (error) {
+        console.error('Error loading user in BookingView:', error);
+        setUser(null);
+      }
     };
     loadUser();
   }, []);
@@ -81,7 +87,6 @@ export default function BookingView() {
 
   const acceptMutation = useMutation({
     mutationFn: async () => {
-      // Fetch companion user to get display_name
       const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
       const companion = companionResponse.data.user;
       
@@ -89,15 +94,16 @@ export default function BookingView() {
         status: 'accepted',
         chat_enabled: true
       });
-      await base44.entities.Availability.update(booking.availability_id, {
-        status: 'booked'
-      });
-      // Create notification for seeker
+      if (booking?.availability_id) {
+        await base44.entities.Availability.update(booking.availability_id, {
+          status: 'booked'
+        });
+      }
       await base44.entities.Notification.create({
-        user_id: booking.seeker_id,
+        user_id: booking?.seeker_id,
         type: 'booking_accepted',
         title: '🎉 Booking Confirmed!',
-        message: `${companion?.display_name || companion?.full_name || booking.companion_name} accepted your booking request`,
+        message: `${companion?.display_name || companion?.full_name || booking?.companion_name} accepted your booking request`,
         booking_id: bookingId,
         action_url: createPageUrl(`BookingView?id=${bookingId}`)
       });
@@ -107,7 +113,6 @@ export default function BookingView() {
 
   const rejectMutation = useMutation({
     mutationFn: async () => {
-      // Fetch companion user to get display_name
       const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
       const companion = companionResponse.data.user;
       
@@ -115,29 +120,26 @@ export default function BookingView() {
         status: 'rejected',
         escrow_status: 'refunded'
       });
-      // Set availability back to available
       if (booking?.availability_id) {
         await base44.entities.Availability.update(booking.availability_id, { 
           status: 'available'
         });
       }
-      // Create notification for seeker
       await base44.entities.Notification.create({
-        user_id: booking.seeker_id,
+        user_id: booking?.seeker_id,
         type: 'booking_rejected',
         title: 'Booking Declined',
-        message: `${companion?.display_name || companion?.full_name || booking.companion_name} declined your booking request. Full refund processed.`,
+        message: `${companion?.display_name || companion?.full_name || booking?.companion_name} declined your booking request. Full refund processed.`,
         booking_id: bookingId,
-        amount: booking.total_amount,
+        amount: booking?.total_amount || 0,
         action_url: createPageUrl('Discover')
       });
-      // Create notification about refund
       await base44.entities.Notification.create({
-        user_id: booking.seeker_id,
+        user_id: booking?.seeker_id,
         type: 'payment_refunded',
         title: '💰 Refund Processed',
-        message: `₹${Math.ceil(booking.total_amount)} has been refunded to your account`,
-        amount: booking.total_amount,
+        message: `₹${Math.ceil(booking?.total_amount || 0)} has been refunded to your account`,
+        amount: booking?.total_amount || 0,
         action_url: createPageUrl('MyBookings')
       });
     },
@@ -146,33 +148,30 @@ export default function BookingView() {
 
   const cancelMutation = useMutation({
     mutationFn: async ({ refundPercentage }) => {
-      const refundAmount = (booking.total_amount * refundPercentage) / 100;
+      const refundAmount = ((booking?.total_amount || 0) * refundPercentage) / 100;
       await base44.entities.Booking.update(bookingId, { 
         status: 'cancelled',
         escrow_status: refundPercentage > 0 ? 'refunded' : 'held',
         refund_amount: refundAmount
       });
-      // Set availability back to available
       if (booking?.availability_id) {
         await base44.entities.Availability.update(booking.availability_id, { 
           status: 'available'
         });
       }
-      // Notify the other party
-      const otherUserId = isSeeker ? booking.companion_id : booking.seeker_id;
-      const otherUserName = isSeeker ? booking.companion_name : booking.seeker_name;
+      const isSeeker = user?.id === booking?.seeker_id;
+      const otherUserId = isSeeker ? booking?.companion_id : booking?.seeker_id;
       await base44.entities.Notification.create({
         user_id: otherUserId,
         type: 'booking_cancelled',
         title: '❌ Booking Cancelled',
-        message: `${user.display_name || user.full_name} cancelled the booking${refundPercentage === 100 ? ' (Full refund issued)' : ''}`,
+        message: `${user?.display_name || user?.full_name} cancelled the booking${refundPercentage === 100 ? ' (Full refund issued)' : ''}`,
         booking_id: bookingId,
         action_url: createPageUrl('CalendarView')
       });
-      // If there's a refund, notify about it
       if (refundPercentage > 0 && isSeeker) {
         await base44.entities.Notification.create({
-          user_id: booking.seeker_id,
+          user_id: booking?.seeker_id,
           type: 'payment_refunded',
           title: '💰 Refund Processed',
           message: `₹${Math.ceil(refundAmount)} (${refundPercentage}%) has been refunded to your account`,
@@ -188,44 +187,38 @@ export default function BookingView() {
 
   const completeMeetingMutation = useMutation({
     mutationFn: async (selfieFile) => {
-      // Fetch companion user to get display_name
       const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
       const companion = companionResponse.data.user;
       
-      // Upload selfie
       const { file_url } = await base44.integrations.Core.UploadFile({ file: selfieFile });
       
-      // Update booking as completed and release funds
       await base44.entities.Booking.update(bookingId, { 
         status: 'completed',
         escrow_status: 'released',
         meetup_photo: file_url
       });
 
-      // Update availability as completed
       if (booking?.availability_id) {
         await base44.entities.Availability.update(booking.availability_id, { 
           status: 'completed'
         });
       }
 
-      // Notify seeker
       await base44.entities.Notification.create({
-        user_id: booking.seeker_id,
+        user_id: booking?.seeker_id,
         type: 'booking_reminder',
         title: '✅ Meeting Completed',
-        message: `Your meeting with ${companion?.display_name || companion?.full_name || booking.companion_name} has been completed. Please leave a review!`,
+        message: `Your meeting with ${companion?.display_name || companion?.full_name || booking?.companion_name} has been completed. Please leave a review!`,
         booking_id: bookingId,
         action_url: createPageUrl(`LeaveReview?bookingId=${bookingId}`)
       });
 
-      // Notify companion about payout
       await base44.entities.Notification.create({
-        user_id: booking.companion_id,
+        user_id: booking?.companion_id,
         type: 'payout_processed',
         title: '💰 Payment Released',
-        message: `₹${Math.ceil(booking.companion_payout || 0)} has been credited to your wallet`,
-        amount: booking.companion_payout,
+        message: `₹${Math.ceil(booking?.companion_payout || 0)} has been credited to your wallet`,
+        amount: booking?.companion_payout || 0,
         action_url: createPageUrl('Wallet')
       });
     },
@@ -242,15 +235,13 @@ export default function BookingView() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file is image
     if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
+      toast.error('Please upload an image file');
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image must be less than 5MB');
+      toast.error('Image must be less than 5MB');
       return;
     }
 
@@ -280,22 +271,21 @@ export default function BookingView() {
   const isCompanion = user?.id === booking.companion_id;
   const isSeeker = user?.id === booking.seeker_id;
   const otherPartyName = isSeeker 
-    ? (companionUser?.display_name || booking.companion_name) 
-    : (seekerUser?.display_name || booking.seeker_name);
-  const otherPartyPhoto = isSeeker ? booking.companion_photo : booking.seeker_photo;
-  const status = statusConfig[booking.status] || statusConfig.pending;
+    ? (companionUser?.display_name || booking?.companion_name) 
+    : (seekerUser?.display_name || booking?.seeker_name);
+  const otherPartyPhoto = isSeeker ? booking?.companion_photo : booking?.seeker_photo;
+  const status = statusConfig[booking?.status] || statusConfig.pending;
   const StatusIcon = status.icon;
 
-  // Calculate refund based on time until meetup
   const calculateRefund = () => {
-    if (!booking.date || !booking.start_time) return { percentage: 100, message: 'Full refund' };
+    if (!booking?.date || !booking?.start_time) return { percentage: 0, message: 'Booking data incomplete - no refund possible' };
     
     const [hours, minutes] = booking.start_time.split(':').map(Number);
     const meetupDateTime = new Date(booking.date);
     meetupDateTime.setHours(hours, minutes, 0, 0);
     
     const now = new Date();
-    const hoursUntilMeetup = (meetupDateTime - now) / (1000 * 60 * 60);
+    const hoursUntilMeetup = (meetupDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
     
     if (hoursUntilMeetup >= 24) {
       return { percentage: 100, message: 'Full refund (24+ hours notice)' };
@@ -341,7 +331,7 @@ export default function BookingView() {
             <div className="flex items-center gap-4">
               <img
                 src={otherPartyPhoto || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200'}
-                alt={otherPartyName}
+                alt={otherPartyName || 'Profile Picture'}
                 className="w-16 h-16 rounded-xl object-cover"
               />
               <div className="flex-1">
@@ -369,7 +359,7 @@ export default function BookingView() {
               <div>
                 <p className="text-xs text-slate-500">Date</p>
                 <p className="font-medium text-slate-900">
-                  {booking.date ? format(new Date(booking.date), 'EEE, MMM d') : 'TBD'}
+                  {booking?.date ? format(new Date(booking.date), 'EEE, MMM d') : 'TBD'}
                 </p>
               </div>
             </div>
@@ -380,7 +370,7 @@ export default function BookingView() {
               <div>
                 <p className="text-xs text-slate-500">Time</p>
                 <p className="font-medium text-slate-900">
-                  {formatTime12Hour(booking.start_time)} - {formatTime12Hour(booking.end_time)}
+                  {formatTime12Hour(booking?.start_time || '00:00')} - {formatTime12Hour(booking?.end_time || '00:00')}
                 </p>
               </div>
             </div>
@@ -393,9 +383,9 @@ export default function BookingView() {
             <div>
               <p className="text-xs text-slate-500">Location</p>
               <p className="font-medium text-slate-900">
-                {booking.venue_name || `${booking.area}, ${booking.city}`}
+                {booking?.venue_name || `${booking?.area || 'N/A'}, ${booking?.city || 'N/A'}`}
               </p>
-              {booking.venue_address && (
+              {booking?.venue_address && (
                 <p className="text-sm text-slate-600">{booking.venue_address}</p>
               )}
             </div>
@@ -411,16 +401,16 @@ export default function BookingView() {
           
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-slate-600">Base Price ({booking.duration_hours}h)</span>
-              <span className="text-slate-900">₹{Math.ceil(booking.base_price || 0)}</span>
+              <span className="text-slate-600">Base Price ({booking?.duration_hours || 0}h)</span>
+              <span className="text-slate-900">₹{Math.ceil(booking?.base_price || 0)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-600">Platform Fee ({appSettings?.platform_fee || 15}%)</span>
-              <span className="text-slate-900">₹{Math.ceil(booking.platform_fee || 0)}</span>
+              <span className="text-slate-900">₹{Math.ceil(booking?.platform_fee || 0)}</span>
             </div>
             <div className="flex justify-between border-t border-slate-100 pt-2 font-semibold">
               <span className="text-slate-900">Total</span>
-              <span className="text-slate-900">₹{Math.ceil(booking.total_amount || 0)}</span>
+              <span className="text-slate-900">₹{Math.ceil(booking?.total_amount || 0)}</span>
             </div>
           </div>
 
@@ -435,7 +425,7 @@ export default function BookingView() {
           <Card className="p-4 space-y-3">
             <h3 className="font-semibold text-slate-900">Respond to Request</h3>
             <p className="text-sm text-slate-600">
-              This request will expire in 30 minutes. Please accept or decline.
+              This request will expire on {booking?.request_expires_at ? format(new Date(booking.request_expires_at), 'MMM d, hh:mm a') : 'soon'}. Please accept or decline.
             </p>
             <div className="flex gap-3">
               <Button
@@ -466,7 +456,7 @@ export default function BookingView() {
               <div>
                 <h3 className="font-semibold text-amber-900">Waiting for Response</h3>
                 <p className="text-sm text-amber-700 mt-1">
-                  The companion has 30 minutes to accept or decline your request.
+                  The companion has until {booking?.request_expires_at ? format(new Date(booking.request_expires_at), 'MMM d, hh:mm a') : 'soon'} to accept or decline your request.
                 </p>
               </div>
             </div>
@@ -499,7 +489,7 @@ export default function BookingView() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-600">Refund Amount</span>
                 <span className="text-lg font-bold text-slate-900">
-                  ₹{Math.ceil((booking.total_amount * refundInfo.percentage) / 100)}
+                  ₹{Math.ceil(((booking?.total_amount || 0) * refundInfo.percentage) / 100)}
                 </span>
               </div>
             </div>
@@ -540,8 +530,8 @@ export default function BookingView() {
 
         {/* Complete Meeting - Companion Only */}
         {booking.status === 'accepted' && isCompanion && (() => {
-          const [hours, minutes] = (booking.start_time || '').split(':').map(Number);
-          const meetupDateTime = new Date(booking.date);
+          const [hours, minutes] = (booking?.start_time || '00:00').split(':').map(Number);
+          const meetupDateTime = new Date(booking?.date || new Date());
           meetupDateTime.setHours(hours, minutes, 0, 0);
           const canComplete = new Date() >= new Date(meetupDateTime.getTime() + 10 * 60 * 1000);
           return canComplete;
@@ -594,7 +584,7 @@ export default function BookingView() {
               <h3 className="font-semibold text-slate-900 mb-2">Meeting Completed</h3>
               <p className="text-sm text-slate-600 mb-4">
                 {isCompanion 
-                  ? `Payment of ₹${Math.ceil(booking.companion_payout || 0)} has been credited to your wallet`
+                  ? `Payment of ₹${Math.ceil(booking?.companion_payout || 0)} has been credited to your wallet`
                   : 'Thank you for using Circle! Please leave a review.'
                 }
               </p>

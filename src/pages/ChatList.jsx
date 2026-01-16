@@ -14,8 +14,13 @@ export default function ChatList() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const userData = await base44.auth.me();
-      setUser(userData);
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (error) {
+        console.error('Error loading user in ChatList:', error);
+        setUser(null);
+      }
     };
     loadUser();
   }, []);
@@ -25,6 +30,7 @@ export default function ChatList() {
   const { data: bookings = [], isLoading, refetch } = useQuery({
     queryKey: ['chat-bookings', user?.id, isCompanion],
     queryFn: async () => {
+      if (!user?.id) return [];
       const query = isCompanion 
         ? { companion_id: user.id }
         : { seeker_id: user.id };
@@ -47,7 +53,7 @@ export default function ChatList() {
   const { data: unreadMessages = [] } = useQuery({
     queryKey: ['unread-messages', user?.id],
     queryFn: async () => {
-      // Get messages where current user is not the sender and message is unread
+      if (!user?.id) return [];
       const allMessages = await base44.entities.Message.filter({ read: false }, '-created_date', 100);
       return allMessages.filter(m => m.sender_id !== user.id);
     },
@@ -93,10 +99,10 @@ export default function ChatList() {
           <div className="space-y-3">
             {bookings.map((booking, idx) => {
               const otherName = isCompanion 
-                ? (booking.seeker_display_name || booking.seeker_name)
-                : (booking.companion_display_name || booking.companion_name);
-              const otherPhoto = isCompanion ? booking.seeker_photo : booking.companion_photo;
-              const unreadCount = getUnreadCount(booking.id);
+                ? (booking?.seeker_display_name || booking?.seeker_name || 'Anonymous')
+                : (booking?.companion_display_name || booking?.companion_name || 'Anonymous');
+              const otherPhoto = isCompanion ? booking?.seeker_photo : booking?.companion_photo;
+              const unreadCount = getUnreadCount(booking?.id);
 
               return (
                 <motion.div
@@ -127,13 +133,13 @@ export default function ChatList() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
                             <h3 className="font-semibold text-slate-900 truncate">
-                              {otherName || 'Anonymous'}
+                              {otherName}
                             </h3>
                             <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
                           </div>
                           
                           <p className="text-xs text-slate-500 mb-2">
-                            Booking ID: {booking.id.slice(0, 8).toUpperCase()}
+                            Booking ID: {booking?.id?.slice(0, 8).toUpperCase() || 'N/A'}
                           </p>
                           
                           <div className="flex items-center gap-2">
