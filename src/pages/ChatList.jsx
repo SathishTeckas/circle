@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 export default function ChatList() {
   const [user, setUser] = useState(null);
   const [filterUnread, setFilterUnread] = useState(false);
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('accepted');
 
   useEffect(() => {
     const loadUser = async () => {
