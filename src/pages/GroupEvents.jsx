@@ -287,7 +287,7 @@ export default function GroupEvents() {
               <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
                 <Badge 
                   className={cn(
-                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    "cursor-pointer px-2 sm:px-4 py-2 whitespace-nowrap text-xs sm:text-sm",
                     discoverFilter === 'upcoming' 
                       ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
                       : "bg-slate-100 text-slate-600 hover:bg-slate-100"
@@ -298,7 +298,7 @@ export default function GroupEvents() {
                 </Badge>
                 <Badge 
                   className={cn(
-                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    "cursor-pointer px-2 sm:px-4 py-2 whitespace-nowrap text-xs sm:text-sm",
                     discoverFilter === 'in_progress' 
                       ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
                       : "bg-slate-100 text-slate-600 hover:bg-slate-100"
@@ -309,7 +309,7 @@ export default function GroupEvents() {
                 </Badge>
                 <Badge 
                   className={cn(
-                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    "cursor-pointer px-2 sm:px-4 py-2 whitespace-nowrap text-xs sm:text-sm",
                     discoverFilter === 'completed' 
                       ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
                       : "bg-slate-100 text-slate-600 hover:bg-slate-100"
@@ -326,7 +326,7 @@ export default function GroupEvents() {
               <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
                 <Badge 
                   className={cn(
-                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    "cursor-pointer px-2 sm:px-4 py-2 whitespace-nowrap text-xs sm:text-sm",
                     myEventsFilter === 'upcoming' 
                       ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
                       : "bg-slate-100 text-slate-600 hover:bg-slate-100"
@@ -337,7 +337,7 @@ export default function GroupEvents() {
                 </Badge>
                 <Badge 
                   className={cn(
-                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    "cursor-pointer px-2 sm:px-4 py-2 whitespace-nowrap text-xs sm:text-sm",
                     myEventsFilter === 'in_progress' 
                       ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
                       : "bg-slate-100 text-slate-600 hover:bg-slate-100"
@@ -348,7 +348,7 @@ export default function GroupEvents() {
                 </Badge>
                 <Badge 
                   className={cn(
-                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    "cursor-pointer px-2 sm:px-4 py-2 whitespace-nowrap text-xs sm:text-sm",
                     myEventsFilter === 'completed' 
                       ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
                       : "bg-slate-100 text-slate-600 hover:bg-slate-100"
