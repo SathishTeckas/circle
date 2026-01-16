@@ -18,34 +18,43 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const userData = await base44.auth.me();
-      if (userData.user_role !== 'admin' && userData.role !== 'admin') {
-        window.location.href = createPageUrl('Discover');
-        return;
+      try {
+        const userData = await base44.auth.me();
+        if (!userData || (userData.user_role !== 'admin' && userData.role !== 'admin')) {
+          window.location.href = createPageUrl('Discover');
+          return;
+        }
+        setUser(userData);
+      } catch (error) {
+        console.error('Error loading user:', error);
+        window.location.href = createPageUrl('Welcome');
       }
-      setUser(userData);
     };
     loadUser();
   }, []);
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['admin-users'],
-    queryFn: () => base44.entities.User.list('-created_date', 100)
+    queryFn: () => base44.entities.User.list('-created_date', 100),
+    enabled: !!user
   });
 
   const { data: allBookings = [] } = useQuery({
     queryKey: ['admin-bookings'],
-    queryFn: () => base44.entities.Booking.list('-created_date', 100)
+    queryFn: () => base44.entities.Booking.list('-created_date', 100),
+    enabled: !!user
   });
 
   const { data: venues = [] } = useQuery({
     queryKey: ['admin-venues'],
-    queryFn: () => base44.entities.Venue.list('-created_date', 50)
+    queryFn: () => base44.entities.Venue.list('-created_date', 50),
+    enabled: !!user
   });
 
   const { data: groupEventsRaw = [] } = useQuery({
     queryKey: ['admin-groups'],
-    queryFn: () => base44.entities.GroupEvent.list('-date', 20)
+    queryFn: () => base44.entities.GroupEvent.list('-date', 20),
+    enabled: !!user
   });
 
   // Filter out past group events
@@ -77,17 +86,18 @@ export default function AdminDashboard() {
     queryFn: async () => {
       const settings = await base44.entities.AppSettings.list();
       return settings[0] || { platform_fee: 15, no_show_penalty_percent: 100 };
-    }
+    },
+    enabled: !!user
   });
 
-  const companions = allUsers.filter(u => u.user_role === 'companion');
-  const seekers = allUsers.filter(u => u.user_role === 'seeker');
-  const pendingKYC = allUsers.filter(u => u.kyc_status === 'pending');
-  const completedBookings = allBookings.filter(b => b.status === 'completed');
-  const disputedBookings = allBookings.filter(b => b.status === 'disputed');
+  const companions = allUsers.filter(u => u?.user_role === 'companion');
+  const seekers = allUsers.filter(u => u?.user_role === 'seeker');
+  const pendingKYC = allUsers.filter(u => u?.kyc_status === 'pending');
+  const completedBookings = allBookings.filter(b => b?.status === 'completed');
+  const disputedBookings = allBookings.filter(b => b?.status === 'disputed');
   
-  const totalRevenue = completedBookings.reduce((sum, b) => sum + (b.platform_fee || 0), 0);
-  const totalGMV = completedBookings.reduce((sum, b) => sum + (b.total_amount || 0), 0);
+  const totalRevenue = completedBookings.reduce((sum, b) => sum + (b?.platform_fee || 0), 0);
+  const totalGMV = completedBookings.reduce((sum, b) => sum + (b?.total_amount || 0), 0);
 
   const exportMutation = useMutation({
     mutationFn: async (dataType) => {
@@ -123,7 +133,8 @@ export default function AdminDashboard() {
 
   const { data: payouts = [] } = useQuery({
     queryKey: ['admin-payouts'],
-    queryFn: () => base44.entities.Payout.list('-created_date', 50)
+    queryFn: () => base44.entities.Payout.list('-created_date', 50),
+    enabled: !!user
   });
 
   const pendingPayouts = payouts.filter(p => p.status === 'pending');
