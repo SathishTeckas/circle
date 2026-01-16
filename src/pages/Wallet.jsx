@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPageUrl } from '../utils';
+import { formatCurrency } from '../components/utils/formatCurrency';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -184,8 +185,8 @@ export default function Wallet() {
           user_id: admin.id,
           type: 'payout_processed',
           title: '💰 New Payout Request',
-          message: `${user.full_name} requested a payout of ₹${amount.toFixed(2)}`,
-          action_url: createPageUrl('AdminPayouts')
+            message: `${user.full_name} requested a payout of ${formatCurrency(amount)}`,
+            action_url: createPageUrl('AdminPayouts')
         });
       }
     },
@@ -235,9 +236,9 @@ export default function Wallet() {
           {/* Balance Card */}
           <Card className="p-6 bg-white/10 backdrop-blur border-white/20 text-white">
             <p className="text-emerald-100 text-sm mb-1">Available Balance</p>
-            <p className="text-4xl font-bold mb-1">₹{availableBalance.toFixed(2)}</p>
+            <p className="text-4xl font-bold mb-1">{formatCurrency(availableBalance)}</p>
             <p className="text-emerald-100 text-xs mb-4">
-              Pending: ₹{pendingEarnings.toFixed(2)} • In Progress: ₹{pendingPayouts.toFixed(2)}
+              Pending: {formatCurrency(pendingEarnings)} • In Progress: {formatCurrency(pendingPayouts)}
             </p>
             
             <Sheet open={showPayoutSheet} onOpenChange={setShowPayoutSheet}>
@@ -257,8 +258,8 @@ export default function Wallet() {
 
                 <div className="space-y-6 overflow-y-auto h-[calc(85vh-140px)] pb-6">
                   <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-                    <p className="text-sm text-emerald-800 font-medium">Available: ₹{availableBalance.toFixed(2)}</p>
-                    <p className="text-xs text-emerald-600 mt-1">Minimum payout: ₹100</p>
+                   <p className="text-sm text-emerald-800 font-medium">Available: {formatCurrency(availableBalance)}</p>
+                   <p className="text-xs text-emerald-600 mt-1">Minimum payout: ₹100.00</p>
                   </div>
 
                   <div>
@@ -362,18 +363,18 @@ export default function Wallet() {
               </div>
               <span className="text-sm text-slate-600">This Month</span>
             </div>
-            <p className="text-2xl font-bold text-slate-900">₹{thisMonthEarnings.toFixed(0)}</p>
+            <p className="text-2xl font-bold text-slate-900">{formatCurrency(thisMonthEarnings)}</p>
             <p className="text-xs text-slate-500">{thisMonth.length} meetups</p>
-          </Card>
-          
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center">
-                <IndianRupee className="w-4 h-4 text-violet-600" />
-              </div>
-              <span className="text-sm text-slate-600">All Time</span>
-            </div>
-            <p className="text-2xl font-bold text-slate-900">₹{totalEarnings.toFixed(0)}</p>
+            </Card>
+
+            <Card className="p-4">
+             <div className="flex items-center gap-2 mb-2">
+               <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center">
+                 <IndianRupee className="w-4 h-4 text-violet-600" />
+               </div>
+               <span className="text-sm text-slate-600">All Time</span>
+             </div>
+             <p className="text-2xl font-bold text-slate-900">{formatCurrency(totalEarnings)}</p>
             <p className="text-xs text-slate-500">{completedBookings.length} total meetups</p>
           </Card>
         </div>
@@ -384,23 +385,23 @@ export default function Wallet() {
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Booking Earnings</span>
-              <span className="font-medium text-emerald-600">+₹{totalEarnings.toFixed(2)}</span>
+              <span className="font-medium text-emerald-600">+{formatCurrency(totalEarnings)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Referral Bonuses</span>
-              <span className="font-medium text-violet-600">+₹{referralEarnings.toFixed(2)}</span>
+              <span className="font-medium text-violet-600">+{formatCurrency(referralEarnings)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Withdrawn</span>
-              <span className="font-medium text-red-600">-₹{totalWithdrawn.toFixed(2)}</span>
+              <span className="font-medium text-red-600">-{formatCurrency(totalWithdrawn)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Pending Payouts</span>
-              <span className="font-medium text-amber-600">-₹{pendingPayouts.toFixed(2)}</span>
+              <span className="font-medium text-amber-600">-{formatCurrency(pendingPayouts)}</span>
             </div>
             <div className="border-t border-slate-300 pt-2 mt-2 flex items-center justify-between">
               <span className="font-semibold text-slate-900">Available Balance</span>
-              <span className="font-bold text-emerald-600 text-lg">₹{availableBalance.toFixed(2)}</span>
+              <span className="font-bold text-emerald-600 text-lg">{formatCurrency(availableBalance)}</span>
             </div>
           </div>
         </Card>
@@ -467,7 +468,7 @@ export default function Wallet() {
                             "font-semibold",
                             transaction.amount > 0 ? "text-emerald-600" : "text-red-600"
                           )}>
-                            {transaction.amount > 0 ? '+' : ''}₹{Math.abs(transaction.amount).toFixed(2)}
+                            {transaction.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
                           </p>
                         </div>
                       </motion.div>
@@ -508,7 +509,7 @@ export default function Wallet() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-emerald-600">+₹{booking.companion_payout?.toFixed(2)}</p>
+                        <p className="font-semibold text-emerald-600">+{formatCurrency(booking.companion_payout || 0)}</p>
                         <p className="text-xs text-slate-500">{booking.duration_hours}h meetup</p>
                       </div>
                     </motion.div>
@@ -543,7 +544,7 @@ export default function Wallet() {
                       >
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <p className="font-semibold text-slate-900">₹{payout.amount.toFixed(2)}</p>
+                            <p className="font-semibold text-slate-900">{formatCurrency(payout.amount)}</p>
                             <p className="text-sm text-slate-500 capitalize">
                               {payout.payment_method.replace('_', ' ')}
                             </p>
