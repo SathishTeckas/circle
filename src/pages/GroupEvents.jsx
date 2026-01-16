@@ -246,24 +246,24 @@ export default function GroupEvents() {
                 <Badge 
                   className={cn(
                     "cursor-pointer px-4 py-2 whitespace-nowrap",
-                    myEventsFilter === 'ongoing' 
+                    myEventsFilter === 'in_progress' 
                       ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
                       : "bg-slate-100 text-slate-600 hover:bg-slate-100"
                   )}
-                  onClick={() => setMyEventsFilter('ongoing')}
+                  onClick={() => setMyEventsFilter('in_progress')}
                 >
-                  Ongoing ({ongoingEvents.length})
+                  In Progress ({ongoingEvents.length})
                 </Badge>
                 <Badge 
                   className={cn(
                     "cursor-pointer px-4 py-2 whitespace-nowrap",
-                    myEventsFilter === 'past' 
+                    myEventsFilter === 'completed' 
                       ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
                       : "bg-slate-100 text-slate-600 hover:bg-slate-100"
                   )}
-                  onClick={() => setMyEventsFilter('past')}
+                  onClick={() => setMyEventsFilter('completed')}
                 >
-                  Past ({pastEvents.length})
+                  Completed ({completedEvents.length})
                 </Badge>
               </div>
             )}
