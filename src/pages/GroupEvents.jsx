@@ -28,10 +28,15 @@ export default function GroupEvents() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const userData = await base44.auth.me();
-      setUser(userData);
-      if (userData.city) {
-        setFilters(f => ({ ...f, city: userData.city }));
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+        if (userData?.city) {
+          setFilters(f => ({ ...f, city: userData.city }));
+        }
+      } catch (error) {
+        console.error('Error loading user:', error);
+        setUser(null);
       }
     };
     loadUser();
@@ -324,7 +329,7 @@ export default function GroupEvents() {
 }
 
 function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
-  const spotsLeft = (event.max_participants || 8) - (event.current_participants || 0);
+  const spotsLeft = (event?.max_participants || 8) - (event?.current_participants || 0);
   
   return (
     <motion.div
@@ -333,7 +338,7 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
       transition={{ delay: idx * 0.05 }}
     >
       <Card className="p-0 overflow-hidden">
-        {event.photos && event.photos.length > 0 && (
+        {event?.photos && event.photos.length > 0 && (
           <div className="h-48 bg-slate-100 overflow-hidden">
             <img src={event.photos[0]} alt="Event" className="w-full h-full object-cover" />
           </div>
@@ -342,16 +347,16 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
           <div className="flex items-start justify-between mb-4">
           <div>
             <h3 className="font-semibold text-slate-900 text-lg">
-              {event.title || 'Group Meetup'}
+              {event?.title || 'Group Meetup'}
             </h3>
             <Badge className="mt-1 bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-100">
-              {event.language}
+              {event?.language || 'N/A'}
             </Badge>
           </div>
           <div className="text-right">
             <p className="text-sm text-slate-500">Ages</p>
             <p className="font-medium text-slate-900">
-              {event.age_range_min}-{event.age_range_max}
+              {event?.age_range_min || 18}-{event?.age_range_max || 35}
             </p>
           </div>
         </div>
@@ -359,19 +364,19 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
         <div className="space-y-2 mb-4">
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <Calendar className="w-4 h-4 text-fuchsia-600" />
-            {event.date ? format(new Date(event.date), 'EEEE, MMMM d') : 'TBD'}
+            {event?.date ? format(new Date(event.date), 'EEEE, MMMM d') : 'TBD'}
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <Clock className="w-4 h-4 text-fuchsia-600" />
-            {event.time}
+            {event?.time || 'TBD'}
           </div>
-          {event.venue_name && (
+          {event?.venue_name && (
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <MapPin className="w-4 h-4 text-fuchsia-600" />
-              {event.venue_name}, {event.city}
+              {event.venue_name}, {event?.city || 'N/A'}
             </div>
           )}
-          {event.price && (
+          {event?.price && (
             <div className="flex items-center gap-2 text-sm font-medium text-fuchsia-600">
               ₹{event.price} per person
             </div>
@@ -380,11 +385,11 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
 
         <div className="flex items-center justify-between pt-3 border-t border-slate-100">
           <div className="text-sm">
-            {event.tables_assigned ? (
+            {event?.tables_assigned ? (
               <span className="text-emerald-600 font-medium">Groups assigned</span>
             ) : (
               <span className="text-slate-500">
-                {`${event.max_participants || 8} spot${(event.max_participants || 8) > 1 ? 's' : ''}`}
+                {`${event?.max_participants || 8} spot${(event?.max_participants || 8) > 1 ? 's' : ''}`}
               </span>
             )}
           </div>

@@ -11,6 +11,7 @@ import {
   AlertTriangle, MapPin, ChevronRight, Building, Settings, Download, Wallet
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -61,7 +62,8 @@ export default function AdminDashboard() {
   const groupEvents = React.useMemo(() => {
     const now = new Date();
     return groupEventsRaw.filter(event => {
-      if (!event.date || !event.time) return true;
+      // Exclude events with missing date/time data
+      if (!event?.date || !event?.time) return false;
       
       const eventDate = new Date(event.date);
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -116,9 +118,12 @@ export default function AdminDashboard() {
       window.URL.revokeObjectURL(url);
       a.remove();
       setExporting(null);
+      toast.success('Export completed successfully');
     },
-    onError: () => {
+    onError: (error) => {
       setExporting(null);
+      toast.error('Export failed. Please try again.');
+      console.error('Export error:', error);
     }
   });
 
@@ -265,22 +270,22 @@ export default function AdminDashboard() {
           ) : (
             <div className="space-y-3">
               {allBookings.slice(0, 5).map((booking) => (
-                <div key={booking.id} className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-0">
+                <div key={booking?.id} className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-0">
                   <div className="flex-1">
                     <p className="font-medium text-slate-900">
-                      {booking.seeker_name} → {booking.companion_name}
+                      {booking?.seeker_name || 'Unknown'} → {booking?.companion_name || 'Unknown'}
                     </p>
                     <p className="text-sm text-slate-500">
-                      {booking.date} • {booking.city}
+                      {booking?.date || 'N/A'} • {booking?.city || 'N/A'}
                     </p>
                   </div>
                   <Badge className={
-                    booking.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                    booking.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                    booking.status === 'disputed' ? 'bg-red-100 text-red-700' :
+                    booking?.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+                    booking?.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                    booking?.status === 'disputed' ? 'bg-red-100 text-red-700' :
                     'bg-slate-100 text-slate-700'
                   }>
-                    {booking.status}
+                    {booking?.status || 'unknown'}
                   </Badge>
                   <span className="font-semibold text-slate-900">₹{booking?.total_amount?.toFixed(2) || 0}</span>
                 </div>

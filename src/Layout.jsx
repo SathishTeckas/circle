@@ -18,6 +18,7 @@ import {
   MapPin
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import GlobalErrorBoundary from '@/components/utils/GlobalErrorBoundary';
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -190,61 +191,63 @@ export default function Layout({ children, currentPageName }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <style>{`
-        :root {
-          --primary: 139 92 246;
-          --primary-foreground: 255 255 255;
-        }
-        .safe-bottom {
-          padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-        }
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-          .pb-20 {
-            padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
+    <GlobalErrorBoundary>
+      <div className="min-h-screen bg-slate-50">
+        <style>{`
+          :root {
+            --primary: 139 92 246;
+            --primary-foreground: 255 255 255;
           }
-        }
-      `}</style>
-      
-      {/* Main Content */}
-      <main className={cn(
-        "min-h-screen",
-        !hideNav && "pb-20"
-      )}>
-        {children}
-      </main>
+          .safe-bottom {
+            padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+          }
+          @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .pb-20 {
+              padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
+            }
+          }
+        `}</style>
+        
+        {/* Main Content */}
+        <main className={cn(
+          "min-h-screen",
+          !hideNav && "pb-20"
+        )}>
+          {children}
+        </main>
 
-      {/* Bottom Navigation */}
-      {!hideNav && user && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-          <div className="flex justify-around items-center h-16 max-w-lg mx-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px))' }}>
-            {navItems.map((item) => {
-              const isActive = currentPageName === item.page;
-              return (
-                <Link
-                  key={item.page}
-                  to={createPageUrl(item.page)}
-                  className={cn(
-                    "flex flex-col items-center justify-center w-full h-full transition-all",
-                    isActive 
-                      ? "text-violet-600" 
-                      : "text-slate-400 hover:text-slate-600"
-                  )}
-                >
-                  <item.icon className={cn(
-                    "w-5 h-5 mb-1 transition-transform",
-                    isActive && "scale-110"
-                  )} />
-                  <span className="text-[10px] font-medium">{item.name}</span>
-                  {isActive && (
-                    <div className="absolute top-0 w-12 h-0.5 bg-violet-600 rounded-full" />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
-      )}
-    </div>
+        {/* Bottom Navigation */}
+        {!hideNav && user && (
+          <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+            <div className="flex justify-around items-center h-16 max-w-lg mx-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px))' }}>
+              {navItems.map((item) => {
+                const isActive = currentPageName === item.page;
+                return (
+                  <Link
+                    key={item.page}
+                    to={createPageUrl(item.page)}
+                    className={cn(
+                      "flex flex-col items-center justify-center w-full h-full transition-all",
+                      isActive 
+                        ? "text-violet-600" 
+                        : "text-slate-400 hover:text-slate-600"
+                    )}
+                  >
+                    <item.icon className={cn(
+                      "w-5 h-5 mb-1 transition-transform",
+                      isActive && "scale-110"
+                    )} />
+                    <span className="text-[10px] font-medium">{item.name}</span>
+                    {isActive && (
+                      <div className="absolute top-0 w-12 h-0.5 bg-violet-600 rounded-full" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+        )}
+      </div>
+    </GlobalErrorBoundary>
   );
 }
