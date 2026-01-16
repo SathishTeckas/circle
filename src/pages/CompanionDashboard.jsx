@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPageUrl } from '../utils';
 import { formatTime12Hour } from '../components/utils/timeFormat';
+import { formatCurrency } from '../components/utils/formatCurrency';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -72,7 +73,7 @@ export default function CompanionDashboard() {
         user_id: booking.seeker_id,
         type: 'payment_refunded',
         title: '💰 Refund Processed',
-        message: `₹${booking.total_amount.toFixed(2)} has been refunded to your account`,
+        message: `${formatCurrency(booking.total_amount)} has been refunded to your account`,
         amount: booking.total_amount,
         action_url: createPageUrl('MyBookings')
       });
@@ -218,7 +219,7 @@ export default function CompanionDashboard() {
           <div className="grid grid-cols-3 gap-3">
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
               <IndianRupee className="w-5 h-5 mb-1 text-white/80" />
-              <p className="text-2xl font-bold">₹{totalEarnings.toFixed(0)}</p>
+              <p className="text-2xl font-bold">{formatCurrency(totalEarnings)}</p>
               <p className="text-xs text-white/70">Total Earned</p>
             </Card>
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
@@ -285,7 +286,7 @@ export default function CompanionDashboard() {
                         {booking.date ? format(new Date(booking.date), 'MMM d') : 'TBD'} • {booking.start_time}
                       </p>
                     </div>
-                    <span className="text-lg font-bold text-emerald-600">₹{booking.base_price}</span>
+                    <span className="text-lg font-bold text-emerald-600">{formatCurrency(booking.base_price)}</span>
                   </div>
                 </Link>
               ))}
@@ -411,7 +412,7 @@ export default function CompanionDashboard() {
 
           <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-4 text-white">
             <p className="text-emerald-100 text-sm mb-1">Available Balance</p>
-            <p className="text-3xl font-bold mb-2">₹{(user?.wallet_balance || 0).toFixed(2)}</p>
+            <p className="text-3xl font-bold mb-2">{formatCurrency(user?.wallet_balance || 0)}</p>
             <p className="text-emerald-100 text-sm">
               {completedBookings.length} completed meetups
             </p>
