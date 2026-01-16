@@ -308,11 +308,11 @@ export default function GroupEvents() {
                 {filteredMyEvents.length === 0 ? (
                   <div className="text-center py-12">
                     <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                    <h3 className="font-semibold text-slate-900 mb-2">No {myEventsFilter} events</h3>
+                    <h3 className="font-semibold text-slate-900 mb-2">No {myEventsFilter === 'in_progress' ? 'in progress' : myEventsFilter} events</h3>
                     <p className="text-slate-600 text-sm">
                       {myEventsFilter === 'upcoming' && 'Join more events to see them here'}
-                      {myEventsFilter === 'ongoing' && 'No events happening right now'}
-                      {myEventsFilter === 'past' && 'No past events yet'}
+                      {myEventsFilter === 'in_progress' && 'No events happening right now'}
+                      {myEventsFilter === 'completed' && 'No completed events yet'}
                     </p>
                   </div>
                 ) : (
