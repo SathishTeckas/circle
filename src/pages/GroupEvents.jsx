@@ -24,6 +24,7 @@ export default function GroupEvents() {
     city: ''
   });
   const [activeTab, setActiveTab] = useState('discover');
+  const [myEventsFilter, setMyEventsFilter] = useState('upcoming');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -54,6 +55,68 @@ export default function GroupEvents() {
   });
 
   const myEventIds = myParticipations.map(p => p.event_id);
+  const myEvents = events.filter(e => myEventIds.includes(e.id));
+
+  // Filter my events by time
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  const upcomingEvents = myEvents.filter(event => {
+    if (!event.date || !event.time) return false;
+    const eventDate = new Date(event.date);
+    
+    // If date is in the future
+    if (eventDate > todayStart) return true;
+    
+    // If date is today, check if time hasn't passed
+    if (eventDate.toDateString() === now.toDateString()) {
+      const [eventHour, eventMinute] = event.time.split(':').map(Number);
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      return eventHour > currentHour || (eventHour === currentHour && eventMinute > currentMinute);
+    }
+    
+    return false;
+  });
+
+  const ongoingEvents = myEvents.filter(event => {
+    if (!event.date || !event.time) return false;
+    const eventDate = new Date(event.date);
+    
+    // Only events happening today
+    if (eventDate.toDateString() !== now.toDateString()) return false;
+    
+    const [eventHour, eventMinute] = event.time.split(':').map(Number);
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    
+    // Check if current time is within event time (assuming 2-3 hour duration)
+    const eventEndHour = eventHour + 3;
+    return (eventHour < currentHour || (eventHour === currentHour && eventMinute <= currentMinute)) &&
+           currentHour < eventEndHour;
+  });
+
+  const pastEvents = myEvents.filter(event => {
+    if (!event.date || !event.time) return false;
+    const eventDate = new Date(event.date);
+    
+    // If date is in the past
+    if (eventDate < todayStart) return true;
+    
+    // If date is today, check if time has passed (including event duration)
+    if (eventDate.toDateString() === now.toDateString()) {
+      const [eventHour, eventMinute] = event.time.split(':').map(Number);
+      const eventEndHour = eventHour + 3; // Assuming 3 hour duration
+      const currentHour = now.getHours();
+      return currentHour >= eventEndHour;
+    }
+    
+    return false;
+  });
+
+  const filteredMyEvents = myEventsFilter === 'upcoming' ? upcomingEvents :
+                          myEventsFilter === 'ongoing' ? ongoingEvents :
+                          pastEvents;
 
   const joinMutation = useMutation({
     mutationFn: async (eventId) => {
@@ -88,7 +151,6 @@ export default function GroupEvents() {
     }
   });
 
-  const myEvents = events.filter(e => myEventIds.includes(e.id));
   const discoverEvents = events.filter(e => !myEventIds.includes(e.id));
 
   return (
@@ -191,14 +253,65 @@ export default function GroupEvents() {
                 <p className="text-slate-600 text-sm">Browse and join events to see them here</p>
               </div>
             ) : (
-              myEvents.map((event, idx) => (
-                <EventCard 
-                  key={event.id} 
-                  event={event} 
-                  idx={idx}
-                  isJoined={true}
-                />
-              ))
+              <>
+                {/* My Events Filter */}
+                <div className="flex gap-2 overflow-x-auto">
+                  <Badge 
+                    className={cn(
+                      "cursor-pointer px-4 py-2 whitespace-nowrap",
+                      myEventsFilter === 'upcoming' 
+                        ? "bg-fuchsia-600 text-white" 
+                        : "bg-slate-100 text-slate-600"
+                    )}
+                    onClick={() => setMyEventsFilter('upcoming')}
+                  >
+                    Upcoming ({upcomingEvents.length})
+                  </Badge>
+                  <Badge 
+                    className={cn(
+                      "cursor-pointer px-4 py-2 whitespace-nowrap",
+                      myEventsFilter === 'ongoing' 
+                        ? "bg-fuchsia-600 text-white" 
+                        : "bg-slate-100 text-slate-600"
+                    )}
+                    onClick={() => setMyEventsFilter('ongoing')}
+                  >
+                    Ongoing ({ongoingEvents.length})
+                  </Badge>
+                  <Badge 
+                    className={cn(
+                      "cursor-pointer px-4 py-2 whitespace-nowrap",
+                      myEventsFilter === 'past' 
+                        ? "bg-fuchsia-600 text-white" 
+                        : "bg-slate-100 text-slate-600"
+                    )}
+                    onClick={() => setMyEventsFilter('past')}
+                  >
+                    Past ({pastEvents.length})
+                  </Badge>
+                </div>
+
+                {filteredMyEvents.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <h3 className="font-semibold text-slate-900 mb-2">No {myEventsFilter} events</h3>
+                    <p className="text-slate-600 text-sm">
+                      {myEventsFilter === 'upcoming' && 'Join more events to see them here'}
+                      {myEventsFilter === 'ongoing' && 'No events happening right now'}
+                      {myEventsFilter === 'past' && 'No past events yet'}
+                    </p>
+                  </div>
+                ) : (
+                  filteredMyEvents.map((event, idx) => (
+                    <EventCard 
+                      key={event.id} 
+                      event={event} 
+                      idx={idx}
+                      isJoined={true}
+                    />
+                  ))
+                )}
+              </>
             )}
           </TabsContent>
         </Tabs>
