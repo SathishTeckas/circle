@@ -215,7 +215,19 @@ const DisputeCard = ({ dispute, idx, bookingsMap, selectedDispute, dialogOpen, o
                   </div>
 
                   <div>
-                    <Label className="mb-2 block">Refund Amount (Optional)</Label>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="block">Refund Amount (Optional)</Label>
+                      {booking && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onRefundChange(dispute.id, booking.total_amount.toString())}
+                          className="text-xs h-7"
+                        >
+                          Max: ₹{booking.total_amount?.toFixed(2)}
+                        </Button>
+                      )}
+                    </div>
                     <Input
                       type="number"
                       placeholder="0.00"
@@ -235,11 +247,6 @@ const DisputeCard = ({ dispute, idx, bookingsMap, selectedDispute, dialogOpen, o
                       className="h-12 rounded-xl"
                       max={booking?.total_amount}
                     />
-                    {booking && (
-                      <p className="text-xs text-slate-500 mt-1">
-                        Max: ₹{booking.total_amount?.toFixed(2)}
-                      </p>
-                    )}
                   </div>
 
                   <div className="flex gap-3 pt-4">
