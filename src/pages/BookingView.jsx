@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPageUrl } from '../utils';
 import { formatTime12Hour } from '../components/utils/timeFormat';
+import { formatCurrency } from '../components/utils/formatCurrency';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -138,7 +139,7 @@ export default function BookingView() {
         user_id: booking?.seeker_id,
         type: 'payment_refunded',
         title: '💰 Refund Processed',
-        message: `₹${Math.ceil(booking?.total_amount || 0)} has been refunded to your account`,
+        message: `${formatCurrency(booking?.total_amount || 0)} has been refunded to your account`,
         amount: booking?.total_amount || 0,
         action_url: createPageUrl('MyBookings')
       });
@@ -174,7 +175,7 @@ export default function BookingView() {
           user_id: booking?.seeker_id,
           type: 'payment_refunded',
           title: '💰 Refund Processed',
-          message: `₹${Math.ceil(refundAmount)} (${refundPercentage}%) has been refunded to your account`,
+          message: `${formatCurrency(refundAmount)} (${refundPercentage}%) has been refunded to your account`,
           amount: refundAmount,
           action_url: createPageUrl('MyBookings')
         });
@@ -217,7 +218,7 @@ export default function BookingView() {
         user_id: booking?.companion_id,
         type: 'payout_processed',
         title: '💰 Payment Released',
-        message: `₹${Math.ceil(booking?.companion_payout || 0)} has been credited to your wallet`,
+        message: `${formatCurrency(booking?.companion_payout || 0)} has been credited to your wallet`,
         amount: booking?.companion_payout || 0,
         action_url: createPageUrl('Wallet')
       });
@@ -400,18 +401,18 @@ export default function BookingView() {
           </h3>
           
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-slate-600">Base Price ({booking?.duration_hours || 0}h)</span>
-              <span className="text-slate-900">₹{Math.ceil(booking?.base_price || 0)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Platform Fee ({appSettings?.platform_fee || 15}%)</span>
-              <span className="text-slate-900">₹{Math.ceil(booking?.platform_fee || 0)}</span>
-            </div>
-            <div className="flex justify-between border-t border-slate-100 pt-2 font-semibold">
-              <span className="text-slate-900">Total</span>
-              <span className="text-slate-900">₹{Math.ceil(booking?.total_amount || 0)}</span>
-            </div>
+          <div className="flex justify-between">
+            <span className="text-slate-600">Base Price ({booking?.duration_hours || 0}h)</span>
+            <span className="text-slate-900">{formatCurrency(booking?.base_price || 0)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-600">Platform Fee ({appSettings?.platform_fee || 15}%)</span>
+            <span className="text-slate-900">{formatCurrency(booking?.platform_fee || 0)}</span>
+          </div>
+          <div className="flex justify-between border-t border-slate-100 pt-2 font-semibold">
+            <span className="text-slate-900">Total</span>
+            <span className="text-slate-900">{formatCurrency(booking?.total_amount || 0)}</span>
+          </div>
           </div>
 
           <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 p-3 rounded-xl">
@@ -489,7 +490,7 @@ export default function BookingView() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-600">Refund Amount</span>
                 <span className="text-lg font-bold text-slate-900">
-                  ₹{Math.ceil(((booking?.total_amount || 0) * refundInfo.percentage) / 100)}
+                  {formatCurrency(((booking?.total_amount || 0) * refundInfo.percentage) / 100)}
                 </span>
               </div>
             </div>
@@ -583,10 +584,10 @@ export default function BookingView() {
               <CheckCircle className="w-12 h-12 text-emerald-600 mx-auto mb-3" />
               <h3 className="font-semibold text-slate-900 mb-2">Meeting Completed</h3>
               <p className="text-sm text-slate-600 mb-4">
-                {isCompanion 
-                  ? `Payment of ₹${Math.ceil(booking?.companion_payout || 0)} has been credited to your wallet`
+               {isCompanion 
+                  ? `Payment of ${formatCurrency(booking?.companion_payout || 0)} has been credited to your wallet`
                   : 'Thank you for using Circle! Please leave a review.'
-                }
+               }
               </p>
               {isSeeker && (
                 <Link to={createPageUrl(`LeaveReview?bookingId=${bookingId}`)}>
