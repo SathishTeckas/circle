@@ -298,7 +298,7 @@ export default function AdminCities() {
                           {city.is_active ? 'Active' : 'Inactive'}
                         </Badge>
                       </div>
-                      <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                      <div className="flex flex-wrap gap-2">
                         {city.areas?.map((area, i) => (
                           <Badge key={i} variant="outline" className="text-xs md:text-sm text-slate-600">
                             {area}
