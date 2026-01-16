@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
+import { formatCurrency } from '../components/utils/formatCurrency';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -68,7 +69,7 @@ export default function AdminPayouts() {
         user_id: payout.companion_id,
         type: 'payout_processed',
         title: '✅ Payout Approved',
-        message: `Your payout request of ₹${payout.amount.toFixed(2)} has been approved and is being processed`,
+        message: `Your payout request of ${formatCurrency(payout.amount)} has been approved and is being processed`,
         amount: payout.amount,
         action_url: createPageUrl('Wallet')
       });
@@ -92,7 +93,7 @@ export default function AdminPayouts() {
         user_id: payout.companion_id,
         type: 'payout_processed',
         title: '💰 Payout Completed',
-        message: `₹${payout.amount.toFixed(2)} has been transferred to your account`,
+        message: `${formatCurrency(payout.amount)} has been transferred to your account`,
         amount: payout.amount,
         action_url: createPageUrl('Wallet')
       });
@@ -122,7 +123,7 @@ export default function AdminPayouts() {
         user_id: payout.companion_id,
         type: 'payout_processed',
         title: '❌ Payout Rejected',
-        message: `Your payout request of ₹${payout.amount.toFixed(2)} was rejected. Reason: ${rejectionReason}`,
+        message: `Your payout request of ${formatCurrency(payout.amount)} was rejected. Reason: ${rejectionReason}`,
         amount: payout.amount,
         action_url: createPageUrl('Wallet')
       });
@@ -176,7 +177,7 @@ export default function AdminPayouts() {
           <div className="bg-slate-50 rounded-lg p-3 mb-3">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-slate-600">Amount</span>
-              <span className="text-xl font-bold text-slate-900">₹{payout.amount.toFixed(2)}</span>
+              <span className="text-xl font-bold text-slate-900">{formatCurrency(payout.amount)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Method</span>
@@ -208,7 +209,7 @@ export default function AdminPayouts() {
 
                 <div>
                   <Label className="text-slate-600">Amount</Label>
-                  <p className="text-2xl font-bold text-slate-900">₹{payout.amount.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-slate-900">{formatCurrency(payout.amount)}</p>
                 </div>
 
                 <div>
@@ -347,7 +348,7 @@ export default function AdminPayouts() {
               </div>
               <div>
                 <p className="text-sm text-slate-600">Pending</p>
-                <p className="text-2xl font-bold text-slate-900">₹{totalPending.toFixed(0)}</p>
+                <p className="text-2xl font-bold text-slate-900">{formatCurrency(totalPending)}</p>
               </div>
             </div>
             <p className="text-xs text-slate-500">{pendingPayouts.length} requests</p>
@@ -373,7 +374,7 @@ export default function AdminPayouts() {
               </div>
               <div>
                 <p className="text-sm text-slate-600">Completed</p>
-                <p className="text-2xl font-bold text-slate-900">₹{totalCompleted.toFixed(0)}</p>
+                <p className="text-2xl font-bold text-slate-900">{formatCurrency(totalCompleted)}</p>
               </div>
             </div>
             <p className="text-xs text-slate-500">{completedPayouts.length} payouts</p>
