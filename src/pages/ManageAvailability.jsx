@@ -194,16 +194,6 @@ export default function ManageAvailability() {
             </SheetHeader>
 
             <div ref={sheetContentRef} className="space-y-6 overflow-y-auto flex-1 pb-24 pr-2">
-              <style>{`
-                .rdp-day_selected {
-                  background-color: rgb(139 92 246) !important;
-                  color: white !important;
-                }
-                .rdp-day_selected:hover {
-                  background-color: rgb(124 58 222) !important;
-                  color: white !important;
-                }
-              `}</style>
               {/* Date Selection */}
               <div>
                 <Label className="mb-2 block">Select Date</Label>
@@ -217,6 +207,9 @@ export default function ManageAvailability() {
                     return date < today;
                   }}
                   className="rounded-xl border mx-auto"
+                  classNames={{
+                    day_selected: "bg-violet-600 text-white hover:bg-violet-700 hover:text-white focus:bg-violet-700 focus:text-white"
+                  }}
                 />
               </div>
 
