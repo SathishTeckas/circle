@@ -131,6 +131,7 @@ export default function AdminDashboard() {
   const quickLinks = [
     { label: 'Manage Users', desc: `${pendingKYC.length} pending verification`, icon: Users, page: 'AdminUsers', alert: pendingKYC.length > 0 },
     { label: 'Manage Venues', desc: `${venues.length} registered venues`, icon: Building, page: 'AdminVenues' },
+    { label: 'Manage Cities', desc: 'Add and manage cities & areas', icon: MapPin, page: 'AdminCities' },
     { label: 'Group Events', desc: `${groupEvents.length} events`, icon: Calendar, page: 'AdminGroups' },
     { label: 'Manage Payouts', desc: `${pendingPayouts.length} pending payouts`, icon: Wallet, page: 'AdminPayouts', alert: pendingPayouts.length > 0 },
     { label: 'Admin Management', desc: 'Manage administrators', icon: Shield, page: 'AdminManagement' },
