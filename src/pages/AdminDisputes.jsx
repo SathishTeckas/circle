@@ -220,7 +220,13 @@ const DisputeCard = ({ dispute, idx, bookingsMap, selectedDispute, dialogOpen, o
                       type="number"
                       placeholder="0.00"
                       value={refundAmount[dispute.id] || ''}
-                      onChange={(e) => onRefundChange(dispute.id, e.target.value)}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value) || 0;
+                        const max = booking?.total_amount || 0;
+                        if (value <= max) {
+                          onRefundChange(dispute.id, e.target.value);
+                        }
+                      }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
