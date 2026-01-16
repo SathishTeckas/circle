@@ -119,8 +119,14 @@ export default function GroupEvents() {
     return false;
   });
 
+  const completedEvents = myEvents.filter(event => {
+    const participation = myParticipations.find(p => p.event_id === event.id);
+    return participation?.status === 'attended' || event.status === 'completed';
+  });
+
   const filteredMyEvents = myEventsFilter === 'upcoming' ? upcomingEvents :
-                          myEventsFilter === 'ongoing' ? ongoingEvents :
+                          myEventsFilter === 'in_progress' ? ongoingEvents :
+                          myEventsFilter === 'completed' ? completedEvents :
                           pastEvents;
 
   const joinMutation = useMutation({
