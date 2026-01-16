@@ -283,7 +283,7 @@ export default function GroupEvents() {
             </Select>
 
             {/* Discover Events Time Filter - only shown on discover tab */}
-            {activeTab === 'discover' && discoverEvents.length > 0 && (
+            {activeTab === 'discover' && (
               <div className="flex gap-2 overflow-x-auto pb-1">
                 <Badge 
                   className={cn(
