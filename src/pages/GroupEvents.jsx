@@ -285,7 +285,7 @@ export default function GroupEvents() {
 
 
             {/* My Events Time Filter - only shown on joined tab */}
-            {activeTab === 'joined' && myEvents.length > 0 && (
+            {activeTab === 'joined' && (
               <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
                 <Badge 
                   className={cn(
