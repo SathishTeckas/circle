@@ -447,7 +447,16 @@ export default function Wallet() {
                           )} />
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-slate-900">{transaction.description}</p>
+                          {transaction.type === 'earning' ? (
+                            <Link 
+                              to={createPageUrl(`BookingView?id=${transaction.id}`)}
+                              className="font-medium text-violet-600 hover:underline"
+                            >
+                              {transaction.description}
+                            </Link>
+                          ) : (
+                            <p className="font-medium text-slate-900">{transaction.description}</p>
+                          )}
                           <p className="text-sm text-slate-500">
                             {transaction.date ? format(new Date(transaction.date), 'MMM d, yyyy') : 'Recent'}
                           </p>
