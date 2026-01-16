@@ -260,8 +260,8 @@ export default function GroupEvents() {
                     className={cn(
                       "cursor-pointer px-4 py-2 whitespace-nowrap",
                       myEventsFilter === 'upcoming' 
-                        ? "bg-fuchsia-600 text-white" 
-                        : "bg-slate-100 text-slate-600"
+                        ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-100"
                     )}
                     onClick={() => setMyEventsFilter('upcoming')}
                   >
@@ -271,8 +271,8 @@ export default function GroupEvents() {
                     className={cn(
                       "cursor-pointer px-4 py-2 whitespace-nowrap",
                       myEventsFilter === 'ongoing' 
-                        ? "bg-fuchsia-600 text-white" 
-                        : "bg-slate-100 text-slate-600"
+                        ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-100"
                     )}
                     onClick={() => setMyEventsFilter('ongoing')}
                   >
@@ -282,8 +282,8 @@ export default function GroupEvents() {
                     className={cn(
                       "cursor-pointer px-4 py-2 whitespace-nowrap",
                       myEventsFilter === 'past' 
-                        ? "bg-fuchsia-600 text-white" 
-                        : "bg-slate-100 text-slate-600"
+                        ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-100"
                     )}
                     onClick={() => setMyEventsFilter('past')}
                   >
