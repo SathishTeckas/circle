@@ -93,6 +93,7 @@ export default function RoleSwitcher({ user, onRoleChanged }) {
               checked={activeRole === 'companion'}
               onCheckedChange={handleToggle}
               disabled={switchRoleMutation.isPending}
+              className="data-[state=checked]:bg-fuchsia-600 data-[state=unchecked]:bg-violet-400"
             />
 
             <div className="flex items-center gap-3">
