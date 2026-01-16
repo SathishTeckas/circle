@@ -9,16 +9,66 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized: Admin only' }, { status: 403 });
     }
 
-    const { eventId } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { eventId } = body;
 
+    // If no eventId provided, process all pending events that need selection
     if (!eventId) {
-      return Response.json({ error: 'Missing eventId' }, { status: 400 });
+      console.log('No eventId provided, processing all pending events...');
+      
+      // Find events that are "open" and happening within next 2 days
+      const allEvents = await base44.asServiceRole.entities.GroupEvent.filter({ status: 'open' });
+      const now = new Date();
+      const twoDaysFromNow = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+      
+      const upcomingEvents = allEvents.filter(event => {
+        if (!event.date) return false;
+        const eventDate = new Date(event.date);
+        return eventDate >= now && eventDate <= twoDaysFromNow;
+      });
+
+      console.log(`Found ${upcomingEvents.length} events to process`);
+
+      if (upcomingEvents.length === 0) {
+        return Response.json({ 
+          success: true, 
+          message: 'No pending events to process',
+          processed: 0
+        });
+      }
+
+      const results = [];
+      for (const event of upcomingEvents) {
+        try {
+          const result = await processEvent(event.id, base44);
+          results.push({ eventId: event.id, eventTitle: event.title, ...result });
+        } catch (error) {
+          console.error(`Error processing event ${event.id}:`, error);
+          results.push({ eventId: event.id, error: error.message });
+        }
+      }
+
+      return Response.json({
+        success: true,
+        processed: results.length,
+        results
+      });
     }
 
+    // Process single event
+    const result = await processEvent(eventId, base44);
+    return Response.json(result);
+  } catch (error) {
+    console.error('Error:', error);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+});
+
+async function processEvent(eventId, base44) {
     // Fetch event details
-    const event = await base44.entities.GroupEvent.filter({ id: eventId });
+    const event = await base44.asServiceRole.entities.GroupEvent.filter({ id: eventId });
     if (!event || event.length === 0) {
-      return Response.json({ error: 'Event not found' }, { status: 404 });
+      throw new Error('Event not found');
     }
 
     const eventData = event[0];
@@ -260,15 +310,11 @@ Make sure the selected count equals or is less than ${eventData.max_participants
       }
     }
 
-    return Response.json({
+    return {
       success: true,
       selected_count: selectedIds.length,
       refund_count: refundList.length,
       refunds: refundList,
       reasoning: aiResponse.reasoning
-    });
-  } catch (error) {
-    console.error('Error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
-  }
-});
+    };
+}
