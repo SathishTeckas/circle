@@ -214,11 +214,11 @@ export default function AdminGroups() {
   const canSubmit = selectedDate && formData.city && formData.area && formData.time && formData.languages.length > 0;
 
   const statusColors = {
-    open: 'bg-emerald-600 text-white',
-    full: 'bg-orange-600 text-white',
-    confirmed: 'bg-blue-600 text-white',
-    completed: 'bg-violet-600 text-white',
-    cancelled: 'bg-slate-500 text-white'
+    open: 'bg-emerald-600 text-white hover:bg-white hover:text-emerald-600 hover:border hover:border-emerald-600 transition-all cursor-pointer',
+    full: 'bg-orange-600 text-white hover:bg-white hover:text-orange-600 hover:border hover:border-orange-600 transition-all cursor-pointer',
+    confirmed: 'bg-blue-600 text-white hover:bg-white hover:text-blue-600 hover:border hover:border-blue-600 transition-all cursor-pointer',
+    completed: 'bg-violet-600 text-white hover:bg-white hover:text-violet-600 hover:border hover:border-violet-600 transition-all cursor-pointer',
+    cancelled: 'bg-slate-500 text-white hover:bg-white hover:text-slate-500 hover:border hover:border-slate-500 transition-all cursor-pointer'
   };
 
   return (
