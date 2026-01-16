@@ -182,25 +182,6 @@ export default function GroupEvents() {
           </div>
         </Card>
 
-        {/* Filters */}
-        <div className="flex gap-2">
-          <Select 
-            value={filters.city} 
-            onValueChange={(v) => setFilters({ ...filters, city: v })}
-          >
-            <SelectTrigger className="h-11 rounded-xl flex-1">
-              <MapPin className="w-4 h-4 mr-2 text-slate-400" />
-              <SelectValue placeholder="All Cities" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={null}>All Cities</SelectItem>
-              {CITIES.map(city => (
-                <SelectItem key={city} value={city}>{city}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full bg-slate-100 p-1 rounded-xl">
@@ -217,6 +198,65 @@ export default function GroupEvents() {
               My Events ({myEvents.length})
             </TabsTrigger>
           </TabsList>
+
+          {/* Filters - shown for all tabs */}
+          <div className="mt-4 space-y-3">
+            {/* City Filter */}
+            <Select 
+              value={filters.city} 
+              onValueChange={(v) => setFilters({ ...filters, city: v })}
+            >
+              <SelectTrigger className="h-11 rounded-xl w-full">
+                <MapPin className="w-4 h-4 mr-2 text-slate-400" />
+                <SelectValue placeholder="All Cities" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={null}>All Cities</SelectItem>
+                {CITIES.map(city => (
+                  <SelectItem key={city} value={city}>{city}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* My Events Time Filter - only shown on joined tab */}
+            {activeTab === 'joined' && myEvents.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                <Badge 
+                  className={cn(
+                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    myEventsFilter === 'upcoming' 
+                      ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-100"
+                  )}
+                  onClick={() => setMyEventsFilter('upcoming')}
+                >
+                  Upcoming ({upcomingEvents.length})
+                </Badge>
+                <Badge 
+                  className={cn(
+                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    myEventsFilter === 'ongoing' 
+                      ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-100"
+                  )}
+                  onClick={() => setMyEventsFilter('ongoing')}
+                >
+                  Ongoing ({ongoingEvents.length})
+                </Badge>
+                <Badge 
+                  className={cn(
+                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    myEventsFilter === 'past' 
+                      ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-100"
+                  )}
+                  onClick={() => setMyEventsFilter('past')}
+                >
+                  Past ({pastEvents.length})
+                </Badge>
+              </div>
+            )}
+          </div>
 
           <TabsContent value="discover" className="mt-4 space-y-4">
             {isLoading ? (
@@ -254,43 +294,6 @@ export default function GroupEvents() {
               </div>
             ) : (
               <>
-                {/* My Events Filter */}
-                <div className="flex gap-2 overflow-x-auto">
-                  <Badge 
-                    className={cn(
-                      "cursor-pointer px-4 py-2 whitespace-nowrap",
-                      myEventsFilter === 'upcoming' 
-                        ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-100"
-                    )}
-                    onClick={() => setMyEventsFilter('upcoming')}
-                  >
-                    Upcoming ({upcomingEvents.length})
-                  </Badge>
-                  <Badge 
-                    className={cn(
-                      "cursor-pointer px-4 py-2 whitespace-nowrap",
-                      myEventsFilter === 'ongoing' 
-                        ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-100"
-                    )}
-                    onClick={() => setMyEventsFilter('ongoing')}
-                  >
-                    Ongoing ({ongoingEvents.length})
-                  </Badge>
-                  <Badge 
-                    className={cn(
-                      "cursor-pointer px-4 py-2 whitespace-nowrap",
-                      myEventsFilter === 'past' 
-                        ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-100"
-                    )}
-                    onClick={() => setMyEventsFilter('past')}
-                  >
-                    Past ({pastEvents.length})
-                  </Badge>
-                </div>
-
                 {filteredMyEvents.length === 0 ? (
                   <div className="text-center py-12">
                     <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
