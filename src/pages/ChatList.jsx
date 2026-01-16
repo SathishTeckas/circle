@@ -5,12 +5,15 @@ import { createPageUrl } from '../utils';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { MessageCircle, ChevronRight, Filter, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export default function ChatList() {
   const [user, setUser] = useState(null);
+  const [filterUnread, setFilterUnread] = useState(false);
+  const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -65,6 +68,22 @@ export default function ChatList() {
     return unreadMessages.filter(m => m.booking_id === bookingId).length;
   };
 
+  const filteredBookings = bookings.filter(booking => {
+    const unreadCount = getUnreadCount(booking.id);
+    
+    // Filter by unread
+    if (filterUnread && unreadCount === 0) return false;
+    
+    // Filter by status
+    if (filterStatus !== 'all' && booking.status !== filterStatus) return false;
+    
+    return true;
+  });
+
+  const hasActiveFilters = filterUnread || filterStatus !== 'all';
+  const activeStatus = bookings.filter(b => b.status === 'accepted').length;
+  const completedStatus = bookings.filter(b => b.status === 'completed').length;
+
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
       {/* Header */}
@@ -75,12 +94,110 @@ export default function ChatList() {
         </div>
       </div>
 
-      <div className="px-4 py-6 max-w-lg mx-auto">
+      <div className="px-4 py-4 max-w-lg mx-auto">
+        {/* Filter Bar */}
+        <div className="mb-4 space-y-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant={filterUnread ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilterUnread(!filterUnread)}
+              className={cn(
+                "h-9 rounded-lg text-xs",
+                filterUnread && "bg-violet-600 hover:bg-violet-700"
+              )}
+            >
+              Unread Only
+            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant={filterStatus === 'all' ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterStatus('all')}
+                className={cn(
+                  "h-9 rounded-lg text-xs",
+                  filterStatus === 'all' && "bg-violet-600 hover:bg-violet-700"
+                )}
+              >
+                All
+              </Button>
+              <Button
+                variant={filterStatus === 'accepted' ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterStatus('accepted')}
+                className={cn(
+                  "h-9 rounded-lg text-xs",
+                  filterStatus === 'accepted' && "bg-violet-600 hover:bg-violet-700"
+                )}
+              >
+                Active ({activeStatus})
+              </Button>
+              <Button
+                variant={filterStatus === 'completed' ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterStatus('completed')}
+                className={cn(
+                  "h-9 rounded-lg text-xs",
+                  filterStatus === 'completed' && "bg-violet-600 hover:bg-violet-700"
+                )}
+              >
+                Completed ({completedStatus})
+              </Button>
+            </div>
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFilterUnread(false);
+                  setFilterStatus('all');
+                }}
+                className="h-9 text-xs text-slate-500 hover:text-slate-700"
+              >
+                <X className="w-3 h-3 mr-1" />
+                Clear
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 py-2 max-w-lg mx-auto">
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
               <div key={i} className="bg-white rounded-2xl h-24 animate-pulse" />
             ))}
+          </div>
+        ) : filteredBookings.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MessageCircle className="w-8 h-8 text-slate-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              {hasActiveFilters ? 'No conversations match filters' : 'No conversations yet'}
+            </h3>
+            <p className="text-slate-600">
+              {hasActiveFilters 
+                ? 'Try adjusting your filters'
+                : isCompanion 
+                ? 'Accept a booking to start chatting'
+                : 'Book a companion to start chatting'
+              }
+            </p>
+            {hasActiveFilters && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setFilterUnread(false);
+                  setFilterStatus('all');
+                }}
+                className="mt-4"
+              >
+                Clear Filters
+              </Button>
+            )}
           </div>
         ) : bookings.length === 0 ? (
           <div className="text-center py-16">
@@ -96,8 +213,8 @@ export default function ChatList() {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {bookings.map((booking, idx) => {
+          <div className="space-y-3 pb-6">
+            {filteredBookings.map((booking, idx) => {
               const otherName = isCompanion 
                 ? (booking?.seeker_display_name || booking?.seeker_name || 'Anonymous')
                 : (booking?.companion_display_name || booking?.companion_name || 'Anonymous');
