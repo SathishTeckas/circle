@@ -341,7 +341,7 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
             <h3 className="font-semibold text-slate-900 text-lg">
               {event.title || 'Group Meetup'}
             </h3>
-            <Badge className="mt-1 bg-fuchsia-100 text-fuchsia-700">
+            <Badge className="mt-1 bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-100">
               {event.language}
             </Badge>
           </div>
@@ -387,7 +387,7 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
           </div>
           
           {isJoined ? (
-            <Badge className="bg-emerald-100 text-emerald-700">
+            <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
               <CheckCircle className="w-3.5 h-3.5 mr-1" />
               Joined
             </Badge>
