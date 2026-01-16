@@ -25,6 +25,7 @@ export default function GroupEvents() {
   });
   const [activeTab, setActiveTab] = useState('discover');
   const [myEventsFilter, setMyEventsFilter] = useState('upcoming');
+  const [discoverFilter, setDiscoverFilter] = useState('upcoming');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -164,6 +165,58 @@ export default function GroupEvents() {
 
   const discoverEvents = events.filter(e => !myEventIds.includes(e.id));
 
+  // Filter discover events by time
+  const discoverUpcoming = discoverEvents.filter(event => {
+    if (!event.date || !event.time) return false;
+    const eventDate = new Date(event.date);
+    
+    if (eventDate > todayStart) return true;
+    
+    if (eventDate.toDateString() === now.toDateString()) {
+      const [eventHour, eventMinute] = event.time.split(':').map(Number);
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      return eventHour > currentHour || (eventHour === currentHour && eventMinute > currentMinute);
+    }
+    
+    return false;
+  });
+
+  const discoverInProgress = discoverEvents.filter(event => {
+    if (!event.date || !event.time) return false;
+    const eventDate = new Date(event.date);
+    
+    if (eventDate.toDateString() !== now.toDateString()) return false;
+    
+    const [eventHour, eventMinute] = event.time.split(':').map(Number);
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    
+    const eventEndHour = eventHour + 3;
+    return (eventHour < currentHour || (eventHour === currentHour && eventMinute <= currentMinute)) &&
+           currentHour < eventEndHour;
+  });
+
+  const discoverCompleted = discoverEvents.filter(event => {
+    if (!event.date || !event.time) return false;
+    const eventDate = new Date(event.date);
+    
+    if (eventDate < todayStart) return true;
+    
+    if (eventDate.toDateString() === now.toDateString()) {
+      const [eventHour, eventMinute] = event.time.split(':').map(Number);
+      const eventEndHour = eventHour + 3;
+      const currentHour = now.getHours();
+      return currentHour >= eventEndHour;
+    }
+    
+    return false;
+  });
+
+  const filteredDiscoverEvents = discoverFilter === 'upcoming' ? discoverUpcoming :
+                                 discoverFilter === 'in_progress' ? discoverInProgress :
+                                 discoverCompleted;
+
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
       {/* Header */}
@@ -229,6 +282,45 @@ export default function GroupEvents() {
               </SelectContent>
             </Select>
 
+            {/* Discover Events Time Filter - only shown on discover tab */}
+            {activeTab === 'discover' && discoverEvents.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                <Badge 
+                  className={cn(
+                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    discoverFilter === 'upcoming' 
+                      ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-100"
+                  )}
+                  onClick={() => setDiscoverFilter('upcoming')}
+                >
+                  Upcoming ({discoverUpcoming.length})
+                </Badge>
+                <Badge 
+                  className={cn(
+                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    discoverFilter === 'in_progress' 
+                      ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-100"
+                  )}
+                  onClick={() => setDiscoverFilter('in_progress')}
+                >
+                  In Progress ({discoverInProgress.length})
+                </Badge>
+                <Badge 
+                  className={cn(
+                    "cursor-pointer px-4 py-2 whitespace-nowrap",
+                    discoverFilter === 'completed' 
+                      ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-100"
+                  )}
+                  onClick={() => setDiscoverFilter('completed')}
+                >
+                  Completed ({discoverCompleted.length})
+                </Badge>
+              </div>
+            )}
+
             {/* My Events Time Filter - only shown on joined tab */}
             {activeTab === 'joined' && myEvents.length > 0 && (
               <div className="flex gap-2 overflow-x-auto pb-1">
@@ -282,8 +374,14 @@ export default function GroupEvents() {
                 <h3 className="font-semibold text-slate-900 mb-2">No events found</h3>
                 <p className="text-slate-600 text-sm">Check back soon for new group events</p>
               </div>
+            ) : filteredDiscoverEvents.length === 0 ? (
+              <div className="text-center py-12">
+                <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <h3 className="font-semibold text-slate-900 mb-2">No {discoverFilter === 'in_progress' ? 'in progress' : discoverFilter} events</h3>
+                <p className="text-slate-600 text-sm">No events match your filter</p>
+              </div>
             ) : (
-              discoverEvents.map((event, idx) => (
+              filteredDiscoverEvents.map((event, idx) => (
                 <EventCard 
                   key={event.id} 
                   event={event} 
