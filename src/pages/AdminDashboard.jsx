@@ -62,16 +62,13 @@ export default function AdminDashboard() {
   const groupEvents = React.useMemo(() => {
     const now = new Date();
     return groupEventsRaw.filter(event => {
-      // Exclude events with missing date/time data
       if (!event?.date || !event?.time) return false;
       
       const eventDate = new Date(event.date);
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       
-      // If date is in the past
       if (eventDate < todayStart) return false;
       
-      // If date is today, check if time has passed
       if (eventDate.toDateString() === now.toDateString()) {
         const [eventHour, eventMinute] = event.time.split(':').map(Number);
         const currentHour = now.getHours();
@@ -101,41 +98,40 @@ export default function AdminDashboard() {
   const totalRevenue = completedBookings?.reduce((sum, b) => sum + (b?.platform_fee || 0), 0) || 0;
   const totalGMV = completedBookings?.reduce((sum, b) => sum + (b?.total_amount || 0), 0) || 0;
 
-  const exportMutation = useMutation({
-    mutationFn: async (dataType) => {
-      setExporting(dataType);
+  const handleExport = async (dataType) => {
+    setExporting(dataType);
+    try {
       const response = await base44.functions.invoke('exportAdminData', { dataType });
       
-      // The response.data contains the CSV text directly
-      let csvData = response.data;
-      
-      // If response.data is an object (shouldn't be, but handle it), convert to string
-      if (typeof csvData === 'object') {
-        csvData = JSON.stringify(csvData);
+      // Check if we got an error response
+      if (response.data?.error) {
+        toast.error(response.data.error);
+        setExporting(null);
+        return;
       }
       
-      return { csvData, dataType };
-    },
-    onSuccess: ({ csvData, dataType }) => {
-      // Create blob from CSV text
+      // Get CSV data - it should be a string
+      const csvData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+      
+      // Create blob and download
       const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${dataType}_${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${dataType}_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      a.remove();
-      setExporting(null);
+      
       toast.success('Export completed successfully');
-    },
-    onError: (error) => {
-      setExporting(null);
-      toast.error('Export failed. Please try again.');
+    } catch (error) {
       console.error('Export error:', error);
+      toast.error('Export failed: ' + (error.message || 'Please try again'));
+    } finally {
+      setExporting(null);
     }
-  });
+  };
 
   const stats = [
     { label: 'Total Users', value: allUsers?.length || 0, icon: Users, color: 'bg-blue-500' },
@@ -233,8 +229,8 @@ export default function AdminDashboard() {
           <h3 className="font-semibold text-slate-900 mb-4">Export Data for Analysis</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Button
-              onClick={() => exportMutation.mutate('users')}
-              disabled={exporting === 'users'}
+              onClick={() => handleExport('users')}
+              disabled={!!exporting}
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-3"
             >
@@ -246,8 +242,8 @@ export default function AdminDashboard() {
               <span className="text-xs">Users</span>
             </Button>
             <Button
-              onClick={() => exportMutation.mutate('bookings')}
-              disabled={exporting === 'bookings'}
+              onClick={() => handleExport('bookings')}
+              disabled={!!exporting}
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-3"
             >
@@ -259,8 +255,8 @@ export default function AdminDashboard() {
               <span className="text-xs">Bookings</span>
             </Button>
             <Button
-              onClick={() => exportMutation.mutate('groupEvents')}
-              disabled={exporting === 'groupEvents'}
+              onClick={() => handleExport('groupEvents')}
+              disabled={!!exporting}
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-3"
             >
@@ -272,8 +268,8 @@ export default function AdminDashboard() {
               <span className="text-xs">Group Events</span>
             </Button>
             <Button
-              onClick={() => exportMutation.mutate('groupParticipants')}
-              disabled={exporting === 'groupParticipants'}
+              onClick={() => handleExport('groupParticipants')}
+              disabled={!!exporting}
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-3"
             >
