@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { createPageUrl } from '../utils';
 import { Link } from 'react-router-dom';
+import { formatCurrency } from '../components/utils/formatCurrency';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -155,8 +156,8 @@ export default function AdminDashboard() {
     { label: 'Total Users', value: allUsers?.length || 0, icon: Users, color: 'bg-blue-500' },
     { label: 'Companions', value: companions?.length || 0, icon: Users, color: 'bg-violet-500' },
     { label: 'Seekers', value: seekers?.length || 0, icon: Users, color: 'bg-fuchsia-500' },
-    { label: 'Revenue', value: `₹${totalRevenue?.toFixed(0) || 0}`, icon: IndianRupee, color: 'bg-emerald-500' },
-    { label: 'Total GMV', value: `₹${totalGMV?.toFixed(0) || 0}`, icon: TrendingUp, color: 'bg-teal-500' },
+    { label: 'Revenue', value: formatCurrency(totalRevenue || 0), icon: IndianRupee, color: 'bg-emerald-500' },
+    { label: 'Total GMV', value: formatCurrency(totalGMV || 0), icon: TrendingUp, color: 'bg-teal-500' },
     { label: 'Bookings', value: allBookings?.length || 0, icon: Calendar, color: 'bg-amber-500' },
   ];
 
@@ -387,7 +388,7 @@ export default function AdminDashboard() {
                   }>
                     {booking?.status || 'unknown'}
                   </Badge>
-                  <span className="font-semibold text-slate-900">₹{booking?.total_amount?.toFixed(2) || 0}</span>
+                  <span className="font-semibold text-slate-900">{formatCurrency(booking?.total_amount)}</span>
                 </div>
               ))}
             </div>
