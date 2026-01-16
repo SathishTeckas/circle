@@ -44,8 +44,8 @@ export default function AdminDisputes() {
   const [user, setUser] = useState(null);
   const [selectedDispute, setSelectedDispute] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [resolutionNotes, setResolutionNotes] = useState('');
-  const [refundAmount, setRefundAmount] = useState('');
+  const [resolutionNotes, setResolutionNotes] = useState({});
+  const [refundAmount, setRefundAmount] = useState({});
 
   useEffect(() => {
     const loadUser = async () => {
@@ -103,13 +103,13 @@ export default function AdminDisputes() {
 
   const resolveMutation = useMutation({
     mutationFn: async ({ dispute, resolution }) => {
-      const refund = parseFloat(refundAmount) || 0;
+      const refund = parseFloat(refundAmount[dispute.id]) || 0;
       
       // Update dispute
       await base44.entities.Dispute.update(dispute.id, {
         status: 'resolved',
         resolution: resolution,
-        resolution_notes: resolutionNotes,
+        resolution_notes: resolutionNotes[dispute.id],
         refund_amount: refund,
         resolved_by: user.id,
         resolved_date: new Date().toISOString()
@@ -153,12 +153,20 @@ export default function AdminDisputes() {
         });
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, { dispute }) => {
       queryClient.invalidateQueries({ queryKey: ['all-disputes'] });
       setSelectedDispute(null);
       setDialogOpen(false);
-      setResolutionNotes('');
-      setRefundAmount('');
+      setResolutionNotes(prev => {
+        const copy = { ...prev };
+        delete copy[dispute.id];
+        return copy;
+      });
+      setRefundAmount(prev => {
+        const copy = { ...prev };
+        delete copy[dispute.id];
+        return copy;
+      });
     }
   });
 
@@ -224,8 +232,6 @@ export default function AdminDisputes() {
             } else {
               setDialogOpen(false);
               setSelectedDispute(null);
-              setResolutionNotes('');
-              setRefundAmount('');
             }
           }}>
             <DialogTrigger asChild>
@@ -344,8 +350,8 @@ export default function AdminDisputes() {
                       <Label className="mb-2 block">Resolution Notes</Label>
                       <Textarea
                         placeholder="Explain your decision and reasoning..."
-                        value={resolutionNotes}
-                        onChange={(e) => setResolutionNotes(e.target.value)}
+                        value={resolutionNotes[dispute.id] || ''}
+                        onChange={(e) => setResolutionNotes(prev => ({ ...prev, [dispute.id]: e.target.value }))}
                         className="rounded-xl"
                         rows={4}
                       />
@@ -356,8 +362,8 @@ export default function AdminDisputes() {
                       <Input
                         type="number"
                         placeholder="0.00"
-                        value={refundAmount}
-                        onChange={(e) => setRefundAmount(e.target.value)}
+                        value={refundAmount[dispute.id] || ''}
+                        onChange={(e) => setRefundAmount(prev => ({ ...prev, [dispute.id]: e.target.value }))}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
