@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
+import { formatCurrency } from '../components/utils/formatCurrency';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -85,7 +86,7 @@ const DisputeCard = ({ dispute, idx, bookingsMap, selectedDispute, dialogOpen, o
           {booking && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Amount</span>
-              <span className="font-medium text-slate-900">₹{booking.total_amount?.toFixed(2)}</span>
+              <span className="font-medium text-slate-900">{formatCurrency(booking.total_amount)}</span>
             </div>
           )}
         </div>
@@ -135,7 +136,7 @@ const DisputeCard = ({ dispute, idx, bookingsMap, selectedDispute, dialogOpen, o
                     </div>
                     <div className="flex items-center gap-2">
                       <IndianRupee className="w-4 h-4 text-slate-500" />
-                      <span className="font-semibold">₹{booking.total_amount?.toFixed(2)}</span>
+                      <span className="font-semibold">{formatCurrency(booking.total_amount)}</span>
                     </div>
                   </div>
                 </Card>
@@ -197,7 +198,7 @@ const DisputeCard = ({ dispute, idx, bookingsMap, selectedDispute, dialogOpen, o
                   {dispute.refund_amount > 0 && (
                     <div>
                       <Label className="text-slate-600">Refund Issued</Label>
-                      <p className="text-lg font-bold text-emerald-600">₹{dispute.refund_amount.toFixed(2)}</p>
+                      <p className="text-lg font-bold text-emerald-600">{formatCurrency(dispute.refund_amount)}</p>
                     </div>
                   )}
                 </>
@@ -219,13 +220,13 @@ const DisputeCard = ({ dispute, idx, bookingsMap, selectedDispute, dialogOpen, o
                       <Label className="block">Refund Amount (Optional)</Label>
                       {booking && (
                         <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => onRefundChange(dispute.id, booking.total_amount.toString())}
-                          className="text-xs h-7"
-                        >
-                          Max: ₹{booking.total_amount?.toFixed(2)}
-                        </Button>
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onRefundChange(dispute.id, booking.total_amount.toString())}
+                            className="text-xs h-7"
+                          >
+                            Max: {formatCurrency(booking.total_amount)}
+                          </Button>
                       )}
                     </div>
                     <Input
@@ -366,7 +367,7 @@ export default function AdminDisputes() {
         user_id: dispute.raised_by,
         type: 'booking_reminder',
         title: '✅ Dispute Resolved',
-        message: `Your dispute has been resolved. ${refund > 0 ? `Refund of ₹${refund} processed.` : ''}`,
+        message: `Your dispute has been resolved. ${refund > 0 ? `Refund of ${formatCurrency(refund)} processed.` : ''}`,
         booking_id: dispute.booking_id,
         action_url: createPageUrl(`BookingView?id=${dispute.booking_id}`)
       });
@@ -385,7 +386,7 @@ export default function AdminDisputes() {
           user_id: booking.seeker_id,
           type: 'payment_refunded',
           title: '💰 Refund Processed',
-          message: `₹${refund} has been refunded to your account due to dispute resolution`,
+          message: `${formatCurrency(refund)} has been refunded to your account due to dispute resolution`,
           amount: refund
         });
       }
