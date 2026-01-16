@@ -39,6 +39,230 @@ const reasonLabels = {
   other: 'Other'
 };
 
+const DisputeCard = ({ dispute, idx, bookingsMap, selectedDispute, dialogOpen, onDialogChange, resolutionNotes, refundAmount, onNotesChange, onRefundChange, onResolve, resolveMutation }) => {
+  const status = disputeStatusConfig[dispute.status];
+  const StatusIcon = status.icon;
+  const booking = bookingsMap[dispute.booking_id];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: idx * 0.05 }}
+    >
+      <Card className="p-4 hover:shadow-md transition-shadow">
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className={cn(status.color)}>
+                <StatusIcon className="w-3 h-3 mr-1" />
+                {status.label}
+              </Badge>
+              <Badge variant="outline" className="capitalize">
+                {reasonLabels[dispute.reason]}
+              </Badge>
+            </div>
+            <p className="text-sm text-slate-500">
+              Booking #{dispute.booking_id.slice(0, 8).toUpperCase()}
+            </p>
+            <p className="text-xs text-slate-400 mt-1">
+              Raised: {format(new Date(dispute.created_date), 'MMM d, yyyy HH:mm')}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-slate-50 rounded-lg p-3 mb-3 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-slate-600">Raised by</span>
+            <span className="font-medium text-slate-900 capitalize">
+              {dispute.raised_by_name} ({dispute.raised_by_role})
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-slate-600">Against</span>
+            <span className="font-medium text-slate-900">{dispute.against_user_name}</span>
+          </div>
+          {booking && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Amount</span>
+              <span className="font-medium text-slate-900">₹{booking.total_amount?.toFixed(2)}</span>
+            </div>
+          )}
+        </div>
+
+        <Dialog open={dialogOpen && selectedDispute?.id === dispute.id} onOpenChange={onDialogChange}>
+          <DialogTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="w-full rounded-xl"
+            >
+              View Details & Resolve
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Dispute Details</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {/* Parties */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="border border-slate-200 rounded-lg p-3">
+                  <Label className="text-slate-600 text-xs">Raised By</Label>
+                  <p className="font-semibold text-slate-900">{dispute.raised_by_name}</p>
+                  <Badge variant="outline" className="mt-1 capitalize text-xs">
+                    {dispute.raised_by_role}
+                  </Badge>
+                </div>
+                <div className="border border-slate-200 rounded-lg p-3">
+                  <Label className="text-slate-600 text-xs">Against</Label>
+                  <p className="font-semibold text-slate-900">{dispute.against_user_name}</p>
+                </div>
+              </div>
+
+              {/* Booking Info */}
+              {booking && (
+                <Card className="p-3 bg-slate-50">
+                  <Label className="text-slate-600 text-xs mb-2 block">Booking Details</Label>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-slate-500" />
+                      <span>{booking.date ? format(new Date(booking.date), 'MMM d, yyyy') : 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-slate-500" />
+                      <span>{booking.area}, {booking.city}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <IndianRupee className="w-4 h-4 text-slate-500" />
+                      <span className="font-semibold">₹{booking.total_amount?.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Dispute Info */}
+              <div>
+                <Label className="text-slate-600">Reason</Label>
+                <p className="font-medium text-slate-900 capitalize">{reasonLabels[dispute.reason]}</p>
+              </div>
+
+              <div>
+                <Label className="text-slate-600">Description</Label>
+                <p className="text-sm text-slate-700 mt-1 bg-slate-50 p-3 rounded-lg">
+                  {dispute.description}
+                </p>
+              </div>
+
+              {/* Evidence */}
+              {dispute.evidence_urls?.length > 0 && (
+                <div>
+                  <Label className="text-slate-600 mb-2 block">Evidence</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {dispute.evidence_urls.map((url, idx) => (
+                      <a 
+                        key={idx} 
+                        href={url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="relative group"
+                      >
+                        <img 
+                          src={url} 
+                          alt={`Evidence ${idx + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border border-slate-200"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                          <ExternalLink className="w-5 h-5 text-white" />
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Resolution Section */}
+              {dispute.status === 'resolved' ? (
+                <>
+                  <div>
+                    <Label className="text-slate-600">Resolution</Label>
+                    <p className="text-sm text-slate-900 mt-1">{dispute.resolution}</p>
+                  </div>
+                  {dispute.resolution_notes && (
+                    <div>
+                      <Label className="text-slate-600">Notes</Label>
+                      <p className="text-sm text-slate-700 mt-1">{dispute.resolution_notes}</p>
+                    </div>
+                  )}
+                  {dispute.refund_amount > 0 && (
+                    <div>
+                      <Label className="text-slate-600">Refund Issued</Label>
+                      <p className="text-lg font-bold text-emerald-600">₹{dispute.refund_amount.toFixed(2)}</p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div>
+                    <Label className="mb-2 block">Resolution Notes</Label>
+                    <Textarea
+                      placeholder="Explain your decision and reasoning..."
+                      value={resolutionNotes[dispute.id] || ''}
+                      onChange={(e) => onNotesChange(dispute.id, e.target.value)}
+                      className="rounded-xl"
+                      rows={4}
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block">Refund Amount (Optional)</Label>
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      value={refundAmount[dispute.id] || ''}
+                      onChange={(e) => onRefundChange(dispute.id, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                        }
+                      }}
+                      className="h-12 rounded-xl"
+                      max={booking?.total_amount}
+                    />
+                    {booking && (
+                      <p className="text-xs text-slate-500 mt-1">
+                        Max: ₹{booking.total_amount?.toFixed(2)}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      onClick={() => onResolve(dispute, 'Resolved in favor of companion')}
+                      disabled={!resolutionNotes[dispute.id]?.trim() || resolveMutation.isPending}
+                      variant="outline"
+                      className="flex-1 h-12 rounded-xl"
+                    >
+                      Favor Companion
+                    </Button>
+                    <Button
+                      onClick={() => onResolve(dispute, 'Resolved in favor of seeker')}
+                      disabled={!resolutionNotes[dispute.id]?.trim() || resolveMutation.isPending}
+                      className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
+                    >
+                      Favor Seeker
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </Card>
+    </motion.div>
+  );
+};
+
 export default function AdminDisputes() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
@@ -174,242 +398,8 @@ export default function AdminDisputes() {
   const reviewDisputes = disputes.filter(d => d.status === 'under_review');
   const resolvedDisputes = disputes.filter(d => d.status === 'resolved');
 
-  const DisputeCard = ({ dispute, idx }) => {
-    const status = disputeStatusConfig[dispute.status];
-    const StatusIcon = status.icon;
-    const booking = bookingsMap[dispute.booking_id];
-
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: idx * 0.05 }}
-      >
-        <Card className="p-4 hover:shadow-md transition-shadow">
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Badge className={cn(status.color)}>
-                  <StatusIcon className="w-3 h-3 mr-1" />
-                  {status.label}
-                </Badge>
-                <Badge variant="outline" className="capitalize">
-                  {reasonLabels[dispute.reason]}
-                </Badge>
-              </div>
-              <p className="text-sm text-slate-500">
-                Booking #{dispute.booking_id.slice(0, 8).toUpperCase()}
-              </p>
-              <p className="text-xs text-slate-400 mt-1">
-                Raised: {format(new Date(dispute.created_date), 'MMM d, yyyy HH:mm')}
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-slate-50 rounded-lg p-3 mb-3 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-600">Raised by</span>
-              <span className="font-medium text-slate-900 capitalize">
-                {dispute.raised_by_name} ({dispute.raised_by_role})
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-600">Against</span>
-              <span className="font-medium text-slate-900">{dispute.against_user_name}</span>
-            </div>
-            {booking && (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600">Amount</span>
-                <span className="font-medium text-slate-900">₹{booking.total_amount?.toFixed(2)}</span>
-              </div>
-            )}
-          </div>
-
-          <Dialog open={dialogOpen && selectedDispute?.id === dispute.id} onOpenChange={(open) => {
-            if (open) {
-              setSelectedDispute(dispute);
-              setDialogOpen(true);
-            } else {
-              setDialogOpen(false);
-              setSelectedDispute(null);
-            }
-          }}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="w-full rounded-xl"
-              >
-                View Details & Resolve
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Dispute Details</DialogTitle>
-              </DialogHeader>
-
-              <div className="space-y-4">
-                {/* Parties */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="border border-slate-200 rounded-lg p-3">
-                    <Label className="text-slate-600 text-xs">Raised By</Label>
-                    <p className="font-semibold text-slate-900">{dispute.raised_by_name}</p>
-                    <Badge variant="outline" className="mt-1 capitalize text-xs">
-                      {dispute.raised_by_role}
-                    </Badge>
-                  </div>
-                  <div className="border border-slate-200 rounded-lg p-3">
-                    <Label className="text-slate-600 text-xs">Against</Label>
-                    <p className="font-semibold text-slate-900">{dispute.against_user_name}</p>
-                  </div>
-                </div>
-
-                {/* Booking Info */}
-                {booking && (
-                  <Card className="p-3 bg-slate-50">
-                    <Label className="text-slate-600 text-xs mb-2 block">Booking Details</Label>
-                    <div className="space-y-1 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-slate-500" />
-                        <span>{booking.date ? format(new Date(booking.date), 'MMM d, yyyy') : 'N/A'}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-slate-500" />
-                        <span>{booking.area}, {booking.city}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <IndianRupee className="w-4 h-4 text-slate-500" />
-                        <span className="font-semibold">₹{booking.total_amount?.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </Card>
-                )}
-
-                {/* Dispute Info */}
-                <div>
-                  <Label className="text-slate-600">Reason</Label>
-                  <p className="font-medium text-slate-900 capitalize">{reasonLabels[dispute.reason]}</p>
-                </div>
-
-                <div>
-                  <Label className="text-slate-600">Description</Label>
-                  <p className="text-sm text-slate-700 mt-1 bg-slate-50 p-3 rounded-lg">
-                    {dispute.description}
-                  </p>
-                </div>
-
-                {/* Evidence */}
-                {dispute.evidence_urls?.length > 0 && (
-                  <div>
-                    <Label className="text-slate-600 mb-2 block">Evidence</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {dispute.evidence_urls.map((url, idx) => (
-                        <a 
-                          key={idx} 
-                          href={url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="relative group"
-                        >
-                          <img 
-                            src={url} 
-                            alt={`Evidence ${idx + 1}`}
-                            className="w-full h-24 object-cover rounded-lg border border-slate-200"
-                          />
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                            <ExternalLink className="w-5 h-5 text-white" />
-                          </div>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Resolution Section */}
-                {dispute.status === 'resolved' ? (
-                  <>
-                    <div>
-                      <Label className="text-slate-600">Resolution</Label>
-                      <p className="text-sm text-slate-900 mt-1">{dispute.resolution}</p>
-                    </div>
-                    {dispute.resolution_notes && (
-                      <div>
-                        <Label className="text-slate-600">Notes</Label>
-                        <p className="text-sm text-slate-700 mt-1">{dispute.resolution_notes}</p>
-                      </div>
-                    )}
-                    {dispute.refund_amount > 0 && (
-                      <div>
-                        <Label className="text-slate-600">Refund Issued</Label>
-                        <p className="text-lg font-bold text-emerald-600">₹{dispute.refund_amount.toFixed(2)}</p>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <div>
-                      <Label className="mb-2 block">Resolution Notes</Label>
-                      <Textarea
-                        placeholder="Explain your decision and reasoning..."
-                        value={resolutionNotes[dispute.id] || ''}
-                        onChange={(e) => setResolutionNotes(prev => ({ ...prev, [dispute.id]: e.target.value }))}
-                        className="rounded-xl"
-                        rows={4}
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="mb-2 block">Refund Amount (Optional)</Label>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        value={refundAmount[dispute.id] || ''}
-                        onChange={(e) => setRefundAmount(prev => ({ ...prev, [dispute.id]: e.target.value }))}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                          }
-                        }}
-                        className="h-12 rounded-xl"
-                        max={booking?.total_amount}
-                      />
-                      {booking && (
-                        <p className="text-xs text-slate-500 mt-1">
-                          Max: ₹{booking.total_amount?.toFixed(2)}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex gap-3 pt-4">
-                      <Button
-                        onClick={() => resolveMutation.mutate({ 
-                          dispute, 
-                          resolution: 'Resolved in favor of companion'
-                        })}
-                        disabled={!resolutionNotes[dispute.id]?.trim() || resolveMutation.isPending}
-                        variant="outline"
-                        className="flex-1 h-12 rounded-xl"
-                      >
-                        Favor Companion
-                      </Button>
-                      <Button
-                        onClick={() => resolveMutation.mutate({ 
-                          dispute, 
-                          resolution: 'Resolved in favor of seeker'
-                        })}
-                        disabled={!resolutionNotes[dispute.id]?.trim() || resolveMutation.isPending}
-                        className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
-                      >
-                        Favor Seeker
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
-        </Card>
-      </motion.div>
-    );
+  const handleResolve = (dispute, resolution) => {
+    resolveMutation.mutate({ dispute, resolution });
   };
 
   return (
@@ -486,7 +476,29 @@ export default function AdminDisputes() {
               </Card>
             ) : (
               openDisputes.map((dispute, idx) => (
-                <DisputeCard key={dispute.id} dispute={dispute} idx={idx} />
+                <DisputeCard 
+                  key={dispute.id} 
+                  dispute={dispute} 
+                  idx={idx}
+                  bookingsMap={bookingsMap}
+                  selectedDispute={selectedDispute}
+                  dialogOpen={dialogOpen}
+                  onDialogChange={(open) => {
+                    if (open) {
+                      setSelectedDispute(dispute);
+                      setDialogOpen(true);
+                    } else {
+                      setDialogOpen(false);
+                      setSelectedDispute(null);
+                    }
+                  }}
+                  resolutionNotes={resolutionNotes}
+                  refundAmount={refundAmount}
+                  onNotesChange={(disputeId, value) => setResolutionNotes(prev => ({ ...prev, [disputeId]: value }))}
+                  onRefundChange={(disputeId, value) => setRefundAmount(prev => ({ ...prev, [disputeId]: value }))}
+                  onResolve={handleResolve}
+                  resolveMutation={resolveMutation}
+                />
               ))
             )}
           </TabsContent>
@@ -499,7 +511,29 @@ export default function AdminDisputes() {
               </Card>
             ) : (
               reviewDisputes.map((dispute, idx) => (
-                <DisputeCard key={dispute.id} dispute={dispute} idx={idx} />
+                <DisputeCard 
+                  key={dispute.id} 
+                  dispute={dispute} 
+                  idx={idx}
+                  bookingsMap={bookingsMap}
+                  selectedDispute={selectedDispute}
+                  dialogOpen={dialogOpen}
+                  onDialogChange={(open) => {
+                    if (open) {
+                      setSelectedDispute(dispute);
+                      setDialogOpen(true);
+                    } else {
+                      setDialogOpen(false);
+                      setSelectedDispute(null);
+                    }
+                  }}
+                  resolutionNotes={resolutionNotes}
+                  refundAmount={refundAmount}
+                  onNotesChange={(disputeId, value) => setResolutionNotes(prev => ({ ...prev, [disputeId]: value }))}
+                  onRefundChange={(disputeId, value) => setRefundAmount(prev => ({ ...prev, [disputeId]: value }))}
+                  onResolve={handleResolve}
+                  resolveMutation={resolveMutation}
+                />
               ))
             )}
           </TabsContent>
@@ -512,7 +546,29 @@ export default function AdminDisputes() {
               </Card>
             ) : (
               resolvedDisputes.map((dispute, idx) => (
-                <DisputeCard key={dispute.id} dispute={dispute} idx={idx} />
+                <DisputeCard 
+                  key={dispute.id} 
+                  dispute={dispute} 
+                  idx={idx}
+                  bookingsMap={bookingsMap}
+                  selectedDispute={selectedDispute}
+                  dialogOpen={dialogOpen}
+                  onDialogChange={(open) => {
+                    if (open) {
+                      setSelectedDispute(dispute);
+                      setDialogOpen(true);
+                    } else {
+                      setDialogOpen(false);
+                      setSelectedDispute(null);
+                    }
+                  }}
+                  resolutionNotes={resolutionNotes}
+                  refundAmount={refundAmount}
+                  onNotesChange={(disputeId, value) => setResolutionNotes(prev => ({ ...prev, [disputeId]: value }))}
+                  onRefundChange={(disputeId, value) => setRefundAmount(prev => ({ ...prev, [disputeId]: value }))}
+                  onResolve={handleResolve}
+                  resolveMutation={resolveMutation}
+                />
               ))
             )}
           </TabsContent>
