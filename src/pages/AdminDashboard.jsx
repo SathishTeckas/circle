@@ -209,7 +209,7 @@ export default function AdminDashboard() {
                     <stat.icon className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-slate-900">{Math.round(stat.value).toLocaleString('en-IN')}</p>
+                    <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
                     <p className="text-sm text-slate-500">{stat.label}</p>
                   </div>
                 </div>
