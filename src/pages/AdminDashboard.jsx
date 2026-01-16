@@ -105,14 +105,24 @@ export default function AdminDashboard() {
     mutationFn: async (dataType) => {
       setExporting(dataType);
       const response = await base44.functions.invoke('exportAdminData', { dataType });
-      return response.data;
+      
+      // The response.data contains the CSV text directly
+      let csvData = response.data;
+      
+      // If response.data is an object (shouldn't be, but handle it), convert to string
+      if (typeof csvData === 'object') {
+        csvData = JSON.stringify(csvData);
+      }
+      
+      return { csvData, dataType };
     },
-    onSuccess: (data, dataType) => {
-      const blob = new Blob([data], { type: 'text/csv' });
+    onSuccess: ({ csvData, dataType }) => {
+      // Create blob from CSV text
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${dataType}.csv`;
+      a.download = `${dataType}_${new Date().toISOString().split('T')[0]}.csv`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -228,7 +238,11 @@ export default function AdminDashboard() {
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-3"
             >
-              <Download className="w-5 h-5" />
+              {exporting === 'users' ? (
+                <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Download className="w-5 h-5" />
+              )}
               <span className="text-xs">Users</span>
             </Button>
             <Button
@@ -237,7 +251,11 @@ export default function AdminDashboard() {
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-3"
             >
-              <Download className="w-5 h-5" />
+              {exporting === 'bookings' ? (
+                <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Download className="w-5 h-5" />
+              )}
               <span className="text-xs">Bookings</span>
             </Button>
             <Button
@@ -246,7 +264,11 @@ export default function AdminDashboard() {
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-3"
             >
-              <Download className="w-5 h-5" />
+              {exporting === 'groupEvents' ? (
+                <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Download className="w-5 h-5" />
+              )}
               <span className="text-xs">Group Events</span>
             </Button>
             <Button
@@ -255,7 +277,11 @@ export default function AdminDashboard() {
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-3"
             >
-              <Download className="w-5 h-5" />
+              {exporting === 'groupParticipants' ? (
+                <div className="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Download className="w-5 h-5" />
+              )}
               <span className="text-xs">Attendance</span>
             </Button>
           </div>
