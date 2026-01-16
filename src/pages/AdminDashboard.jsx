@@ -103,15 +103,21 @@ export default function AdminDashboard() {
     try {
       const response = await base44.functions.invoke('exportAdminData', { dataType });
       
+      console.log('Export response:', response);
+      
       // Check if we got an error response
-      if (response.data?.error) {
+      if (response?.data?.error) {
         toast.error(response.data.error);
-        setExporting(null);
         return;
       }
       
-      // Get CSV data - it should be a string
-      const csvData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+      // The CSV data should be in response.data
+      let csvData = response?.data;
+      
+      if (!csvData) {
+        toast.error('No data received from export');
+        return;
+      }
       
       // Create blob and download
       const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
@@ -127,7 +133,7 @@ export default function AdminDashboard() {
       toast.success('Export completed successfully');
     } catch (error) {
       console.error('Export error:', error);
-      toast.error('Export failed: ' + (error.message || 'Please try again'));
+      toast.error('Export failed: ' + (error?.response?.data?.error || error?.message || 'Please try again'));
     } finally {
       setExporting(null);
     }
