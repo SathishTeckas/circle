@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
       }, { status: 403 });
     }
 
-    const { dataType } = await req.json();
+    const { dataType, startDate, endDate } = await req.json();
 
     if (dataType === 'users') {
       const users = await base44.asServiceRole.entities.User.list('', 1000);
@@ -61,6 +61,62 @@ Deno.serve(async (req) => {
         headers: {
           'Content-Type': 'text/csv',
           'Content-Disposition': 'attachment; filename=group_events.csv'
+        }
+      });
+    }
+
+    if (dataType === 'gmv') {
+      let bookings = await base44.asServiceRole.entities.Booking.list('', 1000);
+      
+      // Filter by date range if provided
+      if (startDate && endDate) {
+        bookings = bookings.filter(b => {
+          if (!b.date) return false;
+          const bookingDate = new Date(b.date);
+          return bookingDate >= new Date(startDate) && bookingDate <= new Date(endDate);
+        });
+      }
+      
+      // Filter only completed bookings
+      const completedBookings = bookings.filter(b => b.status === 'completed');
+      
+      // Calculate totals
+      const totalGMV = completedBookings.reduce((sum, b) => sum + (b.total_amount || 0), 0);
+      const totalRevenue = completedBookings.reduce((sum, b) => sum + (b.platform_fee || 0), 0);
+      
+      // Create CSV with booking details and summary
+      const headers = ['Booking ID', 'Date', 'Seeker', 'Companion', 'City', 'Duration (hrs)', 'Base Price (₹)', 'Platform Fee (₹)', 'Total Amount (₹)', 'Companion Payout (₹)', 'Status'];
+      const rows = completedBookings.map(b => [
+        b.id || '',
+        b.date || '',
+        b.seeker_name || '',
+        b.companion_name || '',
+        b.city || '',
+        b.duration_hours || '',
+        b.base_price || '',
+        b.platform_fee || '',
+        b.total_amount || '',
+        b.companion_payout || '',
+        b.status || ''
+      ]);
+      
+      // Add summary rows
+      rows.push([]);
+      rows.push(['SUMMARY']);
+      rows.push(['Total Bookings', completedBookings.length]);
+      rows.push(['Total GMV (₹)', totalGMV.toFixed(2)]);
+      rows.push(['Total Revenue (₹)', totalRevenue.toFixed(2)]);
+      if (startDate && endDate) {
+        rows.push(['Date Range', `${startDate} to ${endDate}`]);
+      }
+      
+      const csv = headers.join(',') + '\n' + rows.map(row => row.join(',')).join('\n');
+      
+      return new Response(csv, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename=gmv_revenue_${startDate || 'all'}_to_${endDate || 'all'}.csv`
         }
       });
     }

@@ -6,16 +6,20 @@ import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { 
   Users, IndianRupee, Calendar, Shield, TrendingUp, 
-  AlertTriangle, MapPin, ChevronRight, Building, Settings, Download, Wallet
+  AlertTriangle, MapPin, ChevronRight, Building, Settings, Download, Wallet, CalendarRange
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [exporting, setExporting] = useState(null);
+  const [dateRange, setDateRange] = useState({ from: null, to: null });
 
   useEffect(() => {
     const loadUser = async () => {
@@ -101,7 +105,15 @@ export default function AdminDashboard() {
   const handleExport = async (dataType) => {
     setExporting(dataType);
     try {
-      const response = await base44.functions.invoke('exportAdminData', { dataType });
+      const payload = { dataType };
+      
+      // Add date range for GMV export
+      if (dataType === 'gmv' && dateRange.from && dateRange.to) {
+        payload.startDate = format(dateRange.from, 'yyyy-MM-dd');
+        payload.endDate = format(dateRange.to, 'yyyy-MM-dd');
+      }
+      
+      const response = await base44.functions.invoke('exportAdminData', payload);
       
       console.log('Export response:', response);
       
@@ -233,7 +245,7 @@ export default function AdminDashboard() {
         {/* Export Data */}
         <Card className="p-4">
           <h3 className="font-semibold text-slate-900 mb-4">Export Data for Analysis</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <Button
               onClick={() => handleExport('users')}
               disabled={!!exporting}
@@ -286,6 +298,66 @@ export default function AdminDashboard() {
               )}
               <span className="text-xs">Attendance</span>
             </Button>
+            <Button
+              onClick={() => handleExport('gmv')}
+              disabled={!!exporting}
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-auto py-3 border-emerald-200 hover:bg-emerald-50"
+            >
+              {exporting === 'gmv' ? (
+                <div className="w-5 h-5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Download className="w-5 h-5 text-emerald-600" />
+              )}
+              <span className="text-xs text-emerald-700">GMV & Revenue</span>
+            </Button>
+          </div>
+
+          {/* Date Range Filter for GMV */}
+          <div className="mt-4 pt-4 border-t border-slate-100">
+            <div className="flex flex-col md:flex-row md:items-center gap-3">
+              <span className="text-sm text-slate-600 font-medium">GMV Export Date Filter:</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="justify-start text-left">
+                    <CalendarRange className="w-4 h-4 mr-2" />
+                    {dateRange.from && dateRange.to ? (
+                      `${format(dateRange.from, 'MMM d, yyyy')} - ${format(dateRange.to, 'MMM d, yyyy')}`
+                    ) : (
+                      'Select date range (optional)'
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="range"
+                    selected={dateRange}
+                    onSelect={(range) => setDateRange(range || { from: null, to: null })}
+                    numberOfMonths={2}
+                    classNames={{
+                      day_selected: "bg-emerald-600 text-white hover:bg-emerald-700 hover:text-white focus:bg-emerald-700 focus:text-white",
+                      day_range_middle: "bg-emerald-100"
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+              {dateRange.from && dateRange.to && (
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setDateRange({ from: null, to: null })}
+                  className="text-slate-500 hover:text-slate-700"
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 mt-2">
+              {dateRange.from && dateRange.to 
+                ? `GMV export will include bookings from ${format(dateRange.from, 'MMM d, yyyy')} to ${format(dateRange.to, 'MMM d, yyyy')}`
+                : 'No date filter selected - GMV export will include all completed bookings'
+              }
+            </p>
           </div>
         </Card>
 
