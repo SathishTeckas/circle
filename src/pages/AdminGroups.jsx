@@ -280,7 +280,9 @@ export default function AdminGroups() {
                           selected={selectedDate}
                           onSelect={setSelectedDate}
                           disabled={(date) => date < new Date()}
-                          className="[&_.rdp-day_selected]:bg-fuchsia-600 [&_.rdp-day_selected]:text-white [&_.rdp-day_selected:hover]:bg-fuchsia-700"
+                          classNames={{
+                            day_selected: "bg-fuchsia-600 text-white hover:bg-fuchsia-700 hover:text-white focus:bg-fuchsia-700 focus:text-white"
+                          }}
                         />
                       </PopoverContent>
                     </Popover>
