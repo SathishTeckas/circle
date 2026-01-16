@@ -42,16 +42,22 @@ export default function CompanionDashboard() {
   const cancelMutation = useMutation({
     mutationFn: async (bookingId) => {
       const booking = upcomingBookings.find(b => b.id === bookingId);
+      if (!booking) {
+        throw new Error('Booking not found');
+      }
+      
       await base44.entities.Booking.update(bookingId, { 
         status: 'cancelled',
         escrow_status: 'refunded'
       });
+      
       // Set availability back to available
-      if (booking?.availability_id) {
+      if (booking.availability_id) {
         await base44.entities.Availability.update(booking.availability_id, { 
           status: 'available'
         });
       }
+      
       // Notify seeker about cancellation and refund
       await base44.entities.Notification.create({
         user_id: booking.seeker_id,
@@ -61,6 +67,7 @@ export default function CompanionDashboard() {
         booking_id: bookingId,
         action_url: createPageUrl('MyBookings')
       });
+      
       await base44.entities.Notification.create({
         user_id: booking.seeker_id,
         type: 'payment_refunded',
@@ -72,6 +79,7 @@ export default function CompanionDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['upcoming-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['active-availabilities'] });
       setCancelBookingId(null);
     }
   });
@@ -129,6 +137,8 @@ export default function CompanionDashboard() {
       // Filter out past availabilities
       const now = new Date();
       return availabilities.filter(a => {
+        if (!a.date || !a.end_time) return false;
+        
         const availDate = new Date(a.date);
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         
