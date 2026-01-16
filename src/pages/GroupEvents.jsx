@@ -284,7 +284,7 @@ export default function GroupEvents() {
 
             {/* Discover Events Time Filter - only shown on discover tab */}
             {activeTab === 'discover' && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
+              <div className="flex gap-2 flex-wrap pb-1">
                 <Badge 
                   className={cn(
                     "cursor-pointer px-4 py-2 whitespace-nowrap",
@@ -323,7 +323,7 @@ export default function GroupEvents() {
 
             {/* My Events Time Filter - only shown on joined tab */}
             {activeTab === 'joined' && myEvents.length > 0 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
+              <div className="flex gap-2 flex-wrap pb-1">
                 <Badge 
                   className={cn(
                     "cursor-pointer px-4 py-2 whitespace-nowrap",
