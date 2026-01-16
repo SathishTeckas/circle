@@ -82,6 +82,17 @@ export default function Wallet() {
     enabled: !!user?.id
   });
 
+  const { data: referrals = [] } = useQuery({
+    queryKey: ['referrals', user?.id],
+    queryFn: async () => {
+      return await base44.entities.Referral.filter({ 
+        referrer_id: user.id,
+        status: 'completed'
+      }, '-created_date', 50);
+    },
+    enabled: !!user?.id
+  });
+
   const totalWithdrawn = payouts
     .filter(p => p.status === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
@@ -92,8 +103,39 @@ export default function Wallet() {
 
   const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
   const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
-  const walletBonus = user?.wallet_balance || 0; // Includes referral bonuses
-  const availableBalance = totalEarnings + walletBonus - totalWithdrawn - pendingPayouts;
+  const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
+  const availableBalance = totalEarnings + referralEarnings - totalWithdrawn - pendingPayouts;
+
+  // Create unified transaction statement
+  const allTransactions = [
+    ...completedBookings.map(b => ({
+      id: b.id,
+      type: 'earning',
+      amount: b.companion_payout || 0,
+      description: `Meetup with ${b.seeker_name}`,
+      date: b.created_date,
+      icon: ArrowDownLeft,
+      color: 'emerald'
+    })),
+    ...referrals.map(r => ({
+      id: r.id,
+      type: 'referral',
+      amount: r.reward_amount || 0,
+      description: `Referral bonus - ${r.referee_name}`,
+      date: r.rewarded_date || r.created_date,
+      icon: ArrowDownLeft,
+      color: 'violet'
+    })),
+    ...payouts.filter(p => p.status === 'completed').map(p => ({
+      id: p.id,
+      type: 'payout',
+      amount: -p.amount,
+      description: `Payout via ${p.payment_method.replace('_', ' ')}`,
+      date: p.processed_date || p.created_date,
+      icon: ArrowUpRight,
+      color: 'red'
+    }))
+  ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const thisMonth = completedBookings.filter(b => {
     const date = new Date(b.created_date);
@@ -335,12 +377,96 @@ export default function Wallet() {
           </Card>
         </div>
 
+        {/* Balance Breakdown */}
+        <Card className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200">
+          <h3 className="font-semibold text-slate-900 mb-3">Balance Breakdown</h3>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Booking Earnings</span>
+              <span className="font-medium text-emerald-600">+₹{totalEarnings.toFixed(2)}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Referral Bonuses</span>
+              <span className="font-medium text-violet-600">+₹{referralEarnings.toFixed(2)}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Withdrawn</span>
+              <span className="font-medium text-red-600">-₹{totalWithdrawn.toFixed(2)}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Pending Payouts</span>
+              <span className="font-medium text-amber-600">-₹{pendingPayouts.toFixed(2)}</span>
+            </div>
+            <div className="border-t border-slate-300 pt-2 mt-2 flex items-center justify-between">
+              <span className="font-semibold text-slate-900">Available Balance</span>
+              <span className="font-bold text-emerald-600 text-lg">₹{availableBalance.toFixed(2)}</span>
+            </div>
+          </div>
+        </Card>
+
         {/* Tabs */}
-        <Tabs defaultValue="earnings" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="statement" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="statement">Statement</TabsTrigger>
             <TabsTrigger value="earnings">Earnings</TabsTrigger>
             <TabsTrigger value="payouts">Payouts</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="statement" className="space-y-4 mt-4">
+            <Card className="p-4">
+              <h3 className="font-semibold text-slate-900 mb-4">Transaction History</h3>
+
+              {allTransactions.length === 0 ? (
+                <div className="text-center py-8">
+                  <WalletIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-600">No transactions yet</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {allTransactions.map((transaction, idx) => {
+                    const Icon = transaction.icon;
+                    return (
+                      <motion.div
+                        key={`${transaction.type}-${transaction.id}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.03 }}
+                        className="flex items-center gap-4 py-3 border-b border-slate-100 last:border-0"
+                      >
+                        <div className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center",
+                          transaction.color === 'emerald' && "bg-emerald-100",
+                          transaction.color === 'violet' && "bg-violet-100",
+                          transaction.color === 'red' && "bg-red-100"
+                        )}>
+                          <Icon className={cn(
+                            "w-5 h-5",
+                            transaction.color === 'emerald' && "text-emerald-600",
+                            transaction.color === 'violet' && "text-violet-600",
+                            transaction.color === 'red' && "text-red-600"
+                          )} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-slate-900">{transaction.description}</p>
+                          <p className="text-sm text-slate-500">
+                            {transaction.date ? format(new Date(transaction.date), 'MMM d, yyyy') : 'Recent'}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className={cn(
+                            "font-semibold",
+                            transaction.amount > 0 ? "text-emerald-600" : "text-red-600"
+                          )}>
+                            {transaction.amount > 0 ? '+' : ''}₹{Math.abs(transaction.amount).toFixed(2)}
+                          </p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </Card>
+          </TabsContent>
 
           <TabsContent value="earnings" className="space-y-4 mt-4">
             <Card className="p-4">
