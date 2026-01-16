@@ -282,44 +282,7 @@ export default function GroupEvents() {
               </SelectContent>
             </Select>
 
-            {/* Discover Events Time Filter - only shown on discover tab */}
-            {activeTab === 'discover' && (
-              <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
-                <Badge 
-                  className={cn(
-                    "cursor-pointer px-2 sm:px-4 py-2 whitespace-nowrap text-xs sm:text-sm",
-                    discoverFilter === 'upcoming' 
-                      ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-100"
-                  )}
-                  onClick={() => setDiscoverFilter('upcoming')}
-                >
-                  Upcoming ({discoverUpcoming.length})
-                </Badge>
-                <Badge 
-                  className={cn(
-                    "cursor-pointer px-2 sm:px-4 py-2 whitespace-nowrap text-xs sm:text-sm",
-                    discoverFilter === 'in_progress' 
-                      ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-100"
-                  )}
-                  onClick={() => setDiscoverFilter('in_progress')}
-                >
-                  In Progress ({discoverInProgress.length})
-                </Badge>
-                <Badge 
-                  className={cn(
-                    "cursor-pointer px-2 sm:px-4 py-2 whitespace-nowrap text-xs sm:text-sm",
-                    discoverFilter === 'completed' 
-                      ? "bg-fuchsia-600 text-white hover:bg-fuchsia-600" 
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-100"
-                  )}
-                  onClick={() => setDiscoverFilter('completed')}
-                >
-                  Completed ({discoverCompleted.length})
-                </Badge>
-              </div>
-            )}
+
 
             {/* My Events Time Filter - only shown on joined tab */}
             {activeTab === 'joined' && myEvents.length > 0 && (
