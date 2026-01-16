@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Plus, Trash2, Edit, ChevronUp, ChevronDown } from 'lucide-react';
+import { MapPin, Plus, Trash2, Edit, ChevronUp, ChevronDown, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function AdminCities() {
@@ -16,6 +16,8 @@ export default function AdminCities() {
   const [cityName, setCityName] = useState('');
   const [areas, setAreas] = useState(['']);
   const [newArea, setNewArea] = useState('');
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -149,6 +151,59 @@ export default function AdminCities() {
     setAreas(updated);
   };
 
+  const handleImportFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImporting(true);
+    try {
+      // Upload file
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+
+      // Extract data
+      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url,
+        json_schema: {
+          type: 'object',
+          properties: {
+            cities: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  areas: { type: 'array', items: { type: 'string' } }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      if (result.status === 'success' && result.output?.cities) {
+        // Bulk create cities
+        for (const city of result.output.cities) {
+          await base44.entities.City.create({
+            name: city.name,
+            areas: city.areas,
+            is_active: true,
+            display_order: cities.length
+          });
+        }
+        
+        queryClient.invalidateQueries({ queryKey: ['cities'] });
+        setShowImportDialog(false);
+        alert(`Successfully imported ${result.output.cities.length} cities!`);
+      } else {
+        alert('Failed to extract data from file. Please check the format.');
+      }
+    } catch (error) {
+      alert('Error importing file: ' + error.message);
+    } finally {
+      setImporting(false);
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -166,10 +221,16 @@ export default function AdminCities() {
             <h1 className="text-3xl font-bold text-slate-900">City & Area Management</h1>
             <p className="text-slate-600 mt-1">Manage cities and their areas across the entire app</p>
           </div>
-          <Button onClick={() => openDialog()} className="bg-violet-600 hover:bg-violet-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Add City
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setShowImportDialog(true)} variant="outline">
+              <Upload className="w-4 h-4 mr-2" />
+              Import
+            </Button>
+            <Button onClick={() => openDialog()} className="bg-violet-600 hover:bg-violet-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Add City
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -300,6 +361,48 @@ export default function AdminCities() {
             ))}
           </div>
         )}
+
+        {/* Import Dialog */}
+        <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Import Cities from Excel</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="bg-slate-50 p-4 rounded-lg">
+                <p className="text-sm text-slate-700 mb-2">Expected format:</p>
+                <pre className="text-xs bg-white p-2 rounded border">
+{`City Name | Areas (comma-separated)
+Mumbai    | Andheri, Bandra, Colaba
+Delhi     | Connaught Place, Karol Bagh`}
+                </pre>
+              </div>
+
+              <div>
+                <Input
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={handleImportFile}
+                  disabled={importing}
+                />
+              </div>
+
+              {importing && (
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <div className="w-4 h-4 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                  Importing cities...
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowImportDialog(false)}>
+                Cancel
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Add/Edit Dialog */}
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
