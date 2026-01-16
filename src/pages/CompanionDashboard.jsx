@@ -412,7 +412,7 @@ export default function CompanionDashboard() {
 
           <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-4 text-white">
             <p className="text-emerald-100 text-sm mb-1">Available Balance</p>
-            <p className="text-3xl font-bold mb-2">{formatCurrency(user?.wallet_balance || 0)}</p>
+            <p className="text-3xl font-bold mb-2">₹{Math.round(user?.wallet_balance || 0).toLocaleString('en-IN')}</p>
             <p className="text-emerald-100 text-sm">
               {completedBookings.length} completed meetups
             </p>
