@@ -214,11 +214,11 @@ export default function AdminGroups() {
   const canSubmit = selectedDate && formData.city && formData.area && formData.time && formData.languages.length > 0;
 
   const statusColors = {
-    open: 'bg-emerald-100 text-emerald-700',
-    full: 'bg-amber-100 text-amber-700',
-    confirmed: 'bg-blue-100 text-blue-700',
-    completed: 'bg-violet-100 text-violet-700',
-    cancelled: 'bg-slate-100 text-slate-700'
+    open: 'bg-emerald-600 text-white',
+    full: 'bg-orange-600 text-white',
+    confirmed: 'bg-blue-600 text-white',
+    completed: 'bg-violet-600 text-white',
+    cancelled: 'bg-slate-500 text-white'
   };
 
   return (
