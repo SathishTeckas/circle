@@ -92,7 +92,8 @@ export default function Wallet() {
 
   const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
   const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
-  const availableBalance = totalEarnings - totalWithdrawn - pendingPayouts;
+  const walletBonus = user?.wallet_balance || 0; // Includes referral bonuses
+  const availableBalance = totalEarnings + walletBonus - totalWithdrawn - pendingPayouts;
 
   const thisMonth = completedBookings.filter(b => {
     const date = new Date(b.created_date);
