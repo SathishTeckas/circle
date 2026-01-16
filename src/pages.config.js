@@ -1,5 +1,6 @@
 import AdminDashboard from './pages/AdminDashboard';
 import AdminDisputes from './pages/AdminDisputes';
+import AdminErrors from './pages/AdminErrors';
 import AdminFeedbackView from './pages/AdminFeedbackView';
 import AdminFlaggedReviews from './pages/AdminFlaggedReviews';
 import AdminGroups from './pages/AdminGroups';
@@ -38,13 +39,13 @@ import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
-import AdminErrors from './pages/AdminErrors';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminDashboard": AdminDashboard,
     "AdminDisputes": AdminDisputes,
+    "AdminErrors": AdminErrors,
     "AdminFeedbackView": AdminFeedbackView,
     "AdminFlaggedReviews": AdminFlaggedReviews,
     "AdminGroups": AdminGroups,
@@ -83,7 +84,6 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "Wallet": Wallet,
     "Welcome": Welcome,
-    "AdminErrors": AdminErrors,
 }
 
 export const pagesConfig = {

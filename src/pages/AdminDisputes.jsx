@@ -358,6 +358,11 @@ export default function AdminDisputes() {
                         placeholder="0.00"
                         value={refundAmount}
                         onChange={(e) => setRefundAmount(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                          }
+                        }}
                         className="h-12 rounded-xl"
                         max={booking?.total_amount}
                       />
