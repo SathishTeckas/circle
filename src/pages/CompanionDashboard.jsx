@@ -219,7 +219,7 @@ export default function CompanionDashboard() {
           <div className="grid grid-cols-3 gap-3">
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
               <IndianRupee className="w-5 h-5 mb-1 text-white/80" />
-              <p className="text-2xl font-bold">{formatCurrency(totalEarnings)}</p>
+              <p className="text-2xl font-bold">₹{Math.round(totalEarnings).toLocaleString('en-IN')}</p>
               <p className="text-xs text-white/70">Total Earned</p>
             </Card>
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
