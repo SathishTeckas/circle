@@ -226,7 +226,14 @@ export default function AdminCities() {
                       <div className="flex items-center gap-3 mb-3 flex-wrap">
                         <MapPin className="w-5 h-5 text-violet-600 flex-shrink-0" />
                         <h3 className="text-lg md:text-xl font-semibold text-slate-900">{city.name}</h3>
-                        <Badge variant={city.is_active ? 'default' : 'secondary'}>
+                        <Badge 
+                          className={cn(
+                            "font-semibold",
+                            city.is_active 
+                              ? "bg-green-500 hover:bg-green-600 text-white" 
+                              : "bg-slate-400 hover:bg-slate-500 text-white"
+                          )}
+                        >
                           {city.is_active ? 'Active' : 'Inactive'}
                         </Badge>
                       </div>
