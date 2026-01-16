@@ -385,7 +385,7 @@ export default function AdminDisputes() {
                           dispute, 
                           resolution: 'Resolved in favor of companion'
                         })}
-                        disabled={!resolutionNotes.trim() || resolveMutation.isPending}
+                        disabled={!resolutionNotes[dispute.id]?.trim() || resolveMutation.isPending}
                         variant="outline"
                         className="flex-1 h-12 rounded-xl"
                       >
@@ -396,7 +396,7 @@ export default function AdminDisputes() {
                           dispute, 
                           resolution: 'Resolved in favor of seeker'
                         })}
-                        disabled={!resolutionNotes.trim() || resolveMutation.isPending}
+                        disabled={!resolutionNotes[dispute.id]?.trim() || resolveMutation.isPending}
                         className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
                       >
                         Favor Seeker
