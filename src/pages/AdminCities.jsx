@@ -175,32 +175,27 @@ Pune,Koregaon Park,Kalyani Nagar,Viman Nagar,Hinjewadi,Kothrud,Deccan,Baner,Waka
 
     setImporting(true);
     try {
-      // Upload file
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-
-      // Extract data
-      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url,
-        json_schema: {
-          type: 'object',
-          properties: {
-            cities: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  name: { type: 'string' },
-                  areas: { type: 'array', items: { type: 'string' } }
-                }
-              }
-            }
-          }
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      // Skip header row
+      const dataLines = lines.slice(1);
+      
+      const citiesToImport = [];
+      for (const line of dataLines) {
+        const parts = line.split(',');
+        if (parts.length < 2) continue;
+        
+        const cityName = parts[0].trim();
+        const areas = parts.slice(1).map(a => a.trim()).filter(a => a);
+        
+        if (cityName && areas.length > 0) {
+          citiesToImport.push({ name: cityName, areas });
         }
-      });
+      }
 
-      if (result.status === 'success' && result.output?.cities) {
-        // Bulk create cities
-        for (const city of result.output.cities) {
+      if (citiesToImport.length > 0) {
+        for (const city of citiesToImport) {
           await base44.entities.City.create({
             name: city.name,
             areas: city.areas,
@@ -211,9 +206,9 @@ Pune,Koregaon Park,Kalyani Nagar,Viman Nagar,Hinjewadi,Kothrud,Deccan,Baner,Waka
         
         queryClient.invalidateQueries({ queryKey: ['cities'] });
         setShowImportDialog(false);
-        alert(`Successfully imported ${result.output.cities.length} cities!`);
+        alert(`Successfully imported ${citiesToImport.length} cities!`);
       } else {
-        alert('Failed to extract data from file. Please check the format.');
+        alert('No valid data found in the file. Please check the format.');
       }
     } catch (error) {
       alert('Error importing file: ' + error.message);
