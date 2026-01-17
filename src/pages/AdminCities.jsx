@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Plus, Trash2, Edit, ChevronUp, ChevronDown, Upload } from 'lucide-react';
+import { MapPin, Plus, Trash2, Edit, ChevronUp, ChevronDown, Upload, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function AdminCities() {
@@ -149,6 +149,24 @@ export default function AdminCities() {
     const updated = [...areas];
     updated[index] = value;
     setAreas(updated);
+  };
+
+  const downloadSampleCSV = () => {
+    const csvContent = `City Name,Areas
+Mumbai,Andheri,Bandra,Colaba,Fort,Powai,Juhu,Lower Parel,Worli,Malad,Kandivali
+Delhi,Connaught Place,Karol Bagh,Dwarka,Rohini,Saket,Hauz Khas,Vasant Kunj,Greater Kailash,Lajpat Nagar,Nehru Place
+Bangalore,Koramangala,Indiranagar,Whitefield,HSR Layout,Marathahalli,Electronic City,JP Nagar,Jayanagar,MG Road,Brigade Road
+Pune,Koregaon Park,Kalyani Nagar,Viman Nagar,Hinjewadi,Kothrud,Deccan,Baner,Wakad,Magarpatta,Aundh`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cities_sample.csv';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
   };
 
   const handleImportFile = async (e) => {
@@ -371,11 +389,22 @@ export default function AdminCities() {
             
             <div className="space-y-4">
               <div className="bg-slate-50 p-4 rounded-lg">
-                <p className="text-sm text-slate-700 mb-2">Expected format:</p>
+                <div className="flex items-start justify-between mb-2">
+                  <p className="text-sm text-slate-700">Expected CSV format:</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={downloadSampleCSV}
+                    className="h-7 text-xs"
+                  >
+                    <Download className="w-3 h-3 mr-1" />
+                    Download Sample
+                  </Button>
+                </div>
                 <pre className="text-xs bg-white p-2 rounded border">
-{`City Name | Areas (comma-separated)
-Mumbai    | Andheri, Bandra, Colaba
-Delhi     | Connaught Place, Karol Bagh`}
+{`City Name,Areas
+Mumbai,Andheri,Bandra,Colaba
+Delhi,Connaught Place,Karol Bagh`}
                 </pre>
               </div>
 

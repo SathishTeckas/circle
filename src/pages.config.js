@@ -1,4 +1,5 @@
 import AdminCities from './pages/AdminCities';
+import AdminDashboard from './pages/AdminDashboard';
 import AdminDisputes from './pages/AdminDisputes';
 import AdminErrors from './pages/AdminErrors';
 import AdminFeedbackView from './pages/AdminFeedbackView';
@@ -39,12 +40,12 @@ import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
-import AdminDashboard from './pages/AdminDashboard';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminCities": AdminCities,
+    "AdminDashboard": AdminDashboard,
     "AdminDisputes": AdminDisputes,
     "AdminErrors": AdminErrors,
     "AdminFeedbackView": AdminFeedbackView,
@@ -85,7 +86,6 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "Wallet": Wallet,
     "Welcome": Welcome,
-    "AdminDashboard": AdminDashboard,
 }
 
 export const pagesConfig = {
