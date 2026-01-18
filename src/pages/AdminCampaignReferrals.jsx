@@ -142,9 +142,9 @@ export default function AdminCampaignReferrals() {
       {/* Header */}
       <div className="bg-white border-b border-slate-100 px-4 py-6">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Campaign Referral Codes</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Campaign Referral Codes</h1>
               <p className="text-sm text-slate-600">Track signups from marketing campaigns</p>
             </div>
             <div className="flex gap-2">
@@ -154,14 +154,15 @@ export default function AdminCampaignReferrals() {
                 className="gap-2"
               >
                 <Download className="w-4 h-4" />
-                Export
+                <span className="hidden sm:inline">Export</span>
               </Button>
               <Button
                 onClick={() => setShowCreateDialog(true)}
                 className="bg-violet-600 hover:bg-violet-700 gap-2"
               >
                 <Plus className="w-4 h-4" />
-                New Campaign
+                <span className="hidden sm:inline">New Campaign</span>
+                <span className="sm:hidden">New</span>
               </Button>
             </div>
           </div>
