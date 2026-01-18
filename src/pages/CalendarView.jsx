@@ -85,8 +85,22 @@ export default function CalendarView() {
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Your Meetups</h2>
 
           {/* Status Filters */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex flex-wrap gap-2 flex-1">
+          <div className="space-y-2 mb-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm font-medium text-slate-700">Filter by status:</span>
+              {statusFilter.length < allStatuses.length && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setStatusFilter(allStatuses.map(s => s.value))}
+                  className="text-violet-600 hover:text-violet-700 hover:bg-violet-50 border-violet-200 h-8"
+                >
+                  <X className="w-3.5 h-3.5 mr-1" />
+                  Clear Filters
+                </Button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
               {allStatuses.map((status) => (
                 <Badge
                   key={status.value}
@@ -105,16 +119,6 @@ export default function CalendarView() {
                 </Badge>
               ))}
             </div>
-            {statusFilter.length < allStatuses.length && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setStatusFilter(allStatuses.map(s => s.value))}
-                className="text-violet-600 hover:text-violet-700 hover:bg-violet-50"
-              >
-                Clear Filters
-              </Button>
-            )}
           </div>
 
           {filteredBookings.length === 0 ? (
