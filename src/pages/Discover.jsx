@@ -306,7 +306,7 @@ export default function Discover() {
                        <SelectItem value={null}>All areas</SelectItem>
                        {filters.city && (() => {
                          const cityData = cities.find(c => c.name === filters.city);
-                         const areas = cityData?.areas || AREAS_BY_CITY[filters.city] || [];
+                         const areas = cityData?.areas || [];
                          return areas.map(area => (
                            <SelectItem key={area} value={area}>{area}</SelectItem>
                          ));
