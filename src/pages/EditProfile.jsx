@@ -32,7 +32,6 @@ export default function EditProfile() {
     languages: [],
     hobbies: [],
     personality_traits: [],
-    video_intro_url: '',
     profile_photos: []
   });
 
@@ -49,7 +48,6 @@ export default function EditProfile() {
           languages: userData.languages || [],
           hobbies: userData.hobbies || [],
           personality_traits: userData.personality_traits || [],
-          video_intro_url: userData.video_intro_url || '',
           profile_photos: userData.profile_photos || []
         });
       } catch (error) {
@@ -341,20 +339,6 @@ export default function EditProfile() {
               </Badge>
             ))}
           </div>
-        </Card>
-
-        {/* Video Introduction */}
-        <Card className="p-4">
-          <Label className="mb-2 block">Video Introduction URL</Label>
-          <Input
-            placeholder="https://your-video-url.com"
-            value={formData.video_intro_url}
-            onChange={(e) => setFormData({ ...formData, video_intro_url: e.target.value })}
-            className="h-12 rounded-xl"
-          />
-          <p className="text-xs text-slate-500 mt-2">
-            Upload a short video introduction (30-60 seconds recommended)
-          </p>
         </Card>
 
         {/* Save Button */}
