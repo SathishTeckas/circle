@@ -229,19 +229,20 @@ Pune,Koregaon Park,Kalyani Nagar,Viman Nagar,Hinjewadi,Kothrud,Deccan,Baner,Waka
     <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">City & Area Management</h1>
-            <p className="text-slate-600 mt-1">Manage cities and their areas across the entire app</p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 break-words">City & Area Management</h1>
+            <p className="text-sm sm:text-base text-slate-600 mt-1">Manage cities and their areas across the entire app</p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setShowImportDialog(true)} variant="outline">
-              <Upload className="w-4 h-4 mr-2" />
-              Import
+          <div className="flex gap-2 flex-shrink-0 w-full sm:w-auto">
+            <Button onClick={() => setShowImportDialog(true)} variant="outline" className="flex-1 sm:flex-none">
+              <Upload className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Import</span>
             </Button>
-            <Button onClick={() => openDialog()} className="bg-violet-600 hover:bg-violet-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Add City
+            <Button onClick={() => openDialog()} className="bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-none">
+              <Plus className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Add City</span>
+              <span className="sm:hidden">Add</span>
             </Button>
           </div>
         </div>
