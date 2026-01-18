@@ -284,18 +284,6 @@ export default function AdminCampaignReferrals() {
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedCampaign(campaign);
-                        setShowAnalyticsDialog(true);
-                      }}
-                      className="gap-1 sm:gap-2"
-                    >
-                      <Eye className="w-4 h-4" />
-                      <span className="hidden sm:inline">Analytics</span>
-                    </Button>
-                    <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => toggleActiveMutation.mutate({ 
