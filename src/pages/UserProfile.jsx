@@ -28,15 +28,13 @@ export default function UserProfile() {
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['user-profile', userId],
     queryFn: async () => {
-      if (!userId) return null;
-      try {
-        // Use backend function to fetch user profile (bypasses User entity security restrictions)
-        const response = await base44.functions.invoke('getUserProfile', { userId });
-        return response.data.user;
-      } catch (e) {
-        console.error('Error fetching user:', e);
-        return null;
+      if (!userId) throw new Error('No user ID provided');
+      // Use backend function to fetch user profile (bypasses User entity security restrictions)
+      const response = await base44.functions.invoke('getUserProfile', { userId });
+      if (response.data?.error) {
+        throw new Error(response.data.error);
       }
+      return response.data.user;
     },
     enabled: !!userId,
     retry: false
