@@ -85,24 +85,36 @@ export default function CalendarView() {
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Your Meetups</h2>
 
           {/* Status Filters */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {allStatuses.map((status) => (
-              <Badge
-                key={status.value}
-                onClick={() => toggleStatus(status.value)}
-                className={cn(
-                  "cursor-pointer transition-all",
-                  statusFilter.includes(status.value)
-                    ? status.color
-                    : "bg-slate-100 text-slate-400 opacity-50 hover:opacity-70"
-                )}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex flex-wrap gap-2 flex-1">
+              {allStatuses.map((status) => (
+                <Badge
+                  key={status.value}
+                  onClick={() => toggleStatus(status.value)}
+                  className={cn(
+                    "cursor-pointer transition-all",
+                    statusFilter.includes(status.value)
+                      ? status.color
+                      : "bg-slate-100 text-slate-400 opacity-50 hover:opacity-70"
+                  )}
+                >
+                  {status.label}
+                  {statusFilter.includes(status.value) && (
+                    <X className="w-3 h-3 ml-1" />
+                  )}
+                </Badge>
+              ))}
+            </div>
+            {statusFilter.length < allStatuses.length && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setStatusFilter(allStatuses.map(s => s.value))}
+                className="text-violet-600 hover:text-violet-700 hover:bg-violet-50"
               >
-                {status.label}
-                {statusFilter.includes(status.value) && (
-                  <X className="w-3 h-3 ml-1" />
-                )}
-              </Badge>
-            ))}
+                Clear Filters
+              </Button>
+            )}
           </div>
 
           {filteredBookings.length === 0 ? (
