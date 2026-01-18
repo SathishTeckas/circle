@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
+import { createPageUrl } from '../utils';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -56,7 +57,11 @@ export default function Discover() {
     queryKey: ['current-user'],
     queryFn: async () => {
       try {
-        return await base44.auth.me();
+        const userData = await base44.auth.me();
+        
+        // Check if KYC is required before browsing (only if trying to interact)
+        // We'll check on booking action instead
+        return userData;
       } catch (error) {
         console.error('Error loading user in Discover:', error);
         return null;
