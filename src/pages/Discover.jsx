@@ -70,6 +70,15 @@ export default function Discover() {
     staleTime: 5 * 60 * 1000
   });
 
+  const { data: cities = [] } = useQuery({
+    queryKey: ['active-cities'],
+    queryFn: async () => {
+      const allCities = await base44.entities.City.filter({ is_active: true });
+      return allCities.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    },
+    staleTime: 5 * 60 * 1000
+  });
+
   const { data: availabilities = [], isLoading } = useQuery({
     queryKey: ['availabilities', filters, selectedDate],
     queryFn: async () => {
