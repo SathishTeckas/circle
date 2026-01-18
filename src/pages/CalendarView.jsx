@@ -84,7 +84,7 @@ export default function CalendarView() {
       <div className="px-4 py-6 max-w-4xl mx-auto space-y-6">
         {/* All Bookings List */}
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Your Bookings</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Your Meetups</h2>
 
           {/* Status Filters */}
           <div className="flex flex-wrap gap-2 mb-4">
