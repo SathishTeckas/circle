@@ -114,13 +114,34 @@ export default function KYCVerification() {
               ))}
             </div>
 
-            <Button
-              onClick={handleStartKYC}
-              className="w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-lg font-semibold rounded-2xl"
-            >
-              Start Verification
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            <div className="space-y-3">
+              <Button
+                onClick={handleStartKYC}
+                className="w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-lg font-semibold rounded-2xl"
+              >
+                Start Verification
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+
+              <Button
+                onClick={async () => {
+                  await base44.auth.updateMe({ 
+                    kyc_status: 'skipped',
+                    onboarding_completed: true 
+                  });
+                  const userData = await base44.auth.me();
+                  if (userData.user_role === 'companion') {
+                    window.location.href = createPageUrl('CompanionDashboard');
+                  } else {
+                    window.location.href = createPageUrl('Discover');
+                  }
+                }}
+                variant="outline"
+                className="w-full h-14 border-2 border-slate-200 text-slate-700 hover:bg-slate-50 text-lg font-semibold rounded-2xl"
+              >
+                Skip for Now
+              </Button>
+            </div>
 
             <p className="text-center text-xs text-slate-500 mt-4">
               Your data is encrypted and handled securely

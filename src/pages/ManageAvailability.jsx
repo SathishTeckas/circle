@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { formatTime12Hour } from '../components/utils/timeFormat';
+import { createPageUrl } from '../utils';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -66,6 +67,11 @@ export default function ManageAvailability() {
     const loadUser = async () => {
       const userData = await base44.auth.me();
       setUser(userData);
+      
+      // Check if KYC is required
+      if (userData.kyc_status !== 'verified') {
+        window.location.href = createPageUrl('KYCVerification');
+      }
     };
     loadUser();
   }, []);
