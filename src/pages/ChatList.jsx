@@ -11,22 +11,21 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export default function ChatList() {
-  const [user, setUser] = useState(null);
   const [filterUnread, setFilterUnread] = useState(false);
   const [filterStatus, setFilterStatus] = useState('accepted');
 
-  useEffect(() => {
-    const loadUser = async () => {
+  const { data: user = null } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
       try {
-        const userData = await base44.auth.me();
-        setUser(userData);
+        return await base44.auth.me();
       } catch (error) {
         console.error('Error loading user in ChatList:', error);
-        setUser(null);
+        return null;
       }
-    };
-    loadUser();
-  }, []);
+    },
+    staleTime: 5 * 60 * 1000
+  });
 
   const isCompanion = user?.user_role === 'companion';
 
@@ -40,8 +39,8 @@ export default function ChatList() {
       return await base44.entities.Booking.filter(query, '-updated_date', 50);
     },
     enabled: !!user?.id,
-    refetchInterval: 2000,
-    staleTime: 0
+    refetchInterval: 10000,
+    staleTime: 5000
   });
 
   // Refetch when window regains focus
@@ -61,7 +60,8 @@ export default function ChatList() {
       return allMessages.filter(m => m.sender_id !== user.id);
     },
     enabled: !!user?.id,
-    refetchInterval: 3000
+    refetchInterval: 10000,
+    staleTime: 5000
   });
 
   const getUnreadCount = (bookingId) => {

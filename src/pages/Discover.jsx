@@ -38,7 +38,6 @@ const TIME_SLOTS_24H = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '1
 const TIME_SLOTS = TIME_SLOTS_24H.map(time => ({ value: time, label: formatTime12Hour(time) }));
 
 export default function Discover() {
-  const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState('');
@@ -53,18 +52,18 @@ export default function Discover() {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    const loadUser = async () => {
+  const { data: user = null } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
       try {
-        const userData = await base44.auth.me();
-        setUser(userData);
+        return await base44.auth.me();
       } catch (error) {
         console.error('Error loading user in Discover:', error);
-        setUser(null);
+        return null;
       }
-    };
-    loadUser();
-  }, []);
+    },
+    staleTime: 5 * 60 * 1000
+  });
 
   const { data: availabilities = [], isLoading } = useQuery({
     queryKey: ['availabilities', filters, selectedDate],
@@ -82,7 +81,8 @@ export default function Discover() {
       }
       
       return results;
-    }
+    },
+    staleTime: 30000
   });
 
   const { data: companionUsers = [] } = useQuery({
@@ -90,7 +90,8 @@ export default function Discover() {
     queryFn: async () => {
       return await base44.entities.User.filter({ user_role: 'companion' });
     },
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000
   });
 
   // Check if availability is in the past

@@ -28,17 +28,14 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function CompanionDashboard() {
-  const [user, setUser] = useState(null);
   const [cancelBookingId, setCancelBookingId] = useState(null);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const userData = await base44.auth.me();
-      setUser(userData);
-    };
-    loadUser();
-  }, []);
+  const { data: user = null } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000
+  });
 
   const cancelMutation = useMutation({
     mutationFn: async (bookingId) => {
@@ -93,7 +90,9 @@ export default function CompanionDashboard() {
         status: 'pending' 
       }, '-created_date', 10);
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    staleTime: 20000,
+    refetchInterval: 30000
   });
 
   const { data: upcomingBookings = [] } = useQuery({
@@ -113,7 +112,8 @@ export default function CompanionDashboard() {
         return bookingDate >= today;
       });
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    staleTime: 30000
   });
 
   const { data: completedBookings = [] } = useQuery({
@@ -124,7 +124,8 @@ export default function CompanionDashboard() {
         status: 'completed' 
       }, '-created_date', 50);
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    staleTime: 2 * 60 * 1000
   });
 
   const { data: activeAvailabilities = [] } = useQuery({
@@ -157,7 +158,8 @@ export default function CompanionDashboard() {
         return true;
       });
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    staleTime: 60000
   });
 
   const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);

@@ -13,16 +13,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export default function CalendarView() {
-  const [user, setUser] = useState(null);
   const [statusFilter, setStatusFilter] = useState(['pending', 'accepted', 'in_progress', 'completed', 'rejected', 'cancelled']);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const userData = await base44.auth.me();
-      setUser(userData);
-    };
-    loadUser();
-  }, []);
+  const { data: user = null } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000
+  });
 
   const isCompanion = user?.user_role === 'companion';
 
@@ -35,7 +32,8 @@ export default function CalendarView() {
       return await base44.entities.Booking.filter(query, '-created_date', 100);
     },
     enabled: !!user?.id,
-    refetchInterval: 5000
+    staleTime: 30000,
+    refetchInterval: 30000
   });
 
   const { data: availabilities = [] } = useQuery({

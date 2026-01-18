@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { 
   Home, 
   Search, 
@@ -21,22 +22,27 @@ import { cn } from '@/lib/utils';
 import GlobalErrorBoundary from '@/components/utils/GlobalErrorBoundary';
 
 export default function Layout({ children, currentPageName }) {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
-  useEffect(() => {
-    const loadUser = async () => {
+  const { data: user = null } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
       try {
-        const userData = await base44.auth.me();
-        setUser(userData);
-      } catch (e) {
-        setUser(null);
+        return await base44.auth.me();
+      } catch {
+        return null;
       }
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000
+  });
+
+  useEffect(() => {
+    if (user !== undefined) {
       setLoading(false);
-    };
-    loadUser();
-  }, []);
+    }
+  }, [user]);
 
   // Pages that don't need navigation
   const noNavPages = ['Welcome', 'Onboarding', 'RoleSelection', 'TermsAcceptance', 'KYCVerification'];
