@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { formatTimeRange12Hour } from '../utils/timeFormat';
 import { MapPin, Clock, Globe, Heart, Sparkles } from 'lucide-react';
@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
 export default function CompanionCard({ availability, availabilities, variant = 'default', showCompatibility, compatibilityReason }) {
+  const navigate = useNavigate();
   const isCompact = variant === 'compact';
   const allSlots = availabilities || [availability];
   const primaryAvailability = availability;
@@ -24,7 +25,25 @@ export default function CompanionCard({ availability, availabilities, variant = 
     enabled: !!primaryAvailability.companion_id
   });
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user-kyc-check'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000
+  });
+
   const [selectedSlot, setSelectedSlot] = React.useState(primaryAvailability);
+  
+  const handleBookingClick = (e, slotId) => {
+    e.preventDefault();
+    
+    // Check KYC before allowing booking
+    if (currentUser && currentUser.kyc_status !== 'verified') {
+      navigate(createPageUrl('KYCVerification'));
+      return;
+    }
+    
+    navigate(createPageUrl(`BookingDetails?id=${slotId}`));
+  };
   
   return (
     <div 
@@ -120,10 +139,9 @@ export default function CompanionCard({ availability, availabilities, variant = 
             <p className="text-xs font-medium text-slate-700 mb-2">Available Times:</p>
             <div className="flex flex-wrap gap-2">
               {allSlots.slice(0, 4).map((slot, idx) => (
-                <Link 
+                <div
                   key={slot.id}
-                  to={createPageUrl(`BookingDetails?id=${slot.id}`)}
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => handleBookingClick(e, slot.id)}
                   className="group"
                 >
                   <Badge 
@@ -136,7 +154,7 @@ export default function CompanionCard({ availability, availabilities, variant = 
                     <Clock className="w-3 h-3 mr-1" />
                     {new Date(slot.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {formatTimeRange12Hour(slot.start_time, slot.end_time)}
                   </Badge>
-                </Link>
+                </div>
               ))}
               {allSlots.length > 4 && (
                 <Badge variant="secondary" className="text-xs">
@@ -170,12 +188,12 @@ export default function CompanionCard({ availability, availabilities, variant = 
             </span>
             <span className="text-sm text-slate-500">/hour</span>
           </div>
-          <Link 
-            to={createPageUrl(`BookingDetails?id=${selectedSlot.id}`)}
+          <button
+            onClick={(e) => handleBookingClick(e, selectedSlot.id)}
             className="bg-violet-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-violet-700 transition-colors"
           >
             View Details
-          </Link>
+          </button>
         </div>
 
         {/* Compatibility Info */}
