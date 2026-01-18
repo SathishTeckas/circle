@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { createPageUrl } from '../utils';
 import { formatTime12Hour } from '../components/utils/timeFormat';
 import { formatCurrency } from '../components/utils/formatCurrency';
 import { Link } from 'react-router-dom';
@@ -43,13 +42,18 @@ export default function BookingView() {
       try {
         const userData = await base44.auth.me();
         setUser(userData);
+        
+        // Check if KYC is required before viewing booking (only for new bookings, not existing ones)
+        if (userData.kyc_status !== 'verified' && !bookingId) {
+          window.location.href = createPageUrl('KYCVerification');
+        }
       } catch (error) {
         console.error('Error loading user in BookingView:', error);
         setUser(null);
       }
     };
     loadUser();
-  }, []);
+  }, [bookingId]);
 
   const { data: booking, isLoading } = useQuery({
     queryKey: ['booking', bookingId],
