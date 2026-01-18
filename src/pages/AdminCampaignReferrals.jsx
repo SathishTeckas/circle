@@ -298,6 +298,21 @@ export default function AdminCampaignReferrals() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      onClick={() => toggleActiveMutation.mutate({ 
+                        id: campaign.id, 
+                        is_active: !campaign.is_active 
+                      })}
+                      className="h-9 w-9 p-0 shrink-0"
+                    >
+                      {campaign.is_active ? (
+                        <ToggleRight className="w-5 h-5 text-emerald-600" />
+                      ) : (
+                        <ToggleLeft className="w-5 h-5 text-slate-400" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => {
                         if (confirm('Delete this campaign code?')) {
                           deleteMutation.mutate(campaign.id);
