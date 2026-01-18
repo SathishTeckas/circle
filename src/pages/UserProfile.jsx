@@ -31,14 +31,16 @@ export default function UserProfile() {
       if (!userId) throw new Error('No user ID provided');
       // Use backend function to fetch user profile (bypasses User entity security restrictions)
       const response = await base44.functions.invoke('getUserProfile', { userId });
-      console.log('getUserProfile response:', response);
-      if (!response?.data?.user) {
-        throw new Error(response?.data?.error || 'User not found');
+      
+      // Handle error response
+      if (response.data?.error || !response.data?.user) {
+        throw new Error(response.data?.error || 'User profile not available');
       }
+      
       return response.data.user;
     },
     enabled: !!userId,
-    retry: false
+    retry: 1
   });
 
   const { data: reviews = [] } = useQuery({

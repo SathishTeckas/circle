@@ -332,26 +332,38 @@ export default function BookingView() {
 
       <div className="px-4 py-6 max-w-lg mx-auto space-y-6">
         {/* Companion/Seeker Info */}
-        <Link to={createPageUrl(`UserProfile?id=${isSeeker ? booking.companion_id : booking.seeker_id}`)}>
-          <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+        {(isSeeker ? companionUser : seekerUser) ? (
+          <Link to={createPageUrl(`UserProfile?id=${isSeeker ? booking.companion_id : booking.seeker_id}`)}>
+            <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+              <div className="flex items-center gap-4">
+                <img
+                  src={otherPartyPhoto || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200'}
+                  alt={otherPartyName || 'Profile Picture'}
+                  className="w-16 h-16 rounded-xl object-cover"
+                />
+                <div className="flex-1">
+                  <p className="text-sm text-slate-500">
+                    {isSeeker ? 'Your Companion' : 'Guest'}
+                  </p>
+                  <h3 className="font-semibold text-slate-900 text-lg">
+                    {otherPartyName || 'Anonymous'}
+                  </h3>
+                  <p className="text-xs text-violet-600 mt-1">View Profile →</p>
+                </div>
+              </div>
+            </Card>
+          </Link>
+        ) : (
+          <Card className="p-4 bg-slate-50">
             <div className="flex items-center gap-4">
-              <img
-                src={otherPartyPhoto || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200'}
-                alt={otherPartyName || 'Profile Picture'}
-                className="w-16 h-16 rounded-xl object-cover"
-              />
+              <div className="w-16 h-16 rounded-xl bg-slate-200 animate-pulse" />
               <div className="flex-1">
-                <p className="text-sm text-slate-500">
-                  {isSeeker ? 'Your Companion' : 'Guest'}
-                </p>
-                <h3 className="font-semibold text-slate-900 text-lg">
-                  {otherPartyName || 'Anonymous'}
-                </h3>
-                <p className="text-xs text-violet-600 mt-1">View Profile →</p>
+                <div className="h-4 bg-slate-200 rounded animate-pulse w-24 mb-2" />
+                <div className="h-5 bg-slate-200 rounded animate-pulse w-32" />
               </div>
             </div>
           </Card>
-        </Link>
+        )}
 
         {/* Booking Details */}
         <Card className="p-4 space-y-4">
