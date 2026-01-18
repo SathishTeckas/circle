@@ -17,8 +17,6 @@ import NotificationBell from '@/components/layout/NotificationBell';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kochi'];
-
 const AREAS_BY_CITY = {
   'Mumbai': ['Airoli', 'Andheri', 'Bandra', 'Belapur', 'Bhandup', 'Borivali', 'Byculla', 'Chembur', 'Churchgate', 'Colaba', 'Cuffe Parade', 'Dadar', 'Dahisar', 'Fort', 'Ghatkopar', 'Ghansoli', 'Goregaon', 'Govandi', 'Jogeshwari', 'Juhu', 'Kalbadevi', 'Kandivali', 'Kanjurmarg', 'Khar', 'Kharghar', 'Kurla', 'Lower Parel', 'Mahalaxmi', 'Malabar Hill', 'Malad', 'Mankhurd', 'Marine Lines', 'Matunga', 'Mulund', 'Nariman Point', 'Nerul', 'Panvel', 'Peddar Road', 'Powai', 'Santacruz', 'Sion', 'Tardeo', 'Vashi', 'Versova', 'Vidyavihar', 'Vikhroli', 'Vile Parle', 'Wadala', 'Worli'],
   'Delhi': ['Anand Vihar', 'Ashok Vihar', 'Azadpur', 'Chandni Chowk', 'Chanakyapuri', 'Chittaranjan Park', 'Civil Lines', 'Connaught Place', 'Defence Colony', 'Dwarka', 'East of Kailash', 'Gandhi Nagar', 'Greater Kailash', 'Green Park', 'Hauz Khas', 'Janakpuri', 'Kalkaji', 'Kamla Nagar', 'Karol Bagh', 'Lajpat Nagar', 'Laxmi Nagar', 'Lodhi Colony', 'Mayur Vihar', 'Model Town', 'Mehrauli', 'Moti Bagh', 'Mukherjee Nagar', 'Munirka', 'Naraina', 'Nehru Place', 'New Friends Colony', 'Nizamuddin', 'Okhla', 'Paharganj', 'Paschim Vihar', 'Patel Nagar', 'Pitampura', 'Pragati Maidan', 'Preet Vihar', 'Punjabi Bagh', 'Rajendra Nagar', 'Rajouri Garden', 'RK Puram', 'Rohini', 'Safdarjung Enclave', 'Saket', 'Sarita Vihar', 'Sarojini Nagar', 'Shahdara', 'Shalimar Bagh', 'South Extension', 'Tilak Nagar', 'Uttam Nagar', 'Vasant Kunj', 'Vasant Vihar', 'Vikas Puri'],
@@ -285,10 +283,10 @@ export default function Discover() {
                         <SelectValue placeholder="All cities" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={null}>All cities</SelectItem>
-                        {CITIES.map(city => (
-                          <SelectItem key={city} value={city}>{city}</SelectItem>
-                        ))}
+                       <SelectItem value={null}>All cities</SelectItem>
+                       {cities.map(city => (
+                         <SelectItem key={city.id} value={city.name}>{city.name}</SelectItem>
+                       ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -305,10 +303,14 @@ export default function Discover() {
                         <SelectValue placeholder={filters.city ? "Select area" : "Select city first"} />
                       </SelectTrigger>
                       <SelectContent className="max-h-[300px]">
-                        <SelectItem value={null}>All areas</SelectItem>
-                        {filters.city && AREAS_BY_CITY[filters.city]?.map(area => (
-                          <SelectItem key={area} value={area}>{area}</SelectItem>
-                        ))}
+                       <SelectItem value={null}>All areas</SelectItem>
+                       {filters.city && (() => {
+                         const cityData = cities.find(c => c.name === filters.city);
+                         const areas = cityData?.areas || AREAS_BY_CITY[filters.city] || [];
+                         return areas.map(area => (
+                           <SelectItem key={area} value={area}>{area}</SelectItem>
+                         ));
+                       })()}
                       </SelectContent>
                     </Select>
                     {!filters.city && (

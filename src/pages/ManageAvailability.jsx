@@ -33,7 +33,6 @@ const CITY_AREAS = {
   'Lucknow': ['Alambagh', 'Aliganj', 'Amausi', 'Aminabad', 'Ashiyana', 'Butler Colony', 'Cantonment', 'Charbagh', 'Chowk', 'Dalibagh', 'Faizabad Road', 'Gomti Nagar', 'Gomti Nagar Extension', 'Hazratganj', 'Hussainganj', 'Indira Nagar', 'Jankipuram', 'Jopling Road', 'Kaiserbagh', 'Kapoorthala', 'Krishna Nagar', 'Lalbagh', 'Mahanagar', 'Munshipulia', 'Nakhas', 'Narhi', 'Nirala Nagar', 'Nishatganj', 'Rajajipuram', 'Sapru Marg', 'Sarojini Nagar', 'Shringar Nagar', 'Singar Nagar', 'Sitapur Road', 'Telibagh', 'Thakurganj', 'Triveni Nagar', 'Vikas Nagar', 'Vrindavan Yojana', 'Yahiyaganj'],
   'Kochi': ['Aluva', 'Angamaly', 'Banerjee Road', 'Broadway', 'Bolgatty', 'Chilavannoor', 'Chittoor', 'Edakochi', 'Edappally', 'Elamakkara', 'Elamkulam', 'Ernakulam North', 'Ernakulam South', 'Fort Kochi', 'Giri Nagar', 'High Court Junction', 'Island', 'Kadavanthra', 'Kakkanad', 'Kalamassery', 'Kaloor', 'Marine Drive', 'Mattancherry', 'Maradu', 'Menaka', 'MG Road', 'Mundamveli', 'Nedumbassery', 'Pachalam', 'Palarivattom', 'Palluruthy', 'Panampilly Nagar', 'Paravur', 'Ravipuram', 'Shanmugham Road', 'Thevara', 'Thoppumpady', 'Thripunithura', 'Vaduthala', 'Vypeen', 'Vyttila', 'Willington Island']
 };
-const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kochi'];
 // Generate time slots with 15-minute intervals (9 AM to 9 PM)
 const generateTimeSlots = () => {
   const slots = [];
@@ -61,7 +60,19 @@ export default function ManageAvailability() {
     price_per_hour: ''
   });
 
-  const availableAreas = formData.city ? CITY_AREAS[formData.city] || [] : [];
+  const { data: cities = [] } = useQuery({
+    queryKey: ['active-cities'],
+    queryFn: async () => {
+      const allCities = await base44.entities.City.filter({ is_active: true });
+      return allCities.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    },
+    staleTime: 5 * 60 * 1000
+  });
+
+  const availableAreas = formData.city ? (() => {
+    const cityData = cities.find(c => c.name === formData.city);
+    return cityData?.areas || CITY_AREAS[formData.city] || [];
+  })() : [];
 
   useEffect(() => {
     const loadUser = async () => {
@@ -318,8 +329,8 @@ export default function ManageAvailability() {
                     <SelectValue placeholder="Select city" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CITIES.map(city => (
-                      <SelectItem key={city} value={city}>{city}</SelectItem>
+                    {cities.map(city => (
+                      <SelectItem key={city.id} value={city.name}>{city.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
