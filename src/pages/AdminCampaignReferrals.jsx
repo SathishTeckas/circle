@@ -253,38 +253,32 @@ export default function AdminCampaignReferrals() {
                     {campaign.description && (
                       <p className="text-sm text-slate-600 mb-3">{campaign.description}</p>
                     )}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <code className="px-3 py-1.5 bg-slate-100 rounded-lg font-mono text-sm text-slate-900">
-                          {campaign.code}
-                        </code>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleCopy(campaign.code)}
-                          className="h-8 w-8 p-0"
-                        >
-                          {copiedCode === campaign.code ? (
-                            <Check className="w-4 h-4 text-emerald-600" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </Button>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="px-3 py-1.5 bg-violet-50 rounded-lg text-xs text-violet-700 font-mono truncate flex-1">
-                          {window.location.origin}?campaign={campaign.code}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleCopyLink(campaign.code)}
-                          className="h-8 px-3 gap-1"
-                        >
-                          <LinkIcon className="w-3.5 h-3.5" />
-                          Copy Link
-                        </Button>
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <code className="px-3 py-1.5 bg-slate-100 rounded-lg font-mono text-sm text-slate-900">
+                        {campaign.code}
+                      </code>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleCopy(campaign.code)}
+                        className="h-8 w-8 p-0"
+                        title="Copy code"
+                      >
+                        {copiedCode === campaign.code ? (
+                          <Check className="w-4 h-4 text-emerald-600" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleCopyLink(campaign.code)}
+                        className="h-8 w-8 p-0"
+                        title="Copy campaign link"
+                      >
+                        <LinkIcon className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                   <div className="flex gap-2">
