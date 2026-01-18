@@ -74,7 +74,7 @@ export default function CalendarView() {
       {/* Header */}
       <div className="bg-white border-b border-slate-100 px-4 py-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold text-slate-900">Bookings</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Meetups</h1>
           <p className="text-sm text-slate-600">
             {isCompanion ? 'Manage your availability and bookings' : 'View your upcoming bookings'}
           </p>
