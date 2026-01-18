@@ -71,7 +71,7 @@ export default function ManageAvailability() {
 
   const availableAreas = formData.city ? (() => {
     const cityData = cities.find(c => c.name === formData.city);
-    return cityData?.areas || CITY_AREAS[formData.city] || [];
+    return cityData?.areas || [];
   })() : [];
 
   useEffect(() => {
