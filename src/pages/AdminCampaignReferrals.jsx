@@ -218,7 +218,7 @@ export default function AdminCampaignReferrals() {
       </div>
 
       {/* Campaign List */}
-      <div className="px-4 py-6 max-w-6xl mx-auto">
+      <div className="px-2 sm:px-4 py-6 max-w-6xl mx-auto">
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
@@ -240,11 +240,11 @@ export default function AdminCampaignReferrals() {
         ) : (
           <div className="space-y-3">
             {campaigns.map(campaign => (
-              <Card key={campaign.id} className="p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-slate-900">{campaign.campaign_name}</h3>
+              <Card key={campaign.id} className="p-3 sm:p-6 hover:shadow-md transition-shadow">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h3 className="text-base sm:text-lg font-semibold text-slate-900 truncate">{campaign.campaign_name}</h3>
                       <Badge className={cn(
                         campaign.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
                       )}>
@@ -252,17 +252,17 @@ export default function AdminCampaignReferrals() {
                       </Badge>
                     </div>
                     {campaign.description && (
-                      <p className="text-sm text-slate-600 mb-3">{campaign.description}</p>
+                      <p className="text-sm text-slate-600 mb-3 line-clamp-2">{campaign.description}</p>
                     )}
-                    <div className="flex items-center gap-2">
-                      <code className="px-3 py-1.5 bg-slate-100 rounded-lg font-mono text-sm text-slate-900">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <code className="px-2 sm:px-3 py-1.5 bg-slate-100 rounded-lg font-mono text-xs sm:text-sm text-slate-900 truncate max-w-[200px]">
                         {campaign.code}
                       </code>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCopy(campaign.code)}
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 shrink-0"
                         title="Copy code"
                       >
                         {copiedCode === campaign.code ? (
@@ -275,14 +275,14 @@ export default function AdminCampaignReferrals() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCopyLink(campaign.code)}
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 shrink-0"
                         title="Copy campaign link"
                       >
                         <LinkIcon className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     <Button
                       variant="outline"
                       size="sm"
@@ -290,10 +290,10 @@ export default function AdminCampaignReferrals() {
                         setSelectedCampaign(campaign);
                         setShowAnalyticsDialog(true);
                       }}
-                      className="gap-2"
+                      className="gap-1 sm:gap-2"
                     >
                       <Eye className="w-4 h-4" />
-                      Analytics
+                      <span className="hidden sm:inline">Analytics</span>
                     </Button>
                     <Button
                       variant="ghost"
@@ -302,7 +302,7 @@ export default function AdminCampaignReferrals() {
                         id: campaign.id, 
                         is_active: !campaign.is_active 
                       })}
-                      className="h-9 w-9 p-0"
+                      className="h-9 w-9 p-0 shrink-0"
                     >
                       {campaign.is_active ? (
                         <ToggleRight className="w-5 h-5 text-emerald-600" />
@@ -318,7 +318,7 @@ export default function AdminCampaignReferrals() {
                           deleteMutation.mutate(campaign.id);
                         }
                       }}
-                      className="h-9 w-9 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="h-9 w-9 p-0 shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -326,26 +326,26 @@ export default function AdminCampaignReferrals() {
                 </div>
 
                 {/* Stats Row */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t border-slate-100">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 pt-4 border-t border-slate-100">
                   <div>
                     <p className="text-xs text-slate-600 mb-1">Signups</p>
-                    <p className="text-lg font-semibold text-slate-900">{campaign.total_signups || 0}</p>
+                    <p className="text-base sm:text-lg font-semibold text-slate-900">{campaign.total_signups || 0}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-600 mb-1">Companions</p>
-                    <p className="text-lg font-semibold text-blue-600">{campaign.total_companions || 0}</p>
+                    <p className="text-base sm:text-lg font-semibold text-blue-600">{campaign.total_companions || 0}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-600 mb-1">Seekers</p>
-                    <p className="text-lg font-semibold text-emerald-600">{campaign.total_seekers || 0}</p>
+                    <p className="text-base sm:text-lg font-semibold text-emerald-600">{campaign.total_seekers || 0}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-600 mb-1">Bookings</p>
-                    <p className="text-lg font-semibold text-violet-600">{campaign.total_bookings || 0}</p>
+                    <p className="text-base sm:text-lg font-semibold text-violet-600">{campaign.total_bookings || 0}</p>
                   </div>
-                  <div>
+                  <div className="col-span-2 sm:col-span-1">
                     <p className="text-xs text-slate-600 mb-1">Revenue</p>
-                    <p className="text-lg font-semibold text-amber-600">{formatCurrency(campaign.total_revenue || 0)}</p>
+                    <p className="text-base sm:text-lg font-semibold text-amber-600 truncate">{formatCurrency(campaign.total_revenue || 0)}</p>
                   </div>
                 </div>
               </Card>
