@@ -31,8 +31,9 @@ export default function UserProfile() {
       if (!userId) throw new Error('No user ID provided');
       // Use backend function to fetch user profile (bypasses User entity security restrictions)
       const response = await base44.functions.invoke('getUserProfile', { userId });
-      if (response.data?.error) {
-        throw new Error(response.data.error);
+      console.log('getUserProfile response:', response);
+      if (!response?.data?.user) {
+        throw new Error(response?.data?.error || 'User not found');
       }
       return response.data.user;
     },
@@ -56,11 +57,12 @@ export default function UserProfile() {
     );
   }
 
-  if (!user) {
+  if (error || !user) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-slate-900 mb-2">User Not Found</h2>
+          {error && <p className="text-sm text-red-600 mb-4">{error.message}</p>}
           <Button onClick={() => window.history.back()}>Go Back</Button>
         </div>
       </div>
