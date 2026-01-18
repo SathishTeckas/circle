@@ -173,11 +173,11 @@ export default function AdminDashboard() {
     { label: 'Manage Users', desc: `${pendingKYC?.length || 0} pending verification`, icon: Users, page: 'AdminUsers', alert: (pendingKYC?.length || 0) > 0 },
     { label: 'Manage Venues', desc: `${venues?.length || 0} registered venues`, icon: Building, page: 'AdminVenues' },
     { label: 'Manage Cities', desc: 'Add and manage cities & areas', icon: MapPin, page: 'AdminCities' },
+    { label: 'Campaign Referrals', desc: 'Track marketing campaigns', icon: TrendingUp, page: 'AdminCampaignReferrals' },
     { label: 'Group Events', desc: `${groupEvents?.length || 0} events`, icon: Calendar, page: 'AdminGroups' },
     { label: 'Manage Payouts', desc: `${pendingPayouts?.length || 0} pending payouts`, icon: Wallet, page: 'AdminPayouts', alert: (pendingPayouts?.length || 0) > 0 },
     { label: 'Admin Management', desc: 'Manage administrators', icon: Shield, page: 'AdminManagement' },
     { label: 'Disputes', desc: `${disputedBookings?.length || 0} open disputes`, icon: AlertTriangle, page: 'AdminDisputes', alert: (disputedBookings?.length || 0) > 0 },
-    { label: 'Platform Settings', desc: 'Configure fees and policies', icon: Settings, page: 'AdminSettings' },
   ];
 
   return (
