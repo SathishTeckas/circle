@@ -194,14 +194,14 @@ export default function Profile() {
             <Badge className="bg-violet-100 text-violet-700 capitalize">
               {user?.user_role || 'User'}
             </Badge>
-            {reviews.length > 0 && avgRating !== null && (
+            {reviews.length > 0 && (
               <Link 
                 to={createPageUrl(`UserProfile?id=${user.id}`)}
                 className="flex items-center gap-1 hover:opacity-80 transition-opacity"
               >
-                <RatingStars rating={avgRating} size="sm" />
+                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
                 <span className="text-sm text-violet-600 font-medium">
-                  {avgRating.toFixed(1)} ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
+                  {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
                 </span>
                 <ChevronRight className="w-4 h-4 text-violet-600" />
               </Link>
