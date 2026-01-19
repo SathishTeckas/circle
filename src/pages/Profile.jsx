@@ -185,13 +185,20 @@ export default function Profile() {
             <Badge className="bg-violet-100 text-violet-700 capitalize">
               {user?.user_role || 'User'}
             </Badge>
-            {avgRating !== null ? (
-              <div className="flex items-center gap-1">
+            {reviews.length > 0 && avgRating !== null && (
+              <Link 
+                to={createPageUrl(`UserProfile?id=${user.id}`)}
+                className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+              >
                 <RatingStars rating={avgRating} size="sm" />
-                <span className="text-sm text-slate-500">({reviews?.length || 0})</span>
-              </div>
-            ) : user?.user_role === 'companion' && (
-              <Badge variant="secondary" className="bg-slate-100 text-slate-600">New</Badge>
+                <span className="text-sm text-violet-600 font-medium">
+                  {avgRating.toFixed(1)} ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
+                </span>
+                <ChevronRight className="w-4 h-4 text-violet-600" />
+              </Link>
+            )}
+            {reviews.length === 0 && user?.user_role === 'companion' && (
+              <Badge variant="secondary" className="bg-slate-100 text-slate-600">No reviews yet</Badge>
             )}
           </div>
 
@@ -305,33 +312,7 @@ export default function Profile() {
           </Card>
         )}
 
-        {/* Reviews */}
-        {reviews.length > 0 && (
-          <Card className="p-4">
-            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Star className="w-5 h-5 text-amber-500" />
-              Recent Reviews
-            </h3>
-            <div className="space-y-4">
-              {reviews.slice(0, 3).map((review) => (
-                <div key={review.id} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <RatingStars rating={review?.rating || 0} size="sm" showValue={false} />
-                      <span className="text-sm text-slate-500">{review?.reviewer_name || 'Anonymous'}</span>
-                    </div>
-                    {user?.user_role === 'companion' && (
-                      <FlagReviewButton review={review} currentUser={user} />
-                    )}
-                  </div>
-                  {review?.comment && (
-                    <p className="text-sm text-slate-600">{review.comment}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
+
 
         {/* Role Switcher */}
         <RoleSwitcher user={user} />
