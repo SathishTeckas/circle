@@ -46,7 +46,16 @@ export default function UserProfile() {
   const { data: reviews = [] } = useQuery({
     queryKey: ['user-reviews', userId],
     queryFn: async () => {
-      return await base44.entities.Review.filter({ reviewee_id: userId }, '-created_date', 20);
+      const allReviews = await base44.entities.Review.filter({ reviewee_id: userId }, '-created_date', 20);
+      // Remove duplicates - keep only the most recent review from each reviewer
+      const uniqueReviews = allReviews.reduce((acc, review) => {
+        const existingIndex = acc.findIndex(r => r.reviewer_id === review.reviewer_id);
+        if (existingIndex === -1) {
+          acc.push(review);
+        }
+        return acc;
+      }, []);
+      return uniqueReviews;
     },
     enabled: !!userId
   });
