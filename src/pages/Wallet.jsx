@@ -254,10 +254,56 @@ export default function Wallet() {
     }
   });
 
+  const handleOpenPayoutSheet = async () => {
+    if (isSubmitting || requestPayoutMutation.isPending || checkingBalance) return;
+
+    setCheckingBalance(true);
+
+    try {
+      // Fetch latest data to verify real balance
+      const [latestPayouts, latestEarnings, latestPendingEarnings, latestReferrals] = await Promise.all([
+        base44.entities.Payout.filter({ companion_id: user.id }),
+        base44.entities.Booking.filter({ 
+          companion_id: user.id, 
+          status: 'completed',
+          escrow_status: 'released'
+        }),
+        base44.entities.Booking.filter({ 
+          companion_id: user.id, 
+          status: 'accepted',
+          escrow_status: 'held'
+        }),
+        base44.entities.Referral.filter({ 
+          referrer_id: user.id,
+          status: 'completed'
+        })
+      ]);
+
+      const latestTotalEarnings = latestEarnings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
+      const latestReferralEarnings = latestReferrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
+      const latestWithdrawn = latestPayouts.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
+      const latestPending = latestPayouts.filter(p => ['pending', 'approved', 'processing'].includes(p.status)).reduce((sum, p) => sum + p.amount, 0);
+
+      const realBalance = latestTotalEarnings + latestReferralEarnings - latestWithdrawn - latestPending;
+
+      if (realBalance < 100) {
+        toast.error('Insufficient balance. Minimum balance required: ₹100');
+        setCheckingBalance(false);
+        return;
+      }
+
+      setShowPayoutSheet(true);
+    } catch (error) {
+      toast.error('Failed to verify balance. Please try again.');
+    } finally {
+      setCheckingBalance(false);
+    }
+  };
+
   const canRequestPayout = () => {
     const amount = parseFloat(payoutAmount);
     if (!amount || amount < 100 || amount > availableBalance) return false;
-    
+
     if (paymentMethod === 'upi') {
       return paymentDetails.upi_id?.trim() !== '';
     } else {
