@@ -292,6 +292,7 @@ export default function Wallet() {
         return;
       }
 
+      setPayoutAmount('');
       setShowPayoutSheet(true);
     } catch (error) {
       toast.error('Failed to verify balance. Please try again.');
