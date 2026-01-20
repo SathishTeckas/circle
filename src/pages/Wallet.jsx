@@ -264,15 +264,25 @@ export default function Wallet() {
 
                   <div>
                     <Label className="mb-2 block">Amount (₹)</Label>
-                    <Input
-                      type="number"
-                      placeholder="Enter amount"
-                      value={payoutAmount}
-                      onChange={(e) => setPayoutAmount(e.target.value)}
-                      className="h-12 rounded-xl"
-                      max={availableBalance}
-                      min={100}
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        placeholder="Enter amount"
+                        value={payoutAmount}
+                        onChange={(e) => setPayoutAmount(e.target.value)}
+                        className="h-12 rounded-xl flex-1"
+                        max={availableBalance}
+                        min={100}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setPayoutAmount(availableBalance.toString())}
+                        className="h-12 rounded-xl px-6"
+                      >
+                        Max
+                      </Button>
+                    </div>
                   </div>
 
                   <div>
