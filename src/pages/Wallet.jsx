@@ -180,6 +180,11 @@ export default function Wallet() {
             account_holder_name: paymentDetails.account_holder_name
           };
 
+      // Generate unique reference number
+      const timestamp = Date.now();
+      const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+      const reference_number = `PAY-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${random}`;
+
       // Save payment details for future use
       await base44.auth.updateMe({
         saved_payment_method: paymentMethod,
@@ -193,7 +198,8 @@ export default function Wallet() {
         amount: amount,
         payment_method: paymentMethod,
         payment_details: details,
-        status: 'pending'
+        status: 'pending',
+        reference_number: reference_number
       });
 
       // Create notification for admin
@@ -589,6 +595,11 @@ export default function Wallet() {
                             <p className="text-sm text-slate-500 capitalize">
                               {payout.payment_method.replace('_', ' ')}
                             </p>
+                            {payout.reference_number && (
+                              <p className="text-xs text-slate-400 mt-1 font-mono">
+                                #{payout.reference_number}
+                              </p>
+                            )}
                           </div>
                           <Badge className={cn(status.color)}>
                             <StatusIcon className="w-3 h-3 mr-1" />
