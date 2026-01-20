@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Star, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 export default function LeaveReview() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -81,7 +82,10 @@ export default function LeaveReview() {
       });
     },
     onSuccess: () => {
-      window.location.href = createPageUrl(user.user_role === 'companion' ? 'CompanionDashboard' : 'MyBookings');
+      toast.success('Review submitted successfully!');
+      setTimeout(() => {
+        window.location.href = createPageUrl(user.user_role === 'companion' ? 'CompanionDashboard' : 'MyBookings');
+      }, 1000);
     }
   });
 
