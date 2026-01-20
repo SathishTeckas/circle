@@ -190,7 +190,6 @@ export default function AdminPayouts() {
               <Button 
                 variant="outline" 
                 className="w-full rounded-xl"
-                onClick={() => setSelectedPayout(payout)}
               >
                 View Details
               </Button>
