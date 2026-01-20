@@ -39,6 +39,7 @@ export default function AdminPayouts() {
   const [selectedPayout, setSelectedPayout] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -78,6 +79,7 @@ export default function AdminPayouts() {
       queryClient.invalidateQueries({ queryKey: ['all-payouts'] });
       setSelectedPayout(null);
       setAdminNotes('');
+      setDialogOpen(false);
     }
   });
 
@@ -101,6 +103,7 @@ export default function AdminPayouts() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-payouts'] });
       setSelectedPayout(null);
+      setDialogOpen(false);
     }
   });
 
@@ -133,6 +136,7 @@ export default function AdminPayouts() {
       setSelectedPayout(null);
       setRejectionReason('');
       setAdminNotes('');
+      setDialogOpen(false);
     }
   });
 
@@ -185,11 +189,15 @@ export default function AdminPayouts() {
             </div>
           </div>
 
-          <Dialog>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button 
                 variant="outline" 
                 className="w-full rounded-xl"
+                onClick={() => {
+                  setSelectedPayout(payout);
+                  setDialogOpen(true);
+                }}
               >
                 View Details
               </Button>
