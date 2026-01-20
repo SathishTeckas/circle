@@ -194,7 +194,11 @@ export default function AdminPayouts() {
                 View Details
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md" onInteractOutside={(e) => e.preventDefault()}>
+            <DialogContent 
+              className="max-w-md" 
+              onInteractOutside={(e) => e.preventDefault()}
+              onEscapeKeyDown={(e) => e.preventDefault()}
+            >
               <DialogHeader>
                 <DialogTitle>Payout Details</DialogTitle>
               </DialogHeader>
