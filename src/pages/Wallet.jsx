@@ -234,12 +234,16 @@ export default function Wallet() {
       }
     },
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['payouts'] });
-      await queryClient.refetchQueries({ queryKey: ['earnings'] });
-      await queryClient.refetchQueries({ queryKey: ['pending-earnings'] });
-      await queryClient.refetchQueries({ queryKey: ['referrals'] });
+      // Force refetch all data
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['payouts'] }),
+        queryClient.refetchQueries({ queryKey: ['earnings'] }),
+        queryClient.refetchQueries({ queryKey: ['pending-earnings'] }),
+        queryClient.refetchQueries({ queryKey: ['referrals'] })
+      ]);
       setPayoutAmount('');
       setIsSubmitting(false);
+      setShowPayoutSheet(false);
       toast.dismiss();
       toast.success('Payout request submitted successfully! Admin will review it soon.');
     },
