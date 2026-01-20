@@ -216,6 +216,8 @@ export default function Wallet() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payouts'] });
+      queryClient.invalidateQueries({ queryKey: ['earnings'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-earnings'] });
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
       setPayoutAmount('');
       setIsSubmitting(false);
