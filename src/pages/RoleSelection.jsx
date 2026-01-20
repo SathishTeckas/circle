@@ -10,6 +10,16 @@ export default function RoleSelection() {
   const [selectedRole, setSelectedRole] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Capture campaign code from URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const campaignCode = urlParams.get('campaign');
+    if (campaignCode) {
+      // Save campaign code to user profile
+      base44.auth.updateMe({ campaign_referral_code: campaignCode }).catch(console.error);
+    }
+  }, []);
+
   const roles = [
     {
       id: 'seeker',

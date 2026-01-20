@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Plus, Link as LinkIcon, Users, TrendingUp, Copy, Check, 
-  Eye, Download, ToggleLeft, ToggleRight, Trash2 
+  Eye, Download, ToggleLeft, ToggleRight, Trash2, Gift 
 } from 'lucide-react';
 import { formatCurrency } from '@/components/utils/formatCurrency';
 import { cn } from '@/lib/utils';
@@ -24,7 +25,9 @@ export default function AdminCampaignReferrals() {
   const [formData, setFormData] = useState({
     code: '',
     campaign_name: '',
-    description: ''
+    description: '',
+    referral_reward_amount: 0,
+    referral_reward_type: 'none'
   });
 
   const queryClient = useQueryClient();
@@ -58,7 +61,7 @@ export default function AdminCampaignReferrals() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
       setShowCreateDialog(false);
-      setFormData({ code: '', campaign_name: '', description: '' });
+      setFormData({ code: '', campaign_name: '', description: '', referral_reward_amount: 0, referral_reward_type: 'none' });
       toast.success('Campaign code created');
     },
     onError: (error) => {
@@ -313,6 +316,14 @@ export default function AdminCampaignReferrals() {
                   </div>
                 </div>
 
+                {/* Reward Badge */}
+                {campaign.referral_reward_amount > 0 && (
+                  <div className="flex items-center gap-2 text-xs text-violet-600 bg-violet-50 px-3 py-1.5 rounded-lg w-fit">
+                    <Gift className="w-3.5 h-3.5" />
+                    <span>₹{campaign.referral_reward_amount} {campaign.referral_reward_type === 'wallet_credit' ? 'credit' : 'discount'} per signup</span>
+                  </div>
+                )}
+
                 {/* Stats Row */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 pt-4 border-t border-slate-100">
                   <div>
@@ -383,6 +394,47 @@ export default function AdminCampaignReferrals() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
               />
+            </div>
+
+            {/* Referral Incentive Section */}
+            <div className="border-t pt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Gift className="w-4 h-4 text-violet-600" />
+                <label className="text-sm font-semibold text-slate-900">Referral Incentive</label>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-600 mb-1 block">Reward Type</label>
+                  <Select
+                    value={formData.referral_reward_type}
+                    onValueChange={(value) => setFormData({ ...formData, referral_reward_type: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No Reward</SelectItem>
+                      <SelectItem value="wallet_credit">Wallet Credit</SelectItem>
+                      <SelectItem value="discount">Discount</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs text-slate-600 mb-1 block">Amount (₹)</label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={formData.referral_reward_amount}
+                    onChange={(e) => setFormData({ ...formData, referral_reward_amount: Number(e.target.value) })}
+                    disabled={formData.referral_reward_type === 'none'}
+                  />
+                </div>
+              </div>
+              {formData.referral_reward_type !== 'none' && (
+                <p className="text-xs text-slate-500 mt-2">
+                  New signups using this code will receive ₹{formData.referral_reward_amount} {formData.referral_reward_type === 'wallet_credit' ? 'in their wallet' : 'as discount'}.
+                </p>
+              )}
             </div>
           </div>
           <div className="flex gap-3">
