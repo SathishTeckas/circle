@@ -35,6 +35,7 @@ export default function Wallet() {
   const [showPayoutSheet, setShowPayoutSheet] = useState(false);
   const [payoutAmount, setPayoutAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState({
     bank_name: '',
     account_number: '',
@@ -160,6 +161,7 @@ export default function Wallet() {
 
   const requestPayoutMutation = useMutation({
     mutationFn: async () => {
+      setIsSubmitting(true);
       const amount = parseFloat(payoutAmount);
       
       if (amount > availableBalance) {
@@ -212,9 +214,11 @@ export default function Wallet() {
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
       setShowPayoutSheet(false);
       setPayoutAmount('');
+      setIsSubmitting(false);
       toast.success('Payout request submitted successfully! Admin will review it soon.');
     },
     onError: (error) => {
+      setIsSubmitting(false);
       toast.error(error.message || 'Failed to submit payout request');
     }
   });
@@ -374,10 +378,10 @@ export default function Wallet() {
 
                   <Button
                     onClick={() => requestPayoutMutation.mutate()}
-                    disabled={!canRequestPayout() || requestPayoutMutation.isPending}
+                    disabled={!canRequestPayout() || requestPayoutMutation.isPending || isSubmitting}
                     className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
                   >
-                    {requestPayoutMutation.isPending ? 'Submitting...' : 'Submit Request'}
+                    {(requestPayoutMutation.isPending || isSubmitting) ? 'Submitting...' : 'Submit Request'}
                   </Button>
                 </div>
               </SheetContent>
