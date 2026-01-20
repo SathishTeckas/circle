@@ -163,9 +163,26 @@ export default function Wallet() {
   const requestPayoutMutation = useMutation({
     mutationFn: async () => {
       const amount = parseFloat(payoutAmount);
-      
-      if (amount > availableBalance) {
-        throw new Error('Insufficient balance');
+
+      // Fetch latest payouts to check real-time balance
+      const latestPayouts = await base44.entities.Payout.filter({ 
+        companion_id: user.id 
+      });
+      const latestPendingPayouts = latestPayouts
+        .filter(p => ['pending', 'approved', 'processing'].includes(p.status))
+        .reduce((sum, p) => sum + p.amount, 0);
+      const latestCompletedPayouts = latestPayouts
+        .filter(p => p.status === 'completed')
+        .reduce((sum, p) => sum + p.amount, 0);
+
+      const currentAvailableBalance = totalEarnings + referralEarnings - latestCompletedPayouts - latestPendingPayouts;
+
+      if (currentAvailableBalance < 100) {
+        throw new Error('Insufficient balance. Minimum balance required: ₹100');
+      }
+
+      if (amount > currentAvailableBalance) {
+        throw new Error(`Insufficient balance. Available: ${formatCurrency(currentAvailableBalance)}`);
       }
 
       if (amount < 100) {
