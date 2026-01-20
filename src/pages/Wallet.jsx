@@ -214,11 +214,11 @@ export default function Wallet() {
         });
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payouts'] });
-      queryClient.invalidateQueries({ queryKey: ['earnings'] });
-      queryClient.invalidateQueries({ queryKey: ['pending-earnings'] });
-      queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ['payouts'] });
+      await queryClient.refetchQueries({ queryKey: ['earnings'] });
+      await queryClient.refetchQueries({ queryKey: ['pending-earnings'] });
+      await queryClient.refetchQueries({ queryKey: ['referrals'] });
       setPayoutAmount('');
       setIsSubmitting(false);
       toast.dismiss();
