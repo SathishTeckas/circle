@@ -224,7 +224,6 @@ export default function Wallet() {
     },
     onError: (error) => {
       setIsSubmitting(false);
-      setShowPayoutSheet(true);
       toast.dismiss();
       toast.error(error.message || 'Failed to submit payout request');
     }
