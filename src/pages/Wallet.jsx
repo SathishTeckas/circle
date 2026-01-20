@@ -217,13 +217,15 @@ export default function Wallet() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payouts'] });
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
-      setShowPayoutSheet(false);
       setPayoutAmount('');
       setIsSubmitting(false);
+      toast.dismiss();
       toast.success('Payout request submitted successfully! Admin will review it soon.');
     },
     onError: (error) => {
       setIsSubmitting(false);
+      setShowPayoutSheet(true);
+      toast.dismiss();
       toast.error(error.message || 'Failed to submit payout request');
     }
   });
@@ -385,6 +387,8 @@ export default function Wallet() {
                     onClick={() => {
                       if (!isSubmitting && !requestPayoutMutation.isPending) {
                         setIsSubmitting(true);
+                        setShowPayoutSheet(false);
+                        toast.loading('Processing your payout request...');
                         requestPayoutMutation.mutate();
                       }
                     }}
