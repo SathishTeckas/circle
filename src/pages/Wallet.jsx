@@ -46,6 +46,14 @@ export default function Wallet() {
     const loadUser = async () => {
       const userData = await base44.auth.me();
       setUser(userData);
+      
+      // Load saved payment details if available
+      if (userData.saved_payment_method) {
+        setPaymentMethod(userData.saved_payment_method);
+      }
+      if (userData.saved_payment_details) {
+        setPaymentDetails(userData.saved_payment_details);
+      }
     };
     loadUser();
   }, []);
@@ -168,6 +176,12 @@ export default function Wallet() {
             account_holder_name: paymentDetails.account_holder_name
           };
 
+      // Save payment details for future use
+      await base44.auth.updateMe({
+        saved_payment_method: paymentMethod,
+        saved_payment_details: details
+      });
+
       await base44.entities.Payout.create({
         companion_id: user.id,
         companion_name: user.full_name,
@@ -192,15 +206,9 @@ export default function Wallet() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payouts'] });
+      queryClient.invalidateQueries({ queryKey: ['current-user'] });
       setShowPayoutSheet(false);
       setPayoutAmount('');
-      setPaymentDetails({
-        bank_name: '',
-        account_number: '',
-        ifsc_code: '',
-        account_holder_name: '',
-        upi_id: ''
-      });
     }
   });
 
@@ -289,7 +297,12 @@ export default function Wallet() {
                   </div>
 
                   <div>
-                    <Label className="mb-2 block">Payment Method</Label>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label>Payment Method</Label>
+                      {user?.saved_payment_method && (
+                        <span className="text-xs text-emerald-600 font-medium">✓ Saved</span>
+                      )}
+                    </div>
                     <Select value={paymentMethod} onValueChange={setPaymentMethod}>
                       <SelectTrigger className="h-12 rounded-xl">
                         <SelectValue />
