@@ -36,6 +36,7 @@ export default function Wallet() {
   const [payoutAmount, setPayoutAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checkingBalance, setCheckingBalance] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState({
     bank_name: '',
     account_number: '',
