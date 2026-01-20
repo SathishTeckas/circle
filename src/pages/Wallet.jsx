@@ -224,12 +224,12 @@ export default function Wallet() {
     if (!amount || amount < 100 || amount > availableBalance) return false;
     
     if (paymentMethod === 'upi') {
-      return paymentDetails.upi_id.trim() !== '';
+      return paymentDetails.upi_id?.trim() !== '';
     } else {
-      return paymentDetails.bank_name.trim() !== '' &&
-             paymentDetails.account_number.trim() !== '' &&
-             paymentDetails.ifsc_code.trim() !== '' &&
-             paymentDetails.account_holder_name.trim() !== '';
+      return paymentDetails.bank_name?.trim() !== '' &&
+             paymentDetails.account_number?.trim() !== '' &&
+             paymentDetails.ifsc_code?.trim() !== '' &&
+             paymentDetails.account_holder_name?.trim() !== '';
     }
   };
 
