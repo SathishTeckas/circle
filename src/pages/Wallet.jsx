@@ -298,10 +298,19 @@ export default function Wallet() {
                         type="number"
                         placeholder="Enter amount"
                         value={payoutAmount}
-                        onChange={(e) => setPayoutAmount(e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value.includes('.')) {
+                            const [whole, decimal] = value.split('.');
+                            setPayoutAmount(decimal.length > 2 ? `${whole}.${decimal.slice(0, 2)}` : value);
+                          } else {
+                            setPayoutAmount(value);
+                          }
+                        }}
                         className="h-12 rounded-xl flex-1"
                         max={availableBalance}
                         min={100}
+                        step="0.01"
                       />
                       <Button
                         type="button"
