@@ -238,7 +238,7 @@ export default function Wallet() {
             <p className="text-emerald-100 text-sm mb-1">Available Balance</p>
             <p className="text-4xl font-bold mb-1">{formatCurrency(availableBalance)}</p>
             <p className="text-emerald-100 text-xs mb-4">
-              Pending: {formatCurrency(pendingEarnings)} • In Progress: {formatCurrency(pendingPayouts)}
+              Pending Earnings: {formatCurrency(pendingEarnings)} • Requested Payouts: {formatCurrency(pendingPayouts)}
             </p>
             
             <Sheet open={showPayoutSheet} onOpenChange={setShowPayoutSheet}>
