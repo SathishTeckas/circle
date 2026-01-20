@@ -149,6 +149,9 @@ export default function AdminPayouts() {
   const totalCompleted = completedPayouts.reduce((sum, p) => sum + p.amount, 0);
 
   const PayoutCard = ({ payout, idx }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [localAdminNotes, setLocalAdminNotes] = useState('');
+    const [localRejectionReason, setLocalRejectionReason] = useState('');
     const status = payoutStatusConfig[payout.status];
     const StatusIcon = status.icon;
 
@@ -189,15 +192,11 @@ export default function AdminPayouts() {
             </div>
           </div>
 
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button 
                 variant="outline" 
                 className="w-full rounded-xl"
-                onClick={() => {
-                  setSelectedPayout(payout);
-                  setDialogOpen(true);
-                }}
               >
                 View Details
               </Button>
@@ -264,8 +263,8 @@ export default function AdminPayouts() {
                       <Label className="mb-2 block">Admin Notes (Optional)</Label>
                       <Textarea
                         placeholder="Add notes about this payout..."
-                        value={adminNotes}
-                        onChange={(e) => setAdminNotes(e.target.value)}
+                        value={localAdminNotes}
+                        onChange={(e) => setLocalAdminNotes(e.target.value)}
                         className="rounded-xl"
                       />
                     </div>
@@ -286,15 +285,19 @@ export default function AdminPayouts() {
                               <Label className="mb-2 block">Rejection Reason</Label>
                               <Textarea
                                 placeholder="Explain why this payout is being rejected..."
-                                value={rejectionReason}
-                                onChange={(e) => setRejectionReason(e.target.value)}
+                                value={localRejectionReason}
+                                onChange={(e) => setLocalRejectionReason(e.target.value)}
                                 className="rounded-xl"
                                 rows={4}
                               />
                             </div>
                             <Button
-                              onClick={() => rejectMutation.mutate(payout)}
-                              disabled={!rejectionReason.trim() || rejectMutation.isPending}
+                              onClick={() => {
+                                setAdminNotes(localAdminNotes);
+                                setRejectionReason(localRejectionReason);
+                                rejectMutation.mutate(payout);
+                              }}
+                              disabled={!localRejectionReason.trim() || rejectMutation.isPending}
                               className="w-full bg-red-600 hover:bg-red-700 rounded-xl"
                             >
                               {rejectMutation.isPending ? 'Rejecting...' : 'Confirm Rejection'}
@@ -304,7 +307,10 @@ export default function AdminPayouts() {
                       </Dialog>
 
                       <Button
-                        onClick={() => approveMutation.mutate(payout)}
+                        onClick={() => {
+                          setAdminNotes(localAdminNotes);
+                          approveMutation.mutate(payout);
+                        }}
                         disabled={approveMutation.isPending}
                         className="flex-1 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
                       >
