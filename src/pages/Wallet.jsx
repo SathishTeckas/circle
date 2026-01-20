@@ -237,8 +237,11 @@ export default function Wallet() {
           <Card className="p-6 bg-white/10 backdrop-blur border-white/20 text-white">
             <p className="text-emerald-100 text-sm mb-1">Available Balance</p>
             <p className="text-4xl font-bold mb-1">{formatCurrency(availableBalance)}</p>
-            <p className="text-emerald-100 text-xs mb-4">
+            <p className="text-emerald-100 text-xs mb-1">
               Pending Earnings: {formatCurrency(pendingEarnings)} • Requested Payouts: {formatCurrency(pendingPayouts)}
+            </p>
+            <p className="text-emerald-100/80 text-[10px] mb-4">
+              Minimum withdrawal: ₹100
             </p>
             
             <Sheet open={showPayoutSheet} onOpenChange={setShowPayoutSheet}>
