@@ -161,7 +161,6 @@ export default function Wallet() {
 
   const requestPayoutMutation = useMutation({
     mutationFn: async () => {
-      setIsSubmitting(true);
       const amount = parseFloat(payoutAmount);
       
       if (amount > availableBalance) {
@@ -377,7 +376,12 @@ export default function Wallet() {
                   )}
 
                   <Button
-                    onClick={() => requestPayoutMutation.mutate()}
+                    onClick={() => {
+                      if (!isSubmitting && !requestPayoutMutation.isPending) {
+                        setIsSubmitting(true);
+                        requestPayoutMutation.mutate();
+                      }
+                    }}
                     disabled={!canRequestPayout() || requestPayoutMutation.isPending || isSubmitting}
                     className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
                   >
