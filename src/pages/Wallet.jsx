@@ -293,10 +293,10 @@ export default function Wallet() {
               <SheetTrigger asChild>
                 <Button 
                   className="w-full bg-white text-emerald-600 hover:bg-emerald-50"
-                  disabled={availableBalance < 100}
+                  disabled={availableBalance < 100 || isSubmitting || requestPayoutMutation.isPending}
                 >
                   <CreditCard className="w-4 h-4 mr-2" />
-                  Request Payout
+                  {(isSubmitting || requestPayoutMutation.isPending) ? 'Processing...' : 'Request Payout'}
                 </Button>
               </SheetTrigger>
               <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
