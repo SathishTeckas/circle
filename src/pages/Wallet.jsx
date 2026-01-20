@@ -19,6 +19,7 @@ import {
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const payoutStatusConfig = {
   pending: { label: 'Pending', color: 'bg-amber-100 text-amber-700', icon: Clock },
@@ -110,6 +111,8 @@ export default function Wallet() {
   const pendingPayouts = payouts
     .filter(p => ['pending', 'approved', 'processing'].includes(p.status))
     .reduce((sum, p) => sum + p.amount, 0);
+
+  const hasPendingPayout = payouts.some(p => ['pending', 'approved', 'processing'].includes(p.status));
 
   const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
   const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
@@ -209,6 +212,10 @@ export default function Wallet() {
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
       setShowPayoutSheet(false);
       setPayoutAmount('');
+      toast.success('Payout request submitted successfully! Admin will review it soon.');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to submit payout request');
     }
   });
 
@@ -256,10 +263,10 @@ export default function Wallet() {
               <SheetTrigger asChild>
                 <Button 
                   className="w-full bg-white text-emerald-600 hover:bg-emerald-50"
-                  disabled={availableBalance < 100}
+                  disabled={availableBalance < 100 || hasPendingPayout}
                 >
                   <CreditCard className="w-4 h-4 mr-2" />
-                  Request Payout
+                  {hasPendingPayout ? 'Payout In Progress' : 'Request Payout'}
                 </Button>
               </SheetTrigger>
               <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
@@ -268,6 +275,13 @@ export default function Wallet() {
                 </SheetHeader>
 
                 <div className="space-y-6 overflow-y-auto h-[calc(85vh-140px)] pb-6">
+                  {hasPendingPayout && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <p className="text-sm text-amber-800 font-medium">⚠️ You already have a payout request in progress</p>
+                      <p className="text-xs text-amber-600 mt-1">Please wait for admin approval before requesting another payout.</p>
+                    </div>
+                  )}
+                  
                   <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
                    <p className="text-sm text-emerald-800 font-medium">Available: {formatCurrency(availableBalance)}</p>
                    <p className="text-xs text-emerald-600 mt-1">Minimum payout: ₹100.00</p>
@@ -367,10 +381,10 @@ export default function Wallet() {
 
                   <Button
                     onClick={() => requestPayoutMutation.mutate()}
-                    disabled={!canRequestPayout() || requestPayoutMutation.isPending}
+                    disabled={!canRequestPayout() || requestPayoutMutation.isPending || hasPendingPayout}
                     className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
                   >
-                    {requestPayoutMutation.isPending ? 'Submitting...' : 'Submit Request'}
+                    {requestPayoutMutation.isPending ? 'Submitting...' : hasPendingPayout ? 'Payout In Progress' : 'Submit Request'}
                   </Button>
                 </div>
               </SheetContent>
