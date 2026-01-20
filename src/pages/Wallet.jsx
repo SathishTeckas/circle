@@ -466,10 +466,9 @@ export default function Wallet() {
                   )}
 
                   <Button
-                    onClick={() => {
+                    onClick={async () => {
                       if (!isSubmitting && !requestPayoutMutation.isPending) {
                         setIsSubmitting(true);
-                        setShowPayoutSheet(false);
                         toast.loading('Processing your payout request...');
                         requestPayoutMutation.mutate();
                       }
