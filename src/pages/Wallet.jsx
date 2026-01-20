@@ -470,7 +470,8 @@ export default function Wallet() {
                     onClick={async () => {
                       if (!isSubmitting && !requestPayoutMutation.isPending) {
                         setIsSubmitting(true);
-                        toast.loading('Processing your payout request...');
+                        setShowPayoutSheet(false);
+                        toast.loading('Submitting payout request...');
                         requestPayoutMutation.mutate();
                       }
                     }}
