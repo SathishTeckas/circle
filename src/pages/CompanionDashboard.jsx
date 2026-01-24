@@ -143,34 +143,20 @@ export default function CompanionDashboard() {
   const { data: referrals = [] } = useQuery({
     queryKey: ['referrals', user?.id],
     queryFn: async () => {
+      const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
+      const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
+      
       const allReferrals = await base44.entities.Referral.filter({ 
-        referrer_id: user.id
-      }, '-created_date', 50);
+        referrer_id: user.id,
+        referral_type: 'user_referral'
+      }, '-created_date', 100);
       
-      const rewardedReferrals = allReferrals.filter(r => ['completed', 'rewarded'].includes(r.status));
-      
-      // Fetch campaign referral codes to get dynamic reward amounts
-      const campaignCodes = [...new Set(rewardedReferrals.map(r => r.referral_code).filter(Boolean))];
-      const campaigns = await Promise.all(
-        campaignCodes.map(code => 
-          base44.entities.CampaignReferral.filter({ code }).then(c => c[0])
-        )
-      );
-      
-      const campaignMap = {};
-      campaigns.forEach(c => {
-        if (c) campaignMap[c.code] = c.referral_reward_amount || 0;
-      });
-      
-      return rewardedReferrals.map(r => ({
-        ...r,
-        reward_amount: r.referral_code && campaignMap[r.referral_code] 
-          ? campaignMap[r.referral_code] 
-          : (r.reward_amount || 100)
-      }));
+      return allReferrals
+        .filter(r => ['completed', 'rewarded'].includes(r.status))
+        .map(r => ({ ...r, reward_amount: rewardAmount }));
     },
     enabled: !!user?.id,
-    staleTime: 2 * 60 * 1000
+    staleTime: 5 * 60 * 1000
   });
 
   const { data: activeAvailabilities = [] } = useQuery({
@@ -281,7 +267,7 @@ export default function CompanionDashboard() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-3">
+           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
               <IndianRupee className="w-5 h-5 mb-1 text-white/80" />
               <p className="text-2xl font-bold truncate">

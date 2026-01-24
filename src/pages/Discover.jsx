@@ -100,10 +100,10 @@ export default function Discover() {
   const { data: companionUsers = [] } = useQuery({
     queryKey: ['companion-users'],
     queryFn: async () => {
-      return await base44.entities.User.filter({ user_role: 'companion' });
+      return await base44.entities.User.filter({ user_role: 'companion' }, '-created_date', 200);
     },
     enabled: !!user,
-    staleTime: 5 * 60 * 1000
+    staleTime: 10 * 60 * 1000
   });
 
   // Check if availability has at least 1 hour remaining
@@ -233,13 +233,13 @@ export default function Discover() {
                   )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl flex flex-col">
+              <SheetContent side="bottom" className="h-screen max-h-[90vh] sm:max-h-[85vh] rounded-t-3xl flex flex-col">
                 <SheetHeader className="flex-shrink-0 mb-4">
                   <SheetTitle className="text-xl">Filters</SheetTitle>
                 </SheetHeader>
                 
-                <div className="flex-1 overflow-y-auto px-1">
-                  <div className="space-y-6 pb-6">
+                <div className="flex-1 overflow-y-auto px-1 pb-4">
+                  <div className="space-y-4 sm:space-y-6">
                   {/* Date */}
                   <div>
                     <label className="text-sm font-medium text-slate-700 mb-2 block">Date</label>

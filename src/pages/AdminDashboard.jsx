@@ -41,20 +41,23 @@ export default function AdminDashboard() {
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['admin-users'],
-    queryFn: () => base44.entities.User.list('-created_date', 100),
-    enabled: !!user
+    queryFn: () => base44.entities.User.list('-created_date', 200),
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000
   });
 
   const { data: allBookings = [] } = useQuery({
     queryKey: ['admin-bookings'],
-    queryFn: () => base44.entities.Booking.list('-created_date', 100),
-    enabled: !!user
+    queryFn: () => base44.entities.Booking.list('-created_date', 200),
+    enabled: !!user,
+    staleTime: 2 * 60 * 1000
   });
 
   const { data: venues = [] } = useQuery({
     queryKey: ['admin-venues'],
-    queryFn: () => base44.entities.Venue.list('-created_date', 50),
-    enabled: !!user
+    queryFn: () => base44.entities.Venue.list('-created_date', 100),
+    enabled: !!user,
+    staleTime: 10 * 60 * 1000
   });
 
   const { data: groupEventsRaw = [] } = useQuery({
@@ -163,8 +166,9 @@ export default function AdminDashboard() {
 
   const { data: payouts = [] } = useQuery({
     queryKey: ['admin-payouts'],
-    queryFn: () => base44.entities.Payout.list('-created_date', 50),
-    enabled: !!user
+    queryFn: () => base44.entities.Payout.list('-created_date', 100),
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000
   });
 
   const pendingPayouts = payouts?.filter(p => p?.status === 'pending') || [];
@@ -195,7 +199,7 @@ export default function AdminDashboard() {
 
       <div className="px-4 md:px-8 -mt-6 max-w-7xl mx-auto space-y-6">
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {stats.map((stat, idx) => (
             <motion.div
               key={stat.label}
@@ -246,7 +250,7 @@ export default function AdminDashboard() {
         {/* Export Data */}
         <Card className="p-4">
           <h3 className="font-semibold text-slate-900 mb-4">Export Data for Analysis</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <Button
               onClick={() => handleExport('users')}
               disabled={!!exporting}
@@ -316,7 +320,7 @@ export default function AdminDashboard() {
 
           {/* Date Range Filter for GMV */}
           <div className="mt-4 pt-4 border-t border-slate-100">
-            <div className="flex flex-col md:flex-row md:items-center gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <span className="text-sm text-slate-600 font-medium">GMV Export Date Filter:</span>
               <Popover>
                 <PopoverTrigger asChild>

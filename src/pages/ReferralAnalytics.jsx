@@ -32,10 +32,13 @@ export default function ReferralAnalytics() {
   const { data: referrals = [], isLoading: referralsLoading } = useQuery({
     queryKey: ['my-referrals', user?.id],
     queryFn: async () => {
-      const allReferrals = await base44.entities.Referral.list();
-      return allReferrals.filter(r => r.referrer_id === user.id && r.referral_type === 'user_referral');
+      return await base44.entities.Referral.filter({
+        referrer_id: user.id,
+        referral_type: 'user_referral'
+      }, '-created_date', 500);
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000
   });
 
   // Fetch referred users details

@@ -86,39 +86,33 @@ export default function Wallet() {
   });
 
   const { data: payouts = [] } = useQuery({
-    queryKey: ['payouts', user?.id],
-    queryFn: async () => {
-      return await base44.entities.Payout.filter({ 
-        companion_id: user.id 
-      }, '-created_date', 50);
-    },
-    enabled: !!user?.id
+   queryKey: ['payouts', user?.id],
+   queryFn: async () => {
+     return await base44.entities.Payout.filter({ 
+       companion_id: user.id 
+     }, '-created_date', 100);
+   },
+   enabled: !!user?.id,
+   staleTime: 5 * 60 * 1000
   });
 
   const { data: referrals = [] } = useQuery({
-    queryKey: ['referrals', user?.id],
-    queryFn: async () => {
-      // Fetch only referrals where user is REFERRER (user_referral type only)
-      const allReferrals = await base44.entities.Referral.list();
-      const myReferrals = allReferrals.filter(r => 
-        r.referrer_id === user.id && r.referral_type === 'user_referral'
-      );
-      
-      // Filter rewarded referrals
-      const rewardedReferrals = myReferrals.filter(r => ['completed', 'rewarded'].includes(r.status));
-      
-      // Fetch SYSTEM campaign to get dynamic reward amount
-      const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
-      const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
-      
-      // Map referrals with correct display info
-      return rewardedReferrals.map(r => ({
-        ...r,
-        reward_amount: rewardAmount,
-        display_name: r.referee_name
-      }));
-    },
-    enabled: !!user?.id
+   queryKey: ['referrals', user?.id],
+   queryFn: async () => {
+     const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
+     const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
+
+     const allReferrals = await base44.entities.Referral.filter({
+       referrer_id: user.id,
+       referral_type: 'user_referral'
+     }, '-created_date', 100);
+
+     return allReferrals
+       .filter(r => ['completed', 'rewarded'].includes(r.status))
+       .map(r => ({ ...r, reward_amount: rewardAmount, display_name: r.referee_name }));
+   },
+   enabled: !!user?.id,
+   staleTime: 5 * 60 * 1000
   });
 
   const totalWithdrawn = payouts
