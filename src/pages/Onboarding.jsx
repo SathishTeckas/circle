@@ -194,9 +194,11 @@ export default function Onboarding() {
       // Ensure campaign bonus is processed as fallback
       if (userData.campaign_referral_code) {
         try {
+          // Fetch fresh user data with campaign code to pass to function
+          const freshUser = await base44.auth.me();
           await base44.functions.invoke('updateCampaignReferralStats', {
-            entity_id: user.id,
-            data: user,
+            entity_id: freshUser.id,
+            data: freshUser,
             event: { type: 'create' }
           });
         } catch (campaignError) {
