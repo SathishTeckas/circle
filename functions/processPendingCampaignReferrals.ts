@@ -10,29 +10,37 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    // Get all active campaigns
-    const campaigns = await base44.asServiceRole.entities.CampaignReferral.filter({ is_active: true });
+    const reqBody = await req.json().catch(() => ({}));
+    const campaignCode = reqBody.campaign_code; // Optional: filter by specific campaign
+
+    // Get active campaigns
+    const query = { is_active: true };
+    if (campaignCode) query.code = campaignCode;
+
+    const campaigns = await base44.asServiceRole.entities.CampaignReferral.filter(query);
     if (campaigns.length === 0) {
       return Response.json({ message: 'No active campaigns found' }, { status: 200 });
     }
 
     let processedCount = 0;
+    const results = [];
 
-    // For each campaign, check for referrals that haven't been rewarded yet
+    // For each campaign, process rewards
     for (const campaign of campaigns) {
+      // Get all referrals for this campaign
       const allReferrals = await base44.asServiceRole.entities.Referral.filter({
         referral_code: campaign.code,
         referral_type: 'campaign_signup'
       }, '-created_date', 1000);
 
       for (const referral of allReferrals) {
-        // Check if reward has already been applied (status is 'rewarded')
+        // Check if reward has already been applied
         if (referral.status === 'rewarded') {
           continue;
         }
 
         // Skip if no reward configured
-        if (campaign.referral_reward_amount === 0 || campaign.referral_reward_type !== 'wallet_credit') {
+        if (!campaign.referral_reward_amount || campaign.referral_reward_amount === 0 || campaign.referral_reward_type !== 'wallet_credit') {
           continue;
         }
 
@@ -40,7 +48,7 @@ Deno.serve(async (req) => {
           // Fetch user (use referee_id as the signup user)
           const signupUser = await base44.asServiceRole.entities.User.get(referral.referee_id);
           if (!signupUser) {
-            console.error(`User ${referral.referee_id} not found`);
+            results.push({ referral_id: referral.id, status: 'error', reason: 'User not found' });
             continue;
           }
 
@@ -82,15 +90,24 @@ Deno.serve(async (req) => {
           });
 
           processedCount++;
+          results.push({ 
+            referral_id: referral.id, 
+            user_id: referral.referee_id,
+            campaign_code: campaign.code,
+            amount: campaign.referral_reward_amount,
+            status: 'rewarded' 
+          });
         } catch (err) {
           console.error(`Failed to process reward for referral ${referral.id}:`, err.message);
+          results.push({ referral_id: referral.id, status: 'error', error: err.message });
         }
       }
     }
 
     return Response.json({ 
       message: `Processed ${processedCount} pending campaign rewards`,
-      processedCount 
+      processedCount,
+      results
     });
   } catch (error) {
     console.error('Error in processPendingCampaignReferrals:', error);
