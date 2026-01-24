@@ -659,8 +659,8 @@ export default function Wallet() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold text-emerald-600">+{formatCurrency(booking.companion_payout || 0)}</p>
-                        <p className="text-xs text-slate-500">{booking.duration_hours}h meetup</p>
+                       <p className="font-semibold text-emerald-600">+{formatCurrency(booking.base_price || 0)}</p>
+                       <p className="text-xs text-slate-500">{booking.duration_hours}h meetup</p>
                       </div>
                     </motion.div>
                   ))}
