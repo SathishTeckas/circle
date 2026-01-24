@@ -109,7 +109,7 @@ export default function AdminCampaignReferrals() {
       return await base44.entities.CampaignReferral.delete(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
+      refetchCampaigns();
       toast.success('Campaign deleted');
     }
   });
