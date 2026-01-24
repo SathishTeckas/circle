@@ -13,7 +13,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    const user = await base44.asServiceRole.entities.User.get(userId);
+    // Use provided userData if available, otherwise fetch from database
+    let user = userData;
+    if (!user || !user.campaign_referral_code) {
+      user = await base44.asServiceRole.entities.User.get(userId);
+    }
     
     if (!user || !user.campaign_referral_code) {
       return Response.json({ message: 'No campaign code found' }, { status: 200 });
