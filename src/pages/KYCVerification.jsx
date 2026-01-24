@@ -32,8 +32,8 @@ export default function KYCVerification() {
         const userData = await base44.auth.me();
         setUser(userData);
         
-        // If already fully onboarded and verified, redirect immediately
-        if (userData.onboarding_completed && userData.kyc_verified) {
+        // If already verified (either truly verified or skipped) and onboarding is complete, redirect
+        if (userData.onboarding_completed) {
           if (userData.user_role === 'companion' || userData.active_role === 'companion') {
             window.location.href = createPageUrl('CompanionDashboard');
           } else {
@@ -42,7 +42,7 @@ export default function KYCVerification() {
           return;
         }
         
-        if (userData.kyc_status === 'verified') {
+        if (userData.kyc_status === 'verified' || userData.kyc_verified) {
           setStep('verified');
         }
       } catch (e) {
