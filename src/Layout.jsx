@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GlobalErrorBoundary from '@/components/utils/GlobalErrorBoundary';
+import NotificationCenter from '@/components/notifications/NotificationCenter';
 
 export default function Layout({ children, currentPageName }) {
   const [loading, setLoading] = useState(true);
@@ -134,9 +135,14 @@ export default function Layout({ children, currentPageName }) {
               <h1 className="text-xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
                 Circle Admin
               </h1>
-              {/* Remove back button - not needed in admin panel */}
+              <NotificationCenter />
             </div>
             
+            {/* Header with notifications */}
+            <div className="flex items-center justify-end px-4 py-4 border-b border-slate-100">
+              <NotificationCenter />
+            </div>
+
             {/* Navigation */}
             <nav className="flex-1 px-4 py-6 space-y-1">
               {adminNav.map((item) => {
