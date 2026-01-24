@@ -436,7 +436,7 @@ export default function BookingView() {
               </>
             ) : (
               <div className="flex justify-between font-semibold">
-                <span className="text-slate-900">Your Quoted Amount</span>
+                <span className="text-slate-900">Amount</span>
                 <span className="text-slate-900">{formatCurrency(booking?.base_price || 0)}</span>
               </div>
             )}
