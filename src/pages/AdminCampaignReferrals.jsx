@@ -56,13 +56,29 @@ export default function AdminCampaignReferrals() {
     staleTime: 10000
   });
 
-  const { data: campaignUsers = [] } = useQuery({
-    queryKey: ['campaign-users', selectedCampaign?.id],
+  const { data: campaignUsers = [], data: campaignReferrals = [] } = useQuery({
+    queryKey: ['campaign-referrals-detail', selectedCampaign?.id],
     queryFn: async () => {
       if (!selectedCampaign) return [];
-      return await base44.entities.User.filter({ 
-        campaign_referral_code: selectedCampaign.code 
+      // Get referrals for this campaign
+      const referrals = await base44.asServiceRole.entities.Referral.filter({
+        referral_code: selectedCampaign.code,
+        referral_type: 'campaign_signup'
       });
+      
+      // Fetch user details for each referral
+      const users = [];
+      for (const ref of referrals) {
+        if (ref.referee_id) {
+          const user = await base44.asServiceRole.entities.User.list().then(list => 
+            list.find(u => u.id === ref.referee_id)
+          );
+          if (user) {
+            users.push({ ...user, referral_date: ref.created_date, referral_status: ref.status });
+          }
+        }
+      }
+      return users;
     },
     enabled: !!selectedCampaign,
     staleTime: 30000
