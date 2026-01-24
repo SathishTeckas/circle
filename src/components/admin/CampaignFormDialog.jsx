@@ -25,9 +25,11 @@ const CampaignFormDialog = React.memo(({
   }, []);
 
   const handleSubmit = useCallback(() => {
-    onSubmit(formData);
-    setFormData({ code: '', campaign_name: '', description: '', referral_reward_amount: 0, referral_reward_type: 'none' });
-  }, [formData, onSubmit]);
+    setFormData(prev => {
+      onSubmit(prev);
+      return { code: '', campaign_name: '', description: '', referral_reward_amount: 0, referral_reward_type: 'none' };
+    });
+  }, [onSubmit]);
 
   const handleOpenChange = useCallback((newOpen) => {
     onOpenChange(newOpen);
