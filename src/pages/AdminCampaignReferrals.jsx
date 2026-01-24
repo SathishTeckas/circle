@@ -89,7 +89,11 @@ export default function AdminCampaignReferrals() {
   });
 
   const toggleActiveMutation = useMutation({
-    mutationFn: async ({ id, is_active }) => {
+    mutationFn: async ({ id, is_active, code }) => {
+      if (code === 'SYSTEM') {
+        toast.error('Cannot disable system referral program');
+        throw new Error('Cannot disable SYSTEM campaign');
+      }
       return await base44.entities.CampaignReferral.update(id, { is_active });
     },
     onSuccess: () => {
