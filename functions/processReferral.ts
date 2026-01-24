@@ -16,10 +16,11 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, message: 'No referral code provided' });
     }
 
-    // Find the referrer by their referral_code
-    const referrers = await base44.asServiceRole.entities.User.filter({ 
-      referral_code: referral_code.trim().toUpperCase() 
-    });
+    // Find the referrer by their referral_code (case-insensitive search)
+    const allUsers = await base44.asServiceRole.entities.User.list();
+    const referrers = allUsers.filter(u => 
+      u.referral_code && u.referral_code.toUpperCase() === referral_code.trim().toUpperCase()
+    );
 
     if (referrers.length === 0) {
       return Response.json({ 
