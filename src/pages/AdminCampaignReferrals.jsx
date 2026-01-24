@@ -358,9 +358,31 @@ export default function AdminCampaignReferrals() {
 
                 {/* Reward Badge */}
                 {campaign.referral_reward_amount > 0 && (
-                  <div className="flex items-center gap-2 text-xs text-violet-600 bg-violet-50 px-3 py-1.5 rounded-lg w-fit">
+                  <div className="flex items-center gap-2 text-xs text-violet-600 bg-violet-50 px-3 py-1.5 rounded-lg w-fit mb-3">
                     <Gift className="w-3.5 h-3.5" />
                     <span>₹{campaign.referral_reward_amount} {campaign.referral_reward_type === 'wallet_credit' ? 'credit' : 'discount'} per signup</span>
+                  </div>
+                )}
+
+                {/* Edit Reward for SYSTEM */}
+                {campaign.code === 'SYSTEM' && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <Input
+                      type="number"
+                      value={campaign.referral_reward_amount}
+                      onChange={async (e) => {
+                        const newAmount = Number(e.target.value);
+                        if (newAmount >= 0) {
+                          await base44.entities.CampaignReferral.update(campaign.id, {
+                            referral_reward_amount: newAmount
+                          });
+                          queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
+                          toast.success('Reward amount updated');
+                        }
+                      }}
+                      className="w-24 h-9"
+                    />
+                    <span className="text-sm text-slate-600">System reward per user</span>
                   </div>
                 )}
 
