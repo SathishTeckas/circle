@@ -485,31 +485,11 @@ export default function Wallet() {
                   )}
 
                   <Button
-                    onClick={() => {
-                      const amount = parseFloat(payoutAmount);
-                      if (!amount || isNaN(amount) || amount < 100) {
-                        toast.error('Amount must be at least ₹100');
-                        return;
-                      }
-                      if (amount > availableBalance) {
-                        toast.error('Amount exceeds available balance');
-                        return;
-                      }
-                      if (paymentMethod === 'upi' && !paymentDetails.upi_id?.trim()) {
-                        toast.error('Please enter UPI ID');
-                        return;
-                      }
-                      if (paymentMethod === 'bank_transfer' && (!paymentDetails.bank_name?.trim() || !paymentDetails.account_number?.trim() || !paymentDetails.ifsc_code?.trim() || !paymentDetails.account_holder_name?.trim())) {
-                        toast.error('Please fill all bank details');
-                        return;
-                      }
-                      toast.loading('Submitting payout request...');
-                      requestPayoutMutation.mutate();
-                    }}
-                    disabled={requestPayoutMutation.isPending || isSubmitting}
+                    onClick={submitPayout}
+                    disabled={isSubmitting}
                     className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
                   >
-                    {(requestPayoutMutation.isPending || isSubmitting) ? 'Submitting...' : 'Submit Request'}
+                    {isSubmitting ? 'Submitting...' : 'Submit Request'}
                   </Button>
                 </div>
               </SheetContent>
