@@ -333,18 +333,20 @@ export default function Wallet() {
       const platformFeePercent = (settingsList && settingsList[0]?.platform_fee) || 15;
       
       const latestTotalEarnings = latestEarnings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
-      
+
       const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
       const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
       const latestReferralEarnings = latestReferrals
         .filter(r => ['completed', 'rewarded'].includes(r.status))
         .reduce((sum, r) => sum + rewardAmount, 0);
-      
+
+      const latestCampaignEarnings = latestCampaignBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
+
       const latestWithdrawn = latestPayouts.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
       const latestApproved = latestPayouts.filter(p => ['approved', 'processing'].includes(p.status)).reduce((sum, p) => sum + p.amount, 0);
       const latestPending = latestPayouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
 
-      const realBalance = latestTotalEarnings + latestReferralEarnings - latestWithdrawn - latestApproved - latestPending;
+      const realBalance = latestTotalEarnings + latestReferralEarnings + latestCampaignEarnings - latestWithdrawn - latestApproved - latestPending;
 
       if (realBalance < 100) {
         toast.error('Insufficient balance. Minimum balance required: ₹100');
