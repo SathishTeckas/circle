@@ -79,7 +79,7 @@ export default function AdminCampaignReferrals() {
     onSuccess: () => {
       toast.success('Campaign code created');
       setShowCreateDialog(false);
-      queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
+      refetchCampaigns();
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to create code');
