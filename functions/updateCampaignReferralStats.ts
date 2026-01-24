@@ -44,23 +44,10 @@ Deno.serve(async (req) => {
       return Response.json({ message: 'Campaign reward already applied', status: 200 });
     }
 
-    const updatedStats = {
-      total_signups: (campaign.total_signups || 0) + 1,
-      total_companions: campaign.total_companions || 0,
-      total_seekers: campaign.total_seekers || 0,
-    };
-
-    if (user.user_role === 'companion') {
-      updatedStats.total_companions += 1;
-    } else if (user.user_role === 'seeker') {
-      updatedStats.total_seekers += 1;
-    }
-
-    await base44.asServiceRole.entities.CampaignReferral.update(campaign.id, updatedStats);
-
-    // Create Referral record for campaign signup reward
+    // Create Referral record FIRST (before updating campaign stats to prevent race conditions)
+    let campaignReferral = null;
     if (campaign.referral_reward_amount > 0 && campaign.referral_reward_type === 'wallet_credit') {
-      const campaignReferral = await base44.asServiceRole.entities.Referral.create({
+      campaignReferral = await base44.asServiceRole.entities.Referral.create({
         referrer_id: userId,
         referrer_name: user.display_name || user.full_name,
         referee_id: userId,
@@ -72,8 +59,12 @@ Deno.serve(async (req) => {
         rewarded_date: new Date().toISOString()
       });
 
+      // Fetch fresh user balance before wallet update
+      const freshUser = await base44.asServiceRole.entities.User.get(userId);
+      const oldBalance = freshUser.wallet_balance || 0;
+      const newBalance = oldBalance + campaign.referral_reward_amount;
+
       // Update wallet balance
-      const newBalance = (user.wallet_balance || 0) + campaign.referral_reward_amount;
       await base44.asServiceRole.entities.User.update(userId, {
         wallet_balance: newBalance
       });
@@ -83,7 +74,7 @@ Deno.serve(async (req) => {
         user_id: userId,
         transaction_type: 'campaign_bonus',
         amount: campaign.referral_reward_amount,
-        balance_before: user.wallet_balance || 0,
+        balance_before: oldBalance,
         balance_after: newBalance,
         reference_id: campaignReferral.id,
         reference_type: 'Referral',
@@ -105,6 +96,21 @@ Deno.serve(async (req) => {
         read: false
       });
     }
+
+    // Now update campaign stats (after referral is guaranteed to exist)
+    const updatedStats = {
+      total_signups: (campaign.total_signups || 0) + 1,
+      total_companions: campaign.total_companions || 0,
+      total_seekers: campaign.total_seekers || 0,
+    };
+
+    if (user.user_role === 'companion') {
+      updatedStats.total_companions += 1;
+    } else if (user.user_role === 'seeker') {
+      updatedStats.total_seekers += 1;
+    }
+
+    await base44.asServiceRole.entities.CampaignReferral.update(campaign.id, updatedStats);
 
     return Response.json({ 
       message: `Campaign stats updated for ${campaignCode}`,

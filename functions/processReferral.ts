@@ -106,8 +106,13 @@ Deno.serve(async (req) => {
       rewarded_date: new Date().toISOString()
     });
 
+    // Fetch fresh balances before wallet updates (prevent stale data bugs)
+    const freshReferrer = await base44.asServiceRole.entities.User.get(referrer.id);
+    const freshReferee = await base44.asServiceRole.entities.User.get(user.id);
+
     // Update wallet balance for referrer
-    const referrerNewBalance = (referrer.wallet_balance || 0) + rewardAmount;
+    const referrerOldBalance = freshReferrer.wallet_balance || 0;
+    const referrerNewBalance = referrerOldBalance + rewardAmount;
     await base44.asServiceRole.entities.User.update(referrer.id, {
       wallet_balance: referrerNewBalance
     });
@@ -117,7 +122,7 @@ Deno.serve(async (req) => {
       user_id: referrer.id,
       transaction_type: 'referral_bonus',
       amount: rewardAmount,
-      balance_before: referrer.wallet_balance || 0,
+      balance_before: referrerOldBalance,
       balance_after: referrerNewBalance,
       reference_id: referral.id,
       reference_type: 'Referral',
@@ -125,7 +130,8 @@ Deno.serve(async (req) => {
     });
 
     // Update wallet balance for referee
-    const refereeNewBalance = (user.wallet_balance || 0) + rewardAmount;
+    const refereeOldBalance = freshReferee.wallet_balance || 0;
+    const refereeNewBalance = refereeOldBalance + rewardAmount;
     await base44.asServiceRole.entities.User.update(user.id, {
       wallet_balance: refereeNewBalance
     });
@@ -135,14 +141,14 @@ Deno.serve(async (req) => {
       user_id: user.id,
       transaction_type: 'referral_bonus',
       amount: rewardAmount,
-      balance_before: user.wallet_balance || 0,
+      balance_before: refereeOldBalance,
       balance_after: refereeNewBalance,
       reference_id: referral.id,
       reference_type: 'Referral',
       description: `Welcome bonus using code ${referral_code.trim().toUpperCase()}`
     });
 
-    // Update referral status to rewarded
+    // Update referral status to rewarded (final state change)
     await base44.asServiceRole.entities.Referral.update(referral.id, {
       status: 'rewarded'
     });
