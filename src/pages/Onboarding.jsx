@@ -41,7 +41,8 @@ export default function Onboarding() {
     profile_photos: [],
     interests: [],
     languages: [],
-    referral_code: ''
+    referral_code: '',
+    campaign_referral_code: ''
   });
 
   useEffect(() => {
@@ -49,8 +50,10 @@ export default function Onboarding() {
       try {
         const user = await base44.auth.me();
         
-        // Get referral code from localStorage if present
+        // Get referral codes from localStorage or URL params
         const savedRefCode = localStorage.getItem('referral_code');
+        const urlParams = new URLSearchParams(window.location.search);
+        const campaignCode = urlParams.get('campaign');
         
         setUserData(prev => ({
           ...prev,
@@ -64,7 +67,8 @@ export default function Onboarding() {
           profile_photos: user.profile_photos || [],
           interests: user.interests || [],
           languages: user.languages || [],
-          referral_code: savedRefCode || ''
+          referral_code: savedRefCode || '',
+          campaign_referral_code: campaignCode || ''
         }));
         setPhoneVerified(user.phone_verified || false);
       } catch (e) {
@@ -559,15 +563,24 @@ export default function Onboarding() {
                 </div>
 
                 <div>
-                  <Label className="text-slate-700 mb-2 block">Referral Code (Optional)</Label>
-                  <Input
-                    type="text"
-                    placeholder="Enter referral code if you have one"
-                    value={userData.referral_code}
-                    onChange={(e) => setUserData({ ...userData, referral_code: e.target.value })}
-                    className="h-14 rounded-xl border-slate-200"
-                  />
-                </div>
+                   <Label className="text-slate-700 mb-2 block">Referral Code (Optional)</Label>
+                   <Input
+                     type="text"
+                     placeholder="Enter friend's referral code"
+                     value={userData.referral_code}
+                     onChange={(e) => setUserData({ ...userData, referral_code: e.target.value })}
+                     className="h-14 rounded-xl border-slate-200"
+                   />
+                   <p className="text-xs text-slate-500 mt-1">Get rewards when you enter a friend's code</p>
+                 </div>
+
+                 {userData.campaign_referral_code && (
+                   <div className="bg-violet-50 border border-violet-200 rounded-xl p-3">
+                     <p className="text-xs text-violet-600">
+                       ✓ Campaign: <span className="font-semibold">{userData.campaign_referral_code}</span>
+                     </p>
+                   </div>
+                 )}
               </div>
             </motion.div>
           )}
