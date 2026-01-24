@@ -307,7 +307,7 @@ export default function Wallet() {
 
     try {
       // Fetch latest data to verify real balance
-      const [latestPayouts, latestEarnings, latestPendingBookings, latestReferrals, settingsList] = await Promise.all([ // Renamed latestPendingEarnings to latestPendingBookings for clarity
+      const [latestPayouts, latestEarnings, latestPendingBookings, latestReferrals, latestCampaignBonuses, settingsList] = await Promise.all([ // Renamed latestPendingEarnings to latestPendingBookings for clarity
         base44.entities.Payout.filter({ companion_id: user.id }, '-created_date', 200),
         base44.entities.Booking.filter({ 
           companion_id: user.id, 
@@ -322,6 +322,10 @@ export default function Wallet() {
         base44.entities.Referral.filter({
           referrer_id: user.id,
           referral_type: 'user_referral'
+        }, '-created_date', 100),
+        base44.entities.WalletTransaction.filter({
+          user_id: user.id,
+          transaction_type: 'campaign_bonus'
         }, '-created_date', 100),
         base44.entities.AppSettings.list()
       ]);
