@@ -21,13 +21,6 @@ export default function AdminCampaignReferrals() {
   const [showAnalyticsDialog, setShowAnalyticsDialog] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
-  const [formData, setFormData] = useState({
-    code: '',
-    campaign_name: '',
-    description: '',
-    referral_reward_amount: 0,
-    referral_reward_type: 'none'
-  });
 
   const queryClient = useQueryClient();
 
