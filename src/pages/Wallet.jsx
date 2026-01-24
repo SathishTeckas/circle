@@ -115,6 +115,18 @@ export default function Wallet() {
    staleTime: 5 * 60 * 1000
   });
 
+  const { data: campaignBonuses = [] } = useQuery({
+   queryKey: ['campaign-bonuses', user?.id],
+   queryFn: async () => {
+     return await base44.entities.WalletTransaction.filter({
+       user_id: user.id,
+       transaction_type: 'campaign_bonus'
+     }, '-created_date', 100);
+   },
+   enabled: !!user?.id,
+   staleTime: 5 * 60 * 1000
+  });
+
   const totalWithdrawn = payouts
     .filter(p => p.status === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
