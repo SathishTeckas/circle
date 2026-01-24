@@ -109,8 +109,9 @@ export default function BookingView() {
         user_id: booking?.seeker_id,
         type: 'booking_accepted',
         title: '🎉 Booking Confirmed!',
-        message: `${companion?.display_name || companion?.full_name || booking?.companion_name} accepted your booking request`,
+        message: `${companion?.display_name || companion?.full_name || booking?.companion_name} accepted your booking request for ${formatCurrency(booking?.base_price || 0)}`,
         booking_id: bookingId,
+        amount: booking?.base_price || 0,
         action_url: createPageUrl(`BookingView?id=${bookingId}`)
       });
     },
@@ -418,23 +419,37 @@ export default function BookingView() {
           </h3>
           
           <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-slate-600">Base Price ({booking?.duration_hours || 0}h)</span>
-            <span className="text-slate-900">{formatCurrency(booking?.base_price || 0)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-600">Platform Fee ({appSettings?.platform_fee || 15}%)</span>
-            <span className="text-slate-900">{formatCurrency(booking?.platform_fee || 0)}</span>
-          </div>
-          <div className="flex justify-between border-t border-slate-100 pt-2 font-semibold">
-            <span className="text-slate-900">Total</span>
-            <span className="text-slate-900">{formatCurrency(booking?.total_amount || 0)}</span>
-          </div>
+            {isSeeker ? (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Base Price ({booking?.duration_hours || 0}h)</span>
+                  <span className="text-slate-900">{formatCurrency(booking?.base_price || 0)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Platform Fee ({appSettings?.platform_fee || 15}%)</span>
+                  <span className="text-slate-900">{formatCurrency(booking?.platform_fee || 0)}</span>
+                </div>
+                <div className="flex justify-between border-t border-slate-100 pt-2 font-semibold">
+                  <span className="text-slate-900">Total Paid</span>
+                  <span className="text-slate-900">{formatCurrency(booking?.total_amount || 0)}</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between font-semibold">
+                <span className="text-slate-900">Your Quoted Amount</span>
+                <span className="text-slate-900">{formatCurrency(booking?.base_price || 0)}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 p-3 rounded-xl">
             <Shield className="w-4 h-4" />
-            <span>Payment held in escrow until meetup is complete</span>
+            <span>
+              {isSeeker 
+                ? 'Payment held in escrow until meetup is complete'
+                : 'Payment will be credited to your wallet after meetup completion (platform fee deducted on withdrawal)'
+              }
+            </span>
           </div>
         </Card>
 
