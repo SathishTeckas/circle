@@ -178,6 +178,12 @@ export default function Wallet() {
     mutationFn: async () => {
       const amount = parseFloat(payoutAmount);
 
+      // Fetch platform fee from settings
+      const settings = await base44.entities.AppSettings.list();
+      const platformFeePercent = settings[0]?.platform_fee || 15;
+      const platformFee = (amount * platformFeePercent) / 100;
+      const netAmount = amount - platformFee;
+
       // Fetch latest payouts to check real-time balance
       const latestPayouts = await base44.entities.Payout.filter({ 
         companion_id: user.id 
@@ -202,8 +208,8 @@ export default function Wallet() {
         throw new Error(`Insufficient balance. Available: ${formatCurrency(currentAvailableBalance)}`);
       }
 
-      if (amount < 100) {
-        throw new Error('Minimum payout amount is ₹100');
+      if (netAmount < 100) {
+        throw new Error(`After ${platformFeePercent}% platform fee, net amount must be at least ₹100`);
       }
 
       const details = paymentMethod === 'upi' 
@@ -230,7 +236,7 @@ export default function Wallet() {
         companion_id: user.id,
         companion_name: user.full_name,
         companion_email: user.email,
-        amount: amount,
+        amount: netAmount,
         payment_method: paymentMethod,
         payment_details: details,
         status: 'pending',
@@ -388,7 +394,8 @@ export default function Wallet() {
                 <div className="space-y-6 overflow-y-auto h-[calc(85vh-140px)] pb-6">
                   <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
                    <p className="text-sm text-emerald-800 font-medium">Available: {formatCurrency(availableBalance)}</p>
-                   <p className="text-xs text-emerald-600 mt-1">Minimum payout: ₹100.00</p>
+                   <p className="text-xs text-emerald-600 mt-1">Platform fee 15% will be deducted from payout amount</p>
+                   <p className="text-xs text-emerald-600 mt-1">After fees, you'll receive minimum ₹100</p>
                   </div>
 
                   <div>
