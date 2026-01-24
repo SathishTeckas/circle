@@ -281,9 +281,8 @@ export default function Wallet() {
           escrow_status: 'held'
         }),
         base44.entities.Referral.filter({ 
-          referrer_id: user.id,
-          status: 'completed'
-        })
+          referrer_id: user.id
+        }).then(refs => refs.filter(r => ['completed', 'rewarded'].includes(r.status)))
       ]);
 
       const latestTotalEarnings = latestEarnings.reduce((sum, b) => sum + (b.base_price || 0), 0);
