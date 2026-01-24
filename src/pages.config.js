@@ -35,13 +35,13 @@ import Onboarding from './pages/Onboarding';
 import PrivacySafety from './pages/PrivacySafety';
 import Profile from './pages/Profile';
 import RaiseDispute from './pages/RaiseDispute';
+import ReferralAnalytics from './pages/ReferralAnalytics';
 import Referrals from './pages/Referrals';
 import RoleSelection from './pages/RoleSelection';
 import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
-import ReferralAnalytics from './pages/ReferralAnalytics';
 import __Layout from './Layout.jsx';
 
 
@@ -83,13 +83,13 @@ export const PAGES = {
     "PrivacySafety": PrivacySafety,
     "Profile": Profile,
     "RaiseDispute": RaiseDispute,
+    "ReferralAnalytics": ReferralAnalytics,
     "Referrals": Referrals,
     "RoleSelection": RoleSelection,
     "TermsAcceptance": TermsAcceptance,
     "UserProfile": UserProfile,
     "Wallet": Wallet,
     "Welcome": Welcome,
-    "ReferralAnalytics": ReferralAnalytics,
 }
 
 export const pagesConfig = {
