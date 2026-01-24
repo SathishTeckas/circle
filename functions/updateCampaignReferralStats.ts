@@ -29,6 +29,11 @@ Deno.serve(async (req) => {
 
     const campaign = campaigns[0];
 
+    // Check if campaign is active
+    if (!campaign.is_active) {
+      return Response.json({ message: 'Campaign is not active', status: 200 });
+    }
+
     // Check for duplicate campaign referral to prevent double rewards
     const existingCampaignReferral = await base44.asServiceRole.entities.Referral.filter({
       referee_id: userId,
@@ -53,24 +58,42 @@ Deno.serve(async (req) => {
 
     await base44.asServiceRole.entities.CampaignReferral.update(campaign.id, updatedStats);
 
-    // Create Referral record for campaign signup reward (only referrer gets credit, not self)
+    // Create Referral record for campaign signup reward
     if (campaign.referral_reward_amount > 0 && campaign.referral_reward_type === 'wallet_credit') {
-      await base44.asServiceRole.entities.Referral.create({
+      const campaignReferral = await base44.asServiceRole.entities.Referral.create({
         referrer_id: userId,
         referrer_name: user.display_name || user.full_name,
         referee_id: userId,
         referee_name: 'Campaign Signup',
         referral_code: campaignCode,
+        referral_type: 'campaign_signup',
         status: 'completed',
         reward_amount: campaign.referral_reward_amount,
         rewarded_date: new Date().toISOString()
       });
 
       // Update wallet balance
-      const updatedUser = {
-        wallet_balance: (user.wallet_balance || 0) + campaign.referral_reward_amount
-      };
-      await base44.asServiceRole.entities.User.update(userId, updatedUser);
+      const newBalance = (user.wallet_balance || 0) + campaign.referral_reward_amount;
+      await base44.asServiceRole.entities.User.update(userId, {
+        wallet_balance: newBalance
+      });
+
+      // Log transaction
+      await base44.asServiceRole.entities.WalletTransaction.create({
+        user_id: userId,
+        transaction_type: 'campaign_bonus',
+        amount: campaign.referral_reward_amount,
+        balance_before: user.wallet_balance || 0,
+        balance_after: newBalance,
+        reference_id: campaignReferral.id,
+        reference_type: 'Referral',
+        description: `Campaign signup bonus for ${campaignCode}`
+      });
+
+      // Update referral status to rewarded
+      await base44.asServiceRole.entities.Referral.update(campaignReferral.id, {
+        status: 'rewarded'
+      });
 
       // Send notification
       await base44.asServiceRole.entities.Notification.create({

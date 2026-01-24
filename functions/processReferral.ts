@@ -94,27 +94,58 @@ Deno.serve(async (req) => {
     }
 
     // Create ONE referral record - both parties benefit from it
-    await base44.asServiceRole.entities.Referral.create({
+    const referral = await base44.asServiceRole.entities.Referral.create({
       referrer_id: referrer.id,
       referrer_name: referrer.display_name || referrer.full_name,
       referee_id: user.id,
       referee_name: user.display_name || user.full_name,
       referral_code: referral_code.trim().toUpperCase(),
+      referral_type: 'user_referral',
       status: 'completed',
       reward_amount: rewardAmount,
       rewarded_date: new Date().toISOString()
     });
 
-    // Update wallet balance for both users
-    const referrerUpdates = {
-      wallet_balance: (referrer.wallet_balance || 0) + rewardAmount
-    };
-    const refereeUpdates = {
-      wallet_balance: (user.wallet_balance || 0) + rewardAmount
-    };
+    // Update wallet balance for referrer
+    const referrerNewBalance = (referrer.wallet_balance || 0) + rewardAmount;
+    await base44.asServiceRole.entities.User.update(referrer.id, {
+      wallet_balance: referrerNewBalance
+    });
 
-    await base44.asServiceRole.entities.User.update(referrer.id, referrerUpdates);
-    await base44.asServiceRole.entities.User.update(user.id, refereeUpdates);
+    // Log referrer transaction
+    await base44.asServiceRole.entities.WalletTransaction.create({
+      user_id: referrer.id,
+      transaction_type: 'referral_bonus',
+      amount: rewardAmount,
+      balance_before: referrer.wallet_balance || 0,
+      balance_after: referrerNewBalance,
+      reference_id: referral.id,
+      reference_type: 'Referral',
+      description: `Referral bonus from ${user.display_name || user.full_name}`
+    });
+
+    // Update wallet balance for referee
+    const refereeNewBalance = (user.wallet_balance || 0) + rewardAmount;
+    await base44.asServiceRole.entities.User.update(user.id, {
+      wallet_balance: refereeNewBalance
+    });
+
+    // Log referee transaction
+    await base44.asServiceRole.entities.WalletTransaction.create({
+      user_id: user.id,
+      transaction_type: 'referral_bonus',
+      amount: rewardAmount,
+      balance_before: user.wallet_balance || 0,
+      balance_after: refereeNewBalance,
+      reference_id: referral.id,
+      reference_type: 'Referral',
+      description: `Welcome bonus using code ${referral_code.trim().toUpperCase()}`
+    });
+
+    // Update referral status to rewarded
+    await base44.asServiceRole.entities.Referral.update(referral.id, {
+      status: 'rewarded'
+    });
 
     // Send notification to referrer
     await base44.asServiceRole.entities.Notification.create({
