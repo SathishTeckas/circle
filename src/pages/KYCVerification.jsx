@@ -250,7 +250,11 @@ export default function KYCVerification() {
               Your account is now fully verified and ready to use
             </p>
             <Button
-              onClick={() => {
+              onClick={async () => {
+                // Make sure onboarding_completed is set to true
+                await base44.auth.updateMe({ 
+                  onboarding_completed: true 
+                });
                 if (user?.user_role === 'companion') {
                   window.location.href = createPageUrl('CompanionDashboard');
                 } else {
