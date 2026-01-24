@@ -198,9 +198,14 @@ export default function Onboarding() {
         try {
           // Fetch fresh user data with campaign code saved
           user = await base44.auth.me();
+          // Call the function directly with necessary context
           await base44.functions.invoke('updateCampaignReferralStats', {
             entity_id: user.id,
-            data: user,
+            data: { 
+              ...user,
+              user_role: user.user_role || userData.display_name, // Ensure role is included
+              campaign_referral_code: userData.campaign_referral_code
+            },
             event: { type: 'create' }
           });
         } catch (campaignError) {
