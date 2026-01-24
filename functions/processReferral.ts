@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
       referee_name: user.display_name || user.full_name,
       referral_code: referral_code.trim().toUpperCase(),
       status: 'completed',
-      reward_amount: 100,
+      reward_amount: rewardAmount,
       rewarded_date: new Date().toISOString()
     });
 
@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
       referee_name: user.display_name || user.full_name,
       referral_code: referral_code.trim().toUpperCase(),
       status: 'completed',
-      reward_amount: 100,
+      reward_amount: rewardAmount,
       rewarded_date: new Date().toISOString()
     });
 
@@ -101,8 +101,8 @@ Deno.serve(async (req) => {
       user_id: referrer.id,
       type: 'payment_received',
       title: '🎉 Referral Bonus!',
-      message: `${user.display_name || user.full_name || 'Someone'} joined using your referral code. You earned ₹100!`,
-      amount: 100,
+      message: `${user.display_name || user.full_name || 'Someone'} joined using your referral code. You earned ₹${rewardAmount}!`,
+      amount: rewardAmount,
       read: false
     });
 
@@ -111,15 +111,15 @@ Deno.serve(async (req) => {
       user_id: user.id,
       type: 'payment_received',
       title: '🎉 Welcome Bonus!',
-      message: `You received ₹100 signup bonus for using referral code ${referral_code.trim().toUpperCase()}!`,
-      amount: 100,
+      message: `You received ₹${rewardAmount} signup bonus for using referral code ${referral_code.trim().toUpperCase()}!`,
+      amount: rewardAmount,
       read: false
     });
 
     return Response.json({ 
       success: true, 
       message: 'Referral processed successfully',
-      reward_amount: 100
+      reward_amount: rewardAmount
     });
 
   } catch (error) {
