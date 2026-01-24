@@ -59,8 +59,8 @@ Deno.serve(async (req) => {
       // Send notification
       await base44.asServiceRole.entities.Notification.create({
         user_id: userId,
-        type: 'payment_received',
-        title: '🎉 Campaign Bonus!',
+        type: 'referral_bonus',
+        title: '🎉 Campaign Signup Bonus!',
         message: `You received ₹${campaign.referral_reward_amount} for signing up with code ${campaignCode}!`,
         amount: campaign.referral_reward_amount,
         read: false
