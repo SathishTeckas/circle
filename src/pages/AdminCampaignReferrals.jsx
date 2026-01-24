@@ -78,10 +78,10 @@ export default function AdminCampaignReferrals() {
       return await base44.entities.CampaignReferral.create(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
+      toast.success('Campaign code created');
       setShowCreateDialog(false);
       setFormData({ code: '', campaign_name: '', description: '', referral_reward_amount: 0, referral_reward_type: 'none' });
-      toast.success('Campaign code created');
+      queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to create code');
