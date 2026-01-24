@@ -415,107 +415,15 @@ export default function AdminCampaignReferrals() {
       </div>
 
       {/* Create Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create Campaign Code</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">Campaign Name</label>
-              <Input
-                placeholder="Summer Campaign 2026"
-                value={formData.campaign_name}
-                onChange={(e) => setFormData({ ...formData, campaign_name: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">Referral Code</label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="CAMPAIGN2026"
-                  value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                  className="font-mono"
-                />
-                <Button
-                  variant="outline"
-                  onClick={generateCode}
-                  type="button"
-                >
-                  Generate
-                </Button>
-              </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">Description (Optional)</label>
-              <Textarea
-                placeholder="Facebook Ads - Summer Promotion"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows={3}
-              />
-            </div>
-
-            {/* Referral Incentive Section */}
-            <div className="border-t pt-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Gift className="w-4 h-4 text-violet-600" />
-                <label className="text-sm font-semibold text-slate-900">Referral Incentive</label>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-slate-600 mb-1 block">Reward Type</label>
-                  <Select
-                    value={formData.referral_reward_type}
-                    onValueChange={(value) => setFormData({ ...formData, referral_reward_type: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No Reward</SelectItem>
-                      <SelectItem value="wallet_credit">Wallet Credit</SelectItem>
-                      <SelectItem value="discount">Discount</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-xs text-slate-600 mb-1 block">Amount (₹)</label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={formData.referral_reward_amount}
-                    onChange={(e) => setFormData({ ...formData, referral_reward_amount: Number(e.target.value) })}
-                    disabled={formData.referral_reward_type === 'none'}
-                  />
-                </div>
-              </div>
-              {formData.referral_reward_type !== 'none' && (
-                <p className="text-xs text-slate-500 mt-2">
-                  New signups using this code will receive ₹{formData.referral_reward_amount} {formData.referral_reward_type === 'wallet_credit' ? 'in their wallet' : 'as discount'}.
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowCreateDialog(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => createMutation.mutate(formData)}
-              disabled={!formData.code || !formData.campaign_name || createMutation.isPending}
-              className="flex-1 bg-violet-600 hover:bg-violet-700"
-            >
-              {createMutation.isPending ? 'Creating...' : 'Create Campaign'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <CampaignFormDialog 
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        formData={formData}
+        onFormChange={setFormData}
+        onGenerateCode={generateCode}
+        onSubmit={() => createMutation.mutate(formData)}
+        isLoading={createMutation.isPending}
+      />
 
       {/* Analytics Dialog */}
       <Dialog open={showAnalyticsDialog} onOpenChange={setShowAnalyticsDialog}>
