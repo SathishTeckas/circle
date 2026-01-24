@@ -242,14 +242,17 @@ export default function AdminGroups() {
               </div>
             </div>
 
-            <Sheet open={showForm} onOpenChange={setShowForm}>
+            <Sheet open={showForm} onOpenChange={(open) => {
+              if (!open) handleCloseForm();
+              else setShowForm(open);
+            }}>
               <SheetTrigger asChild>
                 <Button className="bg-fuchsia-600 hover:bg-fuchsia-700 rounded-xl">
                   <Plus className="w-4 h-4 mr-2" />
                   Create Event
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto" onOpenChange={handleCloseForm}>
+              <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>{editingEvent ? 'Edit Event' : 'Create Group Event'}</SheetTitle>
                 </SheetHeader>
