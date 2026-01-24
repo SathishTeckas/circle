@@ -72,7 +72,6 @@ export default function AdminCampaignReferrals() {
     onSuccess: () => {
       toast.success('Campaign code created');
       setShowCreateDialog(false);
-      setFormData({ code: '', campaign_name: '', description: '', referral_reward_amount: 0, referral_reward_type: 'none' });
       queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
     },
     onError: (error) => {
