@@ -63,7 +63,7 @@ const CampaignFormDialog = React.memo(({
               />
               <Button
                 variant="outline"
-                onClick={onGenerateCode}
+                onClick={() => onGenerateCode((code) => handleInputChange('code', code))}
                 type="button"
               >
                 Generate
