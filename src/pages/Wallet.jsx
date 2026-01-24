@@ -98,32 +98,26 @@ export default function Wallet() {
   const { data: referrals = [] } = useQuery({
     queryKey: ['referrals', user?.id],
     queryFn: async () => {
-      const allReferrals = await base44.entities.Referral.filter({ 
-        referrer_id: user.id
-      }, '-created_date', 50);
-      
-      // Filter rewarded referrals and get their actual reward amounts
-      const rewardedReferrals = allReferrals.filter(r => ['completed', 'rewarded'].includes(r.status));
-      
-      // Fetch campaign referral codes to get dynamic reward amounts
-      const campaignCodes = [...new Set(rewardedReferrals.map(r => r.referral_code).filter(Boolean))];
-      const campaigns = await Promise.all(
-        campaignCodes.map(code => 
-          base44.entities.CampaignReferral.filter({ code }).then(c => c[0])
-        )
+      // Fetch all referrals where user is EITHER referrer OR referee
+      const allReferrals = await base44.entities.Referral.list();
+      const myReferrals = allReferrals.filter(r => 
+        r.referrer_id === user.id || r.referee_id === user.id
       );
       
-      const campaignMap = {};
-      campaigns.forEach(c => {
-        if (c) campaignMap[c.code] = c.referral_reward_amount || 0;
-      });
+      // Filter rewarded referrals
+      const rewardedReferrals = myReferrals.filter(r => ['completed', 'rewarded'].includes(r.status));
       
-      // Update referral rewards with campaign amounts
+      // Fetch SYSTEM campaign to get dynamic reward amount
+      const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
+      const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
+      
+      // Map referrals with correct display info
       return rewardedReferrals.map(r => ({
         ...r,
-        reward_amount: r.referral_code && campaignMap[r.referral_code] 
-          ? campaignMap[r.referral_code] 
-          : (r.reward_amount || 100)
+        reward_amount: rewardAmount,
+        // For display: show the OTHER person's name
+        display_name: r.referrer_id === user.id ? r.referee_name : r.referrer_name,
+        display_role: r.referrer_id === user.id ? 'referred' : 'referred_by'
       }));
     },
     enabled: !!user?.id
@@ -164,7 +158,9 @@ export default function Wallet() {
       id: r.id,
       type: 'referral',
       amount: r.reward_amount || 0,
-      description: `Referral bonus - ${r.referee_name}`,
+      description: r.display_role === 'referred' 
+        ? `Referral bonus - You referred ${r.display_name}`
+        : `Welcome bonus - Referred by ${r.display_name}`,
       date: r.rewarded_date || r.created_date,
       icon: ArrowDownLeft,
       color: 'violet'
@@ -303,25 +299,16 @@ export default function Wallet() {
           status: 'accepted',
           escrow_status: 'held'
         }),
-        base44.entities.Referral.filter({ 
-          referrer_id: user.id
-        }).then(async refs => {
-          const rewardedRefs = refs.filter(r => ['completed', 'rewarded'].includes(r.status));
-          const campaignCodes = [...new Set(rewardedRefs.map(r => r.referral_code).filter(Boolean))];
-          const campaigns = await Promise.all(
-            campaignCodes.map(code => 
-              base44.entities.CampaignReferral.filter({ code }).then(c => c[0])
-            )
+        base44.entities.Referral.list().then(async allRefs => {
+          const myRefs = allRefs.filter(r => 
+            (r.referrer_id === user.id || r.referee_id === user.id) &&
+            ['completed', 'rewarded'].includes(r.status)
           );
-          const campaignMap = {};
-          campaigns.forEach(c => {
-            if (c) campaignMap[c.code] = c.referral_reward_amount || 0;
-          });
-          return rewardedRefs.map(r => ({
+          const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
+          const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
+          return myRefs.map(r => ({
             ...r,
-            reward_amount: r.referral_code && campaignMap[r.referral_code] 
-              ? campaignMap[r.referral_code] 
-              : (r.reward_amount || 100)
+            reward_amount: rewardAmount
           }));
         })
       ]);

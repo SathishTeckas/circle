@@ -70,25 +70,13 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Create referral record for REFERRER (person who shared the code) - they earn money
+    // Create ONE referral record - both parties benefit from it
     await base44.asServiceRole.entities.Referral.create({
       referrer_id: referrer.id,
       referrer_name: referrer.display_name || referrer.full_name,
       referee_id: user.id,
       referee_name: user.display_name || user.full_name,
       referral_code: referral_code.trim().toUpperCase(),
-      status: 'completed',
-      reward_amount: rewardAmount,
-      rewarded_date: new Date().toISOString()
-    });
-
-    // Create referral record for REFEREE (new user) - they also earn money
-    await base44.asServiceRole.entities.Referral.create({
-      referrer_id: user.id,
-      referrer_name: user.display_name || user.full_name,
-      referee_id: referrer.id,
-      referee_name: referrer.display_name || referrer.full_name,
-      referral_code: 'WELCOME_BONUS',
       status: 'completed',
       reward_amount: rewardAmount,
       rewarded_date: new Date().toISOString()
