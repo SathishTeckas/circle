@@ -50,19 +50,20 @@ Deno.serve(async (req) => {
     }
 
     // Create Referral record FIRST (before updating campaign stats to prevent race conditions)
-    let campaignReferral = null;
-    if (campaign.referral_reward_amount > 0 && campaign.referral_reward_type === 'wallet_credit') {
-      campaignReferral = await base44.asServiceRole.entities.Referral.create({
-        referrer_id: userId,
-        referrer_name: user.display_name || user.full_name,
-        referee_id: userId,
-        referee_name: 'Campaign Signup',
-        referral_code: campaignCode,
-        referral_type: 'campaign_signup',
-        status: 'completed',
-        reward_amount: campaign.referral_reward_amount,
-        rewarded_date: new Date().toISOString()
-      });
+     let campaignReferral = null;
+     let rewardApplied = false;
+     if (campaign.referral_reward_amount > 0 && campaign.referral_reward_type === 'wallet_credit') {
+       campaignReferral = await base44.asServiceRole.entities.Referral.create({
+         referrer_id: campaign.created_by || 'system',
+         referrer_name: 'Campaign Admin',
+         referee_id: userId,
+         referee_name: user.display_name || user.full_name,
+         referral_code: campaignCode,
+         referral_type: 'campaign_signup',
+         status: 'completed',
+         reward_amount: campaign.referral_reward_amount,
+         rewarded_date: new Date().toISOString()
+       });
 
       // Fetch fresh user balance before wallet update
       const freshUser = await base44.asServiceRole.entities.User.get(userId);
@@ -100,7 +101,9 @@ Deno.serve(async (req) => {
         amount: campaign.referral_reward_amount,
         read: false
       });
-    }
+
+      rewardApplied = true;
+      }
 
     // Now update campaign stats (after referral is guaranteed to exist)
     const updatedStats = {
@@ -119,7 +122,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ 
       message: `Campaign stats updated for ${campaignCode}`,
-      reward_applied: campaign.referral_reward_amount > 0 
+      reward_applied: rewardApplied
     });
   } catch (error) {
     console.error('Error updating campaign stats:', error);
