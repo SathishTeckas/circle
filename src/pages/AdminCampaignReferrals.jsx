@@ -133,7 +133,7 @@ export default function AdminCampaignReferrals() {
     setFormData(prev => ({ ...prev, code }));
   }, []);
 
-  const handleExport = () => {
+  const handleExport = useCallback(() => {
     const csv = [
       ['Code', 'Campaign', 'Signups', 'Companions', 'Seekers', 'Bookings', 'Revenue', 'Status', 'Created'],
       ...campaigns.map(c => [
@@ -157,7 +157,7 @@ export default function AdminCampaignReferrals() {
     a.click();
     window.URL.revokeObjectURL(url);
     toast.success('Export started');
-  };
+  }, [campaigns]);
 
   const totalStats = {
     signups: campaigns.reduce((sum, c) => sum + (c.total_signups || 0), 0),
