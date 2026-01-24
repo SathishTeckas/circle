@@ -305,7 +305,25 @@ export default function Wallet() {
         }),
         base44.entities.Referral.filter({ 
           referrer_id: user.id
-        }).then(refs => refs.filter(r => ['completed', 'rewarded'].includes(r.status)))
+        }).then(async refs => {
+          const rewardedRefs = refs.filter(r => ['completed', 'rewarded'].includes(r.status));
+          const campaignCodes = [...new Set(rewardedRefs.map(r => r.referral_code).filter(Boolean))];
+          const campaigns = await Promise.all(
+            campaignCodes.map(code => 
+              base44.entities.CampaignReferral.filter({ code }).then(c => c[0])
+            )
+          );
+          const campaignMap = {};
+          campaigns.forEach(c => {
+            if (c) campaignMap[c.code] = c.referral_reward_amount || 0;
+          });
+          return rewardedRefs.map(r => ({
+            ...r,
+            reward_amount: r.referral_code && campaignMap[r.referral_code] 
+              ? campaignMap[r.referral_code] 
+              : (r.reward_amount || 100)
+          }));
+        })
       ]);
 
       const latestTotalEarnings = latestEarnings.reduce((sum, b) => sum + (b.base_price || 0), 0);
