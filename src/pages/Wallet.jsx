@@ -286,7 +286,7 @@ export default function Wallet() {
         })
       ]);
 
-      const latestTotalEarnings = latestEarnings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
+      const latestTotalEarnings = latestEarnings.reduce((sum, b) => sum + (b.base_price || 0), 0);
       const latestReferralEarnings = latestReferrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
       const latestWithdrawn = latestPayouts.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
       const latestApproved = latestPayouts.filter(p => ['approved', 'processing'].includes(p.status)).reduce((sum, p) => sum + p.amount, 0);
