@@ -388,6 +388,11 @@ export default function Wallet() {
                    <p className="text-sm text-emerald-800 font-medium">Available: {formatCurrency(availableBalance)}</p>
                    <p className="text-xs text-emerald-600 mt-1">Platform fee {platformFeePercent}% will be deducted from payout amount</p>
                    <p className="text-xs text-emerald-600 mt-1">After fees, you'll receive minimum ₹100</p>
+                   {payoutAmount && !isNaN(parseFloat(payoutAmount)) && (
+                     <p className="text-xs font-semibold text-red-600 mt-2">
+                       You'll receive: {formatCurrency(Math.max(0, parseFloat(payoutAmount) - Math.round((parseFloat(payoutAmount) * platformFeePercent) / 100)))}
+                     </p>
+                   )}
                   </div>
 
                   <div>
