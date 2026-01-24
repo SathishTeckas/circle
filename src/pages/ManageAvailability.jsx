@@ -185,7 +185,7 @@ export default function ManageAvailability() {
     }
   });
 
-  // Check if availability is in the past
+  // Check if availability is in the past or expired
   const isAvailabilityPast = (availability) => {
     const now = new Date();
     const availDate = new Date(availability.date);
@@ -195,13 +195,14 @@ export default function ManageAvailability() {
       return true;
     }
     
-    // If date is today, check if the end_time has passed
+    // If date is today, check if the start_time has passed
     if (availDate.toDateString() === now.toDateString()) {
-      const [endHour, endMinute] = availability.end_time.split(':').map(Number);
+      const [startHour, startMinute] = availability.start_time.split(':').map(Number);
       const currentHour = now.getHours();
       const currentMinute = now.getMinutes();
       
-      return endHour < currentHour || (endHour === currentHour && endMinute <= currentMinute);
+      // Mark as past if start time has already passed
+      return startHour < currentHour || (startHour === currentHour && startMinute <= currentMinute);
     }
     
     return false;
