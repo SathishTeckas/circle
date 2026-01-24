@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -188,6 +189,7 @@ export default function Wallet() {
 
   const submitPayout = async () => {
     try {
+      setIsSubmitting(true);
       const amount = parseFloat(payoutAmount);
       if (!amount || isNaN(amount) || amount < 100) {
         toast.error('Amount must be at least ₹100');
@@ -262,24 +264,26 @@ export default function Wallet() {
     } catch (error) {
       toast.dismiss();
       toast.error(error.message || 'Failed to submit payout');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleOpenPayoutSheet = async () => {
-    if (isSubmitting || requestPayoutMutation.isPending || checkingBalance) return;
+    if (isSubmitting || checkingBalance) return; // Removed requestPayoutMutation.isPending
 
     setCheckingBalance(true);
 
     try {
       // Fetch latest data to verify real balance
-      const [latestPayouts, latestEarnings, latestPendingEarnings, latestReferrals, settingsList] = await Promise.all([
+      const [latestPayouts, latestEarnings, latestPendingBookings, latestReferrals, settingsList] = await Promise.all([ // Renamed latestPendingEarnings to latestPendingBookings for clarity
         base44.entities.Payout.filter({ companion_id: user.id }, '-created_date', 200),
         base44.entities.Booking.filter({ 
           companion_id: user.id, 
           status: 'completed',
           escrow_status: 'released'
         }, '-created_date', 100),
-        base44.entities.Booking.filter({ 
+        base44.entities.Booking.filter({ // Added latestPendingBookings
           companion_id: user.id, 
           status: 'accepted',
           escrow_status: 'held'
@@ -316,6 +320,7 @@ export default function Wallet() {
       setPayoutAmount('');
       setShowPayoutSheet(true);
     } catch (error) {
+      console.error("Error during balance check:", error);
       toast.error('Failed to verify balance. Please try again.');
     } finally {
       setCheckingBalance(false);
@@ -366,10 +371,10 @@ export default function Wallet() {
               <Button 
                 onClick={handleOpenPayoutSheet}
                 className="w-full bg-white text-emerald-600 hover:bg-emerald-50"
-                disabled={availableBalance < 100 || isSubmitting || requestPayoutMutation.isPending || checkingBalance}
+                disabled={availableBalance < 100 || isSubmitting || checkingBalance}
               >
                 <CreditCard className="w-4 h-4 mr-2" />
-                {checkingBalance ? 'Checking Balance...' : (isSubmitting || requestPayoutMutation.isPending) ? 'Processing...' : 'Request Payout'}
+                {checkingBalance ? 'Checking Balance...' : isSubmitting ? 'Processing...' : 'Request Payout'}
               </Button>
               <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
                 <SheetHeader className="mb-6">
@@ -486,7 +491,7 @@ export default function Wallet() {
 
                   <Button
                     onClick={submitPayout}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !canRequestPayout()}
                     className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
                   >
                     {isSubmitting ? 'Submitting...' : 'Submit Request'}
