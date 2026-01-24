@@ -24,7 +24,7 @@ export default function AdminCampaignReferrals() {
 
   const queryClient = useQueryClient();
 
-  const { data: campaigns = [], isLoading } = useQuery({
+  const { data: campaigns = [], isLoading, refetch: refetchCampaigns } = useQuery({
     queryKey: ['campaign-referrals'],
     queryFn: async () => {
       const allCampaigns = await base44.entities.CampaignReferral.list('-created_date', 100);
@@ -44,9 +44,16 @@ export default function AdminCampaignReferrals() {
         return await base44.entities.CampaignReferral.list('-created_date', 100);
       }
       
+      // Recalculate stats for all campaigns
+      try {
+        await base44.functions.invoke('recalculateCampaignStats', {});
+      } catch (error) {
+        console.error('Failed to recalculate stats:', error);
+      }
+
       return allCampaigns;
     },
-    staleTime: 30000
+    staleTime: 10000
   });
 
   const { data: campaignUsers = [] } = useQuery({
