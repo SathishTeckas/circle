@@ -19,31 +19,13 @@ Deno.serve(async (req) => {
     let processedCount = 0;
     const campaignCodes = campaigns.map(c => c.code);
 
-    // Get all referrals with campaign codes already processed
-     const processedReferrals = await base44.asServiceRole.entities.Referral.filter({
-       referral_type: 'campaign_signup'
-     }, '-created_date', 10000);
+    // Get all users with campaign codes but no campaign referral record yet
+     const allUsers = await base44.asServiceRole.entities.User.list('', 1000);
 
-     const processedUserIds = new Set(processedReferrals.map(r => r.referee_id));
-
-     // Get all campaign referrals to find users who haven't been rewarded yet
-     for (const campaign of campaigns) {
-       const campaignRecords = await base44.asServiceRole.entities.Referral.filter({
-         referral_code: campaign.code,
-         referral_type: 'campaign_signup'
-       }, '-created_date', 10000);
-
-       // For campaigns with "none" reward type, still create referral records for tracking
-       if (campaignRecords.length === 0 && campaign.referral_reward_type === 'none') {
+     for (const u of allUsers) {
+       if (!u.campaign_referral_code || !campaignCodes.includes(u.campaign_referral_code)) {
          continue;
        }
-     }
-
-     // Since we can't query User entity directly, we'll process through CampaignReferral stats
-     // which are already tracked. Check for users with this campaign code in their signup
-     return Response.json({ 
-       message: 'Campaign processing requires user referral data - consider checking individual campaigns',
-       processedCount: 0
 
       // Check if already processed
       const existingReferrals = await base44.asServiceRole.entities.Referral.filter({
