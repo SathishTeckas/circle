@@ -24,10 +24,22 @@ export default function Referrals() {
     loadUser();
   }, []);
 
-  // Generate or use existing referral code for sharing (not the one they used)
-  const myReferralCode = user?.id?.substring(0, 8).toUpperCase() || 'CODE123';
+  // Use user's unique referral code
+  const myReferralCode = user?.my_referral_code || '';
   const referralCode = myReferralCode;
   const referralLink = `${window.location.origin}?ref=${referralCode}`;
+
+  // Fetch dynamic reward amount from SYSTEM campaign
+  const { data: systemCampaign } = useQuery({
+    queryKey: ['system-campaign'],
+    queryFn: async () => {
+      const campaigns = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
+      return campaigns[0] || { referral_reward_amount: 100 };
+    },
+    staleTime: 60000
+  });
+
+  const rewardAmount = systemCampaign?.referral_reward_amount || 100;
 
   const { data: referrals = [] } = useQuery({
     queryKey: ['referrals', user?.id],
@@ -39,7 +51,7 @@ export default function Referrals() {
 
   const completedReferrals = referrals.filter(r => r.status === 'completed' || r.status === 'rewarded');
   const pendingReferrals = referrals.filter(r => r.status === 'pending');
-  const totalEarnings = completedReferrals.reduce((sum, r) => sum + (r.reward_amount || 100), 0);
+  const totalEarnings = completedReferrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -53,7 +65,7 @@ export default function Referrals() {
       try {
         await navigator.share({
           title: 'Join Circle',
-          text: `Join me on Circle! Use my referral code ${referralCode} and we both get ₹100 reward.`,
+          text: `Join me on Circle! Use my referral code ${referralCode} and we both get ₹${rewardAmount} reward.`,
           url: referralLink
         });
       } catch (err) {
@@ -82,7 +94,7 @@ export default function Referrals() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">Refer & Earn</h1>
-              <p className="text-violet-100 text-sm">Get ₹100 for each friend</p>
+              <p className="text-violet-100 text-sm">Get ₹{rewardAmount} for each friend</p>
             </div>
           </div>
 
@@ -193,7 +205,7 @@ export default function Referrals() {
               </div>
               <div>
                 <p className="font-medium text-slate-900">Get rewarded</p>
-                <p className="text-sm text-slate-600">Both of you get ₹100 added to wallet</p>
+                <p className="text-sm text-slate-600">Both of you get ₹{rewardAmount} added to wallet</p>
               </div>
             </div>
           </div>
@@ -228,7 +240,7 @@ export default function Referrals() {
                   <div className="text-right">
                     {referral.status === 'rewarded' || referral.status === 'completed' ? (
                       <>
-                        <p className="font-semibold text-emerald-600">+₹{referral.reward_amount || 100}</p>
+                        <p className="font-semibold text-emerald-600">+₹{referral.reward_amount || 0}</p>
                         <Badge className="bg-emerald-100 text-emerald-700 text-xs">
                           <CheckCircle className="w-3 h-3 mr-1" />
                           Earned

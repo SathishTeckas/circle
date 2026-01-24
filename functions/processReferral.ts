@@ -37,20 +37,18 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Find the referrer by their referral_code (case-insensitive search)
+    // Find the referrer by their referral_code (stored in user profile)
     const allUsers = await base44.asServiceRole.entities.User.list();
-    const referrers = allUsers.filter(u => 
-      u.referral_code && u.referral_code.toUpperCase() === referral_code.trim().toUpperCase()
+    const referrer = allUsers.find(u => 
+      u.my_referral_code && u.my_referral_code.toUpperCase() === referral_code.trim().toUpperCase()
     );
 
-    if (referrers.length === 0) {
+    if (!referrer) {
       return Response.json({ 
         success: false, 
         error: 'Invalid referral code' 
       }, { status: 400 });
     }
-
-    const referrer = referrers[0];
 
     // Don't allow self-referral
     if (referrer.id === user.id) {
@@ -72,7 +70,7 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Create referral record for referrer (person who referred)
+    // Create referral record for REFERRER (person who shared the code) - they earn money
     await base44.asServiceRole.entities.Referral.create({
       referrer_id: referrer.id,
       referrer_name: referrer.display_name || referrer.full_name,
@@ -84,13 +82,13 @@ Deno.serve(async (req) => {
       rewarded_date: new Date().toISOString()
     });
 
-    // Create referral record for referee (new user who signed up)
+    // Create referral record for REFEREE (new user) - they also earn money
     await base44.asServiceRole.entities.Referral.create({
       referrer_id: user.id,
       referrer_name: user.display_name || user.full_name,
-      referee_id: user.id,
-      referee_name: user.display_name || user.full_name,
-      referral_code: referral_code.trim().toUpperCase(),
+      referee_id: referrer.id,
+      referee_name: referrer.display_name || referrer.full_name,
+      referral_code: 'WELCOME_BONUS',
       status: 'completed',
       reward_amount: rewardAmount,
       rewarded_date: new Date().toISOString()

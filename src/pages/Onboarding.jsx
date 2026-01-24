@@ -48,6 +48,10 @@ export default function Onboarding() {
     const loadUser = async () => {
       try {
         const user = await base44.auth.me();
+        
+        // Get referral code from localStorage if present
+        const savedRefCode = localStorage.getItem('referral_code');
+        
         setUserData(prev => ({
           ...prev,
           display_name: user.display_name || '',
@@ -60,7 +64,7 @@ export default function Onboarding() {
           profile_photos: user.profile_photos || [],
           interests: user.interests || [],
           languages: user.languages || [],
-          referral_code: user.referral_code || ''
+          referral_code: savedRefCode || ''
         }));
         setPhoneVerified(user.phone_verified || false);
       } catch (e) {
@@ -153,18 +157,25 @@ export default function Onboarding() {
   const handleComplete = async () => {
     setLoading(true);
     try {
-      // Save all data including display_name via updateMe
+      // Generate unique referral code for this user (first 8 chars of ID)
+      const user = await base44.auth.me();
+      const myReferralCode = user.id.substring(0, 8).toUpperCase();
+      
+      // Save all data including display_name and my_referral_code via updateMe
       await base44.auth.updateMe({
         ...userData,
+        my_referral_code: myReferralCode,
         onboarding_completed: false // Will be true after KYC
       });
 
       // Process referral code if provided
       if (userData.referral_code && userData.referral_code.trim()) {
         try {
-          await base44.functions.invoke('processReferral', {
+          const result = await base44.functions.invoke('processReferral', {
             referral_code: userData.referral_code.trim()
           });
+          // Clear from localStorage after successful processing
+          localStorage.removeItem('referral_code');
         } catch (referralError) {
           console.error('Referral processing failed:', referralError);
           // Don't block onboarding if referral fails

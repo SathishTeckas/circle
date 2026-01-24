@@ -29,6 +29,13 @@ export default function Welcome() {
   const [showSignIn, setShowSignIn] = useState(false);
 
   useEffect(() => {
+    // Capture referral code from URL and store in localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode) {
+      localStorage.setItem('referral_code', refCode);
+    }
+
     // Update time
     const updateTime = () => {
       const now = new Date();
