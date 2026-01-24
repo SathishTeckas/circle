@@ -16,6 +16,27 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, message: 'No referral code provided' });
     }
 
+    // Get the system referral campaign settings
+    const systemCampaigns = await base44.asServiceRole.entities.CampaignReferral.filter({ 
+      code: 'SYSTEM' 
+    });
+    
+    let rewardAmount = 100; // Default fallback
+    
+    if (systemCampaigns.length > 0 && systemCampaigns[0].referral_reward_amount) {
+      rewardAmount = systemCampaigns[0].referral_reward_amount;
+    } else {
+      // Create SYSTEM campaign if it doesn't exist
+      await base44.asServiceRole.entities.CampaignReferral.create({
+        code: 'SYSTEM',
+        campaign_name: 'System Referral Program',
+        description: 'Default referral rewards for all users',
+        is_active: true,
+        referral_reward_amount: 100,
+        referral_reward_type: 'wallet_credit'
+      });
+    }
+
     // Find the referrer by their referral_code (case-insensitive search)
     const allUsers = await base44.asServiceRole.entities.User.list();
     const referrers = allUsers.filter(u => 
