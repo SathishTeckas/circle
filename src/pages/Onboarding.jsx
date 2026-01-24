@@ -29,6 +29,7 @@ export default function Onboarding() {
   const [uploading, setUploading] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [ageError, setAgeError] = useState('');
+  const [nameError, setNameError] = useState('');
   const [userData, setUserData] = useState({
     display_name: '',
     phone: '',
@@ -142,7 +143,7 @@ export default function Onboarding() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return userData.display_name && phoneVerified && userData.phone && userData.date_of_birth && !ageError && userData.gender;
+        return userData.display_name && !nameError && phoneVerified && userData.phone && userData.date_of_birth && !ageError && userData.gender;
       case 2:
         return userData.profile_photos.length >= 1;
       case 3:
@@ -215,10 +216,36 @@ export default function Onboarding() {
                     type="text"
                     placeholder="How you want to be called"
                     value={userData.display_name}
-                    onChange={(e) => setUserData({ ...userData, display_name: e.target.value })}
-                    className="h-14 rounded-xl border-slate-200"
+                    onChange={(e) => {
+                      const name = e.target.value;
+                      setUserData({ ...userData, display_name: name });
+                      
+                      // Validate name
+                      if (name.length === 0) {
+                        setNameError('');
+                      } else if (name.length < 2) {
+                        setNameError('Name must be at least 2 characters');
+                      } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+                        setNameError('Name should only contain letters');
+                      } else if (name.trim().length < 2) {
+                        setNameError('Please enter a valid name');
+                      } else {
+                        setNameError('');
+                      }
+                    }}
+                    className={cn(
+                      "h-14 rounded-xl border-slate-200",
+                      nameError && "border-red-500"
+                    )}
                   />
-                  <p className="text-xs text-slate-500 mt-1">This is how others will see you on the platform</p>
+                  {nameError ? (
+                    <div className="flex items-center gap-2 mt-2 text-red-600">
+                      <AlertCircle className="w-4 h-4" />
+                      <p className="text-sm">{nameError}</p>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500 mt-1">This is how others will see you on the platform</p>
+                  )}
                 </div>
 
                 <div>
