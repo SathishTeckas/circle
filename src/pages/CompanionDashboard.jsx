@@ -121,8 +121,53 @@ export default function CompanionDashboard() {
     queryFn: async () => {
       return await base44.entities.Booking.filter({ 
         companion_id: user.id, 
-        status: 'completed' 
+        status: 'completed',
+        escrow_status: 'released'
       }, '-created_date', 50);
+    },
+    enabled: !!user?.id,
+    staleTime: 2 * 60 * 1000
+  });
+
+  const { data: payouts = [] } = useQuery({
+    queryKey: ['payouts', user?.id],
+    queryFn: async () => {
+      return await base44.entities.Payout.filter({ 
+        companion_id: user.id 
+      }, '-created_date', 50);
+    },
+    enabled: !!user?.id,
+    staleTime: 2 * 60 * 1000
+  });
+
+  const { data: referrals = [] } = useQuery({
+    queryKey: ['referrals', user?.id],
+    queryFn: async () => {
+      const allReferrals = await base44.entities.Referral.filter({ 
+        referrer_id: user.id
+      }, '-created_date', 50);
+      
+      const rewardedReferrals = allReferrals.filter(r => ['completed', 'rewarded'].includes(r.status));
+      
+      // Fetch campaign referral codes to get dynamic reward amounts
+      const campaignCodes = [...new Set(rewardedReferrals.map(r => r.referral_code).filter(Boolean))];
+      const campaigns = await Promise.all(
+        campaignCodes.map(code => 
+          base44.entities.CampaignReferral.filter({ code }).then(c => c[0])
+        )
+      );
+      
+      const campaignMap = {};
+      campaigns.forEach(c => {
+        if (c) campaignMap[c.code] = c.referral_reward_amount || 0;
+      });
+      
+      return rewardedReferrals.map(r => ({
+        ...r,
+        reward_amount: r.referral_code && campaignMap[r.referral_code] 
+          ? campaignMap[r.referral_code] 
+          : (r.reward_amount || 100)
+      }));
     },
     enabled: !!user?.id,
     staleTime: 2 * 60 * 1000
