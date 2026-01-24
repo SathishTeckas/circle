@@ -103,7 +103,11 @@ export default function AdminCampaignReferrals() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id) => {
+    mutationFn: async ({ id, code }) => {
+      if (code === 'SYSTEM') {
+        toast.error('Cannot delete system referral program');
+        throw new Error('Cannot delete SYSTEM campaign');
+      }
       return await base44.entities.CampaignReferral.delete(id);
     },
     onSuccess: () => {
