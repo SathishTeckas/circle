@@ -185,7 +185,7 @@ export default function ManageAvailability() {
     }
   });
 
-  // Check if availability is in the past or expired
+  // Check if availability is in the past or has less than 1 hour remaining
   const isAvailabilityPast = (availability) => {
     const now = new Date();
     const availDate = new Date(availability.date);
@@ -195,14 +195,19 @@ export default function ManageAvailability() {
       return true;
     }
     
-    // If date is today, check if the start_time has passed
+    // If date is today, check if there's at least 1 hour remaining
     if (availDate.toDateString() === now.toDateString()) {
-      const [startHour, startMinute] = availability.start_time.split(':').map(Number);
+      const [endHour, endMinute] = availability.end_time.split(':').map(Number);
       const currentHour = now.getHours();
       const currentMinute = now.getMinutes();
       
-      // Mark as past if start time has already passed
-      return startHour < currentHour || (startHour === currentHour && startMinute <= currentMinute);
+      // Calculate minutes remaining until end time
+      const endTimeMinutes = endHour * 60 + endMinute;
+      const currentTimeMinutes = currentHour * 60 + currentMinute;
+      const minutesRemaining = endTimeMinutes - currentTimeMinutes;
+      
+      // Mark as past if less than 60 minutes remaining
+      return minutesRemaining < 60;
     }
     
     return false;
