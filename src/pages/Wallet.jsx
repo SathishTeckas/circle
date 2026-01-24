@@ -299,6 +299,7 @@ export default function Wallet() {
         queryClient.refetchQueries({ queryKey: ['referrals'] })
       ]);
       setPayoutAmount('');
+      setPaymentDetails({ bank_name: '', account_number: '', ifsc_code: '', account_holder_name: '', upi_id: '' });
       setIsSubmitting(false);
       setShowPayoutSheet(false);
       toast.dismiss();
@@ -306,6 +307,7 @@ export default function Wallet() {
     },
     onError: (error) => {
       setIsSubmitting(false);
+      setShowPayoutSheet(true);
       toast.dismiss();
       toast.error(error.message || 'Failed to submit payout request');
     }
