@@ -178,16 +178,21 @@ export default function Wallet() {
     mutationFn: async () => {
       const amount = parseFloat(payoutAmount);
 
+      if (!amount || amount <= 0) {
+        throw new Error('Please enter a valid amount');
+      }
+
       // Fetch platform fee from settings
-      const settings = await base44.entities.AppSettings.list();
-      const platformFeePercent = settings[0]?.platform_fee || 15;
-      const platformFee = (amount * platformFeePercent) / 100;
+      const settingsList = await base44.entities.AppSettings.list();
+      const platformFeePercent = (settingsList && settingsList[0]?.platform_fee) || 15;
+      const platformFee = Math.round((amount * platformFeePercent) / 100);
       const netAmount = amount - platformFee;
 
       // Fetch latest payouts to check real-time balance
       const latestPayouts = await base44.entities.Payout.filter({ 
         companion_id: user.id 
-      });
+      }, '-created_date', 200);
+      
       const latestPendingPayouts = latestPayouts
         .filter(p => ['pending', 'approved', 'processing'].includes(p.status))
         .reduce((sum, p) => sum + p.amount, 0);
@@ -198,7 +203,27 @@ export default function Wallet() {
         .filter(p => ['approved', 'processing'].includes(p.status))
         .reduce((sum, p) => sum + p.amount, 0);
 
-      const currentAvailableBalance = totalEarnings + referralEarnings - latestCompletedPayouts - latestApprovedPayouts - latestPendingPayouts;
+      // Recalculate latest earnings
+      const latestCompletedBookings = await base44.entities.Booking.filter({
+        companion_id: user.id,
+        status: 'completed',
+        escrow_status: 'released'
+      }, '-created_date', 100);
+      
+      const latestTotalEarnings = latestCompletedBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
+      
+      const latestReferrals = await base44.entities.Referral.filter({
+        referrer_id: user.id,
+        referral_type: 'user_referral'
+      }, '-created_date', 100);
+      
+      const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
+      const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
+      const latestReferralEarnings = latestReferrals
+        .filter(r => ['completed', 'rewarded'].includes(r.status))
+        .reduce((sum, r) => sum + rewardAmount, 0);
+
+      const currentAvailableBalance = latestTotalEarnings + latestReferralEarnings - latestCompletedPayouts - latestApprovedPayouts - latestPendingPayouts;
 
       if (currentAvailableBalance < 100) {
         throw new Error('Insufficient balance. Minimum balance required: ₹100');
@@ -243,16 +268,18 @@ export default function Wallet() {
         reference_number: reference_number
       });
 
-      // Create notification for admin
-      const admins = await base44.entities.User.filter({ user_role: 'admin' });
-      for (const admin of admins) {
-        await base44.entities.Notification.create({
-          user_id: admin.id,
-          type: 'payout_processed',
-          title: '💰 New Payout Request',
-            message: `${user.full_name} requested a payout of ${formatCurrency(amount)}`,
+      // Create notification for admins
+      const admins = await base44.entities.User.filter({ user_role: 'admin' }, '-created_date', 50);
+      if (admins && admins.length > 0) {
+        for (const admin of admins) {
+          await base44.entities.Notification.create({
+            user_id: admin.id,
+            type: 'payout_processed',
+            title: '💰 New Payout Request',
+            message: `${user.full_name} requested a payout of ${formatCurrency(netAmount)} (after ${platformFeePercent}% platform fee)`,
             action_url: createPageUrl('AdminPayouts')
-        });
+          });
+        }
       }
     },
     onSuccess: async () => {
@@ -283,35 +310,35 @@ export default function Wallet() {
 
     try {
       // Fetch latest data to verify real balance
-      const [latestPayouts, latestEarnings, latestPendingEarnings, latestReferrals] = await Promise.all([
-        base44.entities.Payout.filter({ companion_id: user.id }),
+      const [latestPayouts, latestEarnings, latestPendingEarnings, latestReferrals, settingsList] = await Promise.all([
+        base44.entities.Payout.filter({ companion_id: user.id }, '-created_date', 200),
         base44.entities.Booking.filter({ 
           companion_id: user.id, 
           status: 'completed',
           escrow_status: 'released'
-        }),
+        }, '-created_date', 100),
         base44.entities.Booking.filter({ 
           companion_id: user.id, 
           status: 'accepted',
           escrow_status: 'held'
-        }),
-        base44.entities.Referral.list().then(async allRefs => {
-          const myRefs = allRefs.filter(r => 
-            r.referrer_id === user.id &&
-            r.referral_type === 'user_referral' &&
-            ['completed', 'rewarded'].includes(r.status)
-          );
-          const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
-          const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
-          return myRefs.map(r => ({
-            ...r,
-            reward_amount: rewardAmount
-          }));
-        })
+        }, '-created_date', 50),
+        base44.entities.Referral.filter({
+          referrer_id: user.id,
+          referral_type: 'user_referral'
+        }, '-created_date', 100),
+        base44.entities.AppSettings.list()
       ]);
 
+      const platformFeePercent = (settingsList && settingsList[0]?.platform_fee) || 15;
+      
       const latestTotalEarnings = latestEarnings.reduce((sum, b) => sum + (b.base_price || 0), 0);
-      const latestReferralEarnings = latestReferrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
+      
+      const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
+      const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
+      const latestReferralEarnings = latestReferrals
+        .filter(r => ['completed', 'rewarded'].includes(r.status))
+        .reduce((sum, r) => sum + rewardAmount, 0);
+      
       const latestWithdrawn = latestPayouts.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
       const latestApproved = latestPayouts.filter(p => ['approved', 'processing'].includes(p.status)).reduce((sum, p) => sum + p.amount, 0);
       const latestPending = latestPayouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
