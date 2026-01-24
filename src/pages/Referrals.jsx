@@ -19,6 +19,14 @@ export default function Referrals() {
   useEffect(() => {
     const loadUser = async () => {
       const userData = await base44.auth.me();
+      
+      // Generate and save referral code if not exists
+      if (!userData.my_referral_code) {
+        const generatedCode = userData.id.substring(0, 8).toUpperCase();
+        await base44.auth.updateMe({ my_referral_code: generatedCode });
+        userData.my_referral_code = generatedCode;
+      }
+      
       setUser(userData);
     };
     loadUser();
