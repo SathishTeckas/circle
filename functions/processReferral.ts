@@ -85,8 +85,8 @@ Deno.serve(async (req) => {
     // Send notification to referrer
     await base44.asServiceRole.entities.Notification.create({
       user_id: referrer.id,
-      type: 'payment_received',
-      title: '🎉 Referral Bonus!',
+      type: 'referral_bonus',
+      title: '🎉 Referral Bonus Earned!',
       message: `${user.display_name || user.full_name || 'Someone'} joined using your referral code. You earned ₹${rewardAmount}!`,
       amount: rewardAmount,
       read: false
@@ -95,8 +95,8 @@ Deno.serve(async (req) => {
     // Send notification to referee (new user)
     await base44.asServiceRole.entities.Notification.create({
       user_id: user.id,
-      type: 'payment_received',
-      title: '🎉 Welcome Bonus!',
+      type: 'referral_bonus',
+      title: '🎉 Welcome Bonus Received!',
       message: `You received ₹${rewardAmount} signup bonus for using referral code ${referral_code.trim().toUpperCase()}!`,
       amount: rewardAmount,
       read: false
