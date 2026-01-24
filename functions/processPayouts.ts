@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
           }),
           base44.asServiceRole.entities.Referral.filter({
             referrer_id: payout.companion_id,
-            status: 'completed'
+            status: ['completed', 'rewarded']
           })
         ]);
 
@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
           .reduce((sum, p) => sum + p.amount, 0);
 
         const otherPendingPayouts = allPayouts
-          .filter(p => ['pending', 'approved', 'processing'].includes(p.status) && p.id !== payout.id)
+          .filter(p => ['approved', 'processing'].includes(p.status) && p.id !== payout.id)
           .reduce((sum, p) => sum + p.amount, 0);
 
         const availableBalance = totalEarnings + referralEarnings - totalWithdrawn - otherPendingPayouts;
@@ -165,8 +165,15 @@ Deno.serve(async (req) => {
         results.push({ id: payout.id, status: 'approved', amount: payout.amount });
 
       } catch (error) {
-        results.push({ id: payout.id, status: 'error', error: error.message });
-      }
+         // Mark as rejected on error so it doesn't retry infinitely
+         await base44.asServiceRole.entities.Payout.update(payout.id, {
+           status: 'rejected',
+           rejection_reason: `System error: ${error.message}`,
+           processed_date: new Date().toISOString(),
+           processed_by: 'system_auto'
+         });
+         results.push({ id: payout.id, status: 'error', error: error.message });
+       }
     }
 
     return Response.json({
