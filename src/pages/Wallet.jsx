@@ -120,8 +120,8 @@ export default function Wallet() {
 
   const hasPendingPayout = payouts.some(p => ['pending', 'approved', 'processing'].includes(p.status));
 
-  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
-  const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
+  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
+  const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
   const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
   const rawBalance = totalEarnings + referralEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
   const availableBalance = Math.max(0, rawBalance);
