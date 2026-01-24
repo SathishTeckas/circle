@@ -209,24 +209,23 @@ export default function CompanionDashboard() {
     refetchOnWindowFocus: false
   });
 
-  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
-  const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
-  
   const totalWithdrawn = payouts
     .filter(p => p.status === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
-  
+
   const approvedPayouts = payouts
     .filter(p => ['approved', 'processing'].includes(p.status))
     .reduce((sum, p) => sum + p.amount, 0);
-  
+
   const pendingPayouts = payouts
     .filter(p => p.status === 'pending')
     .reduce((sum, p) => sum + p.amount, 0);
-  
-  const calculatedBalance = totalEarnings + referralEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
-  const displayBalance = Math.max(0, calculatedBalance);
-  
+
+  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
+  const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
+  const rawBalance = totalEarnings + referralEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
+  const availableBalance = Math.max(0, rawBalance);
+
   const avgRating = user?.average_rating;
   const hasRating = avgRating && user?.total_reviews > 0;
 
