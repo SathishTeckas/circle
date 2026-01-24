@@ -207,7 +207,7 @@ export default function CompanionDashboard() {
     .filter(p => p.status === 'pending')
     .reduce((sum, p) => sum + p.amount, 0);
 
-  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
+  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
   const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
   const rawBalance = totalEarnings + referralEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
   const availableBalance = Math.max(0, rawBalance);
@@ -465,13 +465,20 @@ export default function CompanionDashboard() {
             </Link>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-4 text-white">
-            <p className="text-emerald-100 text-sm mb-1">Available Balance</p>
-            <p className="text-3xl font-bold mb-2">₹{Math.round(availableBalance || 0).toLocaleString('en-IN')}</p>
-            <p className="text-emerald-100 text-sm">
-              {completedBookings.length} meetups • {referrals.length} referrals
-            </p>
-          </div>
+          <div className={cn(
+             "rounded-xl p-4 text-white transition-all",
+             availableBalance >= 5000 
+               ? "bg-gradient-to-br from-emerald-500 to-teal-600" 
+               : availableBalance >= 1000 
+                 ? "bg-gradient-to-br from-blue-500 to-cyan-600"
+                 : "bg-gradient-to-br from-slate-500 to-slate-600"
+           )}>
+             <p className="text-white/80 text-sm mb-1">Available Balance</p>
+             <p className="text-3xl font-bold mb-2">₹{Math.round(availableBalance || 0).toLocaleString('en-IN')}</p>
+             <p className="text-white/80 text-sm">
+               {completedBookings.length} meetups • {referrals.length} referrals
+             </p>
+           </div>
         </Card>
 
         {/* Referral Card */}
