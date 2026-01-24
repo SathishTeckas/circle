@@ -128,10 +128,10 @@ export default function AdminCampaignReferrals() {
     toast.success('Campaign link copied');
   };
 
-  const generateCode = () => {
+  const generateCode = useCallback(() => {
     const code = `CAMP${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
-    setFormData({ ...formData, code });
-  };
+    setFormData(prev => ({ ...prev, code }));
+  }, []);
 
   const handleExport = () => {
     const csv = [
