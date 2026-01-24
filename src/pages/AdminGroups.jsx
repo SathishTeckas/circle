@@ -242,18 +242,9 @@ export default function AdminGroups() {
               </div>
             </div>
 
-            <Sheet open={showForm} onOpenChange={(open) => {
-              if (open) {
-                setShowForm(true);
-              } else {
-                handleCloseForm();
-              }
-            }}>
+            <Sheet open={showForm} onOpenChange={setShowForm}>
               <SheetTrigger asChild>
-                <Button 
-                  className="bg-fuchsia-600 hover:bg-fuchsia-700 rounded-xl"
-                  onClick={() => setShowForm(true)}
-                >
+                <Button className="bg-fuchsia-600 hover:bg-fuchsia-700 rounded-xl">
                   <Plus className="w-4 h-4 mr-2" />
                   Create Event
                 </Button>
