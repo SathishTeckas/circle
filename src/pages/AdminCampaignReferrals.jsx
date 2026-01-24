@@ -34,7 +34,26 @@ export default function AdminCampaignReferrals() {
 
   const { data: campaigns = [], isLoading } = useQuery({
     queryKey: ['campaign-referrals'],
-    queryFn: () => base44.entities.CampaignReferral.list('-created_date', 100),
+    queryFn: async () => {
+      const allCampaigns = await base44.entities.CampaignReferral.list('-created_date', 100);
+      
+      // Ensure SYSTEM campaign exists
+      const systemCampaign = allCampaigns.find(c => c.code === 'SYSTEM');
+      if (!systemCampaign) {
+        await base44.entities.CampaignReferral.create({
+          code: 'SYSTEM',
+          campaign_name: 'System Referral Program',
+          description: 'Default referral rewards for all users',
+          is_active: true,
+          referral_reward_amount: 100,
+          referral_reward_type: 'wallet_credit'
+        });
+        // Refetch to include the new SYSTEM campaign
+        return await base44.entities.CampaignReferral.list('-created_date', 100);
+      }
+      
+      return allCampaigns;
+    },
     staleTime: 30000
   });
 
