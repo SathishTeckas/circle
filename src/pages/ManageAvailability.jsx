@@ -18,6 +18,7 @@ import {
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const CITY_AREAS = {
   'Mumbai': ['Airoli', 'Andheri', 'Bandra', 'Belapur', 'Bhandup', 'Borivali', 'Byculla', 'Chembur', 'Churchgate', 'Colaba', 'Cuffe Parade', 'Dadar', 'Dahisar', 'Fort', 'Ghatkopar', 'Ghansoli', 'Goregaon', 'Govandi', 'Jogeshwari', 'Juhu', 'Kalbadevi', 'Kandivali', 'Kanjurmarg', 'Khar', 'Kharghar', 'Kurla', 'Lower Parel', 'Mahalaxmi', 'Malabar Hill', 'Malad', 'Mankhurd', 'Marine Lines', 'Matunga', 'Mulund', 'Nariman Point', 'Nerul', 'Panvel', 'Peddar Road', 'Powai', 'Santacruz', 'Sion', 'Tardeo', 'Vashi', 'Versova', 'Vidyavihar', 'Vikhroli', 'Vile Parle', 'Wadala', 'Worli'],
@@ -115,11 +116,27 @@ export default function ManageAvailability() {
       const [endHour, endMin] = formData.end_time.split(':').map(Number);
       const duration = (endHour + endMin / 60) - (startHour + startMin / 60);
 
+      const dateStr = format(selectedDate, 'yyyy-MM-dd');
+
+      // Check for duplicate: same date + time + city + area
+      const existingAvailabilities = await base44.entities.Availability.filter({ 
+        companion_id: user.id,
+        date: dateStr,
+        start_time: formData.start_time,
+        city: formData.city,
+        area: formData.area,
+        status: 'available'
+      });
+
+      if (existingAvailabilities.length > 0) {
+        throw new Error('You already have an availability for this date, time, city, and area');
+      }
+
       await base44.entities.Availability.create({
         companion_id: user.id,
         companion_name: user.display_name || user.full_name,
         companion_photo: user.profile_photos?.[0],
-        date: format(selectedDate, 'yyyy-MM-dd'),
+        date: dateStr,
         start_time: formData.start_time,
         end_time: formData.end_time,
         duration_hours: duration,
@@ -138,6 +155,10 @@ export default function ManageAvailability() {
       setShowForm(false);
       setFormData({ start_time: '', end_time: '', area: '', city: '', price_per_hour: '' });
       setSelectedDate(null);
+      toast.success('Availability created successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to create availability');
     }
   });
 
