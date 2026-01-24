@@ -186,64 +186,30 @@ export default function Wallet() {
 
   const platformFeePercent = platformFeeQuery.data || 15;
 
-  const requestPayoutMutation = useMutation({
-    mutationFn: async () => {
+  const submitPayout = async () => {
+    try {
       const amount = parseFloat(payoutAmount);
-
-      if (!amount || amount <= 0) {
-        throw new Error('Please enter a valid amount');
+      if (!amount || isNaN(amount) || amount < 100) {
+        toast.error('Amount must be at least ₹100');
+        return;
       }
+      if (amount > availableBalance) {
+        toast.error('Amount exceeds available balance');
+        return;
+      }
+      if (paymentMethod === 'upi' && !paymentDetails.upi_id?.trim()) {
+        toast.error('Please enter UPI ID');
+        return;
+      }
+      if (paymentMethod === 'bank_transfer' && (!paymentDetails.bank_name?.trim() || !paymentDetails.account_number?.trim() || !paymentDetails.ifsc_code?.trim() || !paymentDetails.account_holder_name?.trim())) {
+        toast.error('Please fill all bank details');
+        return;
+      }
+
+      toast.loading('Submitting payout request...');
+      
       const fee = Math.round((amount * platformFeePercent) / 100);
       const netAmount = amount - fee;
-
-      // Fetch latest payouts to check real-time balance
-      const latestPayouts = await base44.entities.Payout.filter({ 
-        companion_id: user.id 
-      }, '-created_date', 200);
-      
-      const latestPendingPayouts = latestPayouts
-        .filter(p => ['pending', 'approved', 'processing'].includes(p.status))
-        .reduce((sum, p) => sum + p.amount, 0);
-      const latestCompletedPayouts = latestPayouts
-        .filter(p => p.status === 'completed')
-        .reduce((sum, p) => sum + p.amount, 0);
-      const latestApprovedPayouts = latestPayouts
-        .filter(p => ['approved', 'processing'].includes(p.status))
-        .reduce((sum, p) => sum + p.amount, 0);
-
-      // Recalculate latest earnings
-      const latestCompletedBookings = await base44.entities.Booking.filter({
-        companion_id: user.id,
-        status: 'completed',
-        escrow_status: 'released'
-      }, '-created_date', 100);
-      
-      const latestTotalEarnings = latestCompletedBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
-      
-      const latestReferrals = await base44.entities.Referral.filter({
-        referrer_id: user.id,
-        referral_type: 'user_referral'
-      }, '-created_date', 100);
-      
-      const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
-      const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
-      const latestReferralEarnings = latestReferrals
-        .filter(r => ['completed', 'rewarded'].includes(r.status))
-        .reduce((sum, r) => sum + rewardAmount, 0);
-
-      const currentAvailableBalance = latestTotalEarnings + latestReferralEarnings - latestCompletedPayouts - latestApprovedPayouts - latestPendingPayouts;
-
-      if (currentAvailableBalance < 100) {
-        throw new Error('Insufficient balance. Minimum balance required: ₹100');
-      }
-
-      if (amount > currentAvailableBalance) {
-        throw new Error(`Insufficient balance. Available: ${formatCurrency(currentAvailableBalance)}`);
-      }
-
-      if (netAmount < 100) {
-        throw new Error(`After ${platformFeePercent}% platform fee, net amount must be at least ₹100`);
-      }
 
       const details = paymentMethod === 'upi' 
         ? { upi_id: paymentDetails.upi_id }
@@ -254,12 +220,8 @@ export default function Wallet() {
             account_holder_name: paymentDetails.account_holder_name
           };
 
-      // Generate unique reference number
-      const timestamp = Date.now();
-      const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-      const reference_number = `PAY-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${random}`;
+      const reference_number = `PAY-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
 
-      // Save payment details for future use
       await base44.auth.updateMe({
         saved_payment_method: paymentMethod,
         saved_payment_details: details
@@ -276,9 +238,8 @@ export default function Wallet() {
         reference_number: reference_number
       });
 
-      // Create notification for admins
       const admins = await base44.entities.User.filter({ user_role: 'admin' }, '-created_date', 50);
-      if (admins && admins.length > 0) {
+      if (admins?.length > 0) {
         for (const admin of admins) {
           await base44.entities.Notification.create({
             user_id: admin.id,
@@ -289,26 +250,20 @@ export default function Wallet() {
           });
         }
       }
-    },
-    onSuccess: async () => {
-      // Force refetch all data
-      await Promise.all([
-        queryClient.refetchQueries({ queryKey: ['payouts'] }),
-        queryClient.refetchQueries({ queryKey: ['earnings'] }),
-        queryClient.refetchQueries({ queryKey: ['pending-earnings'] }),
-        queryClient.refetchQueries({ queryKey: ['referrals'] })
-      ]);
+
+      await queryClient.refetchQueries({ queryKey: ['payouts'] });
+      await queryClient.refetchQueries({ queryKey: ['earnings'] });
+      
       toast.dismiss();
-      toast.success('Payout request submitted successfully! Admin will review it soon.');
+      toast.success('Payout request submitted successfully!');
       setPayoutAmount('');
       setPaymentDetails({ bank_name: '', account_number: '', ifsc_code: '', account_holder_name: '', upi_id: '' });
       setShowPayoutSheet(false);
-    },
-    onError: (error) => {
+    } catch (error) {
       toast.dismiss();
-      toast.error(error.message || 'Failed to submit payout request');
+      toast.error(error.message || 'Failed to submit payout');
     }
-  });
+  };
 
   const handleOpenPayoutSheet = async () => {
     if (isSubmitting || requestPayoutMutation.isPending || checkingBalance) return;
