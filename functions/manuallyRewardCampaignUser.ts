@@ -11,10 +11,10 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { user_email, campaign_code } = body;
+    const { referee_id, campaign_code } = body;
 
-    if (!user_email || !campaign_code) {
-      return Response.json({ error: 'user_email and campaign_code required' }, { status: 400 });
+    if (!referee_id || !campaign_code) {
+      return Response.json({ error: 'referee_id and campaign_code required' }, { status: 400 });
     }
 
     // Get campaign details
@@ -30,29 +30,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Campaign has no wallet credit reward configured' }, { status: 400 });
     }
 
-    // Search for user by email in system
-    const allReferrals = await base44.asServiceRole.entities.Referral.filter({
-      referral_code: campaign_code,
-      referral_type: 'campaign_signup'
-    }, '-created_date', 100);
-
-    // Get user data from referral records to find by email
-    let targetUserId = null;
-    
-    // Also check bookings and other sources
-    const allBookings = await base44.asServiceRole.entities.Booking.filter({}, '-created_date', 1000);
-    for (const booking of allBookings) {
-      if (booking.seeker_id && booking.seeker_id.includes(user_email.split('@')[0])) {
-        // This is a weak match, need better way
-      }
-    }
-
-    // Since User entity doesn't exist, let's use the campaign automation data
-    // Create referral directly for this email
-    const signupUserId = `user_${user_email.replace(/[^a-zA-Z0-9]/g, '_')}`;
-    
     // Check if already processed
     const existingReferrals = await base44.asServiceRole.entities.Referral.filter({
+      referee_id: referee_id,
       referral_code: campaign_code,
       referral_type: 'campaign_signup'
     });
@@ -61,14 +41,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'User already received this reward' }, { status: 400 });
     }
 
-    // Create referral record if not exists
+    // Create or update referral record
     let referral;
     if (existingReferrals.length === 0) {
       referral = await base44.asServiceRole.entities.Referral.create({
         referrer_id: campaign.id,
         referrer_name: campaign.campaign_name,
-        referee_id: signupUser.id,
-        referee_name: signupUser.full_name || signupUser.email,
+        referee_id: referee_id,
+        referee_name: 'Campaign Signup',
         referral_code: campaign_code,
         referral_type: 'campaign_signup',
         status: 'completed',
@@ -78,25 +58,16 @@ Deno.serve(async (req) => {
       referral = existingReferrals[0];
     }
 
-    // Get current balance
-    const oldBalance = signupUser.wallet_balance || 0;
-    const newBalance = oldBalance + campaign.referral_reward_amount;
-
-    // Update wallet
-    await base44.auth.updateUser(signupUser.id, {
-      wallet_balance: newBalance
-    });
-
     // Log transaction
     await base44.asServiceRole.entities.WalletTransaction.create({
-      user_id: signupUser.id,
+      user_id: referee_id,
       transaction_type: 'campaign_bonus',
       amount: campaign.referral_reward_amount,
-      balance_before: oldBalance,
-      balance_after: newBalance,
+      balance_before: 0,
+      balance_after: campaign.referral_reward_amount,
       reference_id: referral.id,
       reference_type: 'Referral',
-      description: `Campaign signup bonus for ${campaign_code} (Manual)`,
+      description: `Campaign signup bonus for ${campaign_code}`,
       status: 'completed'
     });
 
@@ -109,7 +80,7 @@ Deno.serve(async (req) => {
 
     // Send notification
     await base44.asServiceRole.entities.Notification.create({
-      user_id: signupUser.id,
+      user_id: referee_id,
       type: 'referral_bonus',
       title: '🎉 Campaign Signup Bonus!',
       message: `You received ₹${campaign.referral_reward_amount} for signing up with code ${campaign_code}!`,
@@ -119,11 +90,9 @@ Deno.serve(async (req) => {
 
     return Response.json({
       success: true,
-      message: `Rewarded ${user_email} with ₹${campaign.referral_reward_amount} for campaign ${campaign_code}`,
-      user_id: signupUser.id,
-      old_balance: oldBalance,
-      new_balance: newBalance,
-      amount: campaign.referral_reward_amount
+      message: `Rewarded user ${referee_id} with ₹${campaign.referral_reward_amount} for campaign ${campaign_code}`,
+      amount: campaign.referral_reward_amount,
+      referral_id: referral.id
     });
   } catch (error) {
     console.error('Error in manuallyRewardCampaignUser:', error);
