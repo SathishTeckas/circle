@@ -95,7 +95,7 @@ export default function AdminCampaignReferrals() {
       return await base44.entities.CampaignReferral.update(id, { is_active });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
+      refetchCampaigns();
       toast.success('Status updated');
     }
   });
