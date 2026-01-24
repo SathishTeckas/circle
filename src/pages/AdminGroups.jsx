@@ -243,8 +243,8 @@ export default function AdminGroups() {
             </div>
 
             <Sheet open={showForm} onOpenChange={(open) => {
+              setShowForm(open);
               if (!open) handleCloseForm();
-              else setShowForm(open);
             }}>
               <SheetTrigger asChild>
                 <Button className="bg-fuchsia-600 hover:bg-fuchsia-700 rounded-xl">
