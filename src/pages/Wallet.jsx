@@ -298,16 +298,13 @@ export default function Wallet() {
         queryClient.refetchQueries({ queryKey: ['pending-earnings'] }),
         queryClient.refetchQueries({ queryKey: ['referrals'] })
       ]);
-      setPayoutAmount('');
-      setPaymentDetails({ bank_name: '', account_number: '', ifsc_code: '', account_holder_name: '', upi_id: '' });
-      setIsSubmitting(false);
-      setShowPayoutSheet(false);
       toast.dismiss();
       toast.success('Payout request submitted successfully! Admin will review it soon.');
+      setPayoutAmount('');
+      setPaymentDetails({ bank_name: '', account_number: '', ifsc_code: '', account_holder_name: '', upi_id: '' });
+      setShowPayoutSheet(false);
     },
     onError: (error) => {
-      setIsSubmitting(false);
-      setShowPayoutSheet(true);
       toast.dismiss();
       toast.error(error.message || 'Failed to submit payout request');
     }
