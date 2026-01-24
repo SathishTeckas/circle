@@ -223,11 +223,11 @@ export default function Onboarding() {
                       // Validate name
                       if (name.length === 0) {
                         setNameError('');
-                      } else if (name.length < 2) {
-                        setNameError('Name must be at least 2 characters');
+                      } else if (name.length < 3) {
+                        setNameError('Name must be at least 3 characters');
                       } else if (!/^[a-zA-Z\s]+$/.test(name)) {
                         setNameError('Name should only contain letters');
-                      } else if (name.trim().length < 2) {
+                      } else if (name.trim().length < 3) {
                         setNameError('Please enter a valid name');
                       } else {
                         setNameError('');
