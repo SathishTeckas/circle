@@ -197,6 +197,13 @@ export default function Wallet() {
         toast.error('Amount exceeds available balance');
         return;
       }
+      
+      // Check if user has at least 1 completed meeting to withdraw referral earnings
+      if (referralEarnings > 0 && completedBookings.length === 0) {
+        toast.error('You must complete at least 1 meetup to withdraw referral earnings');
+        return;
+      }
+      
       if (paymentMethod === 'upi' && !paymentDetails.upi_id?.trim()) {
         toast.error('Please enter UPI ID');
         return;
