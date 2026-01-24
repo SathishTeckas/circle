@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { createPageUrl } from '../utils';
+import { Link } from 'react-router-dom';
 import { 
   Gift, Users, Copy, CheckCircle, Share2, 
-  ArrowLeft, IndianRupee, TrendingUp 
+  ArrowLeft, IndianRupee, TrendingUp, BarChart3
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -181,13 +183,26 @@ export default function Referrals() {
             </div>
           </div>
 
-          <Button
-            onClick={shareReferral}
-            className="w-full h-12 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 rounded-xl"
-          >
-            <Share2 className="w-5 h-5 mr-2" />
-            Share with Friends
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={shareReferral}
+              className="flex-1 h-12 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 rounded-xl"
+            >
+              <Share2 className="w-5 h-5 mr-2" />
+              Share
+            </Button>
+            <Link
+              to={createPageUrl('ReferralAnalytics')}
+              className="flex-1"
+            >
+              <Button
+                className="w-full h-12 bg-slate-900 hover:bg-slate-800 rounded-xl"
+              >
+                <BarChart3 className="w-5 h-5 mr-2" />
+                Analytics
+              </Button>
+            </Link>
+          </div>
         </Card>
 
         {/* How it Works */}
