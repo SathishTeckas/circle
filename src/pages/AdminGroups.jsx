@@ -151,12 +151,6 @@ export default function AdminGroups() {
       queryClient.invalidateQueries({ queryKey: ['admin-group-events'] });
       setShowForm(false);
       setEditingEvent(null);
-      setFormData({
-        title: '', city: '', area: '', time: '', languages: [],
-        age_range_min: '25', age_range_max: '40', max_participants: '8',
-        venue_name: '', venue_address: '', description: '', price: '', photos: []
-      });
-      setSelectedDate(null);
     }
   });
 
