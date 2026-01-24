@@ -351,7 +351,7 @@ export default function Onboarding() {
                   Add your photos
                 </h1>
                 <p className="text-slate-600">
-                  Add at least 1 clear photo (up to 5)
+                  Add at least 1 clear photo (up to 6)
                 </p>
               </div>
 
@@ -390,7 +390,7 @@ export default function Onboarding() {
 
               <div className="text-center space-y-1">
                 <p className="text-sm font-medium text-slate-700">
-                  {userData.profile_photos.length} / 5 photos added
+                  {userData.profile_photos.length} / 6 photos added
                 </p>
                 <p className="text-xs text-slate-500">
                   Photos must clearly show your face and be recent
@@ -399,9 +399,9 @@ export default function Onboarding() {
                   <p className="text-xs text-red-600 font-medium">
                     At least 1 photo required
                   </p>
-                ) : userData.profile_photos.length < 5 && (
+                ) : userData.profile_photos.length < 6 && (
                   <p className="text-xs text-violet-600 font-medium">
-                    Add {5 - userData.profile_photos.length} more for a complete profile
+                    Add {6 - userData.profile_photos.length} more for a complete profile
                   </p>
                 )}
               </div>
