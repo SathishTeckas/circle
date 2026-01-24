@@ -167,7 +167,7 @@ export default function Onboarding() {
     setLoading(true);
     try {
       // Generate unique referral code for this user (first 8 chars of ID)
-      const user = await base44.auth.me();
+      let user = await base44.auth.me();
       const myReferralCode = user.id.substring(0, 8).toUpperCase();
       
       // Save all data including display_name, campaign code, and my_referral_code via updateMe
