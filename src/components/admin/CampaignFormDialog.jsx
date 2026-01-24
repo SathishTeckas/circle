@@ -130,7 +130,7 @@ const CampaignFormDialog = React.memo(({
             Cancel
           </Button>
           <Button
-            onClick={onSubmit}
+            onClick={handleSubmit}
             disabled={!formData.code || !formData.campaign_name || isLoading}
             className="flex-1 bg-violet-600 hover:bg-violet-700"
           >
