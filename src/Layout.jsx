@@ -65,16 +65,16 @@ export default function Layout({ children, currentPageName }) {
       window.location.href = createPageUrl('TermsAcceptance');
       return null;
     } else if (!user.onboarding_completed) {
+      // If they haven't completed onboarding, send to appropriate page
       if (user.display_name && user.profile_photos?.length > 0) {
         window.location.href = createPageUrl('KYCVerification');
       } else {
         window.location.href = createPageUrl('Onboarding');
       }
       return null;
-    } else if (!user.kyc_verified) {
-      window.location.href = createPageUrl('KYCVerification');
-      return null;
     }
+    // Note: We removed the kyc_verified check here because onboarding_completed
+    // should be set to true ONLY after KYC is done (verified or skipped)
   }
 
   const activeRole = user?.active_role || user?.user_role;
