@@ -174,6 +174,18 @@ export default function Wallet() {
 
   const thisMonthEarnings = thisMonth.reduce((sum, b) => sum + (b.base_price || 0), 0);
 
+  // Fetch platform fee globally
+  const platformFeeQuery = useQuery({
+    queryKey: ['platform-settings'],
+    queryFn: async () => {
+      const settingsList = await base44.entities.AppSettings.list();
+      return (settingsList && settingsList[0]?.platform_fee) || 15;
+    },
+    staleTime: 30 * 60 * 1000
+  });
+
+  const platformFeePercent = platformFeeQuery.data || 15;
+
   const requestPayoutMutation = useMutation({
     mutationFn: async () => {
       const amount = parseFloat(payoutAmount);
@@ -181,12 +193,8 @@ export default function Wallet() {
       if (!amount || amount <= 0) {
         throw new Error('Please enter a valid amount');
       }
-
-      // Fetch platform fee from settings
-      const settingsList = await base44.entities.AppSettings.list();
-      const platformFeePercent = (settingsList && settingsList[0]?.platform_fee) || 15;
-      const platformFee = Math.round((amount * platformFeePercent) / 100);
-      const netAmount = amount - platformFee;
+      const fee = Math.round((amount * platformFeePercent) / 100);
+      const netAmount = amount - fee;
 
       // Fetch latest payouts to check real-time balance
       const latestPayouts = await base44.entities.Payout.filter({ 
@@ -421,7 +429,7 @@ export default function Wallet() {
                 <div className="space-y-6 overflow-y-auto h-[calc(85vh-140px)] pb-6">
                   <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
                    <p className="text-sm text-emerald-800 font-medium">Available: {formatCurrency(availableBalance)}</p>
-                   <p className="text-xs text-emerald-600 mt-1">Platform fee 15% will be deducted from payout amount</p>
+                   <p className="text-xs text-emerald-600 mt-1">Platform fee {platformFeePercent}% will be deducted from payout amount</p>
                    <p className="text-xs text-emerald-600 mt-1">After fees, you'll receive minimum ₹100</p>
                   </div>
 
@@ -527,10 +535,9 @@ export default function Wallet() {
                   )}
 
                   <Button
-                    onClick={async () => {
+                    onClick={() => {
                       if (!isSubmitting && !requestPayoutMutation.isPending) {
                         setIsSubmitting(true);
-                        setShowPayoutSheet(false);
                         toast.loading('Submitting payout request...');
                         requestPayoutMutation.mutate();
                       }
