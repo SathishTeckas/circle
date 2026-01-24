@@ -101,7 +101,30 @@ export default function Wallet() {
       const allReferrals = await base44.entities.Referral.filter({ 
         referrer_id: user.id
       }, '-created_date', 50);
-      return allReferrals.filter(r => ['completed', 'rewarded'].includes(r.status));
+      
+      // Filter rewarded referrals and get their actual reward amounts
+      const rewardedReferrals = allReferrals.filter(r => ['completed', 'rewarded'].includes(r.status));
+      
+      // Fetch campaign referral codes to get dynamic reward amounts
+      const campaignCodes = [...new Set(rewardedReferrals.map(r => r.referral_code).filter(Boolean))];
+      const campaigns = await Promise.all(
+        campaignCodes.map(code => 
+          base44.entities.CampaignReferral.filter({ code }).then(c => c[0])
+        )
+      );
+      
+      const campaignMap = {};
+      campaigns.forEach(c => {
+        if (c) campaignMap[c.code] = c.referral_reward_amount || 0;
+      });
+      
+      // Update referral rewards with campaign amounts
+      return rewardedReferrals.map(r => ({
+        ...r,
+        reward_amount: r.referral_code && campaignMap[r.referral_code] 
+          ? campaignMap[r.referral_code] 
+          : (r.reward_amount || 100)
+      }));
     },
     enabled: !!user?.id
   });
