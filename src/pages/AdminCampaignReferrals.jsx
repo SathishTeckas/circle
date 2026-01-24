@@ -115,18 +115,18 @@ export default function AdminCampaignReferrals() {
     }
   });
 
-  const handleCopy = (code) => {
+  const handleCopy = useCallback((code) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
     toast.success('Code copied');
     setTimeout(() => setCopiedCode(null), 2000);
-  };
+  }, []);
 
-  const handleCopyLink = (code) => {
+  const handleCopyLink = useCallback((code) => {
     const link = `${window.location.origin}?campaign=${code}`;
     navigator.clipboard.writeText(link);
     toast.success('Campaign link copied');
-  };
+  }, []);
 
   const generateCode = useCallback(() => {
     const code = `CAMP${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
