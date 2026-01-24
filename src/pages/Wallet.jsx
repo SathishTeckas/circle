@@ -168,6 +168,15 @@ export default function Wallet() {
       icon: ArrowDownLeft,
       color: 'violet'
     })),
+    ...campaignBonuses.map(c => ({
+      id: c.id,
+      type: 'campaign',
+      amount: c.amount || 0,
+      description: c.description || 'Campaign signup bonus',
+      date: c.created_date,
+      icon: ArrowDownLeft,
+      color: 'blue'
+    })),
     ...payouts.filter(p => p.status === 'completed').map(p => ({
       id: p.id,
       type: 'payout',
