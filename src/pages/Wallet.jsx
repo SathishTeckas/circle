@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -189,7 +188,6 @@ export default function Wallet() {
 
   const submitPayout = async () => {
     try {
-      setIsSubmitting(true);
       const amount = parseFloat(payoutAmount);
       if (!amount || isNaN(amount) || amount < 100) {
         toast.error('Amount must be at least ₹100');
@@ -208,6 +206,7 @@ export default function Wallet() {
         return;
       }
 
+      setIsSubmitting(true);
       toast.loading('Submitting payout request...');
       
       const fee = Math.round((amount * platformFeePercent) / 100);
@@ -253,18 +252,21 @@ export default function Wallet() {
         }
       }
 
-      await queryClient.refetchQueries({ queryKey: ['payouts'] });
-      await queryClient.refetchQueries({ queryKey: ['earnings'] });
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['payouts'] }),
+        queryClient.refetchQueries({ queryKey: ['earnings'] })
+      ]);
       
       toast.dismiss();
       toast.success('Payout request submitted successfully!');
       setPayoutAmount('');
       setPaymentDetails({ bank_name: '', account_number: '', ifsc_code: '', account_holder_name: '', upi_id: '' });
       setShowPayoutSheet(false);
+      setIsSubmitting(false);
     } catch (error) {
+      console.error('Payout error:', error);
       toast.dismiss();
       toast.error(error.message || 'Failed to submit payout');
-    } finally {
       setIsSubmitting(false);
     }
   };
