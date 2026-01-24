@@ -163,7 +163,7 @@ export default function Wallet() {
     return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
   });
 
-  const thisMonthEarnings = thisMonth.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
+  const thisMonthEarnings = thisMonth.reduce((sum, b) => sum + (b.base_price || 0), 0);
 
   const requestPayoutMutation = useMutation({
     mutationFn: async () => {
