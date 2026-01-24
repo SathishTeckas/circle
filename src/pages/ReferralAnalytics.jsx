@@ -28,12 +28,12 @@ export default function ReferralAnalytics() {
     loadUser();
   }, []);
 
-  // Fetch referrals where user is referrer
+  // Fetch referrals where user is referrer (user_referral type only, exclude campaign signups)
   const { data: referrals = [], isLoading: referralsLoading } = useQuery({
     queryKey: ['my-referrals', user?.id],
     queryFn: async () => {
       const allReferrals = await base44.entities.Referral.list();
-      return allReferrals.filter(r => r.referrer_id === user.id);
+      return allReferrals.filter(r => r.referrer_id === user.id && r.referral_type === 'user_referral');
     },
     enabled: !!user?.id
   });

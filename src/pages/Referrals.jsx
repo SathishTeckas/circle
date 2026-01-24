@@ -54,19 +54,35 @@ export default function Referrals() {
   const { data: referrals = [] } = useQuery({
     queryKey: ['referrals', user?.id],
     queryFn: async () => {
-      // Get all referrals where user is EITHER referrer OR referee
+      // Get referrals where user is REFERRER (outgoing referrals only)
       const allReferrals = await base44.entities.Referral.list();
       return allReferrals.filter(r => 
-        r.referrer_id === user.id || r.referee_id === user.id
+        r.referrer_id === user.id && r.referral_type === 'user_referral'
       );
+    },
+    enabled: !!user?.id
+  });
+
+  // Also fetch referrals where user is REFEREE (received referrals for earnings context)
+  const { data: receivedReferral = null } = useQuery({
+    queryKey: ['received-referral', user?.id],
+    queryFn: async () => {
+      const allReferrals = await base44.entities.Referral.list();
+      const received = allReferrals.find(r => 
+        r.referee_id === user.id && r.referral_type === 'user_referral' && (r.status === 'completed' || r.status === 'rewarded')
+      );
+      return received || null;
     },
     enabled: !!user?.id
   });
 
   const completedReferrals = referrals.filter(r => r.status === 'completed' || r.status === 'rewarded');
   const pendingReferrals = referrals.filter(r => r.status === 'pending');
-  // Each referral record gives reward to BOTH parties
+  // Only count earnings from outgoing referrals (where user is referrer)
   const totalEarnings = completedReferrals.reduce((sum, r) => sum + (r.reward_amount || rewardAmount), 0);
+  // Add earnings from signup referral bonus if applicable
+  const signupBonus = receivedReferral ? (receivedReferral.reward_amount || rewardAmount) : 0;
+  const totalWithSignup = totalEarnings + signupBonus;
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -117,13 +133,13 @@ export default function Referrals() {
           <div className="grid grid-cols-3 gap-3">
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
               <IndianRupee className="w-5 h-5 mb-1 text-white/80" />
-              <p className="text-2xl font-bold">₹{totalEarnings}</p>
-              <p className="text-xs text-white/70">Earned</p>
+              <p className="text-2xl font-bold">₹{totalWithSignup}</p>
+              <p className="text-xs text-white/70">Total Earned</p>
             </Card>
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
               <Users className="w-5 h-5 mb-1 text-white/80" />
               <p className="text-2xl font-bold">{completedReferrals.length}</p>
-              <p className="text-xs text-white/70">Referred</p>
+              <p className="text-xs text-white/70">Friends Referred</p>
             </Card>
             <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
               <TrendingUp className="w-5 h-5 mb-1 text-white/80" />
@@ -240,54 +256,51 @@ export default function Referrals() {
         </Card>
 
         {/* Referral History */}
-        {referrals.length > 0 && (
-          <Card className="p-6">
-            <h3 className="font-semibold text-slate-900 mb-4">Your Referrals</h3>
-            <div className="space-y-3">
-              {referrals.map((referral, idx) => (
-                <motion.div
-                  key={referral.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="flex items-center justify-between p-3 bg-slate-50 rounded-xl"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-violet-100 rounded-full flex items-center justify-center">
-                      <Users className="w-5 h-5 text-violet-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900">
-                        {referral.referrer_id === user?.id 
-                          ? `You referred ${referral.referee_name || 'New User'}`
-                          : `Referred by ${referral.referrer_name || 'Someone'}`
-                        }
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        {new Date(referral.created_date).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    {referral.status === 'rewarded' || referral.status === 'completed' ? (
-                      <>
-                        <p className="font-semibold text-emerald-600">+₹{referral.reward_amount || rewardAmount}</p>
-                        <Badge className="bg-emerald-100 text-emerald-700 text-xs">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Earned
-                        </Badge>
-                      </>
-                    ) : (
-                      <Badge variant="secondary" className="bg-amber-100 text-amber-700">
-                        Pending
-                      </Badge>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </Card>
-        )}
+         {referrals.length > 0 && (
+           <Card className="p-6">
+             <h3 className="font-semibold text-slate-900 mb-4">Friends You Referred</h3>
+             <div className="space-y-3">
+               {referrals.map((referral, idx) => (
+                 <motion.div
+                   key={referral.id}
+                   initial={{ opacity: 0, y: 10 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ delay: idx * 0.05 }}
+                   className="flex items-center justify-between p-3 bg-slate-50 rounded-xl"
+                 >
+                   <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 bg-violet-100 rounded-full flex items-center justify-center">
+                       <Users className="w-5 h-5 text-violet-600" />
+                     </div>
+                     <div>
+                       <p className="font-medium text-slate-900">
+                         {referral.referee_name || 'New User'}
+                       </p>
+                       <p className="text-xs text-slate-500">
+                         {new Date(referral.created_date).toLocaleDateString()}
+                       </p>
+                     </div>
+                   </div>
+                   <div className="text-right">
+                     {referral.status === 'rewarded' || referral.status === 'completed' ? (
+                       <>
+                         <p className="font-semibold text-emerald-600">+₹{referral.reward_amount || rewardAmount}</p>
+                         <Badge className="bg-emerald-100 text-emerald-700 text-xs">
+                           <CheckCircle className="w-3 h-3 mr-1" />
+                           Earned
+                         </Badge>
+                       </>
+                     ) : (
+                       <Badge variant="secondary" className="bg-amber-100 text-amber-700">
+                         Pending
+                       </Badge>
+                     )}
+                   </div>
+                 </motion.div>
+               ))}
+             </div>
+           </Card>
+         )}
       </div>
     </div>
   );
