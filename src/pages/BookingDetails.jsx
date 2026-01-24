@@ -333,7 +333,32 @@ export default function BookingDetails() {
               Other Available Times
             </h3>
             <div className="space-y-2">
-              {companionAvailabilities.filter(a => a.id !== availabilityId).slice(0, 4).map((slot) => (
+              {companionAvailabilities.filter(slot => {
+                // Filter out current availability
+                if (slot.id === availabilityId) return false;
+                
+                // Filter out past availabilities
+                const now = new Date();
+                const slotDate = new Date(slot.date);
+                
+                // If date is in the past, exclude it
+                if (slotDate < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
+                  return false;
+                }
+                
+                // If date is today, check if the end_time has passed
+                if (slotDate.toDateString() === now.toDateString()) {
+                  const [endHour, endMinute] = slot.end_time.split(':').map(Number);
+                  const currentHour = now.getHours();
+                  const currentMinute = now.getMinutes();
+                  
+                  if (endHour < currentHour || (endHour === currentHour && endMinute <= currentMinute)) {
+                    return false;
+                  }
+                }
+                
+                return true;
+              }).slice(0, 4).map((slot) => (
                 <a
                   key={slot.id}
                   href={createPageUrl(`BookingDetails?id=${slot.id}`)}
