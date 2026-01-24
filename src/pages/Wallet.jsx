@@ -110,8 +110,12 @@ export default function Wallet() {
     .filter(p => p.status === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
 
+  const approvedPayouts = payouts
+    .filter(p => ['approved', 'processing'].includes(p.status))
+    .reduce((sum, p) => sum + p.amount, 0);
+
   const pendingPayouts = payouts
-    .filter(p => ['pending', 'approved', 'processing'].includes(p.status))
+    .filter(p => p.status === 'pending')
     .reduce((sum, p) => sum + p.amount, 0);
 
   const hasPendingPayout = payouts.some(p => ['pending', 'approved', 'processing'].includes(p.status));
@@ -119,7 +123,7 @@ export default function Wallet() {
   const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
   const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
   const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
-  const rawBalance = totalEarnings + referralEarnings - totalWithdrawn - pendingPayouts;
+  const rawBalance = totalEarnings + referralEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
   const availableBalance = Math.max(0, rawBalance);
 
   // Create unified transaction statement
@@ -175,8 +179,11 @@ export default function Wallet() {
       const latestCompletedPayouts = latestPayouts
         .filter(p => p.status === 'completed')
         .reduce((sum, p) => sum + p.amount, 0);
+      const latestApprovedPayouts = latestPayouts
+        .filter(p => ['approved', 'processing'].includes(p.status))
+        .reduce((sum, p) => sum + p.amount, 0);
 
-      const currentAvailableBalance = totalEarnings + referralEarnings - latestCompletedPayouts - latestPendingPayouts;
+      const currentAvailableBalance = totalEarnings + referralEarnings - latestCompletedPayouts - latestApprovedPayouts - latestPendingPayouts;
 
       if (currentAvailableBalance < 100) {
         throw new Error('Insufficient balance. Minimum balance required: ₹100');
@@ -282,9 +289,10 @@ export default function Wallet() {
       const latestTotalEarnings = latestEarnings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
       const latestReferralEarnings = latestReferrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
       const latestWithdrawn = latestPayouts.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
-      const latestPending = latestPayouts.filter(p => ['pending', 'approved', 'processing'].includes(p.status)).reduce((sum, p) => sum + p.amount, 0);
+      const latestApproved = latestPayouts.filter(p => ['approved', 'processing'].includes(p.status)).reduce((sum, p) => sum + p.amount, 0);
+      const latestPending = latestPayouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
 
-      const realBalance = latestTotalEarnings + latestReferralEarnings - latestWithdrawn - latestPending;
+      const realBalance = latestTotalEarnings + latestReferralEarnings - latestWithdrawn - latestApproved - latestPending;
 
       if (realBalance < 100) {
         toast.error('Insufficient balance. Minimum balance required: ₹100');
@@ -335,7 +343,7 @@ export default function Wallet() {
             <p className="text-emerald-100 text-sm mb-1">Available Balance</p>
             <p className="text-4xl font-bold mb-1">{formatCurrency(availableBalance)}</p>
             <p className="text-emerald-100 text-xs mb-1">
-              Pending Earnings: {formatCurrency(pendingEarnings)} • Requested Payouts: {formatCurrency(pendingPayouts)}
+              Pending Earnings: {formatCurrency(pendingEarnings)} • Requested Payouts: {formatCurrency(pendingPayouts + approvedPayouts)}
             </p>
             <p className="text-emerald-100/80 text-[10px] mb-4">
               Minimum withdrawal: ₹100
@@ -529,10 +537,18 @@ export default function Wallet() {
               <span className="text-slate-600">Withdrawn</span>
               <span className="font-medium text-red-600">-{formatCurrency(totalWithdrawn)}</span>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-600">Pending Payouts</span>
-              <span className="font-medium text-amber-600">-{formatCurrency(pendingPayouts)}</span>
-            </div>
+            {approvedPayouts > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-600">Approved Payouts</span>
+                <span className="font-medium text-blue-600">-{formatCurrency(approvedPayouts)}</span>
+              </div>
+            )}
+            {pendingPayouts > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-600">Pending Review</span>
+                <span className="font-medium text-amber-600">-{formatCurrency(pendingPayouts)}</span>
+              </div>
+            )}
             <div className="border-t border-slate-300 pt-2 mt-2 flex items-center justify-between">
               <span className="font-semibold text-slate-900">Available Balance</span>
               <span className="font-bold text-emerald-600 text-lg">{formatCurrency(availableBalance)}</span>
