@@ -410,10 +410,8 @@ export default function AdminCampaignReferrals() {
       <CampaignFormDialog 
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
-        formData={formData}
-        onFormChange={setFormData}
         onGenerateCode={generateCode}
-        onSubmit={() => createMutation.mutate(formData)}
+        onSubmit={(data) => createMutation.mutate(data)}
         isLoading={createMutation.isPending}
       />
 
