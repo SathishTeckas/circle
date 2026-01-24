@@ -52,6 +52,7 @@ export default function ManageAvailability() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [editingSlot, setEditingSlot] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [formData, setFormData] = useState({
     start_time: '',
@@ -118,21 +119,23 @@ export default function ManageAvailability() {
 
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
-      // Check for duplicate: same date + time + city + area
-      const existingAvailabilities = await base44.entities.Availability.filter({ 
-        companion_id: user.id,
-        date: dateStr,
-        start_time: formData.start_time,
-        city: formData.city,
-        area: formData.area,
-        status: 'available'
-      });
+      // Check for duplicate: same date + time + city + area (skip if editing)
+      if (!editingSlot) {
+        const existingAvailabilities = await base44.entities.Availability.filter({ 
+          companion_id: user.id,
+          date: dateStr,
+          start_time: formData.start_time,
+          city: formData.city,
+          area: formData.area,
+          status: 'available'
+        });
 
-      if (existingAvailabilities.length > 0) {
-        throw new Error('You already have an availability for this date, time, city, and area');
+        if (existingAvailabilities.length > 0) {
+          throw new Error('You already have an availability for this date, time, city, and area');
+        }
       }
 
-      await base44.entities.Availability.create({
+      const availabilityData = {
         companion_id: user.id,
         companion_name: user.display_name || user.full_name,
         companion_photo: user.profile_photos?.[0],
@@ -148,17 +151,24 @@ export default function ManageAvailability() {
         languages: user.languages || ['English'],
         interests: user.interests || [],
         gender: user.gender
-      });
+      };
+
+      if (editingSlot) {
+        await base44.entities.Availability.update(editingSlot.id, availabilityData);
+      } else {
+        await base44.entities.Availability.create(availabilityData);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-availabilities'] });
       setShowForm(false);
+      setEditingSlot(null);
       setFormData({ start_time: '', end_time: '', area: '', city: '', price_per_hour: '' });
       setSelectedDate(null);
-      toast.success('Availability created successfully!');
+      toast.success(editingSlot ? 'Availability updated successfully!' : 'Availability created successfully!');
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to create availability');
+      toast.error(error.message || `Failed to ${editingSlot ? 'update' : 'create'} availability`);
     }
   });
 
@@ -219,7 +229,14 @@ export default function ManageAvailability() {
 
       <div className="px-4 py-6 max-w-lg mx-auto space-y-4">
         {/* Add New Button */}
-        <Sheet open={showForm} onOpenChange={setShowForm}>
+        <Sheet open={showForm} onOpenChange={(open) => {
+          setShowForm(open);
+          if (!open) {
+            setEditingSlot(null);
+            setFormData({ start_time: '', end_time: '', area: '', city: '', price_per_hour: '' });
+            setSelectedDate(null);
+          }
+        }}>
           <SheetTrigger asChild>
             <Button className="w-full h-14 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 rounded-xl text-lg">
               <Plus className="w-5 h-5 mr-2" />
@@ -228,7 +245,7 @@ export default function ManageAvailability() {
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[90vh] rounded-t-3xl flex flex-col">
             <SheetHeader className="mb-6 flex-shrink-0">
-              <SheetTitle>Create Availability</SheetTitle>
+              <SheetTitle>{editingSlot ? 'Edit Availability' : 'Create Availability'}</SheetTitle>
             </SheetHeader>
 
             <div ref={sheetContentRef} className="space-y-6 overflow-y-auto flex-1 pb-24 pr-2">
@@ -396,10 +413,10 @@ export default function ManageAvailability() {
                 disabled={!canSubmit || createMutation.isPending}
                 className="w-full h-14 bg-violet-600 hover:bg-violet-700 rounded-xl text-lg"
               >
-                {createMutation.isPending ? (
+{createMutation.isPending ? (
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  'Save Availability'
+                  editingSlot ? 'Update Availability' : 'Save Availability'
                 )}
               </Button>
             </div>
@@ -445,14 +462,35 @@ export default function ManageAvailability() {
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-slate-900">₹{slot.price_per_hour}/hr</p>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteMutation.mutate(slot.id)}
-                            className="mt-2 text-red-500 hover:text-red-600 hover:bg-red-50"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </Button>
+                          <div className="flex gap-1 mt-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setEditingSlot(slot);
+                                setSelectedDate(new Date(slot.date));
+                                setFormData({
+                                  start_time: slot.start_time,
+                                  end_time: slot.end_time,
+                                  area: slot.area,
+                                  city: slot.city,
+                                  price_per_hour: slot.price_per_hour.toString()
+                                });
+                                setShowForm(true);
+                              }}
+                              className="text-violet-600 hover:text-violet-700 hover:bg-violet-50"
+                            >
+                              <Edit className="w-5 h-5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => deleteMutation.mutate(slot.id)}
+                              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </Card>
