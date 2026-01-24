@@ -16,11 +16,26 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, message: 'No referral code provided' });
     }
 
-    // Prevent processing if user has campaign code (should use campaign referral instead)
+    const codeUpper = referral_code.trim().toUpperCase();
+
+    // Check if this is a campaign code (system reservations: SYSTEM or starts with known pattern)
+    const isSystemCode = codeUpper === 'SYSTEM';
+    const campaigns = await base44.asServiceRole.entities.CampaignReferral.filter({ code: codeUpper });
+    const isCampaignCode = campaigns.length > 0;
+
+    // Prevent processing campaign codes via user referral endpoint
+    if (isCampaignCode) {
+      return Response.json({ 
+        success: false, 
+        error: 'This is a campaign code, not a user referral code' 
+      }, { status: 400 });
+    }
+
+    // Prevent processing if user already has a campaign code (shouldn't mix referral types)
     if (user.campaign_referral_code) {
       return Response.json({ 
         success: false, 
-        error: 'You already have a campaign code. Use that for signup rewards.' 
+        error: 'You already have a campaign code. Cannot use user referral codes.' 
       }, { status: 400 });
     }
 
@@ -78,11 +93,12 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Check for duplicate - prevent race conditions
+    // Check for duplicate - prevent race conditions (only user_referral type)
     const duplicateCheck = await base44.asServiceRole.entities.Referral.filter({
       referrer_id: referrer.id,
       referee_id: user.id,
-      referral_code: referral_code.trim().toUpperCase()
+      referral_code: codeUpper,
+      referral_type: 'user_referral'
     });
 
     if (duplicateCheck.length > 0) {
@@ -99,7 +115,7 @@ Deno.serve(async (req) => {
       referrer_name: referrer.display_name || referrer.full_name,
       referee_id: user.id,
       referee_name: user.display_name || user.full_name,
-      referral_code: referral_code.trim().toUpperCase(),
+      referral_code: codeUpper,
       referral_type: 'user_referral',
       status: 'completed',
       reward_amount: rewardAmount,

@@ -177,10 +177,10 @@ export default function Onboarding() {
         onboarding_completed: false // Will be true after KYC
       });
 
-      // Process referral code if provided
-      if (userData.referral_code && userData.referral_code.trim()) {
+      // Only process user referral code if no campaign code is present
+      if (userData.referral_code && userData.referral_code.trim() && !userData.campaign_referral_code) {
         try {
-          const result = await base44.functions.invoke('processReferral', {
+          await base44.functions.invoke('processReferral', {
             referral_code: userData.referral_code.trim()
           });
           // Clear from localStorage after successful processing
@@ -188,6 +188,20 @@ export default function Onboarding() {
         } catch (referralError) {
           console.error('Referral processing failed:', referralError);
           // Don't block onboarding if referral fails
+        }
+      }
+
+      // Ensure campaign bonus is processed as fallback
+      if (userData.campaign_referral_code) {
+        try {
+          await base44.functions.invoke('updateCampaignReferralStats', {
+            entity_id: user.id,
+            data: user,
+            event: { type: 'create' }
+          });
+        } catch (campaignError) {
+          console.error('Campaign bonus processing failed:', campaignError);
+          // Don't block onboarding if campaign bonus fails
         }
       }
 
@@ -574,16 +588,22 @@ export default function Onboarding() {
                      placeholder="Enter friend's referral code"
                      value={userData.referral_code}
                      onChange={(e) => setUserData({ ...userData, referral_code: e.target.value })}
-                     className="h-14 rounded-xl border-slate-200"
+                     disabled={!!userData.campaign_referral_code}
+                     className="h-14 rounded-xl border-slate-200 disabled:opacity-60 disabled:cursor-not-allowed"
                    />
-                   <p className="text-xs text-slate-500 mt-1">Get rewards when you enter a friend's code</p>
+                   {userData.campaign_referral_code ? (
+                     <p className="text-xs text-violet-600 mt-1 font-medium">Referral code not available with campaign</p>
+                   ) : (
+                     <p className="text-xs text-slate-500 mt-1">Get rewards when you enter a friend's code</p>
+                   )}
                  </div>
 
                  {userData.campaign_referral_code && (
-                   <div className="bg-violet-50 border border-violet-200 rounded-xl p-3">
+                   <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
                      <p className="text-xs text-violet-600">
-                       ✓ Campaign: <span className="font-semibold">{userData.campaign_referral_code}</span>
+                       ✓ <span className="font-semibold">{userData.campaign_referral_code}</span> campaign applied
                      </p>
+                     <p className="text-xs text-violet-500 mt-1">You'll receive your signup bonus after account verification</p>
                    </div>
                  )}
               </div>

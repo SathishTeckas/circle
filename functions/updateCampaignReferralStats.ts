@@ -34,10 +34,11 @@ Deno.serve(async (req) => {
       return Response.json({ message: 'Campaign is not active', status: 200 });
     }
 
-    // Check for duplicate campaign referral to prevent double rewards
+    // Check for duplicate campaign referral to prevent double rewards (only campaign_signup type)
     const existingCampaignReferral = await base44.asServiceRole.entities.Referral.filter({
       referee_id: userId,
-      referral_code: campaignCode
+      referral_code: campaignCode,
+      referral_type: 'campaign_signup'
     });
 
     if (existingCampaignReferral.length > 0) {
