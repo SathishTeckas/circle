@@ -131,7 +131,7 @@ export default function Wallet() {
     ...completedBookings.map(b => ({
       id: b.id,
       type: 'earning',
-      amount: b.companion_payout || 0,
+      amount: b.base_price || 0,
       description: `Meetup with ${b.seeker_name}`,
       date: b.created_date,
       icon: ArrowDownLeft,
