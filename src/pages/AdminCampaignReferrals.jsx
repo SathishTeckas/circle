@@ -321,33 +321,38 @@ export default function AdminCampaignReferrals() {
                     </div>
                   </div>
                   <div className="flex gap-2 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleActiveMutation.mutate({ 
-                        id: campaign.id, 
-                        is_active: !campaign.is_active 
-                      })}
-                      className="h-9 w-9 p-0 shrink-0"
-                    >
-                      {campaign.is_active ? (
-                        <ToggleRight className="w-5 h-5 text-emerald-600" />
-                      ) : (
-                        <ToggleLeft className="w-5 h-5 text-slate-400" />
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        if (confirm('Delete this campaign code?')) {
-                          deleteMutation.mutate(campaign.id);
-                        }
-                      }}
-                      className="h-9 w-9 p-0 shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {campaign.code !== 'SYSTEM' && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleActiveMutation.mutate({ 
+                            id: campaign.id, 
+                            is_active: !campaign.is_active,
+                            code: campaign.code
+                          })}
+                          className="h-9 w-9 p-0 shrink-0"
+                        >
+                          {campaign.is_active ? (
+                            <ToggleRight className="w-5 h-5 text-emerald-600" />
+                          ) : (
+                            <ToggleLeft className="w-5 h-5 text-slate-400" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm('Delete this campaign code?')) {
+                              deleteMutation.mutate({ id: campaign.id, code: campaign.code });
+                            }
+                          }}
+                          className="h-9 w-9 p-0 shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
 
