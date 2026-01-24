@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Create referral record
+    // Create referral record for referrer (person who referred)
     await base44.asServiceRole.entities.Referral.create({
       referrer_id: referrer.id,
       referrer_name: referrer.display_name || referrer.full_name,
@@ -63,26 +63,34 @@ Deno.serve(async (req) => {
       rewarded_date: new Date().toISOString()
     });
 
-    // Add ₹100 to referrer's wallet
-    const referrerWallet = await base44.asServiceRole.entities.User.filter({ id: referrer.id });
-    const currentBalance = referrerWallet[0]?.wallet_balance || 0;
-    await base44.asServiceRole.entities.User.update(referrer.id, {
-      wallet_balance: currentBalance + 100
-    });
-
-    // Add ₹100 to referee's (new user's) wallet
-    const refereeWallet = await base44.asServiceRole.entities.User.filter({ id: user.id });
-    const refereeBalance = refereeWallet[0]?.wallet_balance || 0;
-    await base44.asServiceRole.entities.User.update(user.id, {
-      wallet_balance: refereeBalance + 100
+    // Create referral record for referee (new user who signed up)
+    await base44.asServiceRole.entities.Referral.create({
+      referrer_id: user.id,
+      referrer_name: user.display_name || user.full_name,
+      referee_id: user.id,
+      referee_name: user.display_name || user.full_name,
+      referral_code: referral_code.trim().toUpperCase(),
+      status: 'completed',
+      reward_amount: 100,
+      rewarded_date: new Date().toISOString()
     });
 
     // Send notification to referrer
     await base44.asServiceRole.entities.Notification.create({
       user_id: referrer.id,
       type: 'payment_received',
-      title: 'Referral Bonus!',
+      title: '🎉 Referral Bonus!',
       message: `${user.display_name || user.full_name || 'Someone'} joined using your referral code. You earned ₹100!`,
+      amount: 100,
+      read: false
+    });
+
+    // Send notification to referee (new user)
+    await base44.asServiceRole.entities.Notification.create({
+      user_id: user.id,
+      type: 'payment_received',
+      title: '🎉 Welcome Bonus!',
+      message: `You received ₹100 signup bonus for using referral code ${referral_code.trim().toUpperCase()}!`,
       amount: 100,
       read: false
     });
