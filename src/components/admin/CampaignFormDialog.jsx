@@ -38,7 +38,7 @@ const CampaignFormDialog = React.memo(({
   }, [onOpenChange]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Create Campaign Code</DialogTitle>
