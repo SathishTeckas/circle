@@ -170,10 +170,12 @@ export default function Onboarding() {
       const user = await base44.auth.me();
       const myReferralCode = user.id.substring(0, 8).toUpperCase();
       
-      // Save all data including display_name and my_referral_code via updateMe
+      // Save all data including display_name, campaign code, and my_referral_code via updateMe
+      const user = await base44.auth.me();
       await base44.auth.updateMe({
         ...userData,
         my_referral_code: myReferralCode,
+        campaign_referral_code: userData.campaign_referral_code || user.campaign_referral_code,
         onboarding_completed: false // Will be true after KYC
       });
 
