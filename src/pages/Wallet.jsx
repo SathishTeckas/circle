@@ -144,7 +144,8 @@ export default function Wallet() {
   const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
   const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
   const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
-  const rawBalance = totalEarnings + referralEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
+  const campaignEarnings = campaignBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
+  const rawBalance = totalEarnings + referralEarnings + campaignEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
   const availableBalance = Math.max(0, rawBalance);
 
   // Create unified transaction statement
