@@ -51,6 +51,7 @@ export default function KYCVerification() {
     try {
       await base44.auth.updateMe({
         kyc_status: 'verified', // Simulating verification
+        kyc_verified: true,
         onboarding_completed: true,
         location_enabled: permissions.location,
         notifications_enabled: permissions.notifications
@@ -127,6 +128,7 @@ export default function KYCVerification() {
                 onClick={async () => {
                   await base44.auth.updateMe({ 
                     kyc_status: 'skipped',
+                    kyc_verified: true,
                     onboarding_completed: true 
                   });
                   const userData = await base44.auth.me();
