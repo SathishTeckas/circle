@@ -56,10 +56,25 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  // Redirect to onboarding if not completed
-  if (user && !user.onboarding_completed && !noNavPages.includes(currentPageName)) {
-    window.location.href = createPageUrl('Welcome');
-    return null;
+  // Redirect to appropriate onboarding page if not completed
+  if (user && !noNavPages.includes(currentPageName)) {
+    if (!user.user_role) {
+      window.location.href = createPageUrl('RoleSelection');
+      return null;
+    } else if (!user.terms_accepted) {
+      window.location.href = createPageUrl('TermsAcceptance');
+      return null;
+    } else if (!user.onboarding_completed) {
+      if (user.display_name && user.profile_photos?.length > 0) {
+        window.location.href = createPageUrl('KYCVerification');
+      } else {
+        window.location.href = createPageUrl('Onboarding');
+      }
+      return null;
+    } else if (!user.kyc_verified) {
+      window.location.href = createPageUrl('KYCVerification');
+      return null;
+    }
   }
 
   const activeRole = user?.active_role || user?.user_role;
