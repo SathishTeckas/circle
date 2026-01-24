@@ -209,23 +209,24 @@ export default function CompanionDashboard() {
     refetchOnWindowFocus: false
   });
 
+  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
+  const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
+  
   const totalWithdrawn = payouts
     .filter(p => p.status === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
-
+  
   const approvedPayouts = payouts
     .filter(p => ['approved', 'processing'].includes(p.status))
     .reduce((sum, p) => sum + p.amount, 0);
-
+  
   const pendingPayouts = payouts
     .filter(p => p.status === 'pending')
     .reduce((sum, p) => sum + p.amount, 0);
-
-  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
-  const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
-  const rawBalance = totalEarnings + referralEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
-  const availableBalance = Math.max(0, rawBalance);
-
+  
+  const calculatedBalance = totalEarnings + referralEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
+  const displayBalance = Math.max(0, calculatedBalance);
+  
   const avgRating = user?.average_rating;
   const hasRating = avgRating && user?.total_reviews > 0;
 
@@ -481,7 +482,7 @@ export default function CompanionDashboard() {
 
           <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-4 text-white">
             <p className="text-emerald-100 text-sm mb-1">Available Balance</p>
-            <p className="text-3xl font-bold mb-2">₹{Math.round(user?.wallet_balance || 0).toLocaleString('en-IN')}</p>
+            <p className="text-3xl font-bold mb-2">₹{Math.round(displayBalance).toLocaleString('en-IN')}</p>
             <p className="text-emerald-100 text-sm">
               {completedBookings.length} completed meetups
             </p>
