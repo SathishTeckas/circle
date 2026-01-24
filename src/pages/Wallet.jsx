@@ -372,15 +372,15 @@ export default function Wallet() {
 
   const canRequestPayout = () => {
     const amount = parseFloat(payoutAmount);
-    if (!amount || amount < 100 || amount > availableBalance) return false;
+    if (!amount || isNaN(amount) || amount < 100 || amount > availableBalance) return false;
 
     if (paymentMethod === 'upi') {
-      return paymentDetails.upi_id?.trim() !== '';
+      return paymentDetails.upi_id && paymentDetails.upi_id.trim().length > 0;
     } else {
-      return paymentDetails.bank_name?.trim() !== '' &&
-             paymentDetails.account_number?.trim() !== '' &&
-             paymentDetails.ifsc_code?.trim() !== '' &&
-             paymentDetails.account_holder_name?.trim() !== '';
+      return paymentDetails.bank_name && paymentDetails.bank_name.trim().length > 0 &&
+             paymentDetails.account_number && paymentDetails.account_number.trim().length > 0 &&
+             paymentDetails.ifsc_code && paymentDetails.ifsc_code.trim().length > 0 &&
+             paymentDetails.account_holder_name && paymentDetails.account_holder_name.trim().length > 0;
     }
   };
 
