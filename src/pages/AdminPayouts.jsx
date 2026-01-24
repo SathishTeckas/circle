@@ -113,6 +113,12 @@ export default function AdminPayouts() {
         throw new Error('Rejection reason is required');
       }
 
+      // Fetch current user balance
+      const companion = await base44.entities.User.get(payout.companion_id);
+      const currentBalance = companion.wallet_balance || 0;
+      const refundedBalance = currentBalance + payout.amount;
+
+      // Update payout status
       await base44.entities.Payout.update(payout.id, {
         status: 'rejected',
         rejection_reason: rejectionReason,
@@ -121,12 +127,30 @@ export default function AdminPayouts() {
         processed_date: new Date().toISOString()
       });
 
+      // Refund balance to user wallet
+      await base44.entities.User.update(payout.companion_id, {
+        wallet_balance: refundedBalance
+      });
+
+      // Log refund transaction
+      await base44.entities.WalletTransaction.create({
+        user_id: payout.companion_id,
+        transaction_type: 'refund',
+        amount: payout.amount,
+        balance_before: currentBalance,
+        balance_after: refundedBalance,
+        reference_id: payout.id,
+        reference_type: 'Payout',
+        description: `Payout rejection refund: ${rejectionReason}`,
+        status: 'completed'
+      });
+
       // Notify companion
       await base44.entities.Notification.create({
         user_id: payout.companion_id,
         type: 'payout_processed',
         title: '❌ Payout Rejected',
-        message: `Your payout request of ${formatCurrency(payout.amount)} was rejected. Reason: ${rejectionReason}`,
+        message: `Your payout request of ${formatCurrency(payout.amount)} was rejected. Reason: ${rejectionReason}. Amount refunded to your wallet.`,
         amount: payout.amount,
         action_url: createPageUrl('Wallet')
       });
