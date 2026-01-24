@@ -159,7 +159,9 @@ export default function CompanionDashboard() {
       });
     },
     enabled: !!user?.id,
-    staleTime: 60000
+    staleTime: 2 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false
   });
 
   const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);

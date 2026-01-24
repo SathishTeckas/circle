@@ -156,18 +156,22 @@ export default function ManageAvailability() {
       if (editingSlot) {
         await base44.entities.Availability.update(editingSlot.id, availabilityData);
       } else {
-        await base44.entities.Availability.create(availabilityData);
+        const newAvailability = await base44.entities.Availability.create(availabilityData);
+        // Optimistically add to cache
+        queryClient.setQueryData(['my-availabilities', user.id], (old = []) => [newAvailability, ...old]);
+        queryClient.setQueryData(['active-availabilities', user.id], (old = []) => [newAvailability, ...old]);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['my-availabilities'] });
       setShowForm(false);
       setEditingSlot(null);
       setFormData({ start_time: '', end_time: '', area: '', city: '', price_per_hour: '' });
       setSelectedDate(null);
-      toast.success(editingSlot ? 'Availability updated successfully!' : 'Availability created successfully!');
+      toast.success(editingSlot ? 'Availability updated!' : 'Availability added!');
     },
     onError: (error) => {
+      queryClient.invalidateQueries({ queryKey: ['my-availabilities'] });
+      queryClient.invalidateQueries({ queryKey: ['active-availabilities'] });
       toast.error(error.message || `Failed to ${editingSlot ? 'update' : 'create'} availability`);
     }
   });
