@@ -16,8 +16,8 @@ const CampaignFormDialog = React.memo(({
   isLoading 
 }) => {
   const handleInputChange = useCallback((field, value) => {
-    onFormChange({ ...formData, [field]: value });
-  }, [formData, onFormChange]);
+    onFormChange(prev => ({ ...prev, [field]: value }));
+  }, [onFormChange]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
