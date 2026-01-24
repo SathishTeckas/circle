@@ -4,7 +4,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     // Admin-only function
     if (user?.role !== 'admin') {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
@@ -17,42 +17,79 @@ Deno.serve(async (req) => {
     }
 
     let processedCount = 0;
-    const campaignCodes = campaigns.map(c => c.code);
 
-    // Get all users with campaign codes but no campaign referral record yet
-     const allUsers = await base44.asServiceRole.entities.User.list('', 1000);
-
-     for (const u of allUsers) {
-       if (!u.campaign_referral_code || !campaignCodes.includes(u.campaign_referral_code)) {
-         continue;
-       }
-
-      // Check if already processed
-      const existingReferrals = await base44.asServiceRole.entities.Referral.filter({
-        referee_id: u.id,
-        referral_code: u.campaign_referral_code,
+    // For each campaign, check for referrals that haven't been rewarded yet
+    for (const campaign of campaigns) {
+      const allReferrals = await base44.asServiceRole.entities.Referral.filter({
+        referral_code: campaign.code,
         referral_type: 'campaign_signup'
-      });
+      }, '-created_date', 1000);
 
-      if (existingReferrals.length > 0) {
-        continue; // Already processed
-      }
+      for (const referral of allReferrals) {
+        // Check if reward has already been applied (status is 'rewarded')
+        if (referral.status === 'rewarded') {
+          continue;
+        }
 
-      // Process this user
-      try {
-        await base44.functions.invoke('updateCampaignReferralStats', {
-          entity_id: u.id,
-          data: u,
-          event: { type: 'create' }
-        });
-        processedCount++;
-      } catch (err) {
-        console.error(`Failed to process campaign for user ${u.id}:`, err.message);
+        // Skip if no reward configured
+        if (campaign.referral_reward_amount === 0 || campaign.referral_reward_type !== 'wallet_credit') {
+          continue;
+        }
+
+        try {
+          // Fetch user (use referee_id as the signup user)
+          const signupUser = await base44.asServiceRole.entities.User.get(referral.referee_id);
+          if (!signupUser) {
+            console.error(`User ${referral.referee_id} not found`);
+            continue;
+          }
+
+          // Get current balance
+          const oldBalance = signupUser.wallet_balance || 0;
+          const newBalance = oldBalance + campaign.referral_reward_amount;
+
+          // Update wallet balance
+          await base44.asServiceRole.entities.User.update(referral.referee_id, {
+            wallet_balance: newBalance
+          });
+
+          // Log transaction
+          await base44.asServiceRole.entities.WalletTransaction.create({
+            user_id: referral.referee_id,
+            transaction_type: 'campaign_bonus',
+            amount: campaign.referral_reward_amount,
+            balance_before: oldBalance,
+            balance_after: newBalance,
+            reference_id: referral.id,
+            reference_type: 'Referral',
+            description: `Campaign signup bonus for ${campaign.code}`,
+            status: 'completed'
+          });
+
+          // Mark referral as rewarded
+          await base44.asServiceRole.entities.Referral.update(referral.id, {
+            status: 'rewarded'
+          });
+
+          // Send notification
+          await base44.asServiceRole.entities.Notification.create({
+            user_id: referral.referee_id,
+            type: 'referral_bonus',
+            title: '🎉 Campaign Signup Bonus!',
+            message: `You received ₹${campaign.referral_reward_amount} for signing up with code ${campaign.code}!`,
+            amount: campaign.referral_reward_amount,
+            read: false
+          });
+
+          processedCount++;
+        } catch (err) {
+          console.error(`Failed to process reward for referral ${referral.id}:`, err.message);
+        }
       }
     }
 
     return Response.json({ 
-      message: `Processed ${processedCount} pending campaign referrals`,
+      message: `Processed ${processedCount} pending campaign rewards`,
       processedCount 
     });
   } catch (error) {
