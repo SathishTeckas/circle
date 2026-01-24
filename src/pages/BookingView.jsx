@@ -447,7 +447,7 @@ export default function BookingView() {
             <span>
               {isSeeker 
                 ? 'Payment held in escrow until meetup is complete'
-                : 'Payment will be credited to your wallet after meetup completion (platform fee deducted on withdrawal)'
+                : 'Payment will be credited to your wallet after meetup completion'
               }
             </span>
           </div>
