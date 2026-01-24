@@ -633,12 +633,14 @@ export default function Wallet() {
                           "w-10 h-10 rounded-full flex items-center justify-center",
                           transaction.color === 'emerald' && "bg-emerald-100",
                           transaction.color === 'violet' && "bg-violet-100",
+                          transaction.color === 'blue' && "bg-blue-100",
                           transaction.color === 'red' && "bg-red-100"
                         )}>
                           <Icon className={cn(
                             "w-5 h-5",
                             transaction.color === 'emerald' && "text-emerald-600",
                             transaction.color === 'violet' && "text-violet-600",
+                            transaction.color === 'blue' && "text-blue-600",
                             transaction.color === 'red' && "text-red-600"
                           )} />
                         </div>
