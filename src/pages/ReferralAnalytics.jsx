@@ -47,17 +47,18 @@ export default function ReferralAnalytics() {
     queryFn: async () => {
       if (referrals.length === 0) return [];
       const refereeIds = [...new Set(referrals.map(r => r.referee_id))];
-      const users = await base44.entities.User.list();
+      const users = await base44.entities.User.list('-created_date', 200);
       return users.filter(u => refereeIds.includes(u.id));
     },
-    enabled: !!user?.id && referrals.length > 0
+    enabled: !!user?.id && referrals.length > 0,
+    staleTime: 10 * 60 * 1000
   });
 
   // Fetch bookings to determine conversion
   const { data: referralsWithBookings = [] } = useQuery({
     queryKey: ['referrals-with-bookings', user?.id],
     queryFn: async () => {
-      const bookings = await base44.entities.Booking.list();
+      const bookings = await base44.entities.Booking.list('-created_date', 500);
       return referrals.map(ref => {
         const userBookings = bookings.filter(b => b.seeker_id === ref.referee_id || b.companion_id === ref.referee_id);
         return {
@@ -70,7 +71,8 @@ export default function ReferralAnalytics() {
         };
       });
     },
-    enabled: referrals.length > 0
+    enabled: referrals.length > 0,
+    staleTime: 10 * 60 * 1000
   });
 
   // Calculate analytics
@@ -158,7 +160,7 @@ export default function ReferralAnalytics() {
           </div>
 
           {/* Key Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             <Card className="p-4 bg-white/10 backdrop-blur border-white/20 text-white">
               <div className="flex items-center gap-2 mb-2">
                 <Users className="w-4 h-4 text-white/70" />
@@ -198,7 +200,7 @@ export default function ReferralAnalytics() {
 
       <div className="px-4 -mt-6 max-w-4xl mx-auto space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card className="p-6">
             <div className="flex items-start justify-between">
               <div>

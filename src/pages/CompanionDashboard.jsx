@@ -88,10 +88,10 @@ export default function CompanionDashboard() {
       return await base44.entities.Booking.filter({ 
         companion_id: user.id, 
         status: 'pending' 
-      }, '-created_date', 10);
+      }, '-created_date', 20);
     },
     enabled: !!user?.id,
-    staleTime: 20000,
+    staleTime: 30000,
     refetchInterval: 30000
   });
 
@@ -101,7 +101,7 @@ export default function CompanionDashboard() {
       const allAccepted = await base44.entities.Booking.filter({ 
         companion_id: user.id, 
         status: 'accepted' 
-      }, '-created_date', 10);
+      }, '-created_date', 20);
       
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -113,7 +113,7 @@ export default function CompanionDashboard() {
       });
     },
     enabled: !!user?.id,
-    staleTime: 30000
+    staleTime: 5 * 60 * 1000
   });
 
   const { data: completedBookings = [] } = useQuery({
@@ -123,10 +123,10 @@ export default function CompanionDashboard() {
         companion_id: user.id, 
         status: 'completed',
         escrow_status: 'released'
-      }, '-created_date', 50);
+      }, '-created_date', 100);
     },
     enabled: !!user?.id,
-    staleTime: 2 * 60 * 1000
+    staleTime: 10 * 60 * 1000
   });
 
   const { data: payouts = [] } = useQuery({
