@@ -63,12 +63,34 @@ Deno.serve(async (req) => {
             processed_by: 'system_auto'
           });
 
+          // Refund pending payout amount back to user wallet
+          const companion = await base44.asServiceRole.entities.User.get(payout.companion_id);
+          const currentBalance = companion.wallet_balance || 0;
+          const refundedBalance = currentBalance + payout.amount;
+
+          await base44.asServiceRole.entities.User.update(payout.companion_id, {
+            wallet_balance: refundedBalance
+          });
+
+          // Log refund transaction
+          await base44.asServiceRole.entities.WalletTransaction.create({
+            user_id: payout.companion_id,
+            transaction_type: 'refund',
+            amount: payout.amount,
+            balance_before: currentBalance,
+            balance_after: refundedBalance,
+            reference_id: payout.id,
+            reference_type: 'Payout',
+            description: `Auto-rejected payout refund: Insufficient balance`,
+            status: 'completed'
+          });
+
           // Notify companion
           await base44.asServiceRole.entities.Notification.create({
             user_id: payout.companion_id,
             type: 'payout_processed',
             title: '❌ Payout Request Rejected',
-            message: `Your payout request of ₹${payout.amount} was rejected due to insufficient balance.`,
+            message: `Your payout request of ₹${payout.amount} was rejected due to insufficient balance. Amount refunded to your wallet.`,
             amount: payout.amount
           });
 

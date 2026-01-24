@@ -129,8 +129,8 @@ export default function Wallet() {
 
   const hasPendingPayout = payouts.some(p => ['pending', 'approved', 'processing'].includes(p.status));
 
-  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
-  const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
+  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
+  const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
   const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
   const rawBalance = totalEarnings + referralEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
   const availableBalance = Math.max(0, rawBalance);
@@ -140,7 +140,7 @@ export default function Wallet() {
     ...completedBookings.map(b => ({
       id: b.id,
       type: 'earning',
-      amount: b.base_price || 0,
+      amount: b.companion_payout || 0,
       description: `Meetup with ${b.seeker_name}`,
       date: b.created_date,
       icon: ArrowDownLeft,
@@ -306,7 +306,7 @@ export default function Wallet() {
 
       const platformFeePercent = (settingsList && settingsList[0]?.platform_fee) || 15;
       
-      const latestTotalEarnings = latestEarnings.reduce((sum, b) => sum + (b.base_price || 0), 0);
+      const latestTotalEarnings = latestEarnings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
       
       const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
       const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
@@ -681,7 +681,7 @@ export default function Wallet() {
                         </p>
                       </div>
                       <div className="text-right">
-                       <p className="font-semibold text-emerald-600">+{formatCurrency(booking.base_price || 0)}</p>
+                       <p className="font-semibold text-emerald-600">+{formatCurrency(booking.companion_payout || 0)}</p>
                        <p className="text-xs text-slate-500">{booking.duration_hours}h meetup</p>
                       </div>
                     </motion.div>
