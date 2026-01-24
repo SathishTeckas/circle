@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,16 +8,34 @@ import { Gift } from 'lucide-react';
 
 const CampaignFormDialog = React.memo(({ 
   open, 
-  onOpenChange, 
-  formData, 
-  onFormChange, 
+  onOpenChange,
   onGenerateCode,
   onSubmit,
   isLoading 
 }) => {
+  const [formData, setFormData] = useState({
+    code: '',
+    campaign_name: '',
+    description: '',
+    referral_reward_amount: 0,
+    referral_reward_type: 'none'
+  });
+
   const handleInputChange = useCallback((field, value) => {
-    onFormChange(prev => ({ ...prev, [field]: value }));
-  }, [onFormChange]);
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const handleSubmit = useCallback(() => {
+    onSubmit(formData);
+    setFormData({ code: '', campaign_name: '', description: '', referral_reward_amount: 0, referral_reward_type: 'none' });
+  }, [formData, onSubmit]);
+
+  const handleOpenChange = useCallback((newOpen) => {
+    onOpenChange(newOpen);
+    if (!newOpen) {
+      setFormData({ code: '', campaign_name: '', description: '', referral_reward_amount: 0, referral_reward_type: 'none' });
+    }
+  }, [onOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
