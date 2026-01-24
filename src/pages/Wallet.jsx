@@ -99,9 +99,10 @@ export default function Wallet() {
     queryKey: ['referrals', user?.id],
     queryFn: async () => {
       return await base44.entities.Referral.filter({ 
-        referrer_id: user.id,
-        status: 'completed'
-      }, '-created_date', 50);
+        referrer_id: user.id
+      }, '-created_date', 50).then(refs => 
+        refs.filter(r => ['completed', 'rewarded'].includes(r.status))
+      );
     },
     enabled: !!user?.id
   });
