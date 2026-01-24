@@ -224,8 +224,8 @@ export default function BookingView() {
         user_id: booking?.companion_id,
         type: 'payout_processed',
         title: '💰 Payment Released',
-        message: `${formatCurrency(booking?.companion_payout || 0)} has been credited to your wallet`,
-        amount: booking?.companion_payout || 0,
+        message: `${formatCurrency(booking?.base_price || 0)} has been credited to your wallet`,
+        amount: booking?.base_price || 0,
         action_url: createPageUrl('Wallet')
       });
     },
