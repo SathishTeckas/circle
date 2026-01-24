@@ -106,7 +106,7 @@ export default function Discover() {
     staleTime: 5 * 60 * 1000
   });
 
-  // Check if availability is in the past
+  // Check if availability has at least 1 hour remaining
   const isAvailabilityPast = (availability) => {
     if (!availability?.date || !availability?.end_time) return true;
 
@@ -118,13 +118,15 @@ export default function Discover() {
       return true;
     }
     
-    // If date is today, check if the end_time has passed
+    // If date is today, check if there's at least 1 hour until end_time
     if (availDate.toDateString() === now.toDateString()) {
       const [endHour, endMinute] = availability.end_time.split(':').map(Number);
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
+      const endDateTime = new Date(availDate);
+      endDateTime.setHours(endHour, endMinute, 0, 0);
       
-      return endHour < currentHour || (endHour === currentHour && endMinute <= currentMinute);
+      // Check if there's at least 1 hour remaining
+      const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000);
+      return endDateTime < oneHourFromNow;
     }
     
     return false;
