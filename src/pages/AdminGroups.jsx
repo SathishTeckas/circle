@@ -182,16 +182,16 @@ export default function AdminGroups() {
     setShowForm(true);
   };
 
-  const handleCloseForm = () => {
-    setShowForm(false);
-    setEditingEvent(null);
-    setFormData({
-      title: '', city: '', area: '', time: '', languages: [],
-      age_range_min: '25', age_range_max: '40', max_participants: '8',
-      venue_name: '', venue_address: '', description: '', price: '', photos: []
-    });
-    setSelectedDate(null);
-  };
+  useEffect(() => {
+    if (!showForm && !editingEvent) {
+      setFormData({
+        title: '', city: '', area: '', time: '', languages: [],
+        age_range_min: '25', age_range_max: '40', max_participants: '8',
+        venue_name: '', venue_address: '', description: '', price: '', photos: []
+      });
+      setSelectedDate(null);
+    }
+  }, [showForm, editingEvent]);
 
   const toggleLanguage = (lang) => {
     setFormData({
