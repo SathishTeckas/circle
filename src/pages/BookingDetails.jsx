@@ -548,16 +548,16 @@ export default function BookingDetails() {
           <div className="space-y-2 mb-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Base price ({selectedHours}h)</span>
-              <span className="text-slate-900">₹{Math.ceil(basePrice)}</span>
+              <span className="text-slate-900">₹{basePrice.toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Platform fee ({platformFeePercent}%)</span>
-              <span className="text-slate-900">₹{Math.ceil(platformFee)}</span>
+              <span className="text-slate-900">₹{platformFee.toFixed(2)}</span>
             </div>
             <div className="h-px bg-slate-200" />
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-slate-900">Total</span>
-              <span className="text-2xl font-bold text-slate-900">₹{Math.ceil(totalAmount)}</span>
+              <span className="text-2xl font-bold text-slate-900">₹{totalAmount.toFixed(2)}</span>
             </div>
           </div>
           <Button
