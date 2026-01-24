@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Plus, Link as LinkIcon, Users, TrendingUp, Copy, Check, 
-  Eye, Download, ToggleLeft, ToggleRight, Trash2, Gift 
+  Eye, Download, ToggleLeft, ToggleRight, Trash2, Gift, ArrowLeft 
 } from 'lucide-react';
 import { formatCurrency } from '@/components/utils/formatCurrency';
 import { cn } from '@/lib/utils';
@@ -146,9 +146,17 @@ export default function AdminCampaignReferrals() {
       <div className="bg-white border-b border-slate-100 px-4 py-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Campaign Referral Codes</h1>
-              <p className="text-sm text-slate-600">Track signups from marketing campaigns</p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => window.history.back()}
+                className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors shrink-0"
+              >
+                <ArrowLeft className="w-5 h-5 text-slate-600" />
+              </button>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Campaign Referral Codes</h1>
+                <p className="text-sm text-slate-600">Track signups from marketing campaigns</p>
+              </div>
             </div>
             <div className="flex gap-2">
               <Button
