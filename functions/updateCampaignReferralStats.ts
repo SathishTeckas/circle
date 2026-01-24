@@ -43,11 +43,27 @@ Deno.serve(async (req) => {
 
     await base44.asServiceRole.entities.CampaignReferral.update(campaign.id, updatedStats);
 
-    // Apply reward if configured
+    // Create Referral record for campaign signup reward
     if (campaign.referral_reward_amount > 0 && campaign.referral_reward_type === 'wallet_credit') {
-      const currentBalance = user.wallet_balance || 0;
-      await base44.asServiceRole.entities.User.update(userId, {
-        wallet_balance: currentBalance + campaign.referral_reward_amount
+      await base44.asServiceRole.entities.Referral.create({
+        referrer_id: userId,
+        referrer_name: user.display_name || user.full_name,
+        referee_id: userId,
+        referee_name: 'Campaign Signup',
+        referral_code: campaignCode,
+        status: 'completed',
+        reward_amount: campaign.referral_reward_amount,
+        rewarded_date: new Date().toISOString()
+      });
+
+      // Send notification
+      await base44.asServiceRole.entities.Notification.create({
+        user_id: userId,
+        type: 'payment_received',
+        title: '🎉 Campaign Bonus!',
+        message: `You received ₹${campaign.referral_reward_amount} for signing up with code ${campaignCode}!`,
+        amount: campaign.referral_reward_amount,
+        read: false
       });
     }
 

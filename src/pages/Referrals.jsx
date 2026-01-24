@@ -52,14 +52,19 @@ export default function Referrals() {
   const { data: referrals = [] } = useQuery({
     queryKey: ['referrals', user?.id],
     queryFn: async () => {
-      return await base44.entities.Referral.filter({ referrer_id: user.id }, '-created_date', 50);
+      // Get all referrals where user is EITHER referrer OR referee
+      const allReferrals = await base44.entities.Referral.list();
+      return allReferrals.filter(r => 
+        r.referrer_id === user.id || r.referee_id === user.id
+      );
     },
     enabled: !!user?.id
   });
 
   const completedReferrals = referrals.filter(r => r.status === 'completed' || r.status === 'rewarded');
   const pendingReferrals = referrals.filter(r => r.status === 'pending');
-  const totalEarnings = completedReferrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
+  // Each referral record gives reward to BOTH parties
+  const totalEarnings = completedReferrals.reduce((sum, r) => sum + (r.reward_amount || rewardAmount), 0);
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -238,7 +243,10 @@ export default function Referrals() {
                     </div>
                     <div>
                       <p className="font-medium text-slate-900">
-                        {referral.referee_name || 'New User'}
+                        {referral.referrer_id === user?.id 
+                          ? `You referred ${referral.referee_name || 'New User'}`
+                          : `Referred by ${referral.referrer_name || 'Someone'}`
+                        }
                       </p>
                       <p className="text-xs text-slate-500">
                         {new Date(referral.created_date).toLocaleDateString()}
@@ -248,7 +256,7 @@ export default function Referrals() {
                   <div className="text-right">
                     {referral.status === 'rewarded' || referral.status === 'completed' ? (
                       <>
-                        <p className="font-semibold text-emerald-600">+₹{referral.reward_amount || 0}</p>
+                        <p className="font-semibold text-emerald-600">+₹{referral.reward_amount || rewardAmount}</p>
                         <Badge className="bg-emerald-100 text-emerald-700 text-xs">
                           <CheckCircle className="w-3 h-3 mr-1" />
                           Earned
