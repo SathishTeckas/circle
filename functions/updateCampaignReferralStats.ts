@@ -29,6 +29,16 @@ Deno.serve(async (req) => {
 
     const campaign = campaigns[0];
 
+    // Check for duplicate campaign referral to prevent double rewards
+    const existingCampaignReferral = await base44.asServiceRole.entities.Referral.filter({
+      referee_id: userId,
+      referral_code: campaignCode
+    });
+
+    if (existingCampaignReferral.length > 0) {
+      return Response.json({ message: 'Campaign reward already applied', status: 200 });
+    }
+
     const updatedStats = {
       total_signups: (campaign.total_signups || 0) + 1,
       total_companions: campaign.total_companions || 0,
@@ -43,7 +53,7 @@ Deno.serve(async (req) => {
 
     await base44.asServiceRole.entities.CampaignReferral.update(campaign.id, updatedStats);
 
-    // Create Referral record for campaign signup reward
+    // Create Referral record for campaign signup reward (only referrer gets credit, not self)
     if (campaign.referral_reward_amount > 0 && campaign.referral_reward_type === 'wallet_credit') {
       await base44.asServiceRole.entities.Referral.create({
         referrer_id: userId,
@@ -55,6 +65,12 @@ Deno.serve(async (req) => {
         reward_amount: campaign.referral_reward_amount,
         rewarded_date: new Date().toISOString()
       });
+
+      // Update wallet balance
+      const updatedUser = {
+        wallet_balance: (user.wallet_balance || 0) + campaign.referral_reward_amount
+      };
+      await base44.asServiceRole.entities.User.update(userId, updatedUser);
 
       // Send notification
       await base44.asServiceRole.entities.Notification.create({

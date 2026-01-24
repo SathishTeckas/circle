@@ -55,6 +55,11 @@ export default function Onboarding() {
         const urlParams = new URLSearchParams(window.location.search);
         const campaignCode = urlParams.get('campaign');
         
+        // Auto-save campaign code to user if provided
+        if (campaignCode && !user.campaign_referral_code) {
+          await base44.auth.updateMe({ campaign_referral_code: campaignCode });
+        }
+        
         setUserData(prev => ({
           ...prev,
           display_name: user.display_name || '',
@@ -68,7 +73,7 @@ export default function Onboarding() {
           interests: user.interests || [],
           languages: user.languages || [],
           referral_code: savedRefCode || '',
-          campaign_referral_code: campaignCode || ''
+          campaign_referral_code: campaignCode || user.campaign_referral_code || ''
         }));
         setPhoneVerified(user.phone_verified || false);
       } catch (e) {

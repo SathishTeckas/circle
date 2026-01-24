@@ -16,6 +16,14 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, message: 'No referral code provided' });
     }
 
+    // Prevent processing if user has campaign code (should use campaign referral instead)
+    if (user.campaign_referral_code) {
+      return Response.json({ 
+        success: false, 
+        error: 'You already have a campaign code. Use that for signup rewards.' 
+      }, { status: 400 });
+    }
+
     // Get the system referral campaign settings
     const systemCampaigns = await base44.asServiceRole.entities.CampaignReferral.filter({ 
       code: 'SYSTEM' 
@@ -70,6 +78,21 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
+    // Check for duplicate - prevent race conditions
+    const duplicateCheck = await base44.asServiceRole.entities.Referral.filter({
+      referrer_id: referrer.id,
+      referee_id: user.id,
+      referral_code: referral_code.trim().toUpperCase()
+    });
+
+    if (duplicateCheck.length > 0) {
+      return Response.json({ 
+        success: true, 
+        message: 'Referral already processed',
+        reward_amount: rewardAmount
+      });
+    }
+
     // Create ONE referral record - both parties benefit from it
     await base44.asServiceRole.entities.Referral.create({
       referrer_id: referrer.id,
@@ -81,6 +104,17 @@ Deno.serve(async (req) => {
       reward_amount: rewardAmount,
       rewarded_date: new Date().toISOString()
     });
+
+    // Update wallet balance for both users
+    const referrerUpdates = {
+      wallet_balance: (referrer.wallet_balance || 0) + rewardAmount
+    };
+    const refereeUpdates = {
+      wallet_balance: (user.wallet_balance || 0) + rewardAmount
+    };
+
+    await base44.asServiceRole.entities.User.update(referrer.id, referrerUpdates);
+    await base44.asServiceRole.entities.User.update(user.id, refereeUpdates);
 
     // Send notification to referrer
     await base44.asServiceRole.entities.Notification.create({
