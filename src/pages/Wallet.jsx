@@ -410,11 +410,7 @@ export default function Wallet() {
               Minimum withdrawal: ₹100
             </p>
             
-            <Sheet open={showPayoutSheet} onOpenChange={(open) => {
-              if (!open) {
-                setShowPayoutSheet(false);
-              }
-            }}>
+            <Sheet open={showPayoutSheet} onOpenChange={setShowPayoutSheet}>
               <Button 
                 onClick={handleOpenPayoutSheet}
                 className="w-full bg-white text-emerald-600 hover:bg-emerald-50"
