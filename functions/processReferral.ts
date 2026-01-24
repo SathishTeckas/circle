@@ -81,9 +81,10 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Check if this user already used a referral code
+    // Check if this user already used a user referral code (exclude campaign signups)
     const existingReferrals = await base44.asServiceRole.entities.Referral.filter({ 
-      referee_id: user.id 
+      referee_id: user.id,
+      referral_type: 'user_referral'
     });
 
     if (existingReferrals.length > 0) {

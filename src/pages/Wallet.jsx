@@ -98,10 +98,10 @@ export default function Wallet() {
   const { data: referrals = [] } = useQuery({
     queryKey: ['referrals', user?.id],
     queryFn: async () => {
-      // Fetch all referrals where user is EITHER referrer OR referee
+      // Fetch only referrals where user is REFERRER (user_referral type only)
       const allReferrals = await base44.entities.Referral.list();
       const myReferrals = allReferrals.filter(r => 
-        r.referrer_id === user.id || r.referee_id === user.id
+        r.referrer_id === user.id && r.referral_type === 'user_referral'
       );
       
       // Filter rewarded referrals
@@ -115,9 +115,7 @@ export default function Wallet() {
       return rewardedReferrals.map(r => ({
         ...r,
         reward_amount: rewardAmount,
-        // For display: show the OTHER person's name
-        display_name: r.referrer_id === user.id ? r.referee_name : r.referrer_name,
-        display_role: r.referrer_id === user.id ? 'referred' : 'referred_by'
+        display_name: r.referee_name
       }));
     },
     enabled: !!user?.id
@@ -301,7 +299,8 @@ export default function Wallet() {
         }),
         base44.entities.Referral.list().then(async allRefs => {
           const myRefs = allRefs.filter(r => 
-            (r.referrer_id === user.id || r.referee_id === user.id) &&
+            r.referrer_id === user.id &&
+            r.referral_type === 'user_referral' &&
             ['completed', 'rewarded'].includes(r.status)
           );
           const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
