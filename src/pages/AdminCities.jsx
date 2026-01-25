@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ export default function AdminCities() {
   const [newArea, setNewArea] = useState('');
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [, startTransition] = useTransition();
 
   const queryClient = useQueryClient();
 
@@ -445,7 +446,12 @@ Delhi,Connaught Place,Karol Bagh`}
                 </label>
                 <Input
                   value={cityName}
-                  onChange={(e) => setCityName(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    startTransition(() => {
+                      setCityName(value);
+                    });
+                  }}
                   placeholder="Enter city name"
                 />
               </div>
@@ -459,7 +465,12 @@ Delhi,Connaught Place,Karol Bagh`}
                     <div key={index} className="flex gap-2">
                       <Input
                         value={area}
-                        onChange={(e) => updateArea(index, e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          startTransition(() => {
+                            updateArea(index, value);
+                          });
+                        }}
                         placeholder="Enter area name"
                       />
                       <Button
@@ -476,7 +487,12 @@ Delhi,Connaught Place,Karol Bagh`}
                   <div className="flex gap-2">
                     <Input
                       value={newArea}
-                      onChange={(e) => setNewArea(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        startTransition(() => {
+                          setNewArea(value);
+                        });
+                      }}
                       placeholder="Add another area"
                       onKeyPress={(e) => {
                         if (e.key === 'Enter') {

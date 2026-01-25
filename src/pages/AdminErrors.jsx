@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,6 +29,7 @@ export default function AdminErrors() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedError, setSelectedError] = useState(null);
   const [adminNotes, setAdminNotes] = useState('');
+  const [, startTransition] = useTransition();
 
   const queryClient = useQueryClient();
 
@@ -335,12 +336,17 @@ export default function AdminErrors() {
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium text-slate-700 mb-2 block">Admin Notes</label>
-              <Textarea
-                value={adminNotes}
-                onChange={(e) => setAdminNotes(e.target.value)}
-                placeholder="Add notes about this error..."
-                rows={4}
-              />
+               <Textarea
+                 value={adminNotes}
+                 onChange={(e) => {
+                   const value = e.target.value;
+                   startTransition(() => {
+                     setAdminNotes(value);
+                   });
+                 }}
+                 placeholder="Add notes about this error..."
+                 rows={4}
+               />
             </div>
           </div>
           <DialogFooter>

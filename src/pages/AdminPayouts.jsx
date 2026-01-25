@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { formatCurrency } from '../components/utils/formatCurrency';
@@ -40,6 +40,7 @@ export default function AdminPayouts() {
   const [rejectionReason, setRejectionReason] = useState('');
   const [adminNotes, setAdminNotes] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -176,6 +177,7 @@ export default function AdminPayouts() {
     const [isOpen, setIsOpen] = useState(false);
     const [localAdminNotes, setLocalAdminNotes] = useState('');
     const [localRejectionReason, setLocalRejectionReason] = useState('');
+    const [, startTransitionLocal] = useTransition();
     const status = payoutStatusConfig[payout.status];
     const StatusIcon = status.icon;
 
@@ -284,14 +286,19 @@ export default function AdminPayouts() {
                 {payout.status === 'pending' && (
                   <>
                     <div>
-                      <Label className="mb-2 block">Admin Notes (Optional)</Label>
-                      <Textarea
-                        placeholder="Add notes about this payout..."
-                        value={localAdminNotes}
-                        onChange={(e) => setLocalAdminNotes(e.target.value)}
-                        className="rounded-xl"
-                      />
-                    </div>
+                       <Label className="mb-2 block">Admin Notes (Optional)</Label>
+                       <Textarea
+                         placeholder="Add notes about this payout..."
+                         value={localAdminNotes}
+                         onChange={(e) => {
+                           const value = e.target.value;
+                           startTransitionLocal(() => {
+                             setLocalAdminNotes(value);
+                           });
+                         }}
+                         className="rounded-xl"
+                       />
+                     </div>
 
                     <div className="flex gap-3">
                       <Dialog>
@@ -305,15 +312,20 @@ export default function AdminPayouts() {
                             <DialogTitle>Reject Payout</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4">
-                            <div>
-                              <Label className="mb-2 block">Rejection Reason</Label>
-                              <Textarea
-                                placeholder="Explain why this payout is being rejected..."
-                                value={localRejectionReason}
-                                onChange={(e) => setLocalRejectionReason(e.target.value)}
-                                className="rounded-xl"
-                                rows={4}
-                              />
+                             <div>
+                               <Label className="mb-2 block">Rejection Reason</Label>
+                               <Textarea
+                                 placeholder="Explain why this payout is being rejected..."
+                                 value={localRejectionReason}
+                                 onChange={(e) => {
+                                   const value = e.target.value;
+                                   startTransitionLocal(() => {
+                                     setLocalRejectionReason(value);
+                                   });
+                                 }}
+                                 className="rounded-xl"
+                                 rows={4}
+                               />
                             </div>
                             <Button
                               onClick={() => {
