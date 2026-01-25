@@ -1,12 +1,13 @@
 import React, { useState, useCallback, useTransition } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '../utils';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import CampaignFormDialog from '@/components/admin/CampaignFormDialog';
 import { 
   Plus, Link as LinkIcon, Users, TrendingUp, Copy, Check, 
   Eye, Download, ToggleLeft, ToggleRight, Trash2, Gift, ArrowLeft 
@@ -17,7 +18,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 export default function AdminCampaignReferrals() {
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const navigate = useNavigate();
   const [showAnalyticsDialog, setShowAnalyticsDialog] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
@@ -210,7 +211,7 @@ export default function AdminCampaignReferrals() {
                 <span className="hidden sm:inline">Export</span>
               </Button>
               <Button
-                onClick={() => setShowCreateDialog(true)}
+                onClick={() => navigate(createPageUrl('AdminCreateCampaign'))}
                 className="bg-violet-600 hover:bg-violet-700 gap-2"
               >
                 <Plus className="w-4 h-4" />
@@ -285,7 +286,7 @@ export default function AdminCampaignReferrals() {
             </div>
             <h3 className="text-lg font-semibold text-slate-900 mb-2">No campaign codes yet</h3>
             <p className="text-slate-600 mb-4">Create your first campaign referral code to start tracking</p>
-            <Button onClick={() => setShowCreateDialog(true)} className="bg-violet-600 hover:bg-violet-700">
+            <Button onClick={() => navigate(createPageUrl('AdminCreateCampaign'))} className="bg-violet-600 hover:bg-violet-700">
               <Plus className="w-4 h-4 mr-2" />
               Create Campaign
             </Button>
@@ -432,14 +433,7 @@ export default function AdminCampaignReferrals() {
         )}
       </div>
 
-      {/* Create Dialog */}
-      <CampaignFormDialog 
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        onGenerateCode={generateCode}
-        onSubmit={(data) => createMutation.mutate(data)}
-        isLoading={createMutation.isPending}
-      />
+
 
       {/* Analytics Dialog */}
       <Dialog open={showAnalyticsDialog} onOpenChange={setShowAnalyticsDialog}>
