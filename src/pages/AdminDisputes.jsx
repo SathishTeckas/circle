@@ -174,21 +174,18 @@ export default function AdminDisputes() {
   });
 
   const resolveMutation = useMutation({
-    mutationFn: async ({ dispute, resolution }) => {
-      const refund = parseFloat(refundAmount[dispute.id]) || 0;
-      
+    mutationFn: async ({ dispute, resolution, refund, notes, booking }) => {
       // Update dispute
       await base44.entities.Dispute.update(dispute.id, {
         status: 'resolved',
         resolution: resolution,
-        resolution_notes: resolutionNotes[dispute.id],
+        resolution_notes: notes,
         refund_amount: refund,
         resolved_by: user.id,
         resolved_date: new Date().toISOString()
       });
 
       // Update booking if needed
-      const booking = bookingsMap[dispute.booking_id];
       if (booking) {
         await base44.entities.Booking.update(dispute.booking_id, {
           status: 'completed',
@@ -224,31 +221,37 @@ export default function AdminDisputes() {
           amount: refund
         });
       }
+      
+      return dispute.id;
     },
-    onSuccess: (_, { dispute }) => {
+    onSuccess: (disputeId) => {
       queryClient.invalidateQueries({ queryKey: ['all-disputes'] });
       queryClient.invalidateQueries({ queryKey: ['disputes-bookings'] });
       setSelectedDispute(null);
       setResolutionNotes(prev => {
         const copy = { ...prev };
-        delete copy[dispute.id];
+        delete copy[disputeId];
         return copy;
       });
       setRefundAmount(prev => {
         const copy = { ...prev };
-        delete copy[dispute.id];
+        delete copy[disputeId];
         return copy;
       });
     }
   });
 
-  const openDisputes = disputes.filter(d => d.status === 'open');
-  const reviewDisputes = disputes.filter(d => d.status === 'under_review');
-  const resolvedDisputes = disputes.filter(d => d.status === 'resolved');
+  const openDisputes = React.useMemo(() => disputes.filter(d => d.status === 'open'), [disputes]);
+  const reviewDisputes = React.useMemo(() => disputes.filter(d => d.status === 'under_review'), [disputes]);
+  const resolvedDisputes = React.useMemo(() => disputes.filter(d => d.status === 'resolved'), [disputes]);
 
-  const handleResolve = (dispute, resolution) => {
-    resolveMutation.mutate({ dispute, resolution });
-  };
+  const handleResolve = React.useCallback((dispute, resolution) => {
+    const refund = parseFloat(refundAmount[dispute.id]) || 0;
+    const notes = resolutionNotes[dispute.id];
+    const booking = bookingsMap[dispute.booking_id];
+    
+    resolveMutation.mutate({ dispute, resolution, refund, notes, booking });
+  }, [resolveMutation, refundAmount, resolutionNotes, bookingsMap]);
 
   const handleOpenDetails = React.useCallback((dispute) => {
     setSelectedDispute(dispute);
@@ -387,14 +390,14 @@ export default function AdminDisputes() {
 
       {/* Single Dialog for All Disputes */}
       <Dialog open={!!selectedDispute} onOpenChange={(open) => !open && handleCloseDialog()}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
           {selectedDispute && (
             <>
-              <DialogHeader>
+              <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 flex-shrink-0">
                 <DialogTitle>Dispute Details</DialogTitle>
               </DialogHeader>
 
-              <div className="space-y-4">
+              <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1">
                 {/* Parties */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="border border-slate-200 rounded-lg p-3">
@@ -539,26 +542,32 @@ export default function AdminDisputes() {
                       />
                     </div>
 
-                    <div className="flex gap-3 pt-4">
-                      <Button
-                        onClick={() => handleResolve(selectedDispute, 'Resolved in favor of companion')}
-                        disabled={!resolutionNotes[selectedDispute.id]?.trim() || resolveMutation.isPending}
-                        variant="outline"
-                        className="flex-1 h-12 rounded-xl"
-                      >
-                        Favor Companion
-                      </Button>
-                      <Button
-                        onClick={() => handleResolve(selectedDispute, 'Resolved in favor of seeker')}
-                        disabled={!resolutionNotes[selectedDispute.id]?.trim() || resolveMutation.isPending}
-                        className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
-                      >
-                        Favor Seeker
-                      </Button>
-                    </div>
                   </>
                 )}
               </div>
+
+              {/* Action Buttons - Sticky Footer */}
+              {selectedDispute.status !== 'resolved' && (
+                <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0 bg-white">
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => handleResolve(selectedDispute, 'Resolved in favor of companion')}
+                      disabled={!resolutionNotes[selectedDispute.id]?.trim() || resolveMutation.isPending}
+                      variant="outline"
+                      className="flex-1 h-12 rounded-xl"
+                    >
+                      Favor Companion
+                    </Button>
+                    <Button
+                      onClick={() => handleResolve(selectedDispute, 'Resolved in favor of seeker')}
+                      disabled={!resolutionNotes[selectedDispute.id]?.trim() || resolveMutation.isPending}
+                      className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
+                    >
+                      Favor Seeker
+                    </Button>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </DialogContent>
