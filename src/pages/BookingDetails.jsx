@@ -185,7 +185,7 @@ export default function BookingDetails() {
         title: '🔔 New Booking Request!',
         message: `${user.display_name || user.full_name} wants to book you for ${selectedHours}h on ${format(new Date(availability.date), 'MMM d')}`,
         booking_id: booking.id,
-        amount: companionPayout,
+        amount: basePrice,
         action_url: createPageUrl(`BookingView?id=${booking.id}`)
       });
 
