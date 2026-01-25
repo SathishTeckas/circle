@@ -35,6 +35,7 @@ export default function DisputeDetailsDialog({
   const [notes, setNotes] = React.useState('');
   const [refund, setRefund] = React.useState('');
   const [isContentReady, setIsContentReady] = React.useState(false);
+  const [, startTransition] = React.useTransition();
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -175,7 +176,12 @@ export default function DisputeDetailsDialog({
                 <Textarea
                   placeholder="Explain your decision and reasoning..."
                   value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    startTransition(() => {
+                      setNotes(value);
+                    });
+                  }}
                   className="rounded-xl"
                   rows={4}
                 />
@@ -200,10 +206,13 @@ export default function DisputeDetailsDialog({
                   placeholder="0.00"
                   value={refund}
                   onChange={(e) => {
-                    const value = parseFloat(e.target.value) || 0;
+                    const inputValue = e.target.value;
+                    const value = parseFloat(inputValue) || 0;
                     const max = booking?.total_amount || 0;
                     if (value <= max) {
-                      setRefund(e.target.value);
+                      startTransition(() => {
+                        setRefund(inputValue);
+                      });
                     }
                   }}
                   className="h-12 rounded-xl"
