@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useTransition } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
@@ -21,6 +21,7 @@ export default function AdminCampaignReferrals() {
   const [showAnalyticsDialog, setShowAnalyticsDialog] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
+  const [, startTransition] = useTransition();
 
   const queryClient = useQueryClient();
 
@@ -66,18 +67,18 @@ export default function AdminCampaignReferrals() {
         referral_type: 'campaign_signup'
       });
       
-      // Fetch user details for each referral
-      const users = [];
-      for (const ref of referrals) {
-        if (ref.referee_id) {
-          const user = await base44.asServiceRole.entities.User.list().then(list => 
-            list.find(u => u.id === ref.referee_id)
-          );
-          if (user) {
-            users.push({ ...user, referral_date: ref.created_date, referral_status: ref.status });
-          }
-        }
-      }
+      // Fetch all users once, then match by ID
+      const allUsers = await base44.asServiceRole.entities.User.list();
+      const userMap = new Map(allUsers.map(u => [u.id, u]));
+      
+      const users = referrals
+        .filter(ref => ref.referee_id && userMap.has(ref.referee_id))
+        .map(ref => ({
+          ...userMap.get(ref.referee_id),
+          referral_date: ref.created_date,
+          referral_status: ref.status
+        }));
+      
       return users;
     },
     enabled: !!selectedCampaign,
@@ -384,14 +385,16 @@ export default function AdminCampaignReferrals() {
                     <Input
                       type="number"
                       value={campaign.referral_reward_amount}
-                      onChange={async (e) => {
+                      onChange={(e) => {
                         const newAmount = Number(e.target.value);
                         if (newAmount >= 0) {
-                          await base44.entities.CampaignReferral.update(campaign.id, {
-                            referral_reward_amount: newAmount
+                          startTransition(async () => {
+                            await base44.entities.CampaignReferral.update(campaign.id, {
+                              referral_reward_amount: newAmount
+                            });
+                            queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
+                            toast.success('Reward amount updated');
                           });
-                          queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
-                          toast.success('Reward amount updated');
                         }
                       }}
                       className="w-24 h-9"
