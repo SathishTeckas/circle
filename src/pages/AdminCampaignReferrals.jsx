@@ -422,20 +422,6 @@ export default function AdminCampaignReferrals() {
                     <p className="text-xs text-slate-600 mb-1">Revenue</p>
                     <p className="text-base sm:text-lg font-semibold text-amber-600 truncate">{formatCurrency(campaign.total_revenue || 0)}</p>
                   </div>
-                  <div className="col-span-2 sm:col-span-1 md:col-span-5">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedCampaign(campaign);
-                        setShowAnalyticsDialog(true);
-                      }}
-                      className="gap-2 w-full md:w-auto"
-                    >
-                      <Eye className="w-4 h-4" />
-                      View Users
-                    </Button>
-                  </div>
                 </div>
               </Card>
             ))}
