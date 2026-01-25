@@ -109,7 +109,7 @@ export default function BookingView() {
         user_id: booking?.seeker_id,
         type: 'booking_accepted',
         title: '🎉 Booking Confirmed!',
-        message: `${companion?.display_name || companion?.full_name || booking?.companion_name} accepted your booking request for ${formatCurrency(booking?.total_amount || 0)}`,
+        message: `${companion?.display_name || companion?.full_name || booking?.companion_name} accepted your booking request`,
         booking_id: bookingId,
         amount: booking?.total_amount || 0,
         action_url: createPageUrl(`BookingView?id=${bookingId}`)
@@ -224,7 +224,7 @@ export default function BookingView() {
         user_id: booking?.companion_id,
         type: 'payout_processed',
         title: '💰 Payment Released',
-        message: `${formatCurrency(booking?.companion_payout || 0)} has been credited to your wallet`,
+        message: `${formatCurrency(booking?.base_price || 0)} has been credited to your wallet`,
         amount: booking?.base_price || 0,
         action_url: createPageUrl('Wallet')
       });
@@ -617,8 +617,8 @@ export default function BookingView() {
               <h3 className="font-semibold text-slate-900 mb-2">Meeting Completed</h3>
               <p className="text-sm text-slate-600 mb-4">
                {isCompanion 
-                  ? `Payment of ${formatCurrency(booking?.companion_payout || 0)} has been credited to your wallet`
-                  : 'Thank you for using Circle! Please leave a review.'
+                 ? `Payment of ${formatCurrency(booking?.base_price || 0)} has been credited to your wallet`
+                 : 'Thank you for using Circle! Please leave a review.'
                }
               </p>
               {isSeeker && (
