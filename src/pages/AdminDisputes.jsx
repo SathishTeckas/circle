@@ -22,7 +22,6 @@ import {
   User, Calendar, MapPin, IndianRupee, ExternalLink
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 const disputeStatusConfig = {
@@ -46,11 +45,7 @@ const DisputeCard = React.memo(({ dispute, idx, bookingsMap, onOpenDetails }) =>
   const booking = bookingsMap[dispute.booking_id];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: idx * 0.05 }}
-    >
+    <div>
       <Card className="p-4 hover:shadow-md transition-shadow">
         <div className="flex items-start justify-between mb-3">
           <div>
@@ -99,7 +94,7 @@ const DisputeCard = React.memo(({ dispute, idx, bookingsMap, onOpenDetails }) =>
           View Details & Resolve
         </Button>
       </Card>
-    </motion.div>
+    </div>
   );
 });
 
