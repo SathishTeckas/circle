@@ -127,16 +127,12 @@ export default function Wallet() {
    staleTime: 5 * 60 * 1000
   });
 
-  const totalWithdrawn = payouts
-    .filter(p => p.status === 'completed')
+  const pendingPayouts = payouts
+    .filter(p => p.status === 'pending')
     .reduce((sum, p) => sum + p.amount, 0);
 
   const approvedPayouts = payouts
     .filter(p => ['approved', 'processing'].includes(p.status))
-    .reduce((sum, p) => sum + p.amount, 0);
-
-  const pendingPayouts = payouts
-    .filter(p => p.status === 'pending')
     .reduce((sum, p) => sum + p.amount, 0);
 
   const hasPendingPayout = payouts.some(p => ['pending', 'approved', 'processing'].includes(p.status));
@@ -145,8 +141,9 @@ export default function Wallet() {
   const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
   const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
   const campaignEarnings = campaignBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
-  const rawBalance = totalEarnings + referralEarnings + campaignEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
-  const availableBalance = Math.max(0, rawBalance);
+  
+  // Use wallet_balance from user profile for available balance
+  const availableBalance = Math.max(0, (user?.wallet_balance || 0) - pendingPayouts - approvedPayouts);
 
   // Create unified transaction statement
   const allTransactions = [

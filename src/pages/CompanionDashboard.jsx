@@ -195,22 +195,17 @@ export default function CompanionDashboard() {
     refetchOnWindowFocus: false
   });
 
-  const totalWithdrawn = payouts
-    .filter(p => p.status === 'completed')
+  const pendingPayouts = payouts
+    .filter(p => p.status === 'pending')
     .reduce((sum, p) => sum + p.amount, 0);
 
   const approvedPayouts = payouts
     .filter(p => ['approved', 'processing'].includes(p.status))
     .reduce((sum, p) => sum + p.amount, 0);
 
-  const pendingPayouts = payouts
-    .filter(p => p.status === 'pending')
-    .reduce((sum, p) => sum + p.amount, 0);
-
+  // Use wallet_balance from user profile for available balance
+  const availableBalance = Math.max(0, (user?.wallet_balance || 0) - pendingPayouts - approvedPayouts);
   const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
-  const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
-  const rawBalance = totalEarnings + referralEarnings - totalWithdrawn - approvedPayouts - pendingPayouts;
-  const availableBalance = Math.max(0, rawBalance);
 
   const avgRating = user?.average_rating;
   const hasRating = avgRating && user?.total_reviews > 0;
