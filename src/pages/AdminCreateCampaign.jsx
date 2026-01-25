@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useTransition } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 export default function AdminCreateCampaign() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [, startTransition] = useTransition();
   const [formData, setFormData] = useState({
     code: '',
     campaign_name: '',
@@ -118,7 +119,12 @@ export default function AdminCreateCampaign() {
               <textarea
                 placeholder="Facebook Ads - Summer Promotion"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  startTransition(() => {
+                    setFormData(prev => ({ ...prev, description: value }));
+                  });
+                }}
                 rows="4"
                 className="flex min-h-[120px] w-full rounded-xl border border-input bg-transparent px-4 py-3 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={createMutation.isPending}
