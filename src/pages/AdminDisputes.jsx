@@ -40,7 +40,7 @@ const reasonLabels = {
   other: 'Other'
 };
 
-const DisputeCard = ({ dispute, idx, bookingsMap, onOpenDetails }) => {
+const DisputeCard = React.memo(({ dispute, idx, bookingsMap, onOpenDetails }) => {
   const status = disputeStatusConfig[dispute.status];
   const StatusIcon = status.icon;
   const booking = bookingsMap[dispute.booking_id];
@@ -101,7 +101,7 @@ const DisputeCard = ({ dispute, idx, bookingsMap, onOpenDetails }) => {
       </Card>
     </motion.div>
   );
-};
+});
 
 export default function AdminDisputes() {
   const queryClient = useQueryClient();
@@ -147,21 +147,30 @@ export default function AdminDisputes() {
         raised_by_name: userMap[d.raised_by] || d.raised_by_name,
         against_user_name: userMap[d.against_user_id] || d.against_user_name
       }));
-    }
+    },
+    staleTime: 2 * 60 * 1000,
+    refetchOnWindowFocus: false
   });
 
+  const bookingIds = React.useMemo(() => 
+    [...new Set(disputes.map(d => d.booking_id))].sort().join(','), 
+    [disputes]
+  );
+
   const { data: bookingsMap = {} } = useQuery({
-    queryKey: ['disputes-bookings', disputes.map(d => d.booking_id).join(',')],
+    queryKey: ['disputes-bookings', bookingIds],
     queryFn: async () => {
-      const bookingIds = [...new Set(disputes.map(d => d.booking_id))];
+      const ids = bookingIds.split(',').filter(Boolean);
       const bookings = await Promise.all(
-        bookingIds.map(id => 
+        ids.map(id => 
           base44.entities.Booking.filter({ id }).then(r => r[0]).catch(() => null)
         )
       );
       return bookings.filter(Boolean).reduce((acc, b) => ({ ...acc, [b.id]: b }), {});
     },
-    enabled: disputes.length > 0
+    enabled: bookingIds.length > 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false
   });
 
   const resolveMutation = useMutation({
@@ -241,13 +250,13 @@ export default function AdminDisputes() {
     resolveMutation.mutate({ dispute, resolution });
   };
 
-  const handleOpenDetails = (dispute) => {
+  const handleOpenDetails = React.useCallback((dispute) => {
     setSelectedDispute(dispute);
-  };
+  }, []);
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = React.useCallback(() => {
     setSelectedDispute(null);
-  };
+  }, []);
 
   const selectedBooking = selectedDispute ? bookingsMap[selectedDispute.booking_id] : null;
 
