@@ -39,7 +39,7 @@ const reasonLabels = {
   other: 'Other'
 };
 
-const DisputeCard = React.memo(({ dispute, idx, bookingsMap, onOpenDetails }) => {
+const DisputeCard = ({ dispute, idx, bookingsMap, onOpenDetails }) => {
   const status = disputeStatusConfig[dispute.status];
   const StatusIcon = status.icon;
   const booking = bookingsMap[dispute.booking_id];
@@ -96,7 +96,7 @@ const DisputeCard = React.memo(({ dispute, idx, bookingsMap, onOpenDetails }) =>
       </Card>
     </div>
   );
-});
+};
 
 export default function AdminDisputes() {
   const queryClient = useQueryClient();
