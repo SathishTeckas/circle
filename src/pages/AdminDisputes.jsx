@@ -151,15 +151,15 @@ export default function AdminDisputes() {
   });
 
   const { data: bookingsMap = {} } = useQuery({
-    queryKey: ['disputes-bookings'],
+    queryKey: ['disputes-bookings', disputes.map(d => d.booking_id).join(',')],
     queryFn: async () => {
       const bookingIds = [...new Set(disputes.map(d => d.booking_id))];
       const bookings = await Promise.all(
         bookingIds.map(id => 
-          base44.entities.Booking.filter({ id }).then(r => r[0])
+          base44.entities.Booking.filter({ id }).then(r => r[0]).catch(() => null)
         )
       );
-      return bookings.reduce((acc, b) => ({ ...acc, [b.id]: b }), {});
+      return bookings.filter(Boolean).reduce((acc, b) => ({ ...acc, [b.id]: b }), {});
     },
     enabled: disputes.length > 0
   });
@@ -218,8 +218,8 @@ export default function AdminDisputes() {
     },
     onSuccess: (_, { dispute }) => {
       queryClient.invalidateQueries({ queryKey: ['all-disputes'] });
+      queryClient.invalidateQueries({ queryKey: ['disputes-bookings'] });
       setSelectedDispute(null);
-      setDialogOpen(false);
       setResolutionNotes(prev => {
         const copy = { ...prev };
         delete copy[dispute.id];
