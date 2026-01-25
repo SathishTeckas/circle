@@ -261,7 +261,10 @@ export default function AdminDisputes() {
     setSelectedDispute(null);
   }, []);
 
-  const selectedBooking = selectedDispute ? bookingsMap[selectedDispute.booking_id] : null;
+  const selectedBooking = React.useMemo(() => 
+    selectedDispute ? bookingsMap[selectedDispute.booking_id] : null, 
+    [selectedDispute, bookingsMap]
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
@@ -389,9 +392,9 @@ export default function AdminDisputes() {
       </div>
 
       {/* Single Dialog for All Disputes */}
-      <Dialog open={!!selectedDispute} onOpenChange={(open) => !open && handleCloseDialog()}>
-        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
-          {selectedDispute && (
+      {selectedDispute && (
+        <Dialog open={true} onOpenChange={(open) => !open && handleCloseDialog()}>
+          <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
             <>
               <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 flex-shrink-0">
                 <DialogTitle>Dispute Details</DialogTitle>
@@ -569,9 +572,9 @@ export default function AdminDisputes() {
                 </div>
               )}
             </>
-          )}
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
