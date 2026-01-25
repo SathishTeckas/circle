@@ -115,7 +115,7 @@ export default function DisputeDetailsDialog({
 
           <div>
             <Label className="text-slate-600">Description</Label>
-            <p className="text-sm text-slate-700 mt-1 bg-slate-50 p-3 rounded-lg">
+            <p className="text-sm text-slate-700 mt-1 bg-slate-50 p-3 rounded-lg whitespace-pre-wrap break-words">
               {dispute.description}
             </p>
           </div>
