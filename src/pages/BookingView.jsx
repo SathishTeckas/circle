@@ -109,9 +109,9 @@ export default function BookingView() {
         user_id: booking?.seeker_id,
         type: 'booking_accepted',
         title: '🎉 Booking Confirmed!',
-        message: `${companion?.display_name || companion?.full_name || booking?.companion_name} accepted your booking request for ${formatCurrency(booking?.base_price || 0)}`,
+        message: `${companion?.display_name || companion?.full_name || booking?.companion_name} accepted your booking request for ${formatCurrency(booking?.total_amount || 0)}`,
         booking_id: bookingId,
-        amount: booking?.base_price || 0,
+        amount: booking?.total_amount || 0,
         action_url: createPageUrl(`BookingView?id=${bookingId}`)
       });
     },
@@ -224,8 +224,8 @@ export default function BookingView() {
         user_id: booking?.companion_id,
         type: 'payout_processed',
         title: '💰 Payment Released',
-        message: `${formatCurrency(booking?.base_price || 0)} has been credited to your wallet`,
-        amount: booking?.base_price || 0,
+        message: `${formatCurrency(booking?.companion_payout || 0)} has been credited to your wallet`,
+        amount: booking?.companion_payout || 0,
         action_url: createPageUrl('Wallet')
       });
     },
