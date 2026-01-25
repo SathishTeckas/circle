@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -52,6 +53,9 @@ export default function DisputeDetailsDialog({
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 flex-shrink-0">
           <DialogTitle>Dispute Details</DialogTitle>
+          <DialogDescription className="sr-only">
+            View and resolve dispute details
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1">

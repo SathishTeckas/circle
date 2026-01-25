@@ -204,10 +204,16 @@ export default function AdminDisputes() {
   }, []);
 
   const handleOpenDispute = React.useCallback((dispute) => {
-    setSelectedDispute(dispute);
-  }, []);
+    // Only open if we have the booking data loaded
+    if (bookingsMap[dispute.booking_id] || bookingsLoading) {
+      setSelectedDispute(dispute);
+    }
+  }, [bookingsMap, bookingsLoading]);
 
-  const selectedBooking = selectedDispute ? bookingsMap[selectedDispute.booking_id] : null;
+  const selectedBooking = React.useMemo(() => 
+    selectedDispute ? bookingsMap[selectedDispute.booking_id] || null : null,
+    [selectedDispute, bookingsMap]
+  );
 
   const isLoading = disputesLoading || bookingsLoading;
 
