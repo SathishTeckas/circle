@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 
 export default function AdminSettings() {
   const queryClient = useQueryClient();
+  const [, startTransition] = useTransition();
   const [settings, setSettings] = useState({
     platform_fee: 15,
     request_timeout_minutes: 30,
@@ -108,7 +109,12 @@ export default function AdminSettings() {
               <Input
                 type="number"
                 value={settings.platform_fee}
-                onChange={(e) => setSettings({ ...settings, platform_fee: parseInt(e.target.value) })}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  startTransition(() => {
+                    setSettings({ ...settings, platform_fee: value });
+                  });
+                }}
                 className="mt-1 max-w-xs"
               />
               <p className="text-xs text-slate-500 mt-1">
@@ -121,7 +127,12 @@ export default function AdminSettings() {
               <Input
                 type="number"
                 value={settings.no_show_penalty_percent}
-                onChange={(e) => setSettings({ ...settings, no_show_penalty_percent: parseInt(e.target.value) })}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  startTransition(() => {
+                    setSettings({ ...settings, no_show_penalty_percent: value });
+                  });
+                }}
                 className="mt-1 max-w-xs"
               />
               <p className="text-xs text-slate-500 mt-1">
@@ -149,7 +160,12 @@ export default function AdminSettings() {
               <Input
                 type="number"
                 value={settings.request_timeout_minutes}
-                onChange={(e) => setSettings({ ...settings, request_timeout_minutes: parseInt(e.target.value) })}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  startTransition(() => {
+                    setSettings({ ...settings, request_timeout_minutes: value });
+                  });
+                }}
                 className="mt-1 max-w-xs"
               />
               <p className="text-xs text-slate-500 mt-1">
@@ -163,7 +179,12 @@ export default function AdminSettings() {
                 <Input
                   type="number"
                   value={settings.min_booking_hours}
-                  onChange={(e) => setSettings({ ...settings, min_booking_hours: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    startTransition(() => {
+                      setSettings({ ...settings, min_booking_hours: value });
+                    });
+                  }}
                   className="mt-1"
                 />
               </div>
@@ -172,7 +193,12 @@ export default function AdminSettings() {
                 <Input
                   type="number"
                   value={settings.max_booking_hours}
-                  onChange={(e) => setSettings({ ...settings, max_booking_hours: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    startTransition(() => {
+                      setSettings({ ...settings, max_booking_hours: value });
+                    });
+                  }}
                   className="mt-1"
                 />
               </div>
@@ -183,7 +209,12 @@ export default function AdminSettings() {
               <Input
                 type="number"
                 value={settings.review_delay_hours}
-                onChange={(e) => setSettings({ ...settings, review_delay_hours: parseInt(e.target.value) })}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  startTransition(() => {
+                    setSettings({ ...settings, review_delay_hours: value });
+                  });
+                }}
                 className="mt-1 max-w-xs"
               />
               <p className="text-xs text-slate-500 mt-1">

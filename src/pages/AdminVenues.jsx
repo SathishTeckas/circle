@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -35,6 +35,7 @@ export default function AdminVenues() {
   const [showForm, setShowForm] = useState(false);
   const [editingVenue, setEditingVenue] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [, startTransition] = useTransition();
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -175,7 +176,12 @@ export default function AdminVenues() {
                     <Input
                       placeholder="e.g., The Coffee House"
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        startTransition(() => {
+                          setFormData({ ...formData, name: value });
+                        });
+                      }}
                       className="mt-1"
                     />
                   </div>
@@ -185,7 +191,12 @@ export default function AdminVenues() {
                     <Input
                       placeholder="Full address"
                       value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        startTransition(() => {
+                          setFormData({ ...formData, address: value });
+                        });
+                      }}
                       className="mt-1"
                     />
                   </div>
@@ -238,7 +249,12 @@ export default function AdminVenues() {
                       type="number"
                       placeholder="Maximum guests"
                       value={formData.capacity}
-                      onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        startTransition(() => {
+                          setFormData({ ...formData, capacity: value });
+                        });
+                      }}
                       className="mt-1"
                     />
                   </div>
@@ -290,7 +306,12 @@ export default function AdminVenues() {
                     <Input
                       placeholder="https://maps.google.com/..."
                       value={formData.google_map_link}
-                      onChange={(e) => setFormData({ ...formData, google_map_link: e.target.value })}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        startTransition(() => {
+                          setFormData({ ...formData, google_map_link: value });
+                        });
+                      }}
                       className="mt-1"
                     />
                   </div>
