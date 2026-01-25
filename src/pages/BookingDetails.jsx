@@ -82,7 +82,11 @@ export default function BookingDetails() {
 
   // Calculate available start times (every 15 min within availability window, ensuring 1hr min gap)
   const availableStartTimes = React.useMemo(() => {
-    if (!availability?.start_time || !availability?.end_time) return [];
+    if (!availability?.start_time || !availability?.end_time || !availability?.date) return [];
+    
+    const now = new Date();
+    const availDate = new Date(availability.date);
+    const isToday = availDate.toDateString() === now.toDateString();
     
     const [startHour, startMinute] = availability.start_time.split(':').map(Number);
     const [endHour, endMinute] = availability.end_time.split(':').map(Number);
@@ -95,7 +99,16 @@ export default function BookingDetails() {
     for (let totalMin = startTotalMin; totalMin <= endTotalMin - 60; totalMin += 15) {
       const hour = Math.floor(totalMin / 60);
       const min = totalMin % 60;
-      times.push(`${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`);
+      const timeStr = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+      
+      // If today, only show times that are in the future
+      if (isToday) {
+        const slotDateTime = new Date(availDate);
+        slotDateTime.setHours(hour, min, 0, 0);
+        if (slotDateTime <= now) continue;
+      }
+      
+      times.push(timeStr);
     }
     return times;
   }, [availability]);
@@ -119,6 +132,16 @@ export default function BookingDetails() {
 
   const bookingMutation = useMutation({
     mutationFn: async () => {
+      // Validate not booking past times
+      const now = new Date();
+      const bookingDateTime = new Date(availability.date);
+      const [startHour, startMinute] = selectedStartTime.split(':').map(Number);
+      bookingDateTime.setHours(startHour, startMinute, 0, 0);
+      
+      if (bookingDateTime <= now) {
+        throw new Error('Cannot book for past times. Please refresh and select a current time slot.');
+      }
+
       const platformFeePercent = appSettings?.platform_fee || 15;
       const basePrice = availability.price_per_hour * selectedHours;
       const platformFee = basePrice * (platformFeePercent / 100);
@@ -126,7 +149,6 @@ export default function BookingDetails() {
       const companionPayout = basePrice * (1 - platformFeePercent / 100);
 
       // Calculate end time based on selected start time and hours
-      const [startHour, startMinute] = selectedStartTime.split(':').map(Number);
       const endHour = startHour + selectedHours;
       const endTime = `${endHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
 
@@ -174,11 +196,23 @@ export default function BookingDetails() {
     },
     onError: (error) => {
       console.error('Booking creation failed:', error);
+      alert(error.message || 'Failed to create booking');
       setBooking(false);
     }
   });
 
   const handleBook = () => {
+    // Final validation before booking
+    const now = new Date();
+    const bookingDateTime = new Date(availability.date);
+    const [startHour, startMinute] = selectedStartTime.split(':').map(Number);
+    bookingDateTime.setHours(startHour, startMinute, 0, 0);
+    
+    if (bookingDateTime <= now) {
+      alert('This time slot has passed. Please select a current time slot.');
+      return;
+    }
+    
     setBooking(true);
     bookingMutation.mutate();
   };

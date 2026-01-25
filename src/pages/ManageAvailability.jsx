@@ -112,8 +112,17 @@ export default function ManageAvailability() {
 
   const createMutation = useMutation({
     mutationFn: async () => {
-      // Calculate duration in hours (with decimal for minutes)
+      // Validate not booking past times
+      const now = new Date();
+      const selectedDateTime = new Date(selectedDate);
       const [startHour, startMin] = formData.start_time.split(':').map(Number);
+      selectedDateTime.setHours(startHour, startMin, 0, 0);
+      
+      if (selectedDateTime <= now) {
+        throw new Error('Cannot create availability for past times');
+      }
+
+      // Calculate duration in hours (with decimal for minutes)
       const [endHour, endMin] = formData.end_time.split(':').map(Number);
       const duration = (endHour + endMin / 60) - (startHour + startMin / 60);
 
