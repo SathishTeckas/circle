@@ -97,11 +97,17 @@ export default function AdminDashboard() {
     enabled: !!user
   });
 
+  const { data: disputes = [] } = useQuery({
+    queryKey: ['admin-disputes'],
+    queryFn: () => base44.entities.Dispute.filter({ status: 'open' }),
+    enabled: !!user,
+    staleTime: 2 * 60 * 1000
+  });
+
   const companions = allUsers?.filter(u => u?.user_role === 'companion') || [];
   const seekers = allUsers?.filter(u => u?.user_role === 'seeker') || [];
   const pendingKYC = allUsers?.filter(u => u?.kyc_status === 'pending') || [];
   const completedBookings = allBookings?.filter(b => b?.status === 'completed') || [];
-  const disputedBookings = allBookings?.filter(b => b?.status === 'disputed') || [];
   
   const totalRevenue = completedBookings?.reduce((sum, b) => sum + (b?.platform_fee || 0), 0) || 0;
   const totalGMV = completedBookings?.reduce((sum, b) => sum + (b?.total_amount || 0), 0) || 0;
@@ -181,7 +187,7 @@ export default function AdminDashboard() {
     { label: 'Group Events', desc: `${groupEvents?.length || 0} events`, icon: Calendar, page: 'AdminGroups' },
     { label: 'Manage Payouts', desc: `${pendingPayouts?.length || 0} pending payouts`, icon: Wallet, page: 'AdminPayouts', alert: (pendingPayouts?.length || 0) > 0 },
     { label: 'Admin Management', desc: 'Manage administrators', icon: Shield, page: 'AdminManagement' },
-    { label: 'Disputes', desc: `${disputedBookings?.length || 0} open disputes`, icon: AlertTriangle, page: 'AdminDisputes', alert: (disputedBookings?.length || 0) > 0 },
+    { label: 'Disputes', desc: `${disputes?.length || 0} open disputes`, icon: AlertTriangle, page: 'AdminDisputes', alert: (disputes?.length || 0) > 0 },
   ];
 
   return (
