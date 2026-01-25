@@ -34,11 +34,17 @@ export default function DisputeDetailsDialog({
 }) {
   const [notes, setNotes] = React.useState('');
   const [refund, setRefund] = React.useState('');
+  const [isContentReady, setIsContentReady] = React.useState(false);
 
   React.useEffect(() => {
     if (!isOpen) {
       setNotes('');
       setRefund('');
+      setIsContentReady(false);
+    } else {
+      // Defer content rendering to avoid blocking
+      const timer = setTimeout(() => setIsContentReady(true), 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
@@ -59,6 +65,12 @@ export default function DisputeDetailsDialog({
         </DialogHeader>
 
         <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1">
+          {!isContentReady ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <>
           {/* Parties */}
           <div className="grid grid-cols-2 gap-4">
             <div className="border border-slate-200 rounded-lg p-3">
@@ -200,10 +212,12 @@ export default function DisputeDetailsDialog({
               </div>
             </>
           )}
+          </>
+          )}
         </div>
 
         {/* Action Buttons */}
-        {dispute.status !== 'resolved' && (
+        {dispute.status !== 'resolved' && isContentReady && (
           <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0 bg-white">
             <div className="flex gap-3">
               <Button

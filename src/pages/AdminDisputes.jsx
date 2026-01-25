@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { formatCurrency } from '../components/utils/formatCurrency';
@@ -92,6 +92,7 @@ export default function AdminDisputes() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [selectedDispute, setSelectedDispute] = useState(null);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -204,11 +205,10 @@ export default function AdminDisputes() {
   }, []);
 
   const handleOpenDispute = React.useCallback((dispute) => {
-    // Only open if we have the booking data loaded
-    if (bookingsMap[dispute.booking_id] || bookingsLoading) {
+    startTransition(() => {
       setSelectedDispute(dispute);
-    }
-  }, [bookingsMap, bookingsLoading]);
+    });
+  }, [startTransition]);
 
   const selectedBooking = React.useMemo(() => 
     selectedDispute ? bookingsMap[selectedDispute.booking_id] || null : null,
