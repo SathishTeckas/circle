@@ -190,7 +190,11 @@ export default function AdminDisputes() {
   const handleResolve = React.useCallback((dispute, resolution, refund, notes) => {
     const booking = bookingsMap[dispute.booking_id];
     resolveMutation.mutate({ dispute, resolution, refund, notes, booking });
-  }, [bookingsMap, resolveMutation]);
+  }, [bookingsMap]);
+
+  const handleCloseDialog = React.useCallback(() => {
+    setSelectedDispute(null);
+  }, []);
 
   const selectedBooking = React.useMemo(() => 
     selectedDispute ? bookingsMap[selectedDispute.booking_id] : null,
@@ -326,7 +330,7 @@ export default function AdminDisputes() {
         dispute={selectedDispute}
         booking={selectedBooking}
         isOpen={!!selectedDispute}
-        onClose={() => setSelectedDispute(null)}
+        onClose={handleCloseDialog}
         onResolve={handleResolve}
         isPending={resolveMutation.isPending}
       />

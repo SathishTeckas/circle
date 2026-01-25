@@ -41,10 +41,14 @@ export default function DisputeDetailsDialog({
     }
   }, [isOpen]);
 
+  const handleClose = React.useCallback(() => {
+    onClose();
+  }, [onClose]);
+
   if (!dispute) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 flex-shrink-0">
           <DialogTitle>Dispute Details</DialogTitle>
@@ -116,6 +120,7 @@ export default function DisputeDetailsDialog({
                     <img 
                       src={url} 
                       alt={`Evidence ${idx + 1}`}
+                      loading="lazy"
                       className="w-full h-24 object-cover rounded-lg border border-slate-200"
                     />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
