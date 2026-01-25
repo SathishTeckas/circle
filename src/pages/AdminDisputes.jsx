@@ -273,7 +273,7 @@ export default function AdminDisputes() {
                   dispute={dispute} 
                   idx={idx}
                   bookingsMap={bookingsMap}
-                  onOpenDetails={handleOpenDetails}
+                  onOpenDetails={setSelectedDispute}
                 />
               ))
             )}
@@ -292,7 +292,7 @@ export default function AdminDisputes() {
                   dispute={dispute} 
                   idx={idx}
                   bookingsMap={bookingsMap}
-                  onOpenDetails={handleOpenDetails}
+                  onOpenDetails={setSelectedDispute}
                 />
               ))
             )}
@@ -311,7 +311,7 @@ export default function AdminDisputes() {
                   dispute={dispute} 
                   idx={idx}
                   bookingsMap={bookingsMap}
-                  onOpenDetails={handleOpenDetails}
+                  onOpenDetails={setSelectedDispute}
                 />
               ))
             )}
