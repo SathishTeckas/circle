@@ -58,13 +58,23 @@ Deno.serve(async (req) => {
       referral = existingReferrals[0];
     }
 
+    // Get current wallet balance
+    const referee = await base44.asServiceRole.entities.User.get(referee_id);
+    const currentBalance = referee.wallet_balance || 0;
+    const newBalance = currentBalance + campaign.referral_reward_amount;
+
+    // Update wallet balance
+    await base44.asServiceRole.entities.User.update(referee_id, {
+      wallet_balance: newBalance
+    });
+
     // Log transaction
     await base44.asServiceRole.entities.WalletTransaction.create({
       user_id: referee_id,
       transaction_type: 'campaign_bonus',
       amount: campaign.referral_reward_amount,
-      balance_before: 0,
-      balance_after: campaign.referral_reward_amount,
+      balance_before: currentBalance,
+      balance_after: newBalance,
       reference_id: referral.id,
       reference_type: 'Referral',
       description: `Campaign signup bonus for ${campaign_code}`,

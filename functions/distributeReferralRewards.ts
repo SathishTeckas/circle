@@ -89,16 +89,14 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Get referrer's current wallet transactions to calculate balance
-        const transactions = await base44.asServiceRole.entities.WalletTransaction.filter({
-          user_id: referral.referrer_id
-        });
-
-        const currentBalance = transactions.length > 0 
-          ? transactions[transactions.length - 1].balance_after 
-          : 0;
-
+        // Get referrer's current wallet balance
+        const currentBalance = referrer.wallet_balance || 0;
         const newBalance = currentBalance + campaign.referral_reward_amount;
+
+        // Update referrer's wallet balance
+        await base44.asServiceRole.entities.User.update(referral.referrer_id, {
+          wallet_balance: newBalance
+        });
 
         // Create wallet transaction
         const transaction = await base44.asServiceRole.entities.WalletTransaction.create({
