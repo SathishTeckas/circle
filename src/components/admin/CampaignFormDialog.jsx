@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -19,9 +19,12 @@ const CampaignFormDialog = React.memo(({
     referral_reward_amount: 0,
     referral_reward_type: 'none'
   });
+  const [, startTransition] = useTransition();
 
   const handleInputChange = useCallback((field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    startTransition(() => {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    });
   }, []);
 
   const handleSubmit = useCallback(() => {
