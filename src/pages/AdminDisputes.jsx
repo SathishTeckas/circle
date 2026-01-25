@@ -236,7 +236,7 @@ export default function AdminDisputes() {
   );
 
   // Lazy render dialog content only when dispute is selected
-  const DialogContent = React.useMemo(() => {
+  const dialogDetails = React.useMemo(() => {
     if (!selectedDispute) return null;
 
     return (
@@ -548,7 +548,7 @@ export default function AdminDisputes() {
       {selectedDispute && (
         <Dialog open={true} onOpenChange={(open) => !open && handleCloseDialog()}>
           <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
-            {DialogContent}
+            {dialogDetails}
           </DialogContent>
         </Dialog>
       )}
