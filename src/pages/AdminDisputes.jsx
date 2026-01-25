@@ -29,7 +29,7 @@ const reasonLabels = {
   other: 'Other'
 };
 
-const DisputeCard = ({ dispute, idx, bookingsMap, onOpenDetails }) => {
+const DisputeCard = React.memo(({ dispute, idx, bookingsMap, onOpenDetails }) => {
   const status = disputeStatusConfig[dispute.status];
   const StatusIcon = status.icon;
   const booking = bookingsMap[dispute.booking_id];
@@ -86,7 +86,7 @@ const DisputeCard = ({ dispute, idx, bookingsMap, onOpenDetails }) => {
       </Card>
     </div>
   );
-};
+});
 
 export default function AdminDisputes() {
   const queryClient = useQueryClient();
@@ -187,12 +187,15 @@ export default function AdminDisputes() {
   const reviewDisputes = React.useMemo(() => disputes.filter(d => d.status === 'under_review'), [disputes]);
   const resolvedDisputes = React.useMemo(() => disputes.filter(d => d.status === 'resolved'), [disputes]);
 
-  const handleResolve = (dispute, resolution, refund, notes) => {
+  const handleResolve = React.useCallback((dispute, resolution, refund, notes) => {
     const booking = bookingsMap[dispute.booking_id];
     resolveMutation.mutate({ dispute, resolution, refund, notes, booking });
-  };
+  }, [bookingsMap, resolveMutation]);
 
-  const selectedBooking = selectedDispute ? bookingsMap[selectedDispute.booking_id] : null;
+  const selectedBooking = React.useMemo(() => 
+    selectedDispute ? bookingsMap[selectedDispute.booking_id] : null,
+    [selectedDispute, bookingsMap]
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
