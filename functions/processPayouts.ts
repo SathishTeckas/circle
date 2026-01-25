@@ -39,8 +39,8 @@ Deno.serve(async (req) => {
           })
         ]);
 
-        // Calculate total earnings
-        const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
+        // Calculate total earnings (use base_price, not companion_payout after fees)
+        const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
         const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
 
         // Calculate already withdrawn and pending amounts (excluding current payout)

@@ -78,7 +78,7 @@ export default function BookingCard({ booking, userRole }) {
       {/* Footer */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
         <span className="text-lg font-bold text-slate-900">
-          ₹{booking.total_amount}
+          ₹{isSeeker ? booking.total_amount : booking.base_price}
         </span>
         {booking.status === 'completed' ? (
           <Link
