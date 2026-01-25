@@ -40,7 +40,7 @@ const reasonLabels = {
   other: 'Other'
 };
 
-const DisputeCard = ({ dispute, idx, bookingsMap, selectedDispute, dialogOpen, onDialogChange, resolutionNotes, refundAmount, onNotesChange, onRefundChange, onResolve, resolveMutation }) => {
+const DisputeCard = ({ dispute, idx, bookingsMap, selectedDispute, setSelectedDispute, setDialogOpen, onDialogChange, resolutionNotes, refundAmount, onNotesChange, onRefundChange, onResolve, resolveMutation }) => {
   const status = disputeStatusConfig[dispute.status];
   const StatusIcon = status.icon;
   const booking = bookingsMap[dispute.booking_id];
@@ -91,11 +91,15 @@ const DisputeCard = ({ dispute, idx, bookingsMap, selectedDispute, dialogOpen, o
           )}
         </div>
 
-        <Dialog open={dialogOpen && selectedDispute?.id === dispute.id} onOpenChange={onDialogChange}>
+        <Dialog open={selectedDispute?.id === dispute.id} onOpenChange={onDialogChange}>
           <DialogTrigger asChild>
             <Button 
               variant="outline" 
               className="w-full rounded-xl"
+              onClick={() => {
+                setSelectedDispute(dispute);
+                setDialogOpen(true);
+              }}
             >
               View Details & Resolve
             </Button>
@@ -496,12 +500,10 @@ export default function AdminDisputes() {
                   idx={idx}
                   bookingsMap={bookingsMap}
                   selectedDispute={selectedDispute}
-                  dialogOpen={dialogOpen}
+                  setSelectedDispute={setSelectedDispute}
+                  setDialogOpen={setDialogOpen}
                   onDialogChange={(open) => {
-                    if (open) {
-                      setSelectedDispute(dispute);
-                      setDialogOpen(true);
-                    } else {
+                    if (!open) {
                       setDialogOpen(false);
                       setSelectedDispute(null);
                     }
@@ -531,12 +533,10 @@ export default function AdminDisputes() {
                   idx={idx}
                   bookingsMap={bookingsMap}
                   selectedDispute={selectedDispute}
-                  dialogOpen={dialogOpen}
+                  setSelectedDispute={setSelectedDispute}
+                  setDialogOpen={setDialogOpen}
                   onDialogChange={(open) => {
-                    if (open) {
-                      setSelectedDispute(dispute);
-                      setDialogOpen(true);
-                    } else {
+                    if (!open) {
                       setDialogOpen(false);
                       setSelectedDispute(null);
                     }
@@ -566,12 +566,10 @@ export default function AdminDisputes() {
                   idx={idx}
                   bookingsMap={bookingsMap}
                   selectedDispute={selectedDispute}
-                  dialogOpen={dialogOpen}
+                  setSelectedDispute={setSelectedDispute}
+                  setDialogOpen={setDialogOpen}
                   onDialogChange={(open) => {
-                    if (open) {
-                      setSelectedDispute(dispute);
-                      setDialogOpen(true);
-                    } else {
+                    if (!open) {
                       setDialogOpen(false);
                       setSelectedDispute(null);
                     }
