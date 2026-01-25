@@ -125,8 +125,7 @@ export default function BookingView() {
       
       await base44.entities.Booking.update(bookingId, { 
         status: 'rejected',
-        escrow_status: 'refunded',
-        chat_enabled: true
+        escrow_status: 'refunded'
       });
       if (booking?.availability_id) {
         await base44.entities.Availability.update(booking.availability_id, { 
@@ -667,30 +666,6 @@ export default function BookingView() {
               Open Chat
             </Button>
           </Link>
-        )}
-
-        {/* Rejected Status - Chat Available */}
-        {booking.status === 'rejected' && (
-          <Card className="p-4 bg-red-50 border-red-200">
-            <div className="flex items-start gap-3 mb-4">
-              <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="font-semibold text-red-900">Booking Declined</h3>
-                <p className="text-sm text-red-700 mt-1">
-                  {isSeeker 
-                    ? `${otherPartyName} declined your booking request. A full refund has been processed. You can still message them to discuss other dates or times.`
-                    : 'You declined this booking request. The guest has been refunded. You can still message them if you want to suggest alternative arrangements.'
-                  }
-                </p>
-              </div>
-            </div>
-            <Link to={createPageUrl(`ChatView?id=${bookingId}`)} className="block">
-              <Button className="w-full h-12 bg-violet-600 hover:bg-violet-700 rounded-xl">
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Message to Discuss Alternatives
-              </Button>
-            </Link>
-          </Card>
         )}
       </div>
     </div>
