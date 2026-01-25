@@ -38,7 +38,17 @@ Deno.serve(async (req) => {
       return Response.json({ message: 'Campaign is not active', status: 200 });
     }
 
-    // Check for duplicate campaign referral to prevent double rewards (only campaign_signup type)
+    // CRITICAL: Check if user already received campaign reward (prevents race conditions)
+    if (user.campaign_reward_received === true) {
+      return Response.json({ message: 'Campaign reward already received', status: 200 });
+    }
+
+    // Mark user as having received campaign reward IMMEDIATELY (prevents duplicate processing)
+    await base44.asServiceRole.entities.User.update(userId, {
+      campaign_reward_received: true
+    });
+
+    // Double-check for duplicate campaign referral
     const existingCampaignReferral = await base44.asServiceRole.entities.Referral.filter({
       referee_id: userId,
       referral_code: campaignCode,

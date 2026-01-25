@@ -30,6 +30,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Campaign has no wallet credit reward configured' }, { status: 400 });
     }
 
+    // Get user and check if already received campaign reward
+    const referee = await base44.asServiceRole.entities.User.get(referee_id);
+    if (referee.campaign_reward_received === true) {
+      return Response.json({ error: 'User already received campaign reward' }, { status: 400 });
+    }
+
     // Check if already processed
     const existingReferrals = await base44.asServiceRole.entities.Referral.filter({
       referee_id: referee_id,
@@ -40,6 +46,11 @@ Deno.serve(async (req) => {
     if (existingReferrals.length > 0 && existingReferrals[0].status === 'rewarded') {
       return Response.json({ error: 'User already received this reward' }, { status: 400 });
     }
+
+    // Mark user as having received campaign reward
+    await base44.asServiceRole.entities.User.update(referee_id, {
+      campaign_reward_received: true
+    });
 
     // Create or update referral record
     let referral;
