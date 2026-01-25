@@ -101,14 +101,11 @@ export default function AdminDisputes() {
     loadUser();
   }, []);
 
-  const { data: disputes = [] } = useQuery({
+  const { data: disputes = [], isLoading: disputesLoading } = useQuery({
     queryKey: ['all-disputes'],
-    queryFn: async () => {
-      return await base44.entities.Dispute.list('-created_date', 100);
-    },
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    gcTime: 10 * 60 * 1000
+    queryFn: () => base44.entities.Dispute.list('-created_date', 50),
+    staleTime: 2 * 60 * 1000,
+    refetchOnWindowFocus: false
   });
 
   const bookingIds = React.useMemo(() => 
@@ -116,18 +113,26 @@ export default function AdminDisputes() {
     [disputes]
   );
 
-  const { data: bookingsMap = {} } = useQuery({
-    queryKey: ['disputes-bookings', bookingIds.join(',')],
+  const { data: bookingsMap = {}, isLoading: bookingsLoading } = useQuery({
+    queryKey: ['disputes-bookings', bookingIds],
     queryFn: async () => {
       if (bookingIds.length === 0) return {};
-      const bookings = await base44.entities.Booking.list('-created_date', 200);
-      const relevantBookings = bookings.filter(b => bookingIds.includes(b.id));
-      return relevantBookings.reduce((acc, b) => ({ ...acc, [b.id]: b }), {});
+      
+      // Fetch only needed bookings using filter
+      const bookings = await Promise.all(
+        bookingIds.map(id => 
+          base44.entities.Booking.filter({ id }).then(results => results[0]).catch(() => null)
+        )
+      );
+      
+      return bookings.reduce((acc, b) => {
+        if (b) acc[b.id] = b;
+        return acc;
+      }, {});
     },
     enabled: bookingIds.length > 0,
-    staleTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    gcTime: 15 * 60 * 1000
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false
   });
 
   const resolveMutation = useMutation({
@@ -183,9 +188,11 @@ export default function AdminDisputes() {
     }
   });
 
-  const openDisputes = React.useMemo(() => disputes.filter(d => d.status === 'open'), [disputes]);
-  const reviewDisputes = React.useMemo(() => disputes.filter(d => d.status === 'under_review'), [disputes]);
-  const resolvedDisputes = React.useMemo(() => disputes.filter(d => d.status === 'resolved'), [disputes]);
+  const { openDisputes, reviewDisputes, resolvedDisputes } = React.useMemo(() => ({
+    openDisputes: disputes.filter(d => d.status === 'open'),
+    reviewDisputes: disputes.filter(d => d.status === 'under_review'),
+    resolvedDisputes: disputes.filter(d => d.status === 'resolved')
+  }), [disputes]);
 
   const handleResolve = React.useCallback((dispute, resolution, refund, notes) => {
     const booking = bookingsMap[dispute.booking_id];
@@ -196,10 +203,13 @@ export default function AdminDisputes() {
     setSelectedDispute(null);
   }, []);
 
-  const selectedBooking = React.useMemo(() => 
-    selectedDispute ? bookingsMap[selectedDispute.booking_id] : null,
-    [selectedDispute, bookingsMap]
-  );
+  const handleOpenDispute = React.useCallback((dispute) => {
+    setSelectedDispute(dispute);
+  }, []);
+
+  const selectedBooking = selectedDispute ? bookingsMap[selectedDispute.booking_id] : null;
+
+  const isLoading = disputesLoading || bookingsLoading;
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
@@ -220,6 +230,14 @@ export default function AdminDisputes() {
       </div>
 
       <div className="px-4 py-6 max-w-6xl mx-auto space-y-6">
+        {isLoading && (
+          <div className="flex justify-center py-12">
+            <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+
+        {!isLoading && (
+          <>
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="p-4">
@@ -324,9 +342,12 @@ export default function AdminDisputes() {
             )}
           </TabsContent>
         </Tabs>
+        </>
+        )}
       </div>
 
-      <DisputeDetailsDialog
+      {selectedDispute && (
+        <DisputeDetailsDialog
         dispute={selectedDispute}
         booking={selectedBooking}
         isOpen={!!selectedDispute}
@@ -334,6 +355,7 @@ export default function AdminDisputes() {
         onResolve={handleResolve}
         isPending={resolveMutation.isPending}
       />
+      )}
     </div>
   );
 }
