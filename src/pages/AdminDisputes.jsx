@@ -230,194 +230,7 @@ export default function AdminDisputes() {
     setSelectedDispute(null);
   }, []);
 
-  const selectedBooking = React.useMemo(() => 
-    selectedDispute ? bookingsMap[selectedDispute.booking_id] : null, 
-    [selectedDispute, bookingsMap]
-  );
-
-  // Lazy render dialog content only when dispute is selected
-  const dialogDetails = React.useMemo(() => {
-    if (!selectedDispute) return null;
-
-    return (
-      <>
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 flex-shrink-0">
-          <DialogTitle>Dispute Details</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1">
-          {/* Parties */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="border border-slate-200 rounded-lg p-3">
-              <Label className="text-slate-600 text-xs">Raised By</Label>
-              <p className="font-semibold text-slate-900">{selectedDispute.raised_by_name}</p>
-              <Badge variant="outline" className="mt-1 capitalize text-xs">
-                {selectedDispute.raised_by_role}
-              </Badge>
-            </div>
-            <div className="border border-slate-200 rounded-lg p-3">
-              <Label className="text-slate-600 text-xs">Against</Label>
-              <p className="font-semibold text-slate-900">{selectedDispute.against_user_name}</p>
-            </div>
-          </div>
-
-          {/* Booking Info */}
-          {selectedBooking && (
-            <Card className="p-3 bg-slate-50">
-              <Label className="text-slate-600 text-xs mb-2 block">Booking Details</Label>
-              <div className="space-y-1 text-sm">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-slate-500" />
-                  <span>{selectedBooking.date ? format(new Date(selectedBooking.date), 'MMM d, yyyy') : 'N/A'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-slate-500" />
-                  <span>{selectedBooking.area}, {selectedBooking.city}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IndianRupee className="w-4 h-4 text-slate-500" />
-                  <span className="font-semibold">{formatCurrency(selectedBooking.total_amount)}</span>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          {/* Dispute Info */}
-          <div>
-            <Label className="text-slate-600">Reason</Label>
-            <p className="font-medium text-slate-900 capitalize">{reasonLabels[selectedDispute.reason]}</p>
-          </div>
-
-          <div>
-            <Label className="text-slate-600">Description</Label>
-            <p className="text-sm text-slate-700 mt-1 bg-slate-50 p-3 rounded-lg">
-              {selectedDispute.description}
-            </p>
-          </div>
-
-          {/* Evidence */}
-          {selectedDispute.evidence_urls?.length > 0 && (
-            <div>
-              <Label className="text-slate-600 mb-2 block">Evidence</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {selectedDispute.evidence_urls.map((url, idx) => (
-                  <a 
-                    key={idx} 
-                    href={url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="relative group"
-                  >
-                    <img 
-                      src={url} 
-                      alt={`Evidence ${idx + 1}`}
-                      className="w-full h-24 object-cover rounded-lg border border-slate-200"
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                      <ExternalLink className="w-5 h-5 text-white" />
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Resolution Section */}
-          {selectedDispute.status === 'resolved' ? (
-            <>
-              <div>
-                <Label className="text-slate-600">Resolution</Label>
-                <p className="text-sm text-slate-900 mt-1">{selectedDispute.resolution}</p>
-              </div>
-              {selectedDispute.resolution_notes && (
-                <div>
-                  <Label className="text-slate-600">Notes</Label>
-                  <p className="text-sm text-slate-700 mt-1">{selectedDispute.resolution_notes}</p>
-                </div>
-              )}
-              {selectedDispute.refund_amount > 0 && (
-                <div>
-                  <Label className="text-slate-600">Refund Issued</Label>
-                  <p className="text-lg font-bold text-emerald-600">{formatCurrency(selectedDispute.refund_amount)}</p>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <div>
-                <Label className="mb-2 block">Resolution Notes</Label>
-                <Textarea
-                  placeholder="Explain your decision and reasoning..."
-                  value={resolutionNotes[selectedDispute.id] || ''}
-                  onChange={(e) => setResolutionNotes(prev => ({ ...prev, [selectedDispute.id]: e.target.value }))}
-                  className="rounded-xl"
-                  rows={4}
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="block">Refund Amount (Optional)</Label>
-                  {selectedBooking && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setRefundAmount(prev => ({ ...prev, [selectedDispute.id]: selectedBooking.total_amount.toString() }))}
-                      className="text-xs h-7"
-                    >
-                      Max: {formatCurrency(selectedBooking.total_amount)}
-                    </Button>
-                  )}
-                </div>
-                <Input
-                  type="number"
-                  placeholder="0.00"
-                  value={refundAmount[selectedDispute.id] || ''}
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value) || 0;
-                    const max = selectedBooking?.total_amount || 0;
-                    if (value <= max) {
-                      setRefundAmount(prev => ({ ...prev, [selectedDispute.id]: e.target.value }));
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                    }
-                  }}
-                  className="h-12 rounded-xl"
-                  max={selectedBooking?.total_amount}
-                />
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Action Buttons - Sticky Footer */}
-        {selectedDispute.status !== 'resolved' && (
-          <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0 bg-white">
-            <div className="flex gap-3">
-              <Button
-                onClick={() => handleResolve(selectedDispute, 'Resolved in favor of companion')}
-                disabled={!resolutionNotes[selectedDispute.id]?.trim() || resolveMutation.isPending}
-                variant="outline"
-                className="flex-1 h-12 rounded-xl"
-              >
-                Favor Companion
-              </Button>
-              <Button
-                onClick={() => handleResolve(selectedDispute, 'Resolved in favor of seeker')}
-                disabled={!resolutionNotes[selectedDispute.id]?.trim() || resolveMutation.isPending}
-                className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
-              >
-                Favor Seeker
-              </Button>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  }, [selectedDispute, selectedBooking, resolutionNotes, refundAmount, resolveMutation.isPending, handleResolve]);
+  const selectedBooking = selectedDispute ? bookingsMap[selectedDispute.booking_id] : null;
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
@@ -548,7 +361,180 @@ export default function AdminDisputes() {
       {selectedDispute && (
         <Dialog open={true} onOpenChange={(open) => !open && handleCloseDialog()}>
           <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
-            {dialogDetails}
+            <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 flex-shrink-0">
+              <DialogTitle>Dispute Details</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1">
+              {/* Parties */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="border border-slate-200 rounded-lg p-3">
+                  <Label className="text-slate-600 text-xs">Raised By</Label>
+                  <p className="font-semibold text-slate-900">{selectedDispute.raised_by_name}</p>
+                  <Badge variant="outline" className="mt-1 capitalize text-xs">
+                    {selectedDispute.raised_by_role}
+                  </Badge>
+                </div>
+                <div className="border border-slate-200 rounded-lg p-3">
+                  <Label className="text-slate-600 text-xs">Against</Label>
+                  <p className="font-semibold text-slate-900">{selectedDispute.against_user_name}</p>
+                </div>
+              </div>
+
+              {/* Booking Info */}
+              {selectedBooking && (
+                <Card className="p-3 bg-slate-50">
+                  <Label className="text-slate-600 text-xs mb-2 block">Booking Details</Label>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-slate-500" />
+                      <span>{selectedBooking.date ? format(new Date(selectedBooking.date), 'MMM d, yyyy') : 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-slate-500" />
+                      <span>{selectedBooking.area}, {selectedBooking.city}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <IndianRupee className="w-4 h-4 text-slate-500" />
+                      <span className="font-semibold">{formatCurrency(selectedBooking.total_amount)}</span>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Dispute Info */}
+              <div>
+                <Label className="text-slate-600">Reason</Label>
+                <p className="font-medium text-slate-900 capitalize">{reasonLabels[selectedDispute.reason]}</p>
+              </div>
+
+              <div>
+                <Label className="text-slate-600">Description</Label>
+                <p className="text-sm text-slate-700 mt-1 bg-slate-50 p-3 rounded-lg">
+                  {selectedDispute.description}
+                </p>
+              </div>
+
+              {/* Evidence */}
+              {selectedDispute.evidence_urls?.length > 0 && (
+                <div>
+                  <Label className="text-slate-600 mb-2 block">Evidence</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {selectedDispute.evidence_urls.map((url, idx) => (
+                      <a 
+                        key={idx} 
+                        href={url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="relative group"
+                      >
+                        <img 
+                          src={url} 
+                          alt={`Evidence ${idx + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border border-slate-200"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                          <ExternalLink className="w-5 h-5 text-white" />
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Resolution Section */}
+              {selectedDispute.status === 'resolved' ? (
+                <>
+                  <div>
+                    <Label className="text-slate-600">Resolution</Label>
+                    <p className="text-sm text-slate-900 mt-1">{selectedDispute.resolution}</p>
+                  </div>
+                  {selectedDispute.resolution_notes && (
+                    <div>
+                      <Label className="text-slate-600">Notes</Label>
+                      <p className="text-sm text-slate-700 mt-1">{selectedDispute.resolution_notes}</p>
+                    </div>
+                  )}
+                  {selectedDispute.refund_amount > 0 && (
+                    <div>
+                      <Label className="text-slate-600">Refund Issued</Label>
+                      <p className="text-lg font-bold text-emerald-600">{formatCurrency(selectedDispute.refund_amount)}</p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div>
+                    <Label className="mb-2 block">Resolution Notes</Label>
+                    <Textarea
+                      placeholder="Explain your decision and reasoning..."
+                      value={resolutionNotes[selectedDispute.id] || ''}
+                      onChange={(e) => setResolutionNotes(prev => ({ ...prev, [selectedDispute.id]: e.target.value }))}
+                      className="rounded-xl"
+                      rows={4}
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="block">Refund Amount (Optional)</Label>
+                      {selectedBooking && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setRefundAmount(prev => ({ ...prev, [selectedDispute.id]: selectedBooking.total_amount.toString() }))}
+                          className="text-xs h-7"
+                        >
+                          Max: {formatCurrency(selectedBooking.total_amount)}
+                        </Button>
+                      )}
+                    </div>
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      value={refundAmount[selectedDispute.id] || ''}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value) || 0;
+                        const max = selectedBooking?.total_amount || 0;
+                        if (value <= max) {
+                          setRefundAmount(prev => ({ ...prev, [selectedDispute.id]: e.target.value }));
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                        }
+                      }}
+                      className="h-12 rounded-xl"
+                      max={selectedBooking?.total_amount}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Action Buttons - Sticky Footer */}
+            {selectedDispute.status !== 'resolved' && (
+              <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0 bg-white">
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => handleResolve(selectedDispute, 'Resolved in favor of companion')}
+                    disabled={!resolutionNotes[selectedDispute.id]?.trim() || resolveMutation.isPending}
+                    variant="outline"
+                    className="flex-1 h-12 rounded-xl"
+                  >
+                    Favor Companion
+                  </Button>
+                  <Button
+                    onClick={() => handleResolve(selectedDispute, 'Resolved in favor of seeker')}
+                    disabled={!resolutionNotes[selectedDispute.id]?.trim() || resolveMutation.isPending}
+                    className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
+                  >
+                    Favor Seeker
+                  </Button>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       )}
