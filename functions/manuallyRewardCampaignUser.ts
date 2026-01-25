@@ -69,9 +69,9 @@ Deno.serve(async (req) => {
       referral = existingReferrals[0];
     }
 
-    // Get current wallet balance
-    const referee = await base44.asServiceRole.entities.User.get(referee_id);
-    const currentBalance = referee.wallet_balance || 0;
+    // Get current wallet balance (refresh after marking as received)
+    const refreshedReferee = await base44.asServiceRole.entities.User.get(referee_id);
+    const currentBalance = refreshedReferee.wallet_balance || 0;
     const newBalance = currentBalance + campaign.referral_reward_amount;
 
     // Update wallet balance
