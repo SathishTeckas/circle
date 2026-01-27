@@ -19,6 +19,8 @@ Deno.serve(async (req) => {
     const clientSecret = Deno.env.get('CASHFREE_CLIENT_SECRET');
     const baseUrl = Deno.env.get('CASHFREE_VRS_BASE_URL')?.replace(/^ttps:/, 'https:') || 'https://vrs.cashfree.com';
 
+    console.log('Cashfree Verify URL:', `${baseUrl}/verification/otp/verify`);
+
     // Verify OTP with Cashfree
     const response = await fetch(`${baseUrl}/verification/otp/verify`, {
       method: 'POST',

@@ -19,6 +19,9 @@ Deno.serve(async (req) => {
     const clientSecret = Deno.env.get('CASHFREE_CLIENT_SECRET');
     const baseUrl = Deno.env.get('CASHFREE_VRS_BASE_URL')?.replace(/^ttps:/, 'https:') || 'https://vrs.cashfree.com';
 
+    console.log('Cashfree URL:', `${baseUrl}/verification/otp/send`);
+    console.log('Client ID:', clientId ? 'Set' : 'Not set');
+
     // Send OTP request to Cashfree
     const response = await fetch(`${baseUrl}/verification/otp/send`, {
       method: 'POST',
@@ -28,10 +31,12 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        phone: `+91${phone}`,
+        phone_number: `+91${phone}`,
         otp_length: 6
       })
     });
+
+    console.log('Cashfree Response Status:', response.status);
 
     const data = await response.json();
 
