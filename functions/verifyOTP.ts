@@ -17,10 +17,10 @@ Deno.serve(async (req) => {
 
     const clientId = Deno.env.get('CASHFREE_CLIENT_ID');
     const clientSecret = Deno.env.get('CASHFREE_CLIENT_SECRET');
-    const baseUrl = Deno.env.get('CASHFREE_VRS_BASE_URL') || 'https://vrs.cashfree.com';
+    const baseUrl = Deno.env.get('CASHFREE_VRS_BASE_URL')?.replace(/^ttps:/, 'https:') || 'https://vrs.cashfree.com';
 
     // Verify OTP with Cashfree
-    const response = await fetch(`${baseUrl}/api/v2/verification/otp/verify`, {
+    const response = await fetch(`${baseUrl}/verification/otp/verify`, {
       method: 'POST',
       headers: {
         'x-client-id': clientId,
