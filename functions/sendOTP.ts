@@ -17,26 +17,32 @@ Deno.serve(async (req) => {
 
     const clientId = Deno.env.get('CASHFREE_CLIENT_ID');
     const clientSecret = Deno.env.get('CASHFREE_CLIENT_SECRET');
-    const baseUrl = Deno.env.get('CASHFREE_VRS_BASE_URL')?.replace(/^ttps:/, 'https:') || 'https://vrs.cashfree.com';
 
-    console.log('Cashfree URL:', `${baseUrl}/verification/otp/send`);
-    console.log('Client ID:', clientId ? 'Set' : 'Not set');
+    // Generate unique verification ID for this request
+    const verificationId = `ver_${user.id}_${Date.now()}`;
 
-    // Send OTP request to Cashfree
-    const response = await fetch(`${baseUrl}/verification/otp/send`, {
+    // Send OTP request to Cashfree Mobile360 API
+    const response = await fetch('https://api.cashfree.com/verification/mobile360/otp/send', {
       method: 'POST',
       headers: {
         'x-client-id': clientId,
         'x-client-secret': clientSecret,
+        'x-api-version': '2024-12-01',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        phone_number: `+91${phone}`,
-        otp_length: 6
+        verification_id: verificationId,
+        mobile_number: phone,
+        name: user.display_name || user.full_name || 'User',
+        user_consent: {
+          timestamp: new Date().toISOString(),
+          purpose: 'Phone number verification for account registration',
+          obtained: true,
+          type: 'EXPLICIT'
+        },
+        notification_modes: ['SMS']
       })
     });
-
-    console.log('Cashfree Response Status:', response.status);
 
     const data = await response.json();
 
@@ -50,6 +56,7 @@ Deno.serve(async (req) => {
     return Response.json({ 
       success: true,
       message: 'OTP sent successfully',
+      verification_id: data.verification_id,
       reference_id: data.reference_id 
     });
   } catch (error) {
