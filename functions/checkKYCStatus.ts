@@ -43,6 +43,16 @@ Deno.serve(async (req) => {
     console.log('Cashfree status response:', { status: response.status, data });
 
     if (!response.ok) {
+      // If not found, it means user hasn't completed verification yet - return pending status
+      if (response.status === 404 || data.code === 'Resource not found') {
+        return Response.json({
+          success: true,
+          status: 'PENDING',
+          verified: false,
+          message: 'Verification in progress'
+        });
+      }
+      
       return Response.json({ 
         error: data.message || 'Failed to check KYC status',
         details: data
