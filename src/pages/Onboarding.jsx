@@ -32,11 +32,6 @@ export default function Onboarding() {
   const [showOTPDialog, setShowOTPDialog] = useState(false);
   const [ageError, setAgeError] = useState('');
   const [nameError, setNameError] = useState('');
-  const [showOTPInput, setShowOTPInput] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [verificationId, setVerificationId] = useState('');
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [otpError, setOtpError] = useState('');
   const [userData, setUserData] = useState({
     display_name: '',
     phone: '',
@@ -168,54 +163,6 @@ export default function Onboarding() {
         ? prev.languages.filter(l => l !== language)
         : [...prev.languages, language]
     }));
-  };
-
-  const handleSendOTP = async () => {
-    if (userData.phone.length !== 10) return;
-    
-    setOtpLoading(true);
-    setOtpError('');
-    try {
-      const { data } = await base44.functions.invoke('sendOTP', { phone: userData.phone });
-      
-      if (data.success) {
-        setVerificationId(data.verification_id);
-        setShowOTPInput(true);
-      } else {
-        setOtpError(data.error || 'Failed to send OTP');
-      }
-    } catch (error) {
-      setOtpError(error.response?.data?.error || 'Failed to send OTP');
-    }
-    setOtpLoading(false);
-  };
-
-  const handleVerifyOTP = async () => {
-    if (!otp || otp.length !== 6) {
-      setOtpError('Please enter 6-digit OTP');
-      return;
-    }
-    
-    setOtpLoading(true);
-    setOtpError('');
-    try {
-      const { data } = await base44.functions.invoke('verifyOTP', { 
-        verification_id: verificationId, 
-        otp: otp 
-      });
-      
-      if (data.success) {
-        setPhoneVerified(true);
-        setShowOTPInput(false);
-        setOtp('');
-        await base44.auth.updateMe({ phone: userData.phone, phone_verified: true });
-      } else {
-        setOtpError(data.error || 'Invalid OTP');
-      }
-    } catch (error) {
-      setOtpError(error.response?.data?.error || 'Invalid OTP');
-    }
-    setOtpLoading(false);
   };
 
   const handleComplete = async () => {
@@ -404,80 +351,21 @@ export default function Onboarding() {
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '').slice(0, 10);
                           setUserData({ ...userData, phone: value });
-                          setShowOTPInput(false);
-                          setOtp('');
-                          setOtpError('');
                         }}
-                        disabled={phoneVerified || showOTPInput}
+                        disabled={phoneVerified}
                         className="h-14 pl-20 rounded-xl border-slate-200 disabled:opacity-60 disabled:cursor-not-allowed"
                         maxLength={10}
                       />
                     </div>
-                    {!phoneVerified && !showOTPInput && userData.phone.length === 10 && (
+                    {!phoneVerified && userData.phone.length === 10 && (
                       <Button
-                        onClick={handleSendOTP}
-                        disabled={otpLoading}
+                        onClick={() => setShowOTPDialog(true)}
                         className="h-14 px-6 rounded-xl bg-violet-600 hover:bg-violet-700 whitespace-nowrap"
                       >
-                        {otpLoading ? (
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          'Send OTP'
-                        )}
+                        Verify
                       </Button>
                     )}
                   </div>
-
-                  {showOTPInput && !phoneVerified && (
-                    <div className="mt-4 space-y-3">
-                      <div className="flex gap-2">
-                        <Input
-                          type="text"
-                          placeholder="Enter 6-digit OTP"
-                          value={otp}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                            setOtp(value);
-                            setOtpError('');
-                          }}
-                          className="h-14 rounded-xl border-slate-200 text-center text-lg tracking-widest"
-                          maxLength={6}
-                        />
-                        <Button
-                          onClick={handleVerifyOTP}
-                          disabled={otpLoading || otp.length !== 6}
-                          className="h-14 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap"
-                        >
-                          {otpLoading ? (
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          ) : (
-                            'Verify'
-                          )}
-                        </Button>
-                      </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-600">OTP sent to +91 {userData.phone}</span>
-                        <button
-                          onClick={() => {
-                            setShowOTPInput(false);
-                            setOtp('');
-                            setOtpError('');
-                          }}
-                          className="text-violet-600 hover:text-violet-700 font-medium"
-                        >
-                          Change Number
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {otpError && (
-                    <div className="flex items-center gap-2 mt-2 text-red-600">
-                      <AlertCircle className="w-4 h-4" />
-                      <p className="text-sm">{otpError}</p>
-                    </div>
-                  )}
-
                   {phoneVerified && (
                     <p className="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1">
                       <CheckCircle className="w-4 h-4" />
