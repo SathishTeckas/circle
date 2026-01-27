@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
-import { Shield, FileCheck, Camera, Clock, CheckCircle, ArrowRight, Bell, MapPin } from 'lucide-react';
+import { Shield, FileCheck, Camera, Clock, CheckCircle, ArrowRight, Bell, MapPin, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 // Custom styled switch override
 const switchStyles = `
@@ -25,6 +26,8 @@ export default function KYCVerification() {
     notifications: false
   });
   const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [kycFormId, setKycFormId] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -52,9 +55,91 @@ export default function KYCVerification() {
     loadUser();
   }, []);
 
-  const handleStartKYC = () => {
-    // In production, this would redirect to KYC provider
-    setStep('permissions');
+  const handleStartKYC = async () => {
+    setVerifying(true);
+    try {
+      const { data } = await base44.functions.invoke('generateKYCLink', {});
+      
+      if (data.success && data.form_url) {
+        setKycFormId(data.form_id);
+        
+        // Open KYC form in new window
+        const width = 500;
+        const height = 700;
+        const left = (window.screen.width - width) / 2;
+        const top = (window.screen.height - height) / 2;
+        
+        const kycWindow = window.open(
+          data.form_url,
+          'KYC Verification',
+          `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+        
+        if (!kycWindow) {
+          toast.error('Please allow popups for this site');
+          setVerifying(false);
+          return;
+        }
+        
+        // Start polling for status
+        pollKYCStatus(data.form_id, kycWindow);
+      } else {
+        toast.error('Failed to generate KYC link');
+        setVerifying(false);
+      }
+    } catch (error) {
+      console.error('Error generating KYC link:', error);
+      toast.error(error.response?.data?.error || 'Failed to start KYC verification');
+      setVerifying(false);
+    }
+  };
+
+  const pollKYCStatus = async (formId, windowRef) => {
+    const maxAttempts = 120; // Poll for 10 minutes max (every 5 seconds)
+    let attempts = 0;
+
+    const checkStatus = async () => {
+      if (attempts >= maxAttempts) {
+        toast.error('KYC verification timeout. Please try again.');
+        setVerifying(false);
+        if (windowRef && !windowRef.closed) {
+          windowRef.close();
+        }
+        return;
+      }
+
+      // Check if window is closed
+      if (windowRef && windowRef.closed) {
+        toast('Verification window closed. Please try again if not completed.');
+        setVerifying(false);
+        return;
+      }
+
+      try {
+        const { data } = await base44.functions.invoke('checkKYCStatus', { form_id: formId });
+        
+        if (data.verified) {
+          toast.success('KYC verification successful!');
+          setVerifying(false);
+          if (windowRef && !windowRef.closed) {
+            windowRef.close();
+          }
+          
+          // Move to permissions step
+          setStep('permissions');
+          return;
+        }
+
+        attempts++;
+        setTimeout(checkStatus, 5000); // Check every 5 seconds
+      } catch (error) {
+        console.error('Error checking KYC status:', error);
+        attempts++;
+        setTimeout(checkStatus, 5000);
+      }
+    };
+
+    checkStatus();
   };
 
   const handleCompleteSetup = async () => {
@@ -126,17 +211,41 @@ export default function KYCVerification() {
               ))}
             </div>
 
+            {verifying && (
+              <div className="mb-6 p-4 bg-blue-50 rounded-2xl border border-blue-200">
+                <div className="flex items-center gap-3 text-blue-800">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <div className="text-left">
+                    <p className="font-medium">Verification in progress</p>
+                    <p className="text-sm">Please complete the Aadhaar verification in the popup window</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-3">
               <Button
                 onClick={handleStartKYC}
-                className="w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-lg font-semibold rounded-2xl"
+                disabled={verifying}
+                className="w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-lg font-semibold rounded-2xl disabled:opacity-50"
               >
-                Start Verification
-                <ArrowRight className="w-5 h-5 ml-2" />
+                {verifying ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  <>
+                    Start Aadhaar Verification
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </>
+                )}
               </Button>
 
               <Button
                 onClick={async () => {
+                  if (verifying) return;
+                  setLoading(true);
                   await base44.auth.updateMe({ 
                     kyc_status: 'skipped',
                     kyc_verified: true,
@@ -148,11 +257,20 @@ export default function KYCVerification() {
                   } else {
                     window.location.href = createPageUrl('Discover');
                   }
+                  setLoading(false);
                 }}
                 variant="outline"
-                className="w-full h-14 border-2 border-slate-200 text-slate-700 hover:bg-slate-50 text-lg font-semibold rounded-2xl"
+                disabled={verifying || loading}
+                className="w-full h-14 border-2 border-slate-200 text-slate-700 hover:bg-slate-50 text-lg font-semibold rounded-2xl disabled:opacity-50"
               >
-                Skip for Now
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Skipping...
+                  </>
+                ) : (
+                  'Skip for Now'
+                )}
               </Button>
             </div>
 
