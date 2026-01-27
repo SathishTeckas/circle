@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Camera, ArrowRight, ArrowLeft, Plus, X, User, Phone, Globe, Heart, MapPin, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import OTPVerificationDialog from '@/components/onboarding/OTPVerificationDialog';
 
 const INTERESTS = ['Movies', 'Music', 'Travel', 'Food', 'Sports', 'Art', 'Reading', 'Gaming', 'Photography', 'Fitness', 'Dancing', 'Theater', 'Comedy', 'Fashion', 'Technology', 'Science', 'Nature', 'Yoga', 'Meditation', 'Cooking', 'Wine & Dining', 'Coffee Culture', 'Nightlife', 'Adventure Sports', 'Spirituality', 'Politics', 'History', 'Architecture', 'Astronomy', 'Volunteering', 'Pets & Animals', 'Shopping', 'Cars & Bikes', 'Startups', 'Investing', 'Psychology', 'Podcasts', 'Blogging', 'Social Media', 'Board Games'];
 
@@ -28,6 +29,7 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
+  const [showOTPDialog, setShowOTPDialog] = useState(false);
   const [ageError, setAgeError] = useState('');
   const [nameError, setNameError] = useState('');
   const [showOTPInput, setShowOTPInput] = useState(false);
@@ -811,6 +813,13 @@ export default function Onboarding() {
           </Button>
         </div>
       </div>
+
+      <OTPVerificationDialog
+        open={showOTPDialog}
+        onOpenChange={setShowOTPDialog}
+        phone={userData.phone}
+        onVerified={() => setPhoneVerified(true)}
+      />
     </div>
   );
 }
