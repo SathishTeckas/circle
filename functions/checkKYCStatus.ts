@@ -17,7 +17,9 @@ Deno.serve(async (req) => {
 
     const clientId = Deno.env.get('CASHFREE_CLIENT_ID');
     const clientSecret = Deno.env.get('CASHFREE_CLIENT_SECRET');
-    const baseUrl = Deno.env.get('CASHFREE_VRS_BASE_URL') || 'https://api.cashfree.com/verification';
+    let baseUrl = (Deno.env.get('CASHFREE_VRS_BASE_URL') || 'https://api.cashfree.com/verification').trim();
+    if (baseUrl.startsWith('ttps://')) baseUrl = 'h' + baseUrl;
+    if (!/^https?:\/\//i.test(baseUrl)) baseUrl = `https://${baseUrl}`;
 
     if (!clientId || !clientSecret) {
       return Response.json({ error: 'Cashfree credentials not configured' }, { status: 500 });
