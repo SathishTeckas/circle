@@ -32,7 +32,7 @@ export default function OTPVerificationDialog({ open, onOpenChange, phone, onVer
     setError('');
     try {
       const { data } = await base44.functions.invoke('sendOTP', { phone });
-      setReferenceId(data.reference_id);
+      setReferenceId(data.verification_id);
       setCountdown(60);
     } catch (e) {
       setError(e.response?.data?.error || 'Failed to send OTP');
@@ -50,9 +50,8 @@ export default function OTPVerificationDialog({ open, onOpenChange, phone, onVer
     setError('');
     try {
       const { data } = await base44.functions.invoke('verifyOTP', { 
-        phone, 
-        otp, 
-        reference_id: referenceId 
+        verification_id: referenceId,
+        otp
       });
       
       if (data.success) {
