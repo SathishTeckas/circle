@@ -26,8 +26,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Cashfree credentials not configured' }, { status: 500 });
     }
 
-    // Check KYC form status using verification_id or reference_id
-    const response = await fetch(`${baseUrl}/form/${referenceId}`, {
+    // Check KYC form status using verification_id or reference_id as query param
+    const url = new URL(`${baseUrl}/form`);
+    url.searchParams.append('verification_id', referenceId);
+    
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         'x-client-id': clientId,
