@@ -66,7 +66,14 @@ Deno.serve(async (req) => {
       success: true,
       form_url: data.form_link,
       form_id: data.reference_id,
-      verification_id: data.verification_id
+      verification_id: data.verification_id,
+      reference_id: data.reference_id,
+      short_code: data.short_code,
+      link_expiry: data.link_expiry,
+      form_status: data.form_status,
+      name: data.name,
+      phone: data.phone,
+      email: data.email
     });
 
   } catch (error) {
