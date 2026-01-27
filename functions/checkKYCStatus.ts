@@ -59,20 +59,8 @@ Deno.serve(async (req) => {
       }, { status: response.status });
     }
 
-    // Check if verification is successful based on verification_details or form_status
-    let isVerified = false;
-    
-    // Check verification_details array for OFFLINE_AADHAAR_VERIFICATION with SUCCESS status
-    if (data.verification_details && Array.isArray(data.verification_details)) {
-      isVerified = data.verification_details.some(
-        detail => detail.type === 'OFFLINE_AADHAAR_VERIFICATION' && detail.status === 'SUCCESS'
-      );
-    }
-    
-    // Fallback to form_status check
-    if (!isVerified) {
-      isVerified = data.form_status === 'VERIFIED' || data.form_status === 'SUCCESS' || data.form_status === 'COMPLETED';
-    }
+    // Check if verification is successful based on form_status
+    const isVerified = data.form_status === 'VERIFIED' || data.form_status === 'SUCCESS' || data.form_status === 'COMPLETED';
     
     if (isVerified) {
       await base44.auth.updateMe({
