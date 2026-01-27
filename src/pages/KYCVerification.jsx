@@ -114,7 +114,7 @@ export default function KYCVerification() {
       }
 
       try {
-        const { data } = await base44.functions.invoke('checkKYCStatus', { form_id: formId });
+        const { data } = await base44.functions.invoke('checkKYCStatus', { form_id: formId, verification_id: formId });
         
         if (data.verified) {
           toast.success('KYC verification successful!');

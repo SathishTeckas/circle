@@ -9,11 +9,13 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { form_id } = await req.json();
+    const { form_id, verification_id } = await req.json();
 
-    if (!form_id) {
-      return Response.json({ error: 'form_id is required' }, { status: 400 });
+    if (!form_id && !verification_id) {
+      return Response.json({ error: 'form_id or verification_id is required' }, { status: 400 });
     }
+    
+    const referenceId = verification_id || form_id;
 
     const clientId = Deno.env.get('CASHFREE_CLIENT_ID');
     const clientSecret = Deno.env.get('CASHFREE_CLIENT_SECRET');
@@ -24,8 +26,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Cashfree credentials not configured' }, { status: 500 });
     }
 
-    // Check KYC form status using reference_id
-    const response = await fetch(`${baseUrl}/form/${form_id}`, {
+    // Check KYC form status using verification_id or reference_id
+    const response = await fetch(`${baseUrl}/form/${referenceId}`, {
       method: 'GET',
       headers: {
         'x-client-id': clientId,
