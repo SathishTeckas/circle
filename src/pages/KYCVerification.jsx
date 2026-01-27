@@ -58,10 +58,14 @@ export default function KYCVerification() {
   const handleStartKYC = async () => {
     setVerifying(true);
     try {
-      const { data } = await base44.functions.invoke('generateKYCLink', {});
+      console.log('Starting KYC verification...');
+      const response = await base44.functions.invoke('generateKYCLink', {});
+      console.log('KYC Link Response:', response.data);
       
-      if (data.success && data.form_url) {
-        setKycFormId(data.form_id);
+      if (response.data.success && response.data.form_url) {
+        setKycFormId(response.data.form_id);
+        
+        console.log('Opening KYC form:', response.data.form_url);
         
         // Open KYC form in new window
         const width = 500;
@@ -70,7 +74,7 @@ export default function KYCVerification() {
         const top = (window.screen.height - height) / 2;
         
         const kycWindow = window.open(
-          data.form_url,
+          response.data.form_url,
           'KYC Verification',
           `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
         );
@@ -82,14 +86,16 @@ export default function KYCVerification() {
         }
         
         // Start polling for status
-        pollKYCStatus(data.form_id, kycWindow);
+        pollKYCStatus(response.data.form_id, kycWindow);
       } else {
-        toast.error('Failed to generate KYC link');
+        console.error('Invalid response from generateKYCLink:', response.data);
+        toast.error(response.data.error || 'Failed to generate KYC link');
         setVerifying(false);
       }
     } catch (error) {
       console.error('Error generating KYC link:', error);
-      toast.error(error.response?.data?.error || 'Failed to start KYC verification');
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to start KYC verification';
+      toast.error(errorMsg);
       setVerifying(false);
     }
   };

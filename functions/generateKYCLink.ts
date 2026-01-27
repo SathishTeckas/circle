@@ -18,6 +18,13 @@ Deno.serve(async (req) => {
     }
 
     // Generate KYC form link
+    const requestBody = {
+      verification_id: `kyc_${user.id}_${Date.now()}`,
+      phone: user.phone_number
+    };
+
+    console.log('Generating KYC link with:', { verification_id: requestBody.verification_id, phone: requestBody.phone });
+
     const response = await fetch(`${baseUrl}/kyc-links`, {
       method: 'POST',
       headers: {
@@ -25,16 +32,15 @@ Deno.serve(async (req) => {
         'x-client-id': clientId,
         'x-client-secret': clientSecret
       },
-      body: JSON.stringify({
-        verification_id: `kyc_${user.id}_${Date.now()}`,
-        phone: user.phone_number,
-        redirect_url: `${Deno.env.get('BASE_URL') || 'http://localhost:5173'}?kyc_complete=true`
-      })
+      body: JSON.stringify(requestBody)
     });
 
     const data = await response.json();
 
+    console.log('Cashfree response:', { status: response.status, data });
+
     if (!response.ok) {
+      console.error('Cashfree error:', data);
       return Response.json({ 
         error: data.message || 'Failed to generate KYC link',
         details: data
