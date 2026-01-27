@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { base44 } from '@/api/base44Client';
+
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,7 @@ export default function OTPVerificationDialog({ open, onOpenChange, phone, onVer
 
   useEffect(() => {
     if (open && !referenceId) {
+      // Dummy: auto-send OTP on open
       sendOTP();
     }
   }, [open]);
@@ -30,13 +31,10 @@ export default function OTPVerificationDialog({ open, onOpenChange, phone, onVer
   const sendOTP = async () => {
     setSending(true);
     setError('');
-    try {
-      const { data } = await base44.functions.invoke('sendOTP', { phone });
-      setReferenceId(data.verification_id);
-      setCountdown(60);
-    } catch (e) {
-      setError(e.response?.data?.error || 'Failed to send OTP');
-    }
+    // Dummy: simulate network delay and OTP sent
+    await new Promise((r) => setTimeout(r, 800));
+    setReferenceId('dummy_verification');
+    setCountdown(30);
     setSending(false);
   };
 
@@ -48,19 +46,10 @@ export default function OTPVerificationDialog({ open, onOpenChange, phone, onVer
 
     setLoading(true);
     setError('');
-    try {
-      const { data } = await base44.functions.invoke('verifyOTP', { 
-        verification_id: referenceId,
-        otp
-      });
-      
-      if (data.success) {
-        onVerified();
-        onOpenChange(false);
-      }
-    } catch (e) {
-      setError(e.response?.data?.error || 'Invalid OTP. Please try again.');
-    }
+    // Dummy: simulate verification delay and always succeed
+    await new Promise((r) => setTimeout(r, 800));
+    onVerified();
+    onOpenChange(false);
     setLoading(false);
   };
 
