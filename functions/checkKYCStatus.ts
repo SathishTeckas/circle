@@ -17,9 +17,10 @@ Deno.serve(async (req) => {
 
     const clientId = Deno.env.get('CASHFREE_CLIENT_ID');
     const clientSecret = Deno.env.get('CASHFREE_CLIENT_SECRET');
+    const cfSignature = Deno.env.get('CASHFREE_SIGNATURE');
     const baseUrl = 'https://sandbox.cashfree.com/verification';
 
-    if (!clientId || !clientSecret) {
+    if (!clientId || !clientSecret || !cfSignature) {
       return Response.json({ error: 'Cashfree credentials not configured' }, { status: 500 });
     }
 
@@ -29,6 +30,7 @@ Deno.serve(async (req) => {
       headers: {
         'x-client-id': clientId,
         'x-client-secret': clientSecret,
+        'x-cf-signature': cfSignature,
         'x-api-version': '2024-12-01'
       }
     });
