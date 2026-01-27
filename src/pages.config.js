@@ -1,5 +1,6 @@
 import AdminCampaignReferrals from './pages/AdminCampaignReferrals';
 import AdminCities from './pages/AdminCities';
+import AdminCreateCampaign from './pages/AdminCreateCampaign';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminDisputes from './pages/AdminDisputes';
 import AdminErrors from './pages/AdminErrors';
@@ -42,13 +43,13 @@ import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
-import AdminCreateCampaign from './pages/AdminCreateCampaign';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminCampaignReferrals": AdminCampaignReferrals,
     "AdminCities": AdminCities,
+    "AdminCreateCampaign": AdminCreateCampaign,
     "AdminDashboard": AdminDashboard,
     "AdminDisputes": AdminDisputes,
     "AdminErrors": AdminErrors,
@@ -91,7 +92,6 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "Wallet": Wallet,
     "Welcome": Welcome,
-    "AdminCreateCampaign": AdminCreateCampaign,
 }
 
 export const pagesConfig = {
