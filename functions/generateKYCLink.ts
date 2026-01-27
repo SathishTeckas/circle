@@ -11,28 +11,33 @@ Deno.serve(async (req) => {
 
     const clientId = Deno.env.get('CASHFREE_CLIENT_ID');
     const clientSecret = Deno.env.get('CASHFREE_CLIENT_SECRET');
-    let baseUrl = (Deno.env.get('CASHFREE_VRS_BASE_URL') || 'https://api.cashfree.com/verification').trim();
-    if (baseUrl.startsWith('ttps://')) baseUrl = 'h' + baseUrl;
-    if (!/^https?:\/\//i.test(baseUrl)) baseUrl = `https://${baseUrl}`;
+    const baseUrl = 'https://sandbox.cashfree.com/verification';
 
     if (!clientId || !clientSecret) {
       return Response.json({ error: 'Cashfree credentials not configured' }, { status: 500 });
     }
 
-    // Generate KYC form link
+    const verificationId = `kyc_${user.id}_${Date.now()}`;
+    
+    // Generate KYC form link using the correct endpoint
     const requestBody = {
-      verification_id: `kyc_${user.id}_${Date.now()}`,
-      phone: user.phone_number
+      verification_id: verificationId,
+      phone: user.phone_number || '9999999999',
+      template_name: 'Aadhaar_verification',
+      name: user.display_name || user.full_name || 'User',
+      email: user.email,
+      notification_types: ['sms']
     };
 
-    console.log('Generating KYC link with:', { verification_id: requestBody.verification_id, phone: requestBody.phone });
+    console.log('Generating KYC link with:', requestBody);
 
-    const response = await fetch(`${baseUrl}/kyc-links`, {
+    const response = await fetch(`${baseUrl}/form`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-client-id': clientId,
-        'x-client-secret': clientSecret
+        'x-client-secret': clientSecret,
+        'x-api-version': '2024-12-01'
       },
       body: JSON.stringify(requestBody)
     });
@@ -49,20 +54,21 @@ Deno.serve(async (req) => {
       }, { status: response.status });
     }
 
-    // Store verification_id in user data for tracking
+    // Store verification_id and reference_id in user data for tracking
     await base44.auth.updateMe({
       kyc_verification_id: data.verification_id,
-      kyc_form_id: data.form_id
+      kyc_reference_id: data.reference_id
     });
 
     return Response.json({
       success: true,
-      form_url: data.form_url,
-      form_id: data.form_id,
+      form_url: data.form_link,
+      form_id: data.reference_id,
       verification_id: data.verification_id
     });
 
   } catch (error) {
+    console.error('Error in generateKYCLink:', error);
     return Response.json({ 
       error: error.message || 'Internal server error' 
     }, { status: 500 });
