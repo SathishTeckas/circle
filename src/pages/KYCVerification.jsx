@@ -61,17 +61,8 @@ export default function KYCVerification() {
         console.log('Opening KYC form:', response.data.form_url);
         console.log('Verification ID:', verificationId);
 
-        // Open KYC form in new window
-        const width = 500;
-        const height = 700;
-        const left = (window.screen.width - width) / 2;
-        const top = (window.screen.height - height) / 2;
-
-        const kycWindow = window.open(
-          response.data.form_url,
-          'KYC Verification',
-          `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
-        );
+        // Open KYC form in new tab
+        const kycWindow = window.open(response.data.form_url, '_blank');
 
         if (!kycWindow) {
           toast.error('Please allow popups for this site');
