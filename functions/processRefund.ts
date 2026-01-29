@@ -65,14 +65,24 @@ Deno.serve(async (req) => {
 
     const data = await response.json();
 
-    console.log('Cashfree refund response:', { status: response.status, data });
+    console.log('Cashfree refund API response:', { 
+      httpStatus: response.status, 
+      responseData: JSON.stringify(data) 
+    });
 
     if (!response.ok) {
+      console.log('ERROR: Cashfree refund failed:', data);
       return Response.json({ 
         error: data.message || 'Failed to process refund',
         details: data
       }, { status: response.status });
     }
+
+    console.log('SUCCESS: Refund processed successfully:', {
+      refund_id: data.refund_id,
+      cf_refund_id: data.cf_refund_id,
+      refund_status: data.refund_status
+    });
 
     return Response.json({
       success: true,
@@ -83,7 +93,7 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error in processRefund:', error);
+    console.error('EXCEPTION in processRefund:', error.message, error.stack);
     return Response.json({ 
       error: error.message || 'Internal server error' 
     }, { status: 500 });
