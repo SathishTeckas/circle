@@ -69,7 +69,7 @@ export default function BookingView() {
     queryKey: ['app-settings'],
     queryFn: async () => {
       const settings = await base44.entities.AppSettings.list();
-      return settings[0] || { platform_fee: 15 };
+      return settings[0] || { platform_fee: 7 };
     }
   });
 

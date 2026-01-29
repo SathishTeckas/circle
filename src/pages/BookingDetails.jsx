@@ -142,7 +142,7 @@ export default function BookingDetails() {
         throw new Error('Cannot book for past times. Please refresh and select a current time slot.');
       }
 
-      const platformFeePercent = appSettings?.platform_fee || 15;
+      const platformFeePercent = appSettings?.platform_fee || 7;
       const basePrice = availability.price_per_hour * selectedHours;
       const platformFee = basePrice * (platformFeePercent / 100);
       const totalAmount = basePrice + platformFee;
@@ -237,7 +237,7 @@ export default function BookingDetails() {
     );
   }
 
-  const platformFeePercent = appSettings?.platform_fee || 15;
+  const platformFeePercent = appSettings?.platform_fee || 7;
   const basePrice = availability.price_per_hour * selectedHours;
   const platformFee = basePrice * (platformFeePercent / 100);
   const totalAmount = basePrice + platformFee;
