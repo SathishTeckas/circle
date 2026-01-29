@@ -243,6 +243,8 @@ export default function BookingView() {
     onSuccess: () => {
       toast.success('Booking cancelled');
       queryClient.invalidateQueries({ queryKey: ['booking', bookingId] });
+      queryClient.invalidateQueries({ queryKey: ['pending-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['upcoming-bookings'] });
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to cancel booking');
