@@ -116,7 +116,11 @@ export default function BookingView() {
         action_url: createPageUrl(`BookingView?id=${bookingId}`)
       });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['booking', bookingId] });
+      queryClient.invalidateQueries({ queryKey: ['pending-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['upcoming-bookings'] });
+    }
   });
 
   const rejectMutation = useMutation({
