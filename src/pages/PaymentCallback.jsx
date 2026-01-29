@@ -92,7 +92,14 @@ export default function PaymentCallback() {
             </div>
             <h2 className="text-xl font-semibold text-slate-900 mb-2">Payment Successful!</h2>
             <p className="text-slate-600 mb-4">Your booking request has been sent to the companion.</p>
-            <p className="text-sm text-slate-500">Redirecting to booking details...</p>
+            <p className="text-sm text-slate-500 mb-4">Redirecting to booking details...</p>
+            <Button
+              onClick={() => window.location.href = createPageUrl('Discover')}
+              variant="outline"
+              className="w-full h-12 rounded-xl"
+            >
+              Go to Home
+            </Button>
           </>
         )}
 
