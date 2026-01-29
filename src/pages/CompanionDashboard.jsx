@@ -91,8 +91,10 @@ export default function CompanionDashboard() {
       }, '-created_date', 20);
     },
     enabled: !!user?.id,
-    staleTime: 30000,
-    refetchInterval: 30000
+    staleTime: 0,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   });
 
   const { data: upcomingBookings = [] } = useQuery({
@@ -113,7 +115,9 @@ export default function CompanionDashboard() {
       });
     },
     enabled: !!user?.id,
-    staleTime: 5 * 60 * 1000
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   });
 
   const { data: completedBookings = [] } = useQuery({
