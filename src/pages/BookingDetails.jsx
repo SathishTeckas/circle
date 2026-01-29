@@ -146,12 +146,13 @@ export default function BookingDetails() {
       const basePrice = availability.price_per_hour * selectedHours;
       const platformFee = basePrice * (platformFeePercent / 100);
       const totalAmount = basePrice + platformFee;
-      const companionPayout = basePrice * (1 - platformFeePercent / 100);
+      const companionPayout = basePrice;
 
       // Calculate end time based on selected start time and hours
       const endHour = startHour + selectedHours;
       const endTime = `${endHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
 
+      // Step 1: Create booking with pending_payment status
       const booking = await base44.entities.Booking.create({
         availability_id: availabilityId,
         companion_id: availability.companion_id,
@@ -170,29 +171,40 @@ export default function BookingDetails() {
         platform_fee: platformFee,
         total_amount: totalAmount,
         companion_payout: companionPayout,
-        status: 'pending',
-        escrow_status: 'held',
-        chat_enabled: true,
+        status: 'pending_payment',
+        payment_status: 'pending',
+        escrow_status: 'pending',
+        chat_enabled: false,
         request_expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString()
       });
 
-      await base44.entities.Availability.update(availabilityId, { status: 'pending' });
-
-      // Create notification for companion
-      await base44.entities.Notification.create({
-        user_id: availability.companion_id,
-        type: 'booking_request',
-        title: '🔔 New Booking Request!',
-        message: `${user.display_name || user.full_name} wants to book you for ${selectedHours}h on ${format(new Date(availability.date), 'MMM d')}`,
+      // Step 2: Create Cashfree payment order
+      const returnUrl = `${window.location.origin}${createPageUrl('PaymentCallback')}?booking_id=${booking.id}&order_id={order_id}`;
+      
+      const { data: paymentData } = await base44.functions.invoke('createPaymentOrder', {
         booking_id: booking.id,
-        amount: basePrice,
-        action_url: createPageUrl(`BookingView?id=${booking.id}`)
+        amount: totalAmount,
+        return_url: returnUrl
       });
 
-      return booking;
+      if (!paymentData.success) {
+        // Delete the booking if payment order creation fails
+        await base44.entities.Booking.delete(booking.id);
+        throw new Error(paymentData.error || 'Failed to create payment order');
+      }
+
+      // Step 3: Update booking with payment details
+      await base44.entities.Booking.update(booking.id, {
+        payment_order_id: paymentData.order_id,
+        payment_session_id: paymentData.payment_session_id
+      });
+
+      return { booking, paymentData };
     },
-    onSuccess: (booking) => {
-      window.location.href = createPageUrl(`BookingView?id=${booking.id}`);
+    onSuccess: ({ booking, paymentData }) => {
+      // Redirect to Cashfree payment page
+      const cashfreePaymentUrl = `https://sandbox.cashfree.com/pg/orders/pay/${paymentData.payment_session_id}`;
+      window.location.href = cashfreePaymentUrl;
     },
     onError: (error) => {
       console.error('Booking creation failed:', error);

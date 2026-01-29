@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const statusConfig = {
+  pending_payment: { label: 'Awaiting Payment', color: 'bg-blue-100 text-blue-700', icon: Clock },
   pending: { label: 'Pending Response', color: 'bg-amber-100 text-amber-700', icon: Clock },
   accepted: { label: 'Confirmed', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
   rejected: { label: 'Declined', color: 'bg-red-100 text-red-700', icon: XCircle },
@@ -123,9 +124,24 @@ export default function BookingView() {
       const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
       const companion = companionResponse.data.user;
       
+      // Process refund via Cashfree if payment was made
+      let refundResult = null;
+      if (booking?.payment_order_id && booking?.payment_status === 'paid') {
+        const { data } = await base44.functions.invoke('processRefund', {
+          order_id: booking.payment_order_id,
+          refund_amount: booking.total_amount,
+          refund_reason: 'Booking rejected by companion',
+          booking_id: bookingId
+        });
+        refundResult = data;
+      }
+      
       await base44.entities.Booking.update(bookingId, { 
         status: 'rejected',
-        escrow_status: 'refunded'
+        escrow_status: 'refunded',
+        payment_status: 'refunded',
+        refund_id: refundResult?.refund_id,
+        refund_amount: booking?.total_amount
       });
       if (booking?.availability_id) {
         await base44.entities.Availability.update(booking.availability_id, { 
@@ -150,15 +166,36 @@ export default function BookingView() {
         action_url: createPageUrl('MyBookings')
       });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
+    onSuccess: () => {
+      toast.success('Booking rejected and refund initiated');
+      queryClient.invalidateQueries({ queryKey: ['booking', bookingId] });
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to process rejection');
+    }
   });
 
   const cancelMutation = useMutation({
     mutationFn: async ({ refundPercentage }) => {
       const refundAmount = ((booking?.total_amount || 0) * refundPercentage) / 100;
+      
+      // Process refund via Cashfree if payment was made and refund percentage > 0
+      let refundResult = null;
+      if (booking?.payment_order_id && booking?.payment_status === 'paid' && refundPercentage > 0) {
+        const { data } = await base44.functions.invoke('processRefund', {
+          order_id: booking.payment_order_id,
+          refund_amount: refundAmount,
+          refund_reason: `Booking cancelled (${refundPercentage}% refund)`,
+          booking_id: bookingId
+        });
+        refundResult = data;
+      }
+      
       await base44.entities.Booking.update(bookingId, { 
         status: 'cancelled',
         escrow_status: refundPercentage > 0 ? 'refunded' : 'held',
+        payment_status: refundPercentage > 0 ? 'refunded' : booking?.payment_status,
+        refund_id: refundResult?.refund_id,
         refund_amount: refundAmount
       });
       if (booking?.availability_id) {
@@ -187,7 +224,13 @@ export default function BookingView() {
         });
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['booking', bookingId] })
+    onSuccess: () => {
+      toast.success('Booking cancelled');
+      queryClient.invalidateQueries({ queryKey: ['booking', bookingId] });
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to cancel booking');
+    }
   });
 
   const [uploadingSelfie, setUploadingSelfie] = useState(false);
@@ -445,12 +488,23 @@ export default function BookingView() {
           <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 p-3 rounded-xl">
             <Shield className="w-4 h-4" />
             <span>
-              {isSeeker 
-                ? 'Payment held in escrow until meetup is complete'
-                : 'Payment will be credited to your wallet after meetup completion'
+              {booking?.payment_status === 'paid'
+                ? (isSeeker 
+                    ? 'Payment held in escrow until meetup is complete'
+                    : 'Payment will be credited to your wallet after meetup completion')
+                : booking?.payment_status === 'refunded'
+                ? 'Payment has been refunded'
+                : 'Payment pending'
               }
             </span>
           </div>
+          
+          {booking?.payment_status === 'paid' && (
+            <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 p-2 rounded-lg">
+              <CheckCircle className="w-4 h-4" />
+              <span>Payment confirmed via Cashfree</span>
+            </div>
+          )}
         </Card>
 
         {/* Action Buttons */}
