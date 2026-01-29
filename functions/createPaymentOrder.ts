@@ -41,6 +41,12 @@ Deno.serve(async (req) => {
     };
 
     console.log('Creating Cashfree order:', orderPayload);
+    console.log('Cashfree credentials:', { 
+      hasAppId: !!CASHFREE_APP_ID, 
+      hasSecret: !!CASHFREE_SECRET_KEY,
+      appIdLength: CASHFREE_APP_ID?.length,
+      secretLength: CASHFREE_SECRET_KEY?.length
+    });
 
     const response = await fetch(`${CASHFREE_BASE_URL}/orders`, {
       method: 'POST',
@@ -49,7 +55,7 @@ Deno.serve(async (req) => {
         'Accept': 'application/json',
         'x-client-id': CASHFREE_APP_ID,
         'x-client-secret': CASHFREE_SECRET_KEY,
-        'x-api-version': '2025-01-01'
+        'x-api-version': '2023-08-01'
       },
       body: JSON.stringify(orderPayload)
     });
