@@ -202,14 +202,17 @@ export default function BookingDetails() {
       return { booking, paymentData };
       },
       onSuccess: ({ booking, paymentData }) => {
-      // Redirect using Cashfree's payment link format
-      // The payment_link is directly available from order creation response
-      if (paymentData.payment_link) {
-        window.location.href = paymentData.payment_link;
-      } else {
-        // Fallback: construct the payment link URL
-        window.location.href = `https://sandbox.cashfree.com/links/${paymentData.order_id}`;
-      }
+      // Load Cashfree JS SDK and redirect to checkout
+      const script = document.createElement('script');
+      script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+      script.onload = () => {
+        const cashfree = window.Cashfree({ mode: 'sandbox' });
+        cashfree.checkout({
+          paymentSessionId: paymentData.payment_session_id,
+          redirectTarget: '_self'
+        });
+      };
+      document.head.appendChild(script);
       },
     onError: (error) => {
       console.error('Booking creation failed:', error);
