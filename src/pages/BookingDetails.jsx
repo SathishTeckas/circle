@@ -202,9 +202,9 @@ export default function BookingDetails() {
       return { booking, paymentData };
       },
       onSuccess: ({ booking, paymentData }) => {
-      // Redirect to Cashfree payment page using the correct URL format
-      const cashfreePaymentUrl = `https://sandbox.cashfree.com/pg/view/order/${paymentData.order_id}?payment_session_id=${paymentData.payment_session_id}`;
-      window.location.href = cashfreePaymentUrl;
+      // Redirect to Cashfree payment link
+      // Using the payment_link format for sandbox
+      window.location.href = `https://sandbox.cashfree.com/pg/orders/${paymentData.order_id}/pay`;
       },
     onError: (error) => {
       console.error('Booking creation failed:', error);
