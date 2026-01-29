@@ -1,8 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 const CASHFREE_BASE_URL = 'https://sandbox.cashfree.com/pg';
-const CASHFREE_APP_ID = 'TEST10076577bac5365a72f4ee8a0e6d77567001';
-const CASHFREE_SECRET_KEY = 'cfsk_ma_test_4971d6c80baef07ba353e7264d96b3e4_6f2b91e6';
+const CASHFREE_APP_ID = Deno.env.get('CASHFREE_CLIENT_ID');
+const CASHFREE_SECRET_KEY = Deno.env.get('CASHFREE_CLIENT_SECRET');
 
 Deno.serve(async (req) => {
   try {
