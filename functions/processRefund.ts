@@ -6,16 +6,25 @@ const CASHFREE_SECRET_KEY = Deno.env.get('CASHFREE_CLIENT_SECRET');
 
 Deno.serve(async (req) => {
   try {
+    console.log('=== processRefund function called ===');
+    
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
+    console.log('User authenticated:', user?.email);
+
     if (!user) {
+      console.log('ERROR: Unauthorized - no user');
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { order_id, refund_amount, refund_reason, booking_id } = await req.json();
+    const body = await req.json();
+    const { order_id, refund_amount, refund_reason, booking_id } = body;
+    
+    console.log('Refund request received:', { order_id, refund_amount, refund_reason, booking_id });
 
     if (!order_id || !refund_amount) {
+      console.log('ERROR: Missing required fields');
       return Response.json({ error: 'order_id and refund_amount are required' }, { status: 400 });
     }
 
@@ -30,7 +39,17 @@ Deno.serve(async (req) => {
       refund_speed: 'STANDARD'
     };
 
-    console.log('Processing refund:', { order_id, refundPayload });
+    console.log('Cashfree API credentials check:', {
+      hasAppId: !!CASHFREE_APP_ID,
+      hasSecretKey: !!CASHFREE_SECRET_KEY,
+      appIdLength: CASHFREE_APP_ID?.length,
+      secretKeyLength: CASHFREE_SECRET_KEY?.length
+    });
+    
+    console.log('Calling Cashfree refund API:', {
+      url: `${CASHFREE_BASE_URL}/orders/${order_id}/refunds`,
+      payload: refundPayload
+    });
 
     const response = await fetch(`${CASHFREE_BASE_URL}/orders/${order_id}/refunds`, {
       method: 'POST',
