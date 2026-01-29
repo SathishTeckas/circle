@@ -126,14 +126,24 @@ export default function BookingView() {
       
       // Process refund via Cashfree if payment was made
       let refundResult = null;
+      console.log('Reject mutation - booking details:', {
+        payment_order_id: booking?.payment_order_id,
+        payment_status: booking?.payment_status,
+        total_amount: booking?.total_amount
+      });
+      
       if (booking?.payment_order_id && booking?.payment_status === 'paid') {
+        console.log('Calling processRefund API...');
         const { data } = await base44.functions.invoke('processRefund', {
           order_id: booking.payment_order_id,
           refund_amount: booking.total_amount,
           refund_reason: 'Booking rejected by companion',
           booking_id: bookingId
         });
+        console.log('Refund API response:', data);
         refundResult = data;
+      } else {
+        console.log('Refund not triggered - conditions not met');
       }
       
       await base44.entities.Booking.update(bookingId, { 
