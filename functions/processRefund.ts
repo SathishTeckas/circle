@@ -1,0 +1,72 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+
+const CASHFREE_BASE_URL = 'https://sandbox.cashfree.com/pg';
+const CASHFREE_APP_ID = 'TEST10076577bac5365a72f4ee8a0e6d77567001';
+const CASHFREE_SECRET_KEY = 'cfsk_ma_test_4971d6c80baef07ba353e7264d96b3e4_6f2b91e6';
+
+Deno.serve(async (req) => {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { order_id, refund_amount, refund_reason, booking_id } = await req.json();
+
+    if (!order_id || !refund_amount) {
+      return Response.json({ error: 'order_id and refund_amount are required' }, { status: 400 });
+    }
+
+    // Generate unique refund ID
+    const refundId = `refund_${booking_id || 'manual'}_${Date.now()}`;
+
+    // Process refund with Cashfree
+    const refundPayload = {
+      refund_amount: refund_amount,
+      refund_id: refundId,
+      refund_note: refund_reason || 'Booking cancelled/rejected',
+      refund_speed: 'STANDARD'
+    };
+
+    console.log('Processing refund:', { order_id, refundPayload });
+
+    const response = await fetch(`${CASHFREE_BASE_URL}/orders/${order_id}/refunds`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'x-client-id': CASHFREE_APP_ID,
+        'x-client-secret': CASHFREE_SECRET_KEY,
+        'x-api-version': '2025-01-01'
+      },
+      body: JSON.stringify(refundPayload)
+    });
+
+    const data = await response.json();
+
+    console.log('Cashfree refund response:', { status: response.status, data });
+
+    if (!response.ok) {
+      return Response.json({ 
+        error: data.message || 'Failed to process refund',
+        details: data
+      }, { status: response.status });
+    }
+
+    return Response.json({
+      success: true,
+      refund_id: data.refund_id,
+      cf_refund_id: data.cf_refund_id,
+      refund_status: data.refund_status,
+      refund_amount: data.refund_amount
+    });
+
+  } catch (error) {
+    console.error('Error in processRefund:', error);
+    return Response.json({ 
+      error: error.message || 'Internal server error' 
+    }, { status: 500 });
+  }
+});
