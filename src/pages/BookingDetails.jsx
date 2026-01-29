@@ -200,12 +200,12 @@ export default function BookingDetails() {
       });
 
       return { booking, paymentData };
-    },
-    onSuccess: ({ booking, paymentData }) => {
-      // Redirect to Cashfree payment page
-      const cashfreePaymentUrl = `https://sandbox.cashfree.com/pg/orders/pay/${paymentData.payment_session_id}`;
+      },
+      onSuccess: ({ booking, paymentData }) => {
+      // Redirect to Cashfree payment page using the correct URL format
+      const cashfreePaymentUrl = `https://sandbox.cashfree.com/pg/view/order/${paymentData.order_id}?payment_session_id=${paymentData.payment_session_id}`;
       window.location.href = cashfreePaymentUrl;
-    },
+      },
     onError: (error) => {
       console.error('Booking creation failed:', error);
       alert(error.message || 'Failed to create booking');

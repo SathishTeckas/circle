@@ -82,6 +82,7 @@ import MyBookings from './pages/MyBookings';
 import MyDisputes from './pages/MyDisputes';
 import Notifications from './pages/Notifications';
 import Onboarding from './pages/Onboarding';
+import PaymentCallback from './pages/PaymentCallback';
 import PrivacySafety from './pages/PrivacySafety';
 import Profile from './pages/Profile';
 import RaiseDispute from './pages/RaiseDispute';
@@ -92,7 +93,6 @@ import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
 import Welcome from './pages/Welcome';
-import PaymentCallback from './pages/PaymentCallback';
 import __Layout from './Layout.jsx';
 
 
@@ -132,6 +132,7 @@ export const PAGES = {
     "MyDisputes": MyDisputes,
     "Notifications": Notifications,
     "Onboarding": Onboarding,
+    "PaymentCallback": PaymentCallback,
     "PrivacySafety": PrivacySafety,
     "Profile": Profile,
     "RaiseDispute": RaiseDispute,
@@ -142,7 +143,6 @@ export const PAGES = {
     "UserProfile": UserProfile,
     "Wallet": Wallet,
     "Welcome": Welcome,
-    "PaymentCallback": PaymentCallback,
 }
 
 export const pagesConfig = {
