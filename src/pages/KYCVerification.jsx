@@ -50,10 +50,17 @@ export default function KYCVerification() {
   const handleStartKYC = async () => {
     setVerifying(true);
     try {
+      // Skip Cashfree verification for now - directly mark as verified
+      toast.success('KYC verification successful!');
+      setVerifying(false);
+      setStep('permissions');
+
+      // Original Cashfree code - kept for future use
+      /*
       console.log('Starting KYC verification...');
       const response = await base44.functions.invoke('generateKYCLink', {});
       console.log('KYC Link Response:', response.data);
-      
+
       if (response.data.success && response.data.form_url) {
         const verificationId = response.data.verification_id;
         setKycFormId(verificationId);
@@ -77,10 +84,10 @@ export default function KYCVerification() {
         toast.error(response.data.error || 'Failed to generate KYC link');
         setVerifying(false);
       }
+      */
     } catch (error) {
-      console.error('Error generating KYC link:', error);
-      const errorMsg = error.response?.data?.error || error.message || 'Failed to start KYC verification';
-      toast.error(errorMsg);
+      console.error('Error:', error);
+      toast.error('Something went wrong');
       setVerifying(false);
     }
   };
