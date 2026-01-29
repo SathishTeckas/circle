@@ -77,6 +77,7 @@ Deno.serve(async (req) => {
       order_id: data.order_id,
       cf_order_id: data.cf_order_id,
       payment_session_id: data.payment_session_id,
+      payment_link: data.payment_link,
       order_status: data.order_status,
       order_amount: data.order_amount
     });
