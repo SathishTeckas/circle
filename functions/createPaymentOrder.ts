@@ -28,13 +28,13 @@ Deno.serve(async (req) => {
       order_amount: amount,
       order_currency: 'INR',
       customer_details: {
-        customer_id: user.id,
-        customer_name: user.display_name || user.full_name || 'Customer',
+        customer_id: user.id.replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 50),
+        customer_name: (user.display_name || user.full_name || 'Customer').substring(0, 100),
         customer_email: user.email,
         customer_phone: user.phone_number || '9999999999'
       },
       order_meta: {
-        return_url: return_url || `${req.headers.get('origin')}/BookingView?id=${booking_id}&payment_status=success`,
+        return_url: return_url ? return_url.replace('{order_id}', orderId) : `${req.headers.get('origin')}/PaymentCallback?booking_id=${booking_id}&order_id=${orderId}`,
         notify_url: null
       },
       order_note: `Booking payment for ${booking_id}`
