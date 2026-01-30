@@ -12,6 +12,7 @@ import { createPageUrl } from '../utils';
 import { cn } from '@/lib/utils';
 
 export default function AdminCities() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [editingCity, setEditingCity] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
