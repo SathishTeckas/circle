@@ -166,6 +166,11 @@ export default function Wallet() {
   const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
   const campaignEarnings = campaignBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
   
+  // Calculate total withdrawn from completed payouts
+  const totalWithdrawn = payouts
+    .filter(p => p.status === 'completed')
+    .reduce((sum, p) => sum + p.amount, 0);
+  
   // Use wallet_balance from user profile for available balance
   const availableBalance = Math.max(0, (user?.wallet_balance || 0) - pendingPayouts - approvedPayouts);
 
