@@ -68,11 +68,11 @@ export default function MyBookings() {
   const displayBookings = activeTab === 'upcoming' ? upcomingBookings : pastBookings;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-white border-b border-slate-100 px-4 py-4">
+      <div className="bg-white border-b px-4 py-4" style={{ borderColor: '#DFE6E9' }}>
         <div className="max-w-lg mx-auto">
-          <h1 className="text-2xl font-bold text-slate-900 mb-4">My Bookings</h1>
+          <h1 className="text-2xl font-extrabold mb-4" style={{ color: '#2D3436' }}>My Bookings</h1>
           
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="w-full bg-slate-100 p-1 rounded-xl">
@@ -103,13 +103,13 @@ export default function MyBookings() {
           </div>
         ) : displayBookings.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Calendar className="w-8 h-8 text-slate-400" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#FFF3B8' }}>
+              <Calendar className="w-8 h-8" style={{ color: '#2D3436' }} />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">
+            <h3 className="text-lg font-bold mb-2" style={{ color: '#2D3436' }}>
               No {activeTab} bookings
             </h3>
-            <p className="text-slate-600">
+            <p style={{ color: '#636E72' }}>
               {activeTab === 'upcoming' 
                 ? 'Start by discovering companions'
                 : 'Your completed bookings will appear here'

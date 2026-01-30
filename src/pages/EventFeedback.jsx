@@ -128,22 +128,24 @@ export default function EventFeedback() {
 
   if (!eventId || !user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8F9FA' }}>
+        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   if (existingFeedback) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-        <Card className="p-8 text-center max-w-md">
-          <CheckCircle className="w-16 h-16 text-emerald-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Thank You!</h2>
-          <p className="text-slate-600 mb-6">You've already submitted feedback for this event.</p>
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
+        <Card className="p-8 text-center max-w-md" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+          <CheckCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#4ECDC4' }} />
+          <h2 className="text-2xl font-extrabold mb-2" style={{ color: '#2D3436' }}>Thank You!</h2>
+          <p className="mb-6" style={{ color: '#636E72' }}>You've already submitted feedback for this event.</p>
           <Button
             onClick={() => window.location.href = createPageUrl('GroupEvents')}
             variant="outline"
+            className="font-bold"
+            style={{ borderColor: '#DFE6E9', color: '#2D3436' }}
           >
             Back to Events
           </Button>
@@ -154,26 +156,27 @@ export default function EventFeedback() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
         >
-          <Card className="p-8 text-center max-w-md">
+          <Card className="p-8 text-center max-w-md" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring" }}
             >
-              <CheckCircle className="w-16 h-16 text-emerald-600 mx-auto mb-4" />
+              <CheckCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#4ECDC4' }} />
             </motion.div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">Feedback Submitted!</h2>
-            <p className="text-slate-600 mb-6">
+            <h2 className="text-2xl font-extrabold mb-2" style={{ color: '#2D3436' }}>Feedback Submitted!</h2>
+            <p className="mb-6" style={{ color: '#636E72' }}>
               Thank you for helping us improve future events. Your insights will help us create better matches.
             </p>
             <Button
               onClick={() => window.location.href = createPageUrl('GroupEvents')}
-              className="bg-violet-600 hover:bg-violet-700"
+              className="font-bold"
+              style={{ background: '#FFD93D', color: '#2D3436' }}
             >
               Explore More Events
             </Button>
@@ -184,23 +187,24 @@ export default function EventFeedback() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen pb-20" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-violet-600 to-fuchsia-600 px-4 pt-8 pb-12">
+      <div className="px-4 pt-8 pb-12" style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FFB347 100%)' }}>
         <div className="max-w-lg mx-auto">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => window.location.href = createPageUrl('GroupEvents')}
-            className="text-white hover:bg-white/20 mb-4"
+            className="mb-4 hover:opacity-80"
+            style={{ color: '#2D3436' }}
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-3 mb-2">
-            <Sparkles className="w-6 h-6 text-white" />
-            <h1 className="text-2xl font-bold text-white">Event Feedback</h1>
+            <Sparkles className="w-6 h-6" style={{ color: '#2D3436' }} />
+            <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>Event Feedback</h1>
           </div>
-          <p className="text-violet-100">{event?.title}</p>
+          <p style={{ color: 'rgba(45,52,54,0.7)' }}>{event?.title}</p>
         </div>
       </div>
 
@@ -410,7 +414,8 @@ export default function EventFeedback() {
           <Button
             onClick={() => submitMutation.mutate()}
             disabled={submitMutation.isPending || !formData.event_rating || !formData.matching_quality}
-            className="w-full h-12 bg-violet-600 hover:bg-violet-700 rounded-xl"
+            className="w-full h-12 rounded-xl font-bold"
+            style={{ background: '#FFD93D', color: '#2D3436' }}
           >
             <Send className="w-4 h-4 mr-2" />
             {submitMutation.isPending ? 'Submitting...' : 'Submit Feedback'}

@@ -75,28 +75,29 @@ export default function PaymentCallback() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
+    <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
+      <div className="max-w-md w-full bg-white rounded-2xl p-8 text-center" style={{ boxShadow: '0 4px 16px rgba(45, 52, 54, 0.12)' }}>
         {status === 'verifying' && (
           <>
-            <Loader2 className="w-16 h-16 text-violet-600 animate-spin mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-slate-900 mb-2">Verifying Payment</h2>
-            <p className="text-slate-600">Please wait while we confirm your payment...</p>
+            <Loader2 className="w-16 h-16 animate-spin mx-auto mb-4" style={{ color: '#FFD93D' }} />
+            <h2 className="text-xl font-bold mb-2" style={{ color: '#2D3436' }}>Verifying Payment</h2>
+            <p style={{ color: '#636E72' }}>Please wait while we confirm your payment...</p>
           </>
         )}
 
         {status === 'success' && (
           <>
-            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-10 h-10 text-emerald-600" />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#4ECDC4' }}>
+              <CheckCircle className="w-10 h-10" style={{ color: '#FFFFFF' }} />
             </div>
-            <h2 className="text-xl font-semibold text-slate-900 mb-2">Payment Successful!</h2>
-            <p className="text-slate-600 mb-4">Your booking request has been sent to the companion.</p>
-            <p className="text-sm text-slate-500 mb-4">Redirecting to booking details...</p>
+            <h2 className="text-xl font-bold mb-2" style={{ color: '#2D3436' }}>Payment Successful!</h2>
+            <p className="mb-4" style={{ color: '#636E72' }}>Your booking request has been sent to the companion.</p>
+            <p className="text-sm mb-4" style={{ color: '#B2BEC3' }}>Redirecting to booking details...</p>
             <Button
               onClick={() => window.location.href = createPageUrl('Discover')}
               variant="outline"
-              className="w-full h-12 rounded-xl"
+              className="w-full h-12 rounded-xl font-bold"
+              style={{ borderColor: '#DFE6E9', color: '#2D3436' }}
             >
               Go to Home
             </Button>
@@ -105,14 +106,15 @@ export default function PaymentCallback() {
 
         {status === 'failed' && (
           <>
-            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <XCircle className="w-10 h-10 text-red-600" />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#FF6B6B' }}>
+              <XCircle className="w-10 h-10" style={{ color: '#FFFFFF' }} />
             </div>
-            <h2 className="text-xl font-semibold text-slate-900 mb-2">Payment Failed</h2>
-            <p className="text-slate-600 mb-4">{error || 'Something went wrong with your payment.'}</p>
+            <h2 className="text-xl font-bold mb-2" style={{ color: '#2D3436' }}>Payment Failed</h2>
+            <p className="mb-4" style={{ color: '#636E72' }}>{error || 'Something went wrong with your payment.'}</p>
             <Button
               onClick={() => window.history.back()}
-              className="w-full h-12 bg-violet-600 hover:bg-violet-700 rounded-xl"
+              className="w-full h-12 rounded-xl font-bold"
+              style={{ background: '#FFD93D', color: '#2D3436' }}
             >
               Try Again
             </Button>

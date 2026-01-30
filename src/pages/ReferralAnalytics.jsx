@@ -145,54 +145,55 @@ export default function ReferralAnalytics() {
   const isLoading = referralsLoading || usersLoading;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-violet-600 to-fuchsia-600 px-4 pt-6 pb-12">
+      <div className="px-4 pt-6 pb-12" style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FFB347 100%)' }}>
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <button
               onClick={() => window.history.back()}
-              className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+              className="w-10 h-10 rounded-full flex items-center justify-center hover:opacity-80 transition-colors"
+              style={{ background: 'rgba(255,255,255,0.3)' }}
             >
-              <ArrowLeft className="w-5 h-5 text-white" />
+              <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
             </button>
-            <h1 className="text-2xl font-bold text-white">Referral Analytics</h1>
+            <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>Referral Analytics</h1>
           </div>
 
           {/* Key Metrics */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            <Card className="p-4 bg-white/10 backdrop-blur border-white/20 text-white">
+            <Card className="p-4 backdrop-blur" style={{ background: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.5)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <Users className="w-4 h-4 text-white/70" />
-                <p className="text-xs text-white/70">Total Referrals</p>
+                <Users className="w-4 h-4" style={{ color: '#2D3436' }} />
+                <p className="text-xs" style={{ color: 'rgba(45,52,54,0.7)' }}>Total Referrals</p>
               </div>
-              <p className="text-2xl font-bold">{analytics.total}</p>
+              <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{analytics.total}</p>
             </Card>
 
-            <Card className="p-4 bg-white/10 backdrop-blur border-white/20 text-white">
+            <Card className="p-4 backdrop-blur" style={{ background: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.5)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <CheckCircle className="w-4 h-4 text-white/70" />
-                <p className="text-xs text-white/70">Successful</p>
+                <CheckCircle className="w-4 h-4" style={{ color: '#2D3436' }} />
+                <p className="text-xs" style={{ color: 'rgba(45,52,54,0.7)' }}>Successful</p>
               </div>
-              <p className="text-2xl font-bold">{analytics.successful}</p>
-              <p className="text-xs text-white/60 mt-1">{analytics.conversionRate}% conversion</p>
+              <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{analytics.successful}</p>
+              <p className="text-xs mt-1" style={{ color: 'rgba(45,52,54,0.6)' }}>{analytics.conversionRate}% conversion</p>
             </Card>
 
-            <Card className="p-4 bg-white/10 backdrop-blur border-white/20 text-white">
+            <Card className="p-4 backdrop-blur" style={{ background: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.5)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="w-4 h-4 text-white/70" />
-                <p className="text-xs text-white/70">Earnings</p>
+                <DollarSign className="w-4 h-4" style={{ color: '#2D3436' }} />
+                <p className="text-xs" style={{ color: 'rgba(45,52,54,0.7)' }}>Earnings</p>
               </div>
-              <p className="text-2xl font-bold">₹{analytics.earnings}</p>
+              <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>₹{analytics.earnings}</p>
             </Card>
 
-            <Card className="p-4 bg-white/10 backdrop-blur border-white/20 text-white">
+            <Card className="p-4 backdrop-blur" style={{ background: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.5)' }}>
               <div className="flex items-center gap-2 mb-2">
-                <Activity className="w-4 h-4 text-white/70" />
-                <p className="text-xs text-white/70">Engaged</p>
+                <Activity className="w-4 h-4" style={{ color: '#2D3436' }} />
+                <p className="text-xs" style={{ color: 'rgba(45,52,54,0.7)' }}>Engaged</p>
               </div>
-              <p className="text-2xl font-bold">{analytics.withBookings}</p>
-              <p className="text-xs text-white/60 mt-1">{analytics.engagementRate}% active</p>
+              <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{analytics.withBookings}</p>
+              <p className="text-xs mt-1" style={{ color: 'rgba(45,52,54,0.6)' }}>{analytics.engagementRate}% active</p>
             </Card>
           </div>
         </div>
