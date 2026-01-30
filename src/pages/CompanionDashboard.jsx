@@ -91,10 +91,8 @@ export default function CompanionDashboard() {
       }, '-created_date', 20);
     },
     enabled: !!user?.id,
-    staleTime: 0,
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true
   });
 
   const { data: upcomingBookings = [] } = useQuery({
@@ -115,9 +113,8 @@ export default function CompanionDashboard() {
       });
     },
     enabled: !!user?.id,
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: true
   });
 
   const { data: completedBookings = [] } = useQuery({
@@ -130,7 +127,7 @@ export default function CompanionDashboard() {
       }, '-created_date', 100);
     },
     enabled: !!user?.id,
-    staleTime: 10 * 60 * 1000
+    staleTime: 5 * 60 * 1000
   });
 
   const { data: payouts = [] } = useQuery({
@@ -141,15 +138,21 @@ export default function CompanionDashboard() {
       }, '-created_date', 50);
     },
     enabled: !!user?.id,
-    staleTime: 2 * 60 * 1000
+    staleTime: 5 * 60 * 1000
+  });
+
+  const { data: systemRewardAmount = 100 } = useQuery({
+    queryKey: ['system-reward-amount'],
+    queryFn: async () => {
+      const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
+      return systemCampaign[0]?.referral_reward_amount || 100;
+    },
+    staleTime: 10 * 60 * 1000
   });
 
   const { data: referrals = [] } = useQuery({
-    queryKey: ['referrals', user?.id],
+    queryKey: ['referrals', user?.id, systemRewardAmount],
     queryFn: async () => {
-      const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
-      const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
-      
       const allReferrals = await base44.entities.Referral.filter({ 
         referrer_id: user.id,
         referral_type: 'user_referral'
@@ -157,7 +160,7 @@ export default function CompanionDashboard() {
       
       return allReferrals
         .filter(r => ['completed', 'rewarded'].includes(r.status))
-        .map(r => ({ ...r, reward_amount: rewardAmount }));
+        .map(r => ({ ...r, reward_amount: systemRewardAmount }));
     },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000
@@ -171,7 +174,6 @@ export default function CompanionDashboard() {
         status: 'available' 
       }, '-created_date', 10);
       
-      // Filter out past availabilities
       const now = new Date();
       return availabilities.filter(a => {
         if (!a.date || !a.end_time) return false;
@@ -179,10 +181,8 @@ export default function CompanionDashboard() {
         const availDate = new Date(a.date);
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         
-        // If date is in the past
         if (availDate < todayStart) return false;
         
-        // If date is today, check if time has passed
         if (availDate.toDateString() === now.toDateString()) {
           const [endHour, endMinute] = a.end_time.split(':').map(Number);
           const currentHour = now.getHours();
@@ -194,9 +194,7 @@ export default function CompanionDashboard() {
       });
     },
     enabled: !!user?.id,
-    staleTime: 2 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false
+    staleTime: 2 * 60 * 1000
   });
 
   const pendingPayouts = payouts

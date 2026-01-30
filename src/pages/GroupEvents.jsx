@@ -49,7 +49,8 @@ export default function GroupEvents() {
       const query = { status: 'open' };
       if (filters.city) query.city = filters.city;
       return await base44.entities.GroupEvent.filter(query, 'date', 20);
-    }
+    },
+    staleTime: 2 * 60 * 1000
   });
 
   const { data: myParticipations = [] } = useQuery({
@@ -57,7 +58,8 @@ export default function GroupEvents() {
     queryFn: async () => {
       return await base44.entities.GroupParticipant.filter({ user_id: user.id }, '-created_date', 20);
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    staleTime: 2 * 60 * 1000
   });
 
   const myEventIds = myParticipations.map(p => p.event_id);

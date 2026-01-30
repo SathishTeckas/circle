@@ -70,7 +70,8 @@ export default function Wallet() {
         escrow_status: 'released'
       }, '-created_date', 50);
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    staleTime: 2 * 60 * 1000
   });
 
   const { data: pendingBookings = [] } = useQuery({
@@ -82,7 +83,8 @@ export default function Wallet() {
         escrow_status: 'held'
       }, '-created_date', 50);
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    staleTime: 2 * 60 * 1000
   });
 
   const { data: payouts = [] } = useQuery({
@@ -93,16 +95,21 @@ export default function Wallet() {
      }, '-created_date', 100);
    },
    enabled: !!user?.id,
-   staleTime: 5 * 60 * 1000
+   staleTime: 2 * 60 * 1000
   });
 
-  // Referrals where user is the REFERRER (they shared their code)
-  const { data: referralsAsReferrer = [] } = useQuery({
-   queryKey: ['referrals-as-referrer', user?.id],
-   queryFn: async () => {
-     const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
-     const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
+  const { data: systemRewardAmount = 100 } = useQuery({
+    queryKey: ['system-reward-amount'],
+    queryFn: async () => {
+      const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
+      return systemCampaign[0]?.referral_reward_amount || 100;
+    },
+    staleTime: 10 * 60 * 1000
+  });
 
+  const { data: referralsAsReferrer = [] } = useQuery({
+   queryKey: ['referrals-as-referrer', user?.id, systemRewardAmount],
+   queryFn: async () => {
      const allReferrals = await base44.entities.Referral.filter({
        referrer_id: user.id,
        referral_type: 'user_referral'
@@ -110,19 +117,15 @@ export default function Wallet() {
 
      return allReferrals
        .filter(r => ['completed', 'rewarded'].includes(r.status))
-       .map(r => ({ ...r, reward_amount: rewardAmount, display_name: r.referee_name, referral_role: 'referrer' }));
+       .map(r => ({ ...r, reward_amount: systemRewardAmount, display_name: r.referee_name, referral_role: 'referrer' }));
    },
    enabled: !!user?.id,
    staleTime: 5 * 60 * 1000
   });
 
-  // Referrals where user is the REFEREE (they used someone's code)
   const { data: referralsAsReferee = [] } = useQuery({
-   queryKey: ['referrals-as-referee', user?.id],
+   queryKey: ['referrals-as-referee', user?.id, systemRewardAmount],
    queryFn: async () => {
-     const systemCampaign = await base44.entities.CampaignReferral.filter({ code: 'SYSTEM' });
-     const rewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
-
      const allReferrals = await base44.entities.Referral.filter({
        referee_id: user.id,
        referral_type: 'user_referral'
@@ -130,13 +133,12 @@ export default function Wallet() {
 
      return allReferrals
        .filter(r => ['completed', 'rewarded'].includes(r.status))
-       .map(r => ({ ...r, reward_amount: rewardAmount, display_name: r.referrer_name, referral_role: 'referee' }));
+       .map(r => ({ ...r, reward_amount: systemRewardAmount, display_name: r.referrer_name, referral_role: 'referee' }));
    },
    enabled: !!user?.id,
    staleTime: 5 * 60 * 1000
   });
 
-  // Combine both referral types
   const referrals = [...referralsAsReferrer, ...referralsAsReferee];
 
   const { data: campaignBonuses = [] } = useQuery({

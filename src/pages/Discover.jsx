@@ -87,14 +87,14 @@ export default function Discover() {
       
       let results = await base44.entities.Availability.filter(query, '-created_date', 50);
       
-      // Filter by area if specified, including "Any Area" companions
       if (filters.area) {
         results = results.filter(a => a.area === filters.area || a.area === 'Any Area');
       }
       
       return results;
     },
-    staleTime: 30000
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false
   });
 
   const { data: companionUsers = [] } = useQuery({
@@ -103,7 +103,8 @@ export default function Discover() {
       return await base44.entities.User.filter({ user_role: 'companion' }, '-created_date', 200);
     },
     enabled: !!user,
-    staleTime: 10 * 60 * 1000
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000
   });
 
   // Check if availability has at least 1 hour remaining
