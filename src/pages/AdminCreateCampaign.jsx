@@ -57,7 +57,7 @@ export default function AdminCreateCampaign() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
+    <div className="min-h-screen p-4 md:p-8" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -66,17 +66,18 @@ export default function AdminCreateCampaign() {
             size="icon"
             onClick={() => navigate(createPageUrl('AdminCampaignReferrals'))}
             className="rounded-xl"
+            style={{ color: '#2D3436' }}
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Create Campaign Code</h1>
-            <p className="text-slate-600 mt-1">Set up a new referral campaign</p>
+            <h1 className="text-3xl font-extrabold" style={{ color: '#2D3436' }}>Create Campaign Code</h1>
+            <p className="mt-1" style={{ color: '#636E72' }}>Set up a new referral campaign</p>
           </div>
         </div>
 
         {/* Form Card */}
-        <Card className="p-8">
+        <Card className="p-8" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Campaign Name */}
             <div>
@@ -132,10 +133,10 @@ export default function AdminCreateCampaign() {
             </div>
 
             {/* Referral Incentive Section */}
-            <div className="border-t pt-6">
+            <div className="border-t pt-6" style={{ borderColor: '#DFE6E9' }}>
               <div className="flex items-center gap-2 mb-6">
-                <Gift className="w-5 h-5 text-violet-600" />
-                <label className="text-base font-semibold text-slate-900">Referral Incentive</label>
+                <Gift className="w-5 h-5" style={{ color: '#FFB347' }} />
+                <label className="text-base font-bold" style={{ color: '#2D3436' }}>Referral Incentive</label>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
@@ -178,12 +179,13 @@ export default function AdminCreateCampaign() {
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-3 pt-6 border-t">
+            <div className="flex gap-3 pt-6 border-t" style={{ borderColor: '#DFE6E9' }}>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate(createPageUrl('AdminCampaignReferrals'))}
-                className="flex-1 h-12 rounded-xl"
+                className="flex-1 h-12 rounded-xl font-bold"
+                style={{ borderColor: '#DFE6E9', color: '#2D3436' }}
                 disabled={createMutation.isPending}
               >
                 Cancel
@@ -191,10 +193,11 @@ export default function AdminCreateCampaign() {
               <Button
                 type="submit"
                 disabled={!formData.code || !formData.campaign_name || createMutation.isPending}
-                className="flex-1 h-12 bg-violet-600 hover:bg-violet-700 rounded-xl text-base font-semibold"
+                className="flex-1 h-12 rounded-xl text-base font-bold"
+                style={{ background: '#FFD93D', color: '#2D3436' }}
               >
                 {createMutation.isPending ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#2D3436', borderTopColor: 'transparent' }} />
                 ) : (
                   'Create Campaign'
                 )}

@@ -58,8 +58,8 @@ export default function DisputeDetailsDialog({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 flex-shrink-0">
-          <DialogTitle>Dispute Details</DialogTitle>
+        <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0" style={{ borderColor: '#DFE6E9' }}>
+          <DialogTitle className="font-extrabold" style={{ color: '#2D3436' }}>Dispute Details</DialogTitle>
           <DialogDescription className="sr-only">
             View and resolve dispute details
           </DialogDescription>
@@ -68,41 +68,41 @@ export default function DisputeDetailsDialog({
         <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1">
           {!isContentReady ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-6 h-6 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
             </div>
           ) : (
             <>
           {/* Parties */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="border border-slate-200 rounded-lg p-3">
-              <Label className="text-slate-600 text-xs">Raised By</Label>
-              <p className="font-semibold text-slate-900">{dispute.raised_by_name}</p>
-              <Badge variant="outline" className="mt-1 capitalize text-xs">
+            <div className="border rounded-lg p-3" style={{ borderColor: '#DFE6E9' }}>
+              <Label className="text-xs" style={{ color: '#636E72' }}>Raised By</Label>
+              <p className="font-bold" style={{ color: '#2D3436' }}>{dispute.raised_by_name}</p>
+              <Badge variant="outline" className="mt-1 capitalize text-xs font-bold" style={{ borderColor: '#DFE6E9', color: '#2D3436' }}>
                 {dispute.raised_by_role}
               </Badge>
             </div>
-            <div className="border border-slate-200 rounded-lg p-3">
-              <Label className="text-slate-600 text-xs">Against</Label>
-              <p className="font-semibold text-slate-900">{dispute.against_user_name}</p>
+            <div className="border rounded-lg p-3" style={{ borderColor: '#DFE6E9' }}>
+              <Label className="text-xs" style={{ color: '#636E72' }}>Against</Label>
+              <p className="font-bold" style={{ color: '#2D3436' }}>{dispute.against_user_name}</p>
             </div>
           </div>
 
           {/* Booking Info */}
           {booking && (
-            <Card className="p-3 bg-slate-50">
-              <Label className="text-slate-600 text-xs mb-2 block">Booking Details</Label>
-              <div className="space-y-1 text-sm">
+            <Card className="p-3" style={{ background: '#FFF3B8', border: 'none' }}>
+              <Label className="text-xs mb-2 block" style={{ color: '#636E72' }}>Booking Details</Label>
+              <div className="space-y-1 text-sm" style={{ color: '#2D3436' }}>
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-slate-500" />
+                  <Calendar className="w-4 h-4" style={{ color: '#FFB347' }} />
                   <span>{booking.date ? format(new Date(booking.date), 'MMM d, yyyy') : 'N/A'}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-slate-500" />
+                  <MapPin className="w-4 h-4" style={{ color: '#FF6B6B' }} />
                   <span>{booking.area}, {booking.city}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <IndianRupee className="w-4 h-4 text-slate-500" />
-                  <span className="font-semibold">{formatCurrency(booking.total_amount)}</span>
+                  <IndianRupee className="w-4 h-4" style={{ color: '#4ECDC4' }} />
+                  <span className="font-bold">{formatCurrency(booking.total_amount)}</span>
                 </div>
               </div>
             </Card>
@@ -227,20 +227,22 @@ export default function DisputeDetailsDialog({
 
         {/* Action Buttons */}
         {dispute.status !== 'resolved' && isContentReady && (
-          <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0 bg-white">
+          <div className="px-6 py-4 border-t flex-shrink-0 bg-white" style={{ borderColor: '#DFE6E9' }}>
             <div className="flex gap-3">
               <Button
                 onClick={() => onResolve(dispute, 'Resolved in favor of companion', parseFloat(refund) || 0, notes)}
                 disabled={!notes.trim() || isPending}
                 variant="outline"
-                className="flex-1 h-12 rounded-xl"
+                className="flex-1 h-12 rounded-xl font-bold"
+                style={{ borderColor: '#DFE6E9', color: '#2D3436' }}
               >
                 Favor Companion
               </Button>
               <Button
                 onClick={() => onResolve(dispute, 'Resolved in favor of seeker', parseFloat(refund) || 0, notes)}
                 disabled={!notes.trim() || isPending}
-                className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
+                className="flex-1 h-12 rounded-xl font-bold"
+                style={{ background: '#FFD93D', color: '#2D3436' }}
               >
                 Favor Seeker
               </Button>
