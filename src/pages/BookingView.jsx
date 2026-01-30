@@ -194,6 +194,7 @@ export default function BookingView() {
   const cancelMutation = useMutation({
     mutationFn: async ({ refundPercentage }) => {
       const refundAmount = ((booking?.total_amount || 0) * refundPercentage) / 100;
+      const companionCompensation = (booking?.base_price || 0) - ((booking?.base_price || 0) * refundPercentage / 100);
       
       // Process refund via Cashfree if payment was made and refund percentage > 0
       let refundResult = null;
@@ -221,11 +222,48 @@ export default function BookingView() {
       }
       const isSeeker = user?.id === booking?.seeker_id;
       const otherUserId = isSeeker ? booking?.companion_id : booking?.seeker_id;
+      
+      // If seeker cancelled and companion gets compensation, update wallet
+      if (isSeeker && companionCompensation > 0) {
+        const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
+        const companion = companionResponse.data.user;
+        const currentWalletBalance = companion?.wallet_balance || 0;
+        const newWalletBalance = currentWalletBalance + companionCompensation;
+        
+        await base44.entities.User.update(booking.companion_id, {
+          wallet_balance: newWalletBalance
+        });
+
+        // Create wallet transaction for companion compensation
+        await base44.entities.WalletTransaction.create({
+          user_id: booking.companion_id,
+          transaction_type: 'booking_earning',
+          amount: companionCompensation,
+          balance_before: currentWalletBalance,
+          balance_after: newWalletBalance,
+          reference_id: bookingId,
+          reference_type: 'Booking',
+          description: `Cancellation compensation from ${booking?.seeker_name || 'guest'}`,
+          status: 'completed'
+        });
+
+        // Notify companion about compensation
+        await base44.entities.Notification.create({
+          user_id: booking?.companion_id,
+          type: 'payment_received',
+          title: '💰 Cancellation Compensation',
+          message: `You received ${formatCurrency(companionCompensation)} as compensation for the cancelled booking`,
+          amount: companionCompensation,
+          booking_id: bookingId,
+          action_url: createPageUrl('Wallet')
+        });
+      }
+
       await base44.entities.Notification.create({
         user_id: otherUserId,
         type: 'booking_cancelled',
         title: '❌ Booking Cancelled',
-        message: `${user?.display_name || user?.full_name} cancelled the booking${refundPercentage === 100 ? ' (Full refund issued)' : ''}`,
+        message: `${user?.display_name || user?.full_name} cancelled the booking${refundPercentage === 100 ? ' (Full refund issued)' : isSeeker && companionCompensation > 0 ? ` (You received ${formatCurrency(companionCompensation)} compensation)` : ''}`,
         booking_id: bookingId,
         action_url: createPageUrl('CalendarView')
       });
