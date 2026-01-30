@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Primary Palette - Warm & Friendly */
+  --honey: #FFD93D;
+  --honey-light: #FFF3B8;
+  --honey-dark: #E6C235;
+
+  /* Secondary Colors */
+  --peach: #FFB347;
+  --coral: #FF6B6B;
+  --mint: #4ECDC4;
+  --lavender: #A8A4FF;
+  --sky: #74B9FF;
+
+  /* Neutrals */
+  --ink: #2D3436;
+  --charcoal: #636E72;
+  --stone: #B2BEC3;
+  --cloud: #DFE6E9;
+  --snow: #F8F9FA;
+  --white: #FFFFFF;
+
+  /* Semantic */
+  --success: #00B894;
+  --warning: #FDCB6E;
+  --error: #E17055;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(45, 52, 54, 0.08);
+  --shadow-md: 0 4px 16px rgba(45, 52, 54, 0.12);
+  --shadow-lg: 0 8px 32px rgba(45, 52, 54, 0.16);
+  --shadow-card: 0 -4px 24px rgba(45, 52, 54, 0.08);
+
+  /* Shadcn overrides */
+  --background: 248 249 250;
+  --foreground: 45 52 54;
+  --card: 255 255 255;
+  --card-foreground: 45 52 54;
+  --popover: 255 255 255;
+  --popover-foreground: 45 52 54;
+  --primary: 255 217 61;
+  --primary-foreground: 45 52 54;
+  --secondary: 223 230 233;
+  --secondary-foreground: 45 52 54;
+  --muted: 223 230 233;
+  --muted-foreground: 99 110 114;
+  --accent: 255 179 71;
+  --accent-foreground: 45 52 54;
+  --destructive: 225 112 85;
+  --destructive-foreground: 255 255 255;
+  --border: 223 230 233;
+  --input: 223 230 233;
+  --ring: 255 217 61;
+  --radius: 12px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--snow);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Button Styles */
+.btn-honey {
+  background: var(--honey) !important;
+  color: var(--ink) !important;
+  font-weight: 700;
+}
+
+.btn-honey:hover {
+  background: var(--honey-dark) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-ink {
+  background: var(--ink) !important;
+  color: var(--white) !important;
+  font-weight: 700;
+}
+
+.btn-ink:hover {
+  background: var(--charcoal) !important;
+}
+
+/* Card Styles */
+.card-warm {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: none;
+}
+
+/* Badge Colors */
+.badge-honey {
+  background: var(--honey) !important;
+  color: var(--ink) !important;
+}
+
+.badge-peach {
+  background: var(--peach) !important;
+  color: var(--ink) !important;
+}
+
+.badge-mint {
+  background: var(--mint) !important;
+  color: var(--ink) !important;
+}
+
+.badge-lavender {
+  background: var(--lavender) !important;
+  color: var(--white) !important;
+}
+
+.badge-coral {
+  background: var(--coral) !important;
+  color: var(--white) !important;
+}
+
+.badge-sky {
+  background: var(--sky) !important;
+  color: var(--ink) !important;
+}
+
+/* Input Focus Styles */
+input:focus, textarea:focus, select:focus {
+  border-color: var(--honey) !important;
+  box-shadow: 0 0 0 4px var(--honey-light) !important;
+  outline: none !important;
+}
+
+/* Typography */
+.type-h1 { font-size: 32px; font-weight: 800; }
+.type-h2 { font-size: 24px; font-weight: 700; }
+.type-h3 { font-size: 20px; font-weight: 700; }
+.type-body { font-size: 16px; font-weight: 500; }
+.type-body-sm { font-size: 14px; font-weight: 500; color: var(--charcoal); }
+.type-caption { font-size: 12px; font-weight: 600; color: var(--stone); }
+
+/* Gradient backgrounds */
+.bg-gradient-warm {
+  background: linear-gradient(135deg, var(--honey) 0%, var(--peach) 100%);
+}
+
+.bg-gradient-coral {
+  background: linear-gradient(135deg, var(--coral) 0%, var(--peach) 100%);
+}
+
+.bg-gradient-mint {
+  background: linear-gradient(135deg, var(--mint) 0%, var(--sky) 100%);
+}
+
+.bg-gradient-lavender {
+  background: linear-gradient(135deg, var(--lavender) 0%, var(--sky) 100%);
+}
+
+/* Safe area for mobile */
+.safe-bottom {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-20 {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cloud);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--stone);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--charcoal);
+}

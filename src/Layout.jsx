@@ -51,8 +51,8 @@ export default function Layout({ children, currentPageName }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8F9FA' }}>
+        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
       </div>
     );
   }
@@ -119,20 +119,14 @@ export default function Layout({ children, currentPageName }) {
   // Admin web layout
   if (isAdmin && !hideNav) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        <style>{`
-          :root {
-            --primary: 139 92 246;
-            --primary-foreground: 255 255 255;
-          }
-        `}</style>
+      <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', -apple-system, BlinkMacSystemFont, sans-serif" }}>
         
         {/* Desktop Sidebar */}
         <aside className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
-          <div className="flex flex-col flex-grow bg-white border-r border-slate-200 overflow-y-auto">
+          <div className="flex flex-col flex-grow bg-white border-r overflow-y-auto" style={{ borderColor: '#DFE6E9' }}>
             {/* Logo */}
-            <div className="flex items-center justify-between h-16 px-6 border-b border-slate-100">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+            <div className="flex items-center justify-between h-16 px-6 border-b" style={{ borderColor: '#DFE6E9' }}>
+              <h1 className="text-xl font-extrabold" style={{ color: '#2D3436' }}>
                 Circle Admin
               </h1>
               <NotificationCenter />
@@ -151,12 +145,11 @@ export default function Layout({ children, currentPageName }) {
                   <Link
                     key={item.page}
                     to={createPageUrl(item.page)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
-                      isActive 
-                        ? "bg-violet-50 text-violet-600" 
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    )}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all"
+                    style={{
+                      background: isActive ? '#FFF3B8' : 'transparent',
+                      color: isActive ? '#2D3436' : '#636E72'
+                    }}
                   >
                     <item.icon className="w-5 h-5" />
                     {item.name}
@@ -166,14 +159,14 @@ export default function Layout({ children, currentPageName }) {
             </nav>
 
             {/* User Profile */}
-            <div className="p-4 border-t border-slate-100">
+            <div className="p-4 border-t" style={{ borderColor: '#DFE6E9' }}>
               <div className="flex items-center gap-3 px-3 py-2">
-                <div className="w-8 h-8 bg-violet-100 rounded-full flex items-center justify-center">
-                  <Shield className="w-4 h-4 text-violet-600" />
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#FFD93D' }}>
+                  <Shield className="w-4 h-4" style={{ color: '#2D3436' }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate">{user?.display_name || user?.full_name || 'Admin'}</p>
-                  <p className="text-xs text-slate-500">Administrator</p>
+                  <p className="text-sm font-bold truncate" style={{ color: '#2D3436' }}>{user?.display_name || user?.full_name || 'Admin'}</p>
+                  <p className="text-xs" style={{ color: '#636E72' }}>Administrator</p>
                 </div>
               </div>
             </div>
@@ -181,7 +174,7 @@ export default function Layout({ children, currentPageName }) {
         </aside>
 
         {/* Mobile Bottom Nav */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 z-50">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-50" style={{ borderColor: '#DFE6E9' }}>
           <div className="flex justify-around items-center h-16 max-w-lg mx-auto overflow-x-auto">
             {adminNav.map((item) => {
               const isActive = currentPageName === item.page;
@@ -189,18 +182,11 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
-                  className={cn(
-                    "flex flex-col items-center justify-center w-full h-full transition-all",
-                    isActive 
-                      ? "text-violet-600" 
-                      : "text-slate-400 hover:text-slate-600"
-                  )}
+                  className="flex flex-col items-center justify-center w-full h-full transition-all"
+                  style={{ color: isActive ? '#2D3436' : '#B2BEC3' }}
                 >
-                  <item.icon className={cn(
-                    "w-5 h-5 mb-1 transition-transform",
-                    isActive && "scale-110"
-                  )} />
-                  <span className="text-[10px] font-medium">{item.name}</span>
+                  <item.icon className="w-5 h-5 mb-1" style={isActive ? { transform: 'scale(1.1)' } : {}} />
+                  <span className="text-[10px] font-bold">{item.name}</span>
                 </Link>
               );
             })}
@@ -220,12 +206,8 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <GlobalErrorBoundary>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', -apple-system, BlinkMacSystemFont, sans-serif" }}>
         <style>{`
-          :root {
-            --primary: 139 92 246;
-            --primary-foreground: 255 255 255;
-          }
           .safe-bottom {
             padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
           }
@@ -246,7 +228,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Bottom Navigation */}
         {!hideNav && user && (
-          <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+          <nav className="fixed bottom-0 left-0 right-0 bg-white border-t z-50" style={{ borderColor: '#DFE6E9', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
             <div className="flex justify-around items-center h-16 max-w-lg mx-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px))' }}>
               {navItems.map((item) => {
                 const isActive = currentPageName === item.page;
@@ -254,20 +236,13 @@ export default function Layout({ children, currentPageName }) {
                   <Link
                     key={item.page}
                     to={createPageUrl(item.page)}
-                    className={cn(
-                      "flex flex-col items-center justify-center w-full h-full transition-all",
-                      isActive 
-                        ? "text-violet-600" 
-                        : "text-slate-400 hover:text-slate-600"
-                    )}
+                    className="flex flex-col items-center justify-center w-full h-full transition-all relative"
+                    style={{ color: isActive ? '#2D3436' : '#B2BEC3' }}
                   >
-                    <item.icon className={cn(
-                      "w-5 h-5 mb-1 transition-transform",
-                      isActive && "scale-110"
-                    )} />
-                    <span className="text-[10px] font-medium">{item.name}</span>
+                    <item.icon className="w-5 h-5 mb-1" style={isActive ? { transform: 'scale(1.1)' } : {}} />
+                    <span className="text-[10px] font-bold">{item.name}</span>
                     {isActive && (
-                      <div className="absolute top-0 w-12 h-0.5 bg-violet-600 rounded-full" />
+                      <div className="absolute top-0 w-12 h-0.5 rounded-full" style={{ background: '#FFD93D' }} />
                     )}
                   </Link>
                 );
