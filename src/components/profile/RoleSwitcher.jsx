@@ -68,25 +68,25 @@ export default function RoleSwitcher({ user, onRoleChanged }) {
   }
 
   return (
-    <Card className="p-4">
-      <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-        <Sparkles className="w-5 h-5 text-violet-600" />
+    <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+      <h3 className="font-bold mb-3 flex items-center gap-2" style={{ color: '#2D3436' }}>
+        <Sparkles className="w-5 h-5" style={{ color: '#FFB347' }} />
         Role Management
       </h3>
 
       {canSwitchRoles ? (
         <div className="space-y-4">
-          <p className="text-sm text-slate-600">Switch between seeker and companion modes</p>
+          <p className="text-sm" style={{ color: '#636E72' }}>Switch between seeker and companion modes</p>
           
-          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-violet-50 to-fuchsia-50 rounded-xl">
+          <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'linear-gradient(to right, #FFF3B8, #FFB347)' }}>
             <div className="flex items-center gap-3">
-              <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
-                activeRole === 'seeker' ? "bg-violet-600" : "bg-slate-200"
-              )}>
-                <User className={cn("w-5 h-5", activeRole === 'seeker' ? "text-white" : "text-slate-400")} />
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                style={{ background: activeRole === 'seeker' ? '#2D3436' : '#DFE6E9' }}
+              >
+                <User className="w-5 h-5" style={{ color: activeRole === 'seeker' ? '#FFFFFF' : '#B2BEC3' }} />
               </div>
-              <span className="font-medium text-slate-900">Seeker</span>
+              <span className="font-bold" style={{ color: '#2D3436' }}>Seeker</span>
             </div>
 
             <Switch
@@ -97,12 +97,12 @@ export default function RoleSwitcher({ user, onRoleChanged }) {
             />
 
             <div className="flex items-center gap-3">
-              <span className="font-medium text-slate-900">Companion</span>
-              <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
-                activeRole === 'companion' ? "bg-fuchsia-600" : "bg-slate-200"
-              )}>
-                <Users className={cn("w-5 h-5", activeRole === 'companion' ? "text-white" : "text-slate-400")} />
+              <span className="font-bold" style={{ color: '#2D3436' }}>Companion</span>
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                style={{ background: activeRole === 'companion' ? '#2D3436' : '#DFE6E9' }}
+              >
+                <Users className="w-5 h-5" style={{ color: activeRole === 'companion' ? '#FFFFFF' : '#B2BEC3' }} />
               </div>
             </div>
           </div>
@@ -122,7 +122,8 @@ export default function RoleSwitcher({ user, onRoleChanged }) {
           <Button
             onClick={() => handleEnableRole(activeRole === 'seeker' ? 'companion' : 'seeker')}
             disabled={enableRoleMutation.isPending}
-            className="w-full h-12 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 rounded-xl"
+            className="w-full h-12 rounded-xl font-bold"
+            style={{ background: '#FFD93D', color: '#2D3436' }}
           >
             {enableRoleMutation.isPending ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />

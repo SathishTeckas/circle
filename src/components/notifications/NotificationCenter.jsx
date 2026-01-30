@@ -14,14 +14,14 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const notificationIcons = {
-  payment_received: { icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-  referral_bonus: { icon: Gift, color: 'text-violet-600', bg: 'bg-violet-100' },
-  booking_request: { icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
-  booking_accepted: { icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-  booking_rejected: { icon: AlertCircle, color: 'text-red-600', bg: 'bg-red-100' },
-  booking_cancelled: { icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-100' },
-  review_received: { icon: CheckCircle, color: 'text-blue-600', bg: 'bg-blue-100' },
-  payout_processed: { icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+  payment_received: { icon: DollarSign, iconColor: '#4ECDC4', bgColor: '#4ECDC4' },
+  referral_bonus: { icon: Gift, iconColor: '#A8A4FF', bgColor: '#A8A4FF' },
+  booking_request: { icon: Users, iconColor: '#74B9FF', bgColor: '#74B9FF' },
+  booking_accepted: { icon: CheckCircle, iconColor: '#4ECDC4', bgColor: '#4ECDC4' },
+  booking_rejected: { icon: AlertCircle, iconColor: '#FF6B6B', bgColor: '#FF6B6B' },
+  booking_cancelled: { icon: AlertCircle, iconColor: '#FFB347', bgColor: '#FFB347' },
+  review_received: { icon: CheckCircle, iconColor: '#74B9FF', bgColor: '#74B9FF' },
+  payout_processed: { icon: DollarSign, iconColor: '#4ECDC4', bgColor: '#4ECDC4' },
 };
 
 export default function NotificationCenter() {
@@ -106,11 +106,12 @@ export default function NotificationCenter() {
       <div className="relative">
         <button
           onClick={() => setOpen(!open)}
-          className="relative w-10 h-10 rounded-lg hover:bg-slate-100 transition-colors flex items-center justify-center"
+          className="relative w-10 h-10 rounded-lg transition-colors flex items-center justify-center"
+          style={{ background: open ? '#FFF3B8' : 'transparent' }}
         >
-          <Bell className="w-5 h-5 text-slate-600" />
+          <Bell className="w-5 h-5" style={{ color: '#2D3436' }} />
           {unreadCount > 0 && (
-            <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+            <span className="absolute top-0 right-0 w-5 h-5 text-xs rounded-full flex items-center justify-center font-bold" style={{ background: '#FF6B6B', color: '#FFFFFF' }}>
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -126,8 +127,8 @@ export default function NotificationCenter() {
               className="absolute right-0 top-12 w-96 max-h-96 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden flex flex-col"
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50">
-                <h3 className="font-semibold text-slate-900">Notifications</h3>
+              <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: '#DFE6E9', background: '#FFF3B8' }}>
+                <h3 className="font-bold" style={{ color: '#2D3436' }}>Notifications</h3>
                 <div className="flex items-center gap-2">
                   {unreadCount > 0 && (
                     <Button
@@ -174,30 +175,29 @@ export default function NotificationCenter() {
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: -20 }}
                           onClick={() => handleNotificationClick(notification)}
-                          className={cn(
-                            'p-4 hover:bg-slate-50 transition-colors cursor-pointer border-l-4',
-                            notification.read
-                              ? 'border-slate-200 bg-white'
-                              : 'border-violet-500 bg-violet-50/50'
-                          )}
+                          className="p-4 transition-colors cursor-pointer border-l-4"
+                          style={{
+                            borderColor: notification.read ? '#DFE6E9' : '#FFD93D',
+                            background: notification.read ? '#FFFFFF' : '#FFF3B8'
+                          }}
                         >
                           <div className="flex gap-3">
-                            <div className={cn('w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0', iconConfig.bg)}>
-                              <Icon className={cn('w-5 h-5', iconConfig.color)} />
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${iconColor}20` }}>
+                              <Icon className="w-5 h-5" style={{ color: iconConfig.iconColor }} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between mb-1">
-                                <p className={cn('font-medium text-sm', notification.read ? 'text-slate-700' : 'text-slate-900')}>
+                                <p className="font-bold text-sm" style={{ color: notification.read ? '#636E72' : '#2D3436' }}>
                                   {notification.title}
                                 </p>
                                 {!notification.read && (
-                                  <div className="w-2 h-2 bg-violet-500 rounded-full flex-shrink-0 mt-1.5" />
+                                  <div className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5" style={{ background: '#FFD93D' }} />
                                 )}
                               </div>
-                              <p className="text-xs text-slate-600 line-clamp-2">
+                              <p className="text-xs line-clamp-2" style={{ color: '#636E72' }}>
                                 {notification.message}
                               </p>
-                              <p className="text-xs text-slate-500 mt-1">
+                              <p className="text-xs mt-1" style={{ color: '#B2BEC3' }}>
                                 {format(new Date(notification.created_date), 'MMM d, h:mm a')}
                               </p>
                             </div>

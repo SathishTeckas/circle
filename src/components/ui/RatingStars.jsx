@@ -23,18 +23,17 @@ export default function RatingStars({ rating, size = 'sm', showValue = true, int
             )}
           >
             <Star
-              className={cn(
-                sizeClasses[size],
-                star <= rating 
-                  ? "fill-amber-400 text-amber-400" 
-                  : "fill-slate-200 text-slate-200"
-              )}
+              className={sizeClasses[size]}
+              style={{
+                fill: star <= rating ? '#FFB347' : '#DFE6E9',
+                color: star <= rating ? '#FFB347' : '#DFE6E9'
+              }}
             />
           </button>
         ))}
       </div>
       {showValue && (
-        <span className="text-sm text-slate-600 ml-1">
+        <span className="text-sm ml-1" style={{ color: '#636E72' }}>
           {rating > 0 ? rating.toFixed(1) : 'New'}
         </span>
       )}
