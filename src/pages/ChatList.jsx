@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { createPageUrl } from '../utils';
@@ -29,7 +29,7 @@ export default function ChatList() {
 
   const isCompanion = user?.user_role === 'companion';
 
-  const { data: bookings = [], isLoading, refetch } = useQuery({
+  const { data: bookings = [], isLoading } = useQuery({
     queryKey: ['chat-bookings', user?.id, isCompanion],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -39,18 +39,9 @@ export default function ChatList() {
       return await base44.entities.Booking.filter(query, '-updated_date', 50);
     },
     enabled: !!user?.id,
-    refetchInterval: 10000,
-    staleTime: 5000
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true
   });
-
-  // Refetch when window regains focus
-  useEffect(() => {
-    const handleFocus = () => {
-      refetch();
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [refetch]);
 
   const { data: unreadMessages = [] } = useQuery({
     queryKey: ['unread-messages', user?.id],
@@ -60,8 +51,8 @@ export default function ChatList() {
       return allMessages.filter(m => m.sender_id !== user.id);
     },
     enabled: !!user?.id,
-    refetchInterval: 10000,
-    staleTime: 5000
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true
   });
 
   const getUnreadCount = (bookingId) => {

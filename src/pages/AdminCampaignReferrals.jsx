@@ -42,48 +42,39 @@ export default function AdminCampaignReferrals() {
           referral_reward_amount: 100,
           referral_reward_type: 'wallet_credit'
         });
-        // Refetch to include the new SYSTEM campaign
         return await base44.entities.CampaignReferral.list('-created_date', 100);
-      }
-      
-      // Recalculate stats for all campaigns
-      try {
-        await base44.functions.invoke('recalculateCampaignStats', {});
-      } catch (error) {
-        console.error('Failed to recalculate stats:', error);
       }
 
       return allCampaigns;
     },
-    staleTime: 10000
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000
   });
 
-  const { data: campaignUsers = [], data: campaignReferrals = [] } = useQuery({
+  const { data: campaignUsers = [] } = useQuery({
     queryKey: ['campaign-referrals-detail', selectedCampaign?.id],
     queryFn: async () => {
       if (!selectedCampaign) return [];
-      // Get referrals for this campaign
-      const referrals = await base44.asServiceRole.entities.Referral.filter({
+      const referrals = await base44.entities.Referral.filter({
         referral_code: selectedCampaign.code,
         referral_type: 'campaign_signup'
-      });
+      }, '-created_date', 50);
       
-      // Fetch all users once, then match by ID
-      const allUsers = await base44.asServiceRole.entities.User.list();
+      if (referrals.length === 0) return [];
+      
+      const allUsers = await base44.entities.User.list('-created_date', 200);
       const userMap = new Map(allUsers.map(u => [u.id, u]));
       
-      const users = referrals
+      return referrals
         .filter(ref => ref.referee_id && userMap.has(ref.referee_id))
         .map(ref => ({
           ...userMap.get(ref.referee_id),
           referral_date: ref.created_date,
           referral_status: ref.status
         }));
-      
-      return users;
     },
     enabled: !!selectedCampaign,
-    staleTime: 30000
+    staleTime: 2 * 60 * 1000
   });
 
   const createMutation = useMutation({

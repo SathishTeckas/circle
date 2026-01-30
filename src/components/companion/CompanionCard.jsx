@@ -22,11 +22,13 @@ export default function CompanionCard({ availability, availabilities, variant = 
       const users = await base44.entities.User.filter({ id: primaryAvailability.companion_id });
       return users[0];
     },
-    enabled: !!primaryAvailability.companion_id
+    enabled: !!primaryAvailability.companion_id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000
   });
 
   const { data: currentUser } = useQuery({
-    queryKey: ['current-user-kyc-check'],
+    queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
     staleTime: 5 * 60 * 1000
   });

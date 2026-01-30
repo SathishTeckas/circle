@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { createPageUrl } from '../utils';
@@ -32,8 +32,8 @@ export default function CalendarView() {
       return await base44.entities.Booking.filter(query, '-created_date', 100);
     },
     enabled: !!user?.id,
-    staleTime: 30000,
-    refetchInterval: 30000
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: true
   });
 
   const { data: availabilities = [] } = useQuery({
@@ -45,7 +45,8 @@ export default function CalendarView() {
         100
       );
     },
-    enabled: !!user?.id && isCompanion
+    enabled: !!user?.id && isCompanion,
+    staleTime: 60 * 1000
   });
 
   const filteredBookings = bookings.filter(b => statusFilter.includes(b.status));
