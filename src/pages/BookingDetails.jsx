@@ -239,19 +239,19 @@ export default function BookingDetails() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8F9FA' }}>
+        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   if (!availability) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#F8F9FA' }}>
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">Not Found</h2>
-          <p className="text-slate-600 mb-4">This availability doesn't exist</p>
-          <Button onClick={() => window.history.back()}>Go Back</Button>
+          <h2 className="text-xl font-bold mb-2" style={{ color: '#2D3436' }}>Not Found</h2>
+          <p className="mb-4" style={{ color: '#636E72' }}>This availability doesn't exist</p>
+          <Button onClick={() => window.history.back()} className="font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>Go Back</Button>
         </div>
       </div>
     );
@@ -263,7 +263,7 @@ export default function BookingDetails() {
   const totalAmount = basePrice + platformFee;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-48">
+    <div className="min-h-screen pb-48" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header - Photo Carousel */}
       <div className="relative bg-black">
         <div className="max-w-lg mx-auto">

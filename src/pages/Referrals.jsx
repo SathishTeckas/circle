@@ -108,43 +108,44 @@ export default function Referrals() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-violet-600 to-fuchsia-600 px-4 pt-8 pb-16">
+      <div className="px-4 pt-8 pb-16" style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FFB347 100%)' }}>
         <div className="max-w-lg mx-auto">
           <button
             onClick={() => window.history.back()}
-            className="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center mb-4"
+            className="w-10 h-10 backdrop-blur rounded-full flex items-center justify-center mb-4"
+            style={{ background: 'rgba(255,255,255,0.3)' }}
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
           </button>
           
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
-              <Gift className="w-7 h-7 text-white" />
+            <div className="w-14 h-14 backdrop-blur rounded-2xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.3)' }}>
+              <Gift className="w-7 h-7" style={{ color: '#2D3436' }} />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Refer & Earn</h1>
-              <p className="text-violet-100 text-sm">Get ₹{rewardAmount} for each friend</p>
+              <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>Refer & Earn</h1>
+              <p className="text-sm" style={{ color: 'rgba(45,52,54,0.7)' }}>Get ₹{rewardAmount} for each friend</p>
             </div>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
-            <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
-              <IndianRupee className="w-5 h-5 mb-1 text-white/80" />
-              <p className="text-2xl font-bold">₹{totalWithSignup}</p>
-              <p className="text-xs text-white/70">Total Earned</p>
+            <Card className="p-3 backdrop-blur" style={{ background: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.5)' }}>
+              <IndianRupee className="w-5 h-5 mb-1" style={{ color: '#2D3436' }} />
+              <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>₹{totalWithSignup}</p>
+              <p className="text-xs" style={{ color: 'rgba(45,52,54,0.7)' }}>Total Earned</p>
             </Card>
-            <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
-              <Users className="w-5 h-5 mb-1 text-white/80" />
-              <p className="text-2xl font-bold">{completedReferrals.length}</p>
-              <p className="text-xs text-white/70">Friends Referred</p>
+            <Card className="p-3 backdrop-blur" style={{ background: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.5)' }}>
+              <Users className="w-5 h-5 mb-1" style={{ color: '#2D3436' }} />
+              <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{completedReferrals.length}</p>
+              <p className="text-xs" style={{ color: 'rgba(45,52,54,0.7)' }}>Friends Referred</p>
             </Card>
-            <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
-              <TrendingUp className="w-5 h-5 mb-1 text-white/80" />
-              <p className="text-2xl font-bold">{pendingReferrals.length}</p>
-              <p className="text-xs text-white/70">Pending</p>
+            <Card className="p-3 backdrop-blur" style={{ background: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.5)' }}>
+              <TrendingUp className="w-5 h-5 mb-1" style={{ color: '#2D3436' }} />
+              <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{pendingReferrals.length}</p>
+              <p className="text-xs" style={{ color: 'rgba(45,52,54,0.7)' }}>Pending</p>
             </Card>
           </div>
         </div>

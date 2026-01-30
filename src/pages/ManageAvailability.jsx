@@ -229,19 +229,20 @@ export default function ManageAvailability() {
                     formData.area && formData.city && formData.price_per_hour;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+      <div className="sticky top-0 bg-white border-b z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 py-4 max-w-lg mx-auto flex items-center gap-4">
           <button
             onClick={() => window.history.back()}
-            className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: '#FFF3B8' }}
           >
-            <ArrowLeft className="w-5 h-5 text-slate-700" />
+            <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
           </button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-slate-900">My Availability</h1>
-            <p className="text-sm text-slate-600">{activeAvailabilities.length} active slots</p>
+            <h1 className="text-xl font-extrabold" style={{ color: '#2D3436' }}>My Availability</h1>
+            <p className="text-sm" style={{ color: '#636E72' }}>{activeAvailabilities.length} active slots</p>
           </div>
         </div>
       </div>
@@ -257,7 +258,7 @@ export default function ManageAvailability() {
           }
         }}>
           <SheetTrigger asChild>
-            <Button className="w-full h-14 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 rounded-xl text-lg">
+            <Button className="w-full h-14 rounded-xl text-lg font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>
               <Plus className="w-5 h-5 mr-2" />
               Add Availability
             </Button>

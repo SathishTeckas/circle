@@ -284,10 +284,10 @@ export default function ChatView() {
 
   if (!bookingId) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#F8F9FA' }}>
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">Chat Not Found</h2>
-          <Button onClick={() => window.history.back()}>Go Back</Button>
+          <h2 className="text-xl font-bold mb-2" style={{ color: '#2D3436' }}>Chat Not Found</h2>
+          <Button onClick={() => window.history.back()} className="font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>Go Back</Button>
         </div>
       </div>
     );
@@ -295,8 +295,8 @@ export default function ChatView() {
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8F9FA' }}>
+        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
       </div>
     );
   }
@@ -333,15 +333,16 @@ export default function ChatView() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50">
+    <div className="flex flex-col h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-white border-b border-slate-100 flex-shrink-0">
+      <div className="bg-white border-b flex-shrink-0" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 py-4 max-w-lg mx-auto flex items-center gap-4">
           <button
             onClick={() => window.history.back()}
-            className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: '#FFF3B8' }}
           >
-            <ArrowLeft className="w-5 h-5 text-slate-700" />
+            <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
           </button>
           <Link 
             to={createPageUrl(`UserProfile?id=${otherPartyId}`)}

@@ -379,18 +379,18 @@ export default function BookingView() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8F9FA' }}>
+        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#F8F9FA' }}>
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">Booking Not Found</h2>
-          <Button onClick={() => window.history.back()}>Go Back</Button>
+          <h2 className="text-xl font-bold mb-2" style={{ color: '#2D3436' }}>Booking Not Found</h2>
+          <Button onClick={() => window.history.back()} className="font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>Go Back</Button>
         </div>
       </div>
     );
@@ -429,18 +429,19 @@ export default function BookingView() {
   const refundInfo = isSeeker && booking.status === 'accepted' ? calculateRefund() : null;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+      <div className="sticky top-0 bg-white border-b z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 py-4 max-w-lg mx-auto flex items-center gap-4">
           <button
             onClick={() => window.history.back()}
-            className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: '#FFF3B8' }}
           >
-            <ArrowLeft className="w-5 h-5 text-slate-700" />
+            <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
           </button>
           <div className="flex-1">
-            <h1 className="font-semibold text-slate-900">Booking Details</h1>
+            <h1 className="font-bold" style={{ color: '#2D3436' }}>Booking Details</h1>
             <div className="flex items-center gap-2 mt-1">
               <Badge className={cn(status.color)}>
                 <StatusIcon className="w-3.5 h-3.5 mr-1" />
