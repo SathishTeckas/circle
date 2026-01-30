@@ -6,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Plus, Trash2, Edit, ChevronUp, ChevronDown, Upload, Download } from 'lucide-react';
+import { MapPin, Plus, Trash2, Edit, ChevronUp, ChevronDown, Upload, Download, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '../utils';
 import { cn } from '@/lib/utils';
 
 export default function AdminCities() {
