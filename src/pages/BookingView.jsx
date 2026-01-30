@@ -272,6 +272,28 @@ export default function BookingView() {
         });
       }
 
+      // Update companion's wallet balance
+      const companionPayout = booking?.companion_payout || booking?.base_price || 0;
+      const currentWalletBalance = companion?.wallet_balance || 0;
+      const newWalletBalance = currentWalletBalance + companionPayout;
+      
+      await base44.entities.User.update(booking.companion_id, {
+        wallet_balance: newWalletBalance
+      });
+
+      // Create wallet transaction record
+      await base44.entities.WalletTransaction.create({
+        user_id: booking.companion_id,
+        transaction_type: 'booking_earning',
+        amount: companionPayout,
+        balance_before: currentWalletBalance,
+        balance_after: newWalletBalance,
+        reference_id: bookingId,
+        reference_type: 'Booking',
+        description: `Meetup earning from ${booking?.seeker_name || 'guest'}`,
+        status: 'completed'
+      });
+
       await base44.entities.Notification.create({
         user_id: booking?.seeker_id,
         type: 'booking_reminder',
@@ -285,8 +307,8 @@ export default function BookingView() {
         user_id: booking?.companion_id,
         type: 'payout_processed',
         title: '💰 Payment Released',
-        message: `${formatCurrency(booking?.base_price || 0)} has been credited to your wallet`,
-        amount: booking?.base_price || 0,
+        message: `${formatCurrency(companionPayout)} has been credited to your wallet`,
+        amount: companionPayout,
         action_url: createPageUrl('Wallet')
       });
     },
