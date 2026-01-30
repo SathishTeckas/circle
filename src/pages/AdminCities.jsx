@@ -223,35 +223,36 @@ Pune,Koregaon Park,Kalyani Nagar,Viman Nagar,Hinjewadi,Kothrud,Deccan,Baner,Waka
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8F9FA' }}>
+        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
+    <div className="min-h-screen p-6" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(createPageUrl('AdminDashboard'))}
-              className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors shrink-0"
+              className="w-9 h-9 rounded-lg border flex items-center justify-center hover:opacity-80 transition-colors shrink-0"
+              style={{ borderColor: '#DFE6E9' }}
             >
-              <ArrowLeft className="w-5 h-5 text-slate-600" />
+              <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
             </button>
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 break-words">City & Area Management</h1>
-              <p className="text-sm sm:text-base text-slate-600 mt-1">Manage cities and their areas across the entire app</p>
+              <h1 className="text-2xl sm:text-3xl font-extrabold break-words" style={{ color: '#2D3436' }}>City & Area Management</h1>
+              <p className="text-sm sm:text-base mt-1" style={{ color: '#636E72' }}>Manage cities and their areas across the entire app</p>
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0 w-full sm:w-auto">
-            <Button onClick={() => setShowImportDialog(true)} variant="outline" className="flex-1 sm:flex-none">
+            <Button onClick={() => setShowImportDialog(true)} variant="outline" className="flex-1 sm:flex-none font-bold" style={{ borderColor: '#DFE6E9', color: '#2D3436' }}>
               <Upload className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Import</span>
             </Button>
-            <Button onClick={() => openDialog()} className="bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-none">
+            <Button onClick={() => openDialog()} className="flex-1 sm:flex-none font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>
               <Plus className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Add City</span>
               <span className="sm:hidden">Add</span>
@@ -294,13 +295,13 @@ Pune,Koregaon Park,Kalyani Nagar,Viman Nagar,Hinjewadi,Kothrud,Deccan,Baner,Waka
         {/* Cities List */}
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
           </div>
         ) : cities.length === 0 ? (
-          <Card>
+          <Card style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
             <CardContent className="py-12 text-center">
-              <MapPin className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-              <p className="text-slate-600">No cities added yet. Add your first city to get started.</p>
+              <MapPin className="w-12 h-12 mx-auto mb-4" style={{ color: '#B2BEC3' }} />
+              <p style={{ color: '#636E72' }}>No cities added yet. Add your first city to get started.</p>
             </CardContent>
           </Card>
         ) : (

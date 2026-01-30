@@ -333,15 +333,15 @@ export default function GroupEvents() {
               </div>
             ) : discoverEvents.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <h3 className="font-semibold text-slate-900 mb-2">No events found</h3>
-                <p className="text-slate-600 text-sm">Check back soon for new group events</p>
+                <Users className="w-12 h-12 mx-auto mb-3" style={{ color: '#B2BEC3' }} />
+                <h3 className="font-bold mb-2" style={{ color: '#2D3436' }}>No events found</h3>
+                <p className="text-sm" style={{ color: '#636E72' }}>Check back soon for new group events</p>
               </div>
             ) : filteredDiscoverEvents.length === 0 ? (
               <div className="text-center py-12">
-                <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <h3 className="font-semibold text-slate-900 mb-2">No {discoverFilter === 'in_progress' ? 'in progress' : discoverFilter} events</h3>
-                <p className="text-slate-600 text-sm">No events match your filter</p>
+                <Calendar className="w-12 h-12 mx-auto mb-3" style={{ color: '#B2BEC3' }} />
+                <h3 className="font-bold mb-2" style={{ color: '#2D3436' }}>No {discoverFilter === 'in_progress' ? 'in progress' : discoverFilter} events</h3>
+                <p className="text-sm" style={{ color: '#636E72' }}>No events match your filter</p>
               </div>
             ) : (
               filteredDiscoverEvents.map((event, idx) => (
@@ -360,17 +360,17 @@ export default function GroupEvents() {
           <TabsContent value="joined" className="mt-4 space-y-4">
             {myEvents.length === 0 ? (
               <div className="text-center py-12">
-                <CheckCircle className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <h3 className="font-semibold text-slate-900 mb-2">No events joined</h3>
-                <p className="text-slate-600 text-sm">Browse and join events to see them here</p>
+                <CheckCircle className="w-12 h-12 mx-auto mb-3" style={{ color: '#B2BEC3' }} />
+                <h3 className="font-bold mb-2" style={{ color: '#2D3436' }}>No events joined</h3>
+                <p className="text-sm" style={{ color: '#636E72' }}>Browse and join events to see them here</p>
               </div>
             ) : (
               <>
                 {filteredMyEvents.length === 0 ? (
                   <div className="text-center py-12">
-                    <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                    <h3 className="font-semibold text-slate-900 mb-2">No {myEventsFilter === 'in_progress' ? 'in progress' : myEventsFilter} events</h3>
-                    <p className="text-slate-600 text-sm">
+                    <Calendar className="w-12 h-12 mx-auto mb-3" style={{ color: '#B2BEC3' }} />
+                    <h3 className="font-bold mb-2" style={{ color: '#2D3436' }}>No {myEventsFilter === 'in_progress' ? 'in progress' : myEventsFilter} events</h3>
+                    <p className="text-sm" style={{ color: '#636E72' }}>
                       {myEventsFilter === 'upcoming' && 'Join more events to see them here'}
                       {myEventsFilter === 'in_progress' && 'No events happening right now'}
                       {myEventsFilter === 'completed' && 'No completed events yet'}
@@ -404,65 +404,65 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: idx * 0.05 }}
     >
-      <Card className="p-0 overflow-hidden">
+      <Card className="p-0 overflow-hidden" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
         {event?.photos && event.photos.length > 0 && (
-          <div className="h-48 bg-slate-100 overflow-hidden">
+          <div className="h-48 overflow-hidden" style={{ background: '#FFF3B8' }}>
             <img src={event.photos[0]} alt="Event" className="w-full h-full object-cover" />
           </div>
         )}
         <div className="p-4">
           <div className="flex items-start justify-between mb-4">
           <div>
-            <h3 className="font-semibold text-slate-900 text-lg">
+            <h3 className="font-bold text-lg" style={{ color: '#2D3436' }}>
               {event?.title || 'Group Meetup'}
             </h3>
-            <Badge className="mt-1 bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-100">
+            <Badge className="mt-1 font-bold" style={{ background: '#A8A4FF', color: '#FFFFFF' }}>
               {event?.language || 'N/A'}
             </Badge>
           </div>
           <div className="text-right">
-            <p className="text-sm text-slate-500">Ages</p>
-            <p className="font-medium text-slate-900">
+            <p className="text-sm" style={{ color: '#636E72' }}>Ages</p>
+            <p className="font-bold" style={{ color: '#2D3436' }}>
               {event?.age_range_min || 18}-{event?.age_range_max || 35}
             </p>
           </div>
         </div>
 
         <div className="space-y-2 mb-4">
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Calendar className="w-4 h-4 text-fuchsia-600" />
+          <div className="flex items-center gap-2 text-sm" style={{ color: '#636E72' }}>
+            <Calendar className="w-4 h-4" style={{ color: '#FFB347' }} />
             {event?.date ? format(new Date(event.date), 'EEEE, MMMM d') : 'TBD'}
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Clock className="w-4 h-4 text-fuchsia-600" />
+          <div className="flex items-center gap-2 text-sm" style={{ color: '#636E72' }}>
+            <Clock className="w-4 h-4" style={{ color: '#74B9FF' }} />
             {event?.time || 'TBD'}
           </div>
           {event?.venue_name && (
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <MapPin className="w-4 h-4 text-fuchsia-600" />
+            <div className="flex items-center gap-2 text-sm" style={{ color: '#636E72' }}>
+              <MapPin className="w-4 h-4" style={{ color: '#FF6B6B' }} />
               {event.venue_name}, {event?.city || 'N/A'}
             </div>
           )}
           {event?.price && (
-            <div className="flex items-center gap-2 text-sm font-medium text-fuchsia-600">
+            <div className="flex items-center gap-2 text-sm font-bold" style={{ color: '#FFB347' }}>
               ₹{event.price} per person
             </div>
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+        <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: '#DFE6E9' }}>
           <div className="text-sm">
             {event?.tables_assigned ? (
-              <span className="text-emerald-600 font-medium">Groups assigned</span>
+              <span className="font-bold" style={{ color: '#4ECDC4' }}>Groups assigned</span>
             ) : (
-              <span className="text-slate-500">
+              <span style={{ color: '#636E72' }}>
                 {`${event?.max_participants || 8} spot${(event?.max_participants || 8) > 1 ? 's' : ''}`}
               </span>
             )}
           </div>
           
           {isJoined ? (
-            <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+            <Badge className="font-bold" style={{ background: '#4ECDC4', color: '#2D3436' }}>
               <CheckCircle className="w-3.5 h-3.5 mr-1" />
               Joined
             </Badge>
@@ -470,7 +470,8 @@ function EventCard({ event, idx, isJoined, onJoin, isJoining }) {
             <Button
               onClick={onJoin}
               disabled={isJoining || spotsLeft === 0}
-              className="bg-fuchsia-600 hover:bg-fuchsia-700 rounded-xl"
+              className="rounded-xl font-bold"
+              style={{ background: '#FFD93D', color: '#2D3436' }}
             >
               <UserPlus className="w-4 h-4 mr-2" />
               Join

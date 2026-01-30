@@ -82,9 +82,9 @@ export default function AdminManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+      <div className="sticky top-0 bg-white border-b z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 md:px-8 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-4">
             <Button
@@ -92,12 +92,13 @@ export default function AdminManagement() {
               size="icon"
               onClick={() => window.location.href = createPageUrl('AdminDashboard')}
               className="rounded-xl"
+              style={{ color: '#2D3436' }}
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Admin Management</h1>
-              <p className="text-sm text-slate-600">{admins.length} administrators</p>
+              <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>Admin Management</h1>
+              <p className="text-sm" style={{ color: '#636E72' }}>{admins.length} administrators</p>
             </div>
           </div>
 
@@ -116,14 +117,14 @@ export default function AdminManagement() {
 
       <div className="px-4 md:px-8 py-6 max-w-7xl mx-auto space-y-6">
         {/* Invite New Admin */}
-        <Card className="p-6">
+        <Card className="p-6" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center">
-              <Mail className="w-5 h-5 text-violet-600" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#FFF3B8' }}>
+              <Mail className="w-5 h-5" style={{ color: '#2D3436' }} />
             </div>
             <div>
-              <h2 className="font-semibold text-slate-900">Invite New Administrator</h2>
-              <p className="text-sm text-slate-600">Send an invitation to add a new admin</p>
+              <h2 className="font-bold" style={{ color: '#2D3436' }}>Invite New Administrator</h2>
+              <p className="text-sm" style={{ color: '#636E72' }}>Send an invitation to add a new admin</p>
             </div>
           </div>
 
@@ -139,10 +140,11 @@ export default function AdminManagement() {
             <Button
               onClick={handleInvite}
               disabled={inviting}
-              className="h-12 px-6 bg-violet-600 hover:bg-violet-700 rounded-xl whitespace-nowrap"
+              className="h-12 px-6 rounded-xl whitespace-nowrap font-bold"
+              style={{ background: '#FFD93D', color: '#2D3436' }}
             >
               {inviting ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#2D3436', borderTopColor: 'transparent' }} />
               ) : (
                 <>
                   <Plus className="w-4 h-4 mr-2" />

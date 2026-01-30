@@ -69,9 +69,9 @@ export default function AdminSettings() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+      <div className="sticky top-0 bg-white border-b z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 md:px-8 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
             <Button
@@ -79,12 +79,13 @@ export default function AdminSettings() {
               size="icon"
               onClick={() => window.location.href = createPageUrl('AdminDashboard')}
               className="rounded-xl"
+              style={{ color: '#2D3436' }}
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Platform Settings</h1>
-              <p className="text-sm text-slate-600">Configure platform behavior</p>
+              <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>Platform Settings</h1>
+              <p className="text-sm" style={{ color: '#636E72' }}>Configure platform behavior</p>
             </div>
           </div>
         </div>
@@ -280,10 +281,11 @@ export default function AdminSettings() {
         <Button
           onClick={() => saveMutation.mutate()}
           disabled={saveMutation.isPending || isLoading}
-          className="w-full h-14 bg-violet-600 hover:bg-violet-700 rounded-xl text-lg"
+          className="w-full h-14 rounded-xl text-lg font-bold"
+          style={{ background: '#FFD93D', color: '#2D3436' }}
         >
           {saveMutation.isPending ? (
-            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#2D3436', borderTopColor: 'transparent' }} />
           ) : (
             <>
               <Save className="w-5 h-5 mr-2" />
