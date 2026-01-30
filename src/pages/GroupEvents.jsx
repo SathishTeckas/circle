@@ -218,12 +218,12 @@ export default function GroupEvents() {
                                  discoverCompleted;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-fuchsia-600 to-pink-600 px-4 pt-8 pb-12">
+      <div className="px-4 pt-8 pb-12" style={{ background: 'linear-gradient(135deg, #A8A4FF 0%, #74B9FF 100%)' }}>
         <div className="max-w-lg mx-auto">
-          <h1 className="text-2xl font-bold text-white mb-2">Group Meetups</h1>
-          <p className="text-fuchsia-100">
+          <h1 className="text-2xl font-extrabold text-white mb-2">Group Meetups</h1>
+          <p style={{ color: 'rgba(255,255,255,0.8)' }}>
             No bios. No planning. Just show up and connect.
           </p>
         </div>
@@ -231,12 +231,12 @@ export default function GroupEvents() {
 
       <div className="px-4 -mt-6 max-w-lg mx-auto space-y-4">
         {/* Info Card */}
-        <Card className="p-4 bg-gradient-to-r from-fuchsia-50 to-pink-50 border-fuchsia-200">
+        <Card className="p-4" style={{ background: 'linear-gradient(135deg, #FFF3B8 0%, #FFE8CC 100%)', border: '1px solid #FFD93D' }}>
           <div className="flex items-start gap-3">
-            <Sparkles className="w-6 h-6 text-fuchsia-600 flex-shrink-0" />
+            <Sparkles className="w-6 h-6 flex-shrink-0" style={{ color: '#FFB347' }} />
             <div>
-              <h3 className="font-semibold text-fuchsia-900">How it works</h3>
-              <ul className="text-sm text-fuchsia-700 mt-2 space-y-1">
+              <h3 className="font-bold" style={{ color: '#2D3436' }}>How it works</h3>
+              <ul className="text-sm mt-2 space-y-1" style={{ color: '#636E72' }}>
                 <li>• Pick an event that matches your preferences</li>
                 <li>• Show up at the venue at the scheduled time</li>
                 <li>• Pay for your own food/drinks at the venue</li>

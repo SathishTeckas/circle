@@ -68,12 +68,12 @@ export default function CalendarView() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-white border-b border-slate-100 px-4 py-4">
+      <div className="bg-white border-b px-4 py-4" style={{ borderColor: '#DFE6E9' }}>
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold text-slate-900">Meetups</h1>
-          <p className="text-sm text-slate-600">
+          <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>Meetups</h1>
+          <p className="text-sm" style={{ color: '#636E72' }}>
             {isCompanion ? 'Manage your availability and bookings' : 'View your upcoming bookings'}
           </p>
         </div>
@@ -82,18 +82,19 @@ export default function CalendarView() {
       <div className="px-4 py-6 max-w-4xl mx-auto space-y-6">
         {/* All Bookings List */}
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Your Meetups</h2>
+          <h2 className="text-lg font-bold mb-4" style={{ color: '#2D3436' }}>Your Meetups</h2>
 
           {/* Status Filters */}
           <div className="space-y-2 mb-4">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-sm font-medium text-slate-700">Filter by status:</span>
+              <span className="text-sm font-bold" style={{ color: '#2D3436' }}>Filter by status:</span>
               {statusFilter.length < allStatuses.length && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setStatusFilter(allStatuses.map(s => s.value))}
-                  className="text-violet-600 hover:text-violet-700 hover:bg-violet-50 border-violet-200 h-8"
+                  className="h-8 font-bold"
+                  style={{ color: '#FFB347', borderColor: '#FFD93D' }}
                 >
                   <X className="w-3.5 h-3.5 mr-1" />
                   Clear Filters
@@ -122,10 +123,10 @@ export default function CalendarView() {
           </div>
 
           {filteredBookings.length === 0 ? (
-            <Card className="p-8 text-center">
-              <CalendarIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <h3 className="font-semibold text-slate-900 mb-1">No bookings yet</h3>
-              <p className="text-sm text-slate-600">
+            <Card className="p-8 text-center" style={{ background: '#FFF3B8', border: 'none' }}>
+              <CalendarIcon className="w-12 h-12 mx-auto mb-3" style={{ color: '#FFD93D' }} />
+              <h3 className="font-bold mb-1" style={{ color: '#2D3436' }}>No bookings yet</h3>
+              <p className="text-sm" style={{ color: '#636E72' }}>
                 {isCompanion ? 'Your bookings will appear here' : 'Book a companion to get started'}
               </p>
             </Card>
@@ -137,7 +138,7 @@ export default function CalendarView() {
                   to={createPageUrl(`BookingView?id=${booking.id}`)}
                   className="block"
                 >
-                  <Card className="p-4 hover:shadow-md transition-all border-l-4 border-l-violet-600">
+                  <Card className="p-4 hover:shadow-md transition-all border-l-4" style={{ background: '#FFFFFF', borderLeftColor: '#FFD93D', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)' }}>
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <p className="font-semibold text-slate-900">

@@ -246,15 +246,15 @@ export default function Onboarding() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom, #F8F9FA, #FFFFFF)', fontFamily: "'Nunito', sans-serif" }}>
       {/* Progress Header */}
-      <div className="sticky top-0 bg-white/80 backdrop-blur-lg border-b border-slate-100 px-6 py-4 z-10">
+      <div className="sticky top-0 backdrop-blur-lg border-b px-6 py-4 z-10" style={{ background: 'rgba(255,255,255,0.8)', borderColor: '#DFE6E9' }}>
         <div className="max-w-md mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-slate-600">
+            <span className="text-sm font-bold" style={{ color: '#2D3436' }}>
               Step {step} of 4
             </span>
-            <span className="text-sm text-slate-500">
+            <span className="text-sm" style={{ color: '#636E72' }}>
               {steps[step - 1].title}
             </span>
           </div>
@@ -262,10 +262,8 @@ export default function Onboarding() {
             {steps.map((s, idx) => (
               <div
                 key={idx}
-                className={cn(
-                  "h-1.5 flex-1 rounded-full transition-all",
-                  idx < step ? "bg-violet-600" : "bg-slate-200"
-                )}
+                className="h-1.5 flex-1 rounded-full transition-all"
+                style={{ background: idx < step ? '#FFD93D' : '#DFE6E9' }}
               />
             ))}
           </div>
@@ -284,10 +282,10 @@ export default function Onboarding() {
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">
+                <h1 className="text-2xl font-extrabold mb-2" style={{ color: '#2D3436' }}>
                   Let's get to know you
                 </h1>
-                <p className="text-slate-600">
+                <p style={{ color: '#636E72' }}>
                   Basic information to create your profile
                 </p>
               </div>
@@ -677,7 +675,8 @@ export default function Onboarding() {
             <Button
               variant="outline"
               onClick={() => setStep(step - 1)}
-              className="h-14 px-6 rounded-xl"
+              className="h-14 px-6 rounded-xl font-bold"
+              style={{ borderColor: '#DFE6E9', color: '#2D3436' }}
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -686,10 +685,11 @@ export default function Onboarding() {
           <Button
             onClick={() => step < 4 ? setStep(step + 1) : handleComplete()}
             disabled={!canProceed() || loading}
-            className="flex-1 h-14 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white text-lg font-semibold rounded-xl disabled:opacity-50"
+            className="flex-1 h-14 text-lg font-bold rounded-xl disabled:opacity-50"
+            style={{ background: '#FFD93D', color: '#2D3436' }}
           >
             {loading ? (
-              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#2D3436', borderTopColor: 'transparent' }} />
             ) : step < 4 ? (
               <>
                 Continue
