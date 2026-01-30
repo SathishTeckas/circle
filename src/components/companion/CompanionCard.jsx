@@ -48,11 +48,14 @@ export default function CompanionCard({ availability, availabilities, variant = 
   return (
     <div 
       className={cn(
-        "block bg-white rounded-2xl overflow-hidden transition-all duration-300",
-        "border border-slate-100 hover:border-violet-200",
-        "hover:shadow-lg hover:shadow-violet-100/50",
+        "block rounded-2xl overflow-hidden transition-all duration-300",
         isCompact ? "flex" : ""
       )}
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid #DFE6E9',
+        boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)'
+      }}
     >
       {/* Photo */}
       <div className={cn(
@@ -97,21 +100,21 @@ export default function CompanionCard({ availability, availabilities, variant = 
         {companion && (companion.total_reviews > 0 || companion.average_rating) ? (
           <div className="flex items-center gap-2 mb-2">
             <RatingStars rating={companion.average_rating || 0} size="sm" />
-            <span className="text-xs text-slate-500">
+            <span className="text-xs" style={{ color: '#636E72' }}>
               ({companion.total_reviews || 0} {companion.total_reviews === 1 ? 'review' : 'reviews'})
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-2 mb-2">
-            <Badge variant="secondary" className="bg-violet-50 text-violet-700 text-xs">
+            <Badge className="text-xs font-bold" style={{ background: '#4ECDC4', color: '#2D3436' }}>
               New Companion
             </Badge>
           </div>
         )}
 
         <div className="space-y-1.5 mb-3">
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <MapPin className="w-4 h-4 text-violet-500" />
+          <div className="flex items-center gap-2 text-sm" style={{ color: '#636E72' }}>
+            <MapPin className="w-4 h-4" style={{ color: '#FF6B6B' }} />
             <span>
               {(() => {
                 const uniqueAreas = [...new Set(allSlots.map(s => s.area))];
@@ -123,8 +126,8 @@ export default function CompanionCard({ availability, availabilities, variant = 
             </span>
           </div>
           {primaryAvailability.languages?.length > 0 && (
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <Globe className="w-4 h-4 text-violet-500" />
+            <div className="flex items-center gap-2 text-sm" style={{ color: '#636E72' }}>
+              <Globe className="w-4 h-4" style={{ color: '#74B9FF' }} />
               <span>
                 {primaryAvailability.languages.join(', ')}
                 {primaryAvailability.languages.length > 3 && ` +${primaryAvailability.languages.length - 3} more`}
@@ -136,7 +139,7 @@ export default function CompanionCard({ availability, availabilities, variant = 
         {/* Available Time Slots */}
         {allSlots.length > 0 && (
           <div className="mb-3">
-            <p className="text-xs font-medium text-slate-700 mb-2">Available Times:</p>
+            <p className="text-xs font-bold mb-2" style={{ color: '#2D3436' }}>Available Times:</p>
             <div className="flex flex-wrap gap-2">
               {allSlots.slice(0, 4).map((slot, idx) => (
                 <div
@@ -146,18 +149,16 @@ export default function CompanionCard({ availability, availabilities, variant = 
                 >
                   <Badge 
                     variant="outline"
-                    className={cn(
-                      "cursor-pointer hover:bg-violet-50 hover:border-violet-300 transition-all",
-                      "text-xs py-1 px-2"
-                    )}
+                    className="cursor-pointer transition-all text-xs py-1 px-2 font-medium"
+                    style={{ borderColor: '#DFE6E9', color: '#2D3436' }}
                   >
-                    <Clock className="w-3 h-3 mr-1" />
+                    <Clock className="w-3 h-3 mr-1" style={{ color: '#FFB347' }} />
                     {new Date(slot.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • {formatTimeRange12Hour(slot.start_time, slot.end_time)}
                   </Badge>
                 </div>
               ))}
               {allSlots.length > 4 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge className="text-xs font-bold" style={{ background: '#DFE6E9', color: '#636E72' }}>
                   +{allSlots.length - 4} more
                 </Badge>
               )}
@@ -171,8 +172,8 @@ export default function CompanionCard({ availability, availabilities, variant = 
             {primaryAvailability.interests.slice(0, 3).map((interest, idx) => (
               <Badge 
                 key={idx} 
-                variant="secondary"
-                className="bg-violet-50 text-violet-700 text-xs"
+                className="text-xs font-bold"
+                style={{ background: '#A8A4FF', color: '#FFFFFF' }}
               >
                 {interest}
               </Badge>
@@ -181,16 +182,17 @@ export default function CompanionCard({ availability, availabilities, variant = 
         )}
 
         {/* Price */}
-        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+        <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: '#DFE6E9' }}>
           <div>
-            <span className="text-2xl font-bold text-slate-900">
+            <span className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>
               ₹{primaryAvailability.price_per_hour}
             </span>
-            <span className="text-sm text-slate-500">/hour</span>
+            <span className="text-sm" style={{ color: '#636E72' }}>/hour</span>
           </div>
           <button
             onClick={(e) => handleBookingClick(e, selectedSlot.id)}
-            className="bg-violet-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-violet-700 transition-colors"
+            className="px-4 py-2 rounded-xl text-sm font-bold transition-all hover:transform hover:-translate-y-0.5"
+            style={{ background: '#FFD93D', color: '#2D3436', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)' }}
           >
             View Details
           </button>
@@ -198,10 +200,10 @@ export default function CompanionCard({ availability, availabilities, variant = 
 
         {/* Compatibility Info */}
         {showCompatibility && compatibilityReason && (
-          <div className="mt-3 p-3 bg-violet-50 rounded-xl border border-violet-200">
+          <div className="mt-3 p-3 rounded-xl" style={{ background: '#FFF3B8', border: '1px solid #FFD93D' }}>
             <div className="flex items-start gap-2">
-              <Sparkles className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-slate-700">{compatibilityReason}</p>
+              <Sparkles className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#E6C235' }} />
+              <p className="text-xs font-medium" style={{ color: '#2D3436' }}>{compatibilityReason}</p>
             </div>
           </div>
         )}

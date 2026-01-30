@@ -28,7 +28,8 @@ export default function RoleSelection() {
       description: 'Discover verified companions for meaningful conversations and experiences at public venues',
       icon: Search,
       features: ['Browse companions', 'Book meetups', 'Join group events'],
-      gradient: 'from-blue-500 to-violet-600'
+      iconBg: '#74B9FF',
+      selectedBg: '#FFF3B8'
     },
     {
       id: 'companion',
@@ -37,7 +38,8 @@ export default function RoleSelection() {
       description: 'Share your time and create meaningful connections while earning on your own schedule',
       icon: Sparkles,
       features: ['Set your rates', 'Manage availability', 'Build reputation'],
-      gradient: 'from-violet-600 to-fuchsia-600'
+      iconBg: '#A8A4FF',
+      selectedBg: '#FFF3B8'
     }
   ];
 
@@ -55,17 +57,17 @@ export default function RoleSelection() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white px-6 py-12">
+    <div className="min-h-screen px-6 py-12" style={{ background: 'linear-gradient(to bottom, #F8F9FA, #FFFFFF)', fontFamily: "'Nunito', sans-serif" }}>
       <div className="max-w-md mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
         >
-          <h1 className="text-3xl font-bold text-slate-900 mb-3">
+          <h1 className="text-3xl font-extrabold mb-3" style={{ color: '#2D3436' }}>
             How would you like to use Circle?
           </h1>
-          <p className="text-slate-600">
+          <p style={{ color: '#636E72' }}>
             Choose your primary role. You can always switch later.
           </p>
         </motion.div>
@@ -78,38 +80,39 @@ export default function RoleSelection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
               onClick={() => setSelectedRole(role.id)}
-              className={cn(
-                "w-full text-left p-6 rounded-3xl border-2 transition-all duration-300",
-                selectedRole === role.id
-                  ? "border-violet-500 bg-violet-50 shadow-lg shadow-violet-500/10"
-                  : "border-slate-200 bg-white hover:border-violet-200"
-              )}
+              className="w-full text-left p-6 rounded-3xl border-2 transition-all duration-300"
+              style={{
+                borderColor: selectedRole === role.id ? '#FFD93D' : '#DFE6E9',
+                background: selectedRole === role.id ? '#FFF3B8' : '#FFFFFF',
+                boxShadow: selectedRole === role.id ? '0 4px 16px rgba(45, 52, 54, 0.12)' : 'none'
+              }}
             >
               <div className="flex items-start gap-4">
-                <div className={cn(
-                  "w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br",
-                  role.gradient
-                )}>
-                  <role.icon className="w-7 h-7 text-white" />
+                <div 
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: selectedRole === role.id ? '#FFD93D' : role.iconBg }}
+                >
+                  <role.icon className="w-7 h-7" style={{ color: selectedRole === role.id ? '#2D3436' : '#FFFFFF' }} />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-lg font-semibold text-slate-900">
+                    <h3 className="text-lg font-bold" style={{ color: '#2D3436' }}>
                       {role.title}
                     </h3>
-                    <div className={cn(
-                      "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
-                      selectedRole === role.id
-                        ? "border-violet-500 bg-violet-500"
-                        : "border-slate-300"
-                    )}>
+                    <div 
+                      className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                      style={{
+                        borderColor: selectedRole === role.id ? '#FFD93D' : '#DFE6E9',
+                        background: selectedRole === role.id ? '#FFD93D' : 'transparent'
+                      }}
+                    >
                       {selectedRole === role.id && (
-                        <Check className="w-4 h-4 text-white" />
+                        <Check className="w-4 h-4" style={{ color: '#2D3436' }} />
                       )}
                     </div>
                   </div>
-                  <p className="text-sm text-slate-500 mb-3">{role.subtitle}</p>
-                  <p className="text-sm text-slate-600">{role.description}</p>
+                  <p className="text-sm mb-3" style={{ color: '#636E72' }}>{role.subtitle}</p>
+                  <p className="text-sm" style={{ color: '#636E72' }}>{role.description}</p>
                 </div>
               </div>
             </motion.button>
@@ -119,10 +122,15 @@ export default function RoleSelection() {
         <Button
           onClick={handleContinue}
           disabled={!selectedRole || loading}
-          className="w-full h-14 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white text-lg font-semibold rounded-2xl disabled:opacity-50"
+          className="w-full h-14 text-lg font-bold rounded-2xl disabled:opacity-50 transition-all hover:transform hover:-translate-y-0.5"
+          style={{ 
+            background: '#FFD93D', 
+            color: '#2D3436',
+            boxShadow: '0 4px 16px rgba(45, 52, 54, 0.12)'
+          }}
         >
           {loading ? (
-            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#2D3436', borderTopColor: 'transparent' }} />
           ) : (
             <>
               Continue

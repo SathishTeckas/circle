@@ -77,14 +77,14 @@ export default function Welcome() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-slate-900 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8F9FA' }}>
+        <div className="w-10 h-10 border-3 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-white overflow-hidden">
+    <div className="relative min-h-screen flex flex-col overflow-hidden" style={{ background: '#FFFFFF', fontFamily: "'Nunito', sans-serif" }}>
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
@@ -121,7 +121,8 @@ export default function Welcome() {
         <div className="space-y-3">
           <Button
             onClick={() => window.location.href = createPageUrl('RoleSelection')}
-            className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white text-base font-medium rounded-full shadow-lg transition-all"
+            className="w-full h-14 text-base font-bold rounded-full shadow-lg transition-all hover:transform hover:-translate-y-0.5"
+            style={{ background: '#FFD93D', color: '#2D3436' }}
           >
             Get started
           </Button>
@@ -129,7 +130,7 @@ export default function Welcome() {
           <Button
             onClick={() => base44.auth.redirectToLogin(createPageUrl('Profile'))}
             variant="outline"
-            className="w-full h-14 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border-white/30 text-base font-medium rounded-full transition-all"
+            className="w-full h-14 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border-white/30 text-base font-bold rounded-full transition-all"
           >
             I already have an account
           </Button>
@@ -151,9 +152,9 @@ export default function Welcome() {
 
       {/* Language Selector Sheet */}
       <Sheet open={showLanguages} onOpenChange={setShowLanguages}>
-        <SheetContent side="bottom" className="h-[70vh] rounded-t-3xl">
+        <SheetContent side="bottom" className="h-[70vh] rounded-t-3xl" style={{ borderRadius: '24px 24px 0 0' }}>
           <SheetHeader className="mb-6">
-            <SheetTitle className="text-xl">Select Language</SheetTitle>
+            <SheetTitle className="text-xl font-bold" style={{ color: '#2D3436' }}>Select Language</SheetTitle>
           </SheetHeader>
           
           <div className="overflow-y-auto space-y-2 pb-6" style={{ maxHeight: 'calc(70vh - 100px)' }}>
@@ -164,14 +165,20 @@ export default function Welcome() {
                   setSelectedLanguage(lang.code);
                   setShowLanguages(false);
                 }}
-                className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 rounded-xl transition-colors"
+                style={{ 
+                  background: selectedLanguage === lang.code ? '#FFF3B8' : 'transparent',
+                  border: selectedLanguage === lang.code ? '2px solid #FFD93D' : '2px solid transparent'
+                }}
               >
                 <div className="text-left">
-                  <p className="font-medium text-slate-900">{lang.name}</p>
-                  <p className="text-sm text-slate-500">{lang.nativeName}</p>
+                  <p className="font-bold" style={{ color: '#2D3436' }}>{lang.name}</p>
+                  <p className="text-sm" style={{ color: '#636E72' }}>{lang.nativeName}</p>
                 </div>
                 {selectedLanguage === lang.code && (
-                  <Check className="w-5 h-5 text-violet-600" />
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: '#FFD93D' }}>
+                    <Check className="w-4 h-4" style={{ color: '#2D3436' }} />
+                  </div>
                 )}
               </button>
             ))}

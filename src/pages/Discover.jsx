@@ -195,24 +195,25 @@ export default function Discover() {
   const activeFilterCount = Object.values(filters).filter(Boolean).length + (selectedDate ? 1 : 0) + (selectedTime ? 1 : 0);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-30">
+      <div className="sticky top-0 bg-white border-b z-30" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 py-4 max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-slate-900">Discover</h1>
+            <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>Discover</h1>
             {user && <NotificationBell user={user} />}
           </div>
           
           {/* Search Bar */}
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: '#B2BEC3' }} />
               <Input
                 placeholder="Search by name, area..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 rounded-xl border-slate-200 bg-slate-50"
+                className="pl-10 h-12 rounded-xl"
+                style={{ background: '#F8F9FA', borderColor: '#DFE6E9' }}
               />
             </div>
             
@@ -220,14 +221,15 @@ export default function Discover() {
               <SheetTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className={cn(
-                    "h-12 px-4 rounded-xl border-slate-200 relative",
-                    activeFilterCount > 0 && "border-violet-500 bg-violet-50"
-                  )}
+                  className="h-12 px-4 rounded-xl relative"
+                  style={{
+                    borderColor: activeFilterCount > 0 ? '#FFD93D' : '#DFE6E9',
+                    background: activeFilterCount > 0 ? '#FFF3B8' : 'transparent'
+                  }}
                 >
-                  <SlidersHorizontal className="w-5 h-5" />
+                  <SlidersHorizontal className="w-5 h-5" style={{ color: '#2D3436' }} />
                   {activeFilterCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-violet-600 text-white text-xs rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-5 h-5 text-xs rounded-full flex items-center justify-center font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>
                       {activeFilterCount}
                     </span>
                   )}
@@ -393,17 +395,19 @@ export default function Discover() {
                 </div>
 
                 {/* Filter Actions */}
-                <div className="flex-shrink-0 p-4 bg-white border-t border-slate-100 flex gap-3">
+                <div className="flex-shrink-0 p-4 bg-white border-t flex gap-3" style={{ borderColor: '#DFE6E9' }}>
                   <Button
                     variant="outline"
                     onClick={clearFilters}
-                    className="flex-1 h-12 rounded-xl"
+                    className="flex-1 h-12 rounded-xl font-bold"
+                    style={{ borderColor: '#DFE6E9', color: '#2D3436' }}
                   >
                     Clear All
                   </Button>
                   <Button
                     onClick={() => setShowFilters(false)}
-                    className="flex-1 h-12 rounded-xl bg-violet-600 hover:bg-violet-700"
+                    className="flex-1 h-12 rounded-xl font-bold"
+                    style={{ background: '#FFD93D', color: '#2D3436' }}
                   >
                     Show Results
                   </Button>
@@ -416,43 +420,43 @@ export default function Discover() {
           {activeFilterCount > 0 && (
             <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
               {selectedDate && (
-                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                <Badge className="flex items-center gap-1 whitespace-nowrap font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
                   {format(selectedDate, 'MMM d')}
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedDate(null)} />
                 </Badge>
               )}
               {selectedTime && (
-                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                <Badge className="flex items-center gap-1 whitespace-nowrap font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
                   {formatTime12Hour(selectedTime)}
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedTime('')} />
                 </Badge>
               )}
               {filters.city && (
-                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                <Badge className="flex items-center gap-1 whitespace-nowrap font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
                   {filters.city}
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, city: '' })} />
                 </Badge>
               )}
               {filters.gender && (
-                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                <Badge className="flex items-center gap-1 whitespace-nowrap font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
                   {filters.gender}
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, gender: '' })} />
                 </Badge>
               )}
               {(filters.priceMin || filters.priceMax) && (
-                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                <Badge className="flex items-center gap-1 whitespace-nowrap font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
                   ₹{filters.priceMin || '0'}-{filters.priceMax || '∞'}
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, priceMin: '', priceMax: '' })} />
                 </Badge>
               )}
               {filters.language && (
-                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                <Badge className="flex items-center gap-1 whitespace-nowrap font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
                   {filters.language}
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, language: '' })} />
                 </Badge>
               )}
               {filters.minRating && (
-                <Badge variant="secondary" className="flex items-center gap-1 bg-violet-100 text-violet-700 whitespace-nowrap">
+                <Badge className="flex items-center gap-1 whitespace-nowrap font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
                   {filters.minRating}+ ⭐
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, minRating: '' })} />
                 </Badge>
@@ -472,16 +476,16 @@ export default function Discover() {
           </div>
         ) : companionsList.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-slate-400" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#FFF3B8' }}>
+              <Search className="w-8 h-8" style={{ color: '#2D3436' }} />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No companions found</h3>
-            <p className="text-slate-600 mb-4">Try adjusting your filters or search</p>
-            <Button variant="outline" onClick={clearFilters}>Clear Filters</Button>
+            <h3 className="text-lg font-bold mb-2" style={{ color: '#2D3436' }}>No companions found</h3>
+            <p className="mb-4" style={{ color: '#636E72' }}>Try adjusting your filters or search</p>
+            <Button variant="outline" onClick={clearFilters} className="font-bold" style={{ borderColor: '#DFE6E9', color: '#2D3436' }}>Clear Filters</Button>
           </div>
         ) : (
           <div className="space-y-4">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm font-medium" style={{ color: '#636E72' }}>
               {companionsList.length} companion{companionsList.length !== 1 ? 's' : ''} available
             </p>
             {companionsList.map((slots, idx) => (
