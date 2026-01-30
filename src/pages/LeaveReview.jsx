@@ -91,24 +91,25 @@ export default function LeaveReview() {
 
   if (!booking || !user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8F9FA' }}>
+        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   if (existingReview) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="p-6 max-w-md text-center">
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Star className="w-8 h-8 text-emerald-600" />
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#F8F9FA' }}>
+        <Card className="p-6 max-w-md text-center" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#4ECDC4' }}>
+            <Star className="w-8 h-8" style={{ color: '#FFFFFF' }} />
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Already Reviewed</h2>
-          <p className="text-slate-600 mb-4">You've already left a review for this meetup</p>
+          <h2 className="text-xl font-extrabold mb-2" style={{ color: '#2D3436' }}>Already Reviewed</h2>
+          <p className="mb-4" style={{ color: '#636E72' }}>You've already left a review for this meetup</p>
           <Button 
             onClick={() => window.history.back()}
-            className="bg-violet-600 hover:bg-violet-700"
+            className="font-bold"
+            style={{ background: '#FFD93D', color: '#2D3436' }}
           >
             Go Back
           </Button>
@@ -122,17 +123,18 @@ export default function LeaveReview() {
   const canSubmit = rating > 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+      <div className="sticky top-0 bg-white border-b z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 py-4 max-w-lg mx-auto flex items-center gap-4">
           <button
             onClick={() => window.history.back()}
-            className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: '#FFF3B8' }}
           >
-            <ArrowLeft className="w-5 h-5 text-slate-700" />
+            <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
           </button>
-          <h1 className="font-semibold text-slate-900">Leave a Review</h1>
+          <h1 className="font-bold" style={{ color: '#2D3436' }}>Leave a Review</h1>
         </div>
       </div>
 
@@ -200,7 +202,8 @@ export default function LeaveReview() {
           <Button
             onClick={() => submitReviewMutation.mutate()}
             disabled={!canSubmit || submitReviewMutation.isPending}
-            className="w-full h-14 bg-violet-600 hover:bg-violet-700 rounded-xl text-lg"
+            className="w-full h-14 rounded-xl text-lg font-bold"
+            style={{ background: '#FFD93D', color: '#2D3436' }}
           >
             {submitReviewMutation.isPending ? (
               <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />

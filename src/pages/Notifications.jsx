@@ -96,29 +96,31 @@ export default function Notifications() {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+      <div className="sticky top-0 bg-white border-b z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 py-4 max-w-lg mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => window.history.back()}
-                className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ background: '#FFF3B8' }}
               >
-                <ArrowLeft className="w-5 h-5 text-slate-700" />
+                <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
               </button>
               <div>
-                <h1 className="font-semibold text-slate-900">Notifications</h1>
+                <h1 className="font-bold" style={{ color: '#2D3436' }}>Notifications</h1>
                 {unreadCount > 0 && (
-                  <p className="text-sm text-slate-600">{unreadCount} unread</p>
+                  <p className="text-sm" style={{ color: '#636E72' }}>{unreadCount} unread</p>
                 )}
               </div>
             </div>
             {unreadCount > 0 && (
               <Button 
                 variant="ghost" 
-                className="text-violet-600 text-sm"
+                className="text-sm font-bold"
+                style={{ color: '#FFB347' }}
                 onClick={() => markAllAsReadMutation.mutate()}
                 disabled={markAllAsReadMutation.isPending}
               >
@@ -136,11 +138,11 @@ export default function Notifications() {
           </div>
         ) : notifications.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Bell className="w-8 h-8 text-slate-400" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#FFF3B8' }}>
+              <Bell className="w-8 h-8" style={{ color: '#2D3436' }} />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No notifications yet</h3>
-            <p className="text-slate-600">We'll notify you when something happens</p>
+            <h3 className="text-lg font-bold mb-2" style={{ color: '#2D3436' }}>No notifications yet</h3>
+            <p style={{ color: '#636E72' }}>We'll notify you when something happens</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -155,9 +157,12 @@ export default function Notifications() {
                   transition={{ delay: idx * 0.05 }}
                 >
                   <Card 
-                    className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-                      notification.read ? 'bg-white' : 'bg-violet-50 border-violet-200'
-                    }`}
+                    className="p-4 cursor-pointer transition-all hover:shadow-md"
+                    style={{ 
+                      background: notification.read ? '#FFFFFF' : '#FFF3B8',
+                      border: notification.read ? '1px solid #DFE6E9' : '1px solid #FFD93D',
+                      boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)'
+                    }}
                     onClick={() => handleNotificationClick(notification)}
                   >
                     <div className="flex items-start gap-4">
