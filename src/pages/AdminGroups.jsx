@@ -207,18 +207,18 @@ export default function AdminGroups() {
 
   const canSubmit = selectedDate && formData.city && formData.area && formData.time && formData.languages.length > 0;
 
-  const statusColors = {
-    open: 'bg-emerald-600 text-white hover:bg-white hover:text-emerald-600 hover:border hover:border-emerald-600 transition-all cursor-pointer',
-    full: 'bg-orange-600 text-white hover:bg-white hover:text-orange-600 hover:border hover:border-orange-600 transition-all cursor-pointer',
-    confirmed: 'bg-blue-600 text-white hover:bg-white hover:text-blue-600 hover:border hover:border-blue-600 transition-all cursor-pointer',
-    completed: 'bg-violet-600 text-white hover:bg-white hover:text-violet-600 hover:border hover:border-violet-600 transition-all cursor-pointer',
-    cancelled: 'bg-slate-500 text-white hover:bg-white hover:text-slate-500 hover:border hover:border-slate-500 transition-all cursor-pointer'
+  const statusStyles = {
+    open: { background: '#4ECDC4', color: '#2D3436' },
+    full: { background: '#FFB347', color: '#2D3436' },
+    confirmed: { background: '#74B9FF', color: '#2D3436' },
+    completed: { background: '#A8A4FF', color: '#FFFFFF' },
+    cancelled: { background: '#DFE6E9', color: '#636E72' }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+      <div className="sticky top-0 bg-white border-b z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 md:px-8 py-4 max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -227,18 +227,19 @@ export default function AdminGroups() {
                 size="icon"
                 onClick={() => window.location.href = createPageUrl('AdminDashboard')}
                 className="rounded-xl"
+                style={{ color: '#2D3436' }}
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">Group Events</h1>
-                <p className="text-sm text-slate-600">{events.length} events created</p>
+                <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>Group Events</h1>
+                <p className="text-sm" style={{ color: '#636E72' }}>{events.length} events created</p>
               </div>
             </div>
 
             <Sheet open={showForm} onOpenChange={setShowForm}>
               <SheetTrigger asChild>
-                <Button className="bg-fuchsia-600 hover:bg-fuchsia-700 rounded-xl">
+                <Button className="rounded-xl font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>
                   <Plus className="w-4 h-4 mr-2" />
                   Create Event
                 </Button>
@@ -456,7 +457,8 @@ export default function AdminGroups() {
                   <Button
                     onClick={() => createMutation.mutate()}
                     disabled={!canSubmit || createMutation.isPending}
-                    className="w-full h-12 bg-fuchsia-600 hover:bg-fuchsia-700 rounded-xl"
+                    className="w-full h-12 rounded-xl font-bold"
+                    style={{ background: '#FFD93D', color: '#2D3436' }}
                   >
                     {createMutation.isPending ? (editingEvent ? 'Updating...' : 'Creating...') : (editingEvent ? 'Update Event' : 'Create Event')}
                   </Button>
@@ -476,9 +478,9 @@ export default function AdminGroups() {
           </div>
         ) : events.length === 0 ? (
           <div className="text-center py-16">
-            <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="font-semibold text-slate-900 mb-2">No events yet</h3>
-            <p className="text-slate-600">Create group events for users to join</p>
+            <Users className="w-12 h-12 mx-auto mb-3" style={{ color: '#B2BEC3' }} />
+            <h3 className="font-bold mb-2" style={{ color: '#2D3436' }}>No events yet</h3>
+            <p style={{ color: '#636E72' }}>Create group events for users to join</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -489,28 +491,28 @@ export default function AdminGroups() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.02 }}
               >
-                <Card className="p-4">
+                <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
                    {event.photos && event.photos.length > 0 && (
-                     <div className="mb-3 rounded-lg overflow-hidden h-40 bg-slate-100">
+                     <div className="mb-3 rounded-lg overflow-hidden h-40" style={{ background: '#FFF3B8' }}>
                        <img src={event.photos[0]} alt="Event" className="w-full h-full object-cover" />
                      </div>
                    )}
                    <div className="flex items-start justify-between mb-3">
                      <div>
                        <div className="flex items-center gap-2">
-                         <h3 className="font-semibold text-slate-900 text-lg">
+                         <h3 className="font-bold text-lg" style={{ color: '#2D3436' }}>
                            {event.title || 'Group Meetup'}
                          </h3>
-                         <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md font-mono">
+                         <span className="text-xs px-2 py-1 rounded-md font-mono" style={{ background: '#DFE6E9', color: '#636E72' }}>
                            #{event.id.slice(-5)}
                          </span>
                        </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge className={statusColors[event.status]}>
+                        <Badge className="font-bold" style={statusStyles[event.status]}>
                           {event.status}
                         </Badge>
-                        <Badge variant="outline">{event.language}</Badge>
-                        <span className="text-sm text-slate-500">
+                        <Badge variant="outline" className="font-bold" style={{ borderColor: '#DFE6E9', color: '#2D3436' }}>{event.language}</Badge>
+                        <span className="text-sm" style={{ color: '#636E72' }}>
                           Ages {event.age_range_min}-{event.age_range_max}
                         </span>
                       </div>
@@ -535,27 +537,27 @@ export default function AdminGroups() {
                     </div>
                    </div>
 
-                   <div className="space-y-2 text-sm text-slate-600">
+                   <div className="space-y-2 text-sm" style={{ color: '#636E72' }}>
                     <div className="flex items-center gap-2">
-                      <CalendarIcon className="w-4 h-4 text-fuchsia-600" />
+                      <CalendarIcon className="w-4 h-4" style={{ color: '#FFB347' }} />
                       {event.date ? format(new Date(event.date), 'EEEE, MMMM d, yyyy') : 'TBD'}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-fuchsia-600" />
+                      <Clock className="w-4 h-4" style={{ color: '#74B9FF' }} />
                       {event.time}
                     </div>
                     {event.venue_name && (
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-fuchsia-600" />
+                        <MapPin className="w-4 h-4" style={{ color: '#FF6B6B' }} />
                         {event.venue_name}, {event.city}
                       </div>
                     )}
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div className="mt-4 pt-3 border-t flex items-center justify-between" style={{ borderColor: '#DFE6E9' }}>
                     <div className="flex items-center gap-2">
                       {event.price && (
-                        <span className="text-sm font-medium text-fuchsia-600">
+                        <span className="text-sm font-bold" style={{ color: '#FFB347' }}>
                           ₹{event.price}
                         </span>
                       )}
@@ -563,14 +565,16 @@ export default function AdminGroups() {
                     <div className="flex gap-2">
                       <a
                         href={createPageUrl('AdminGroupsDashboard') + `?eventId=${event.id}`}
-                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        className="text-sm font-bold hover:opacity-80"
+                        style={{ color: '#74B9FF' }}
                       >
                         View Participants →
                       </a>
                       {event.status === 'completed' && (
                         <a
                           href={createPageUrl('AdminFeedbackView') + `?eventId=${event.id}`}
-                          className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+                          className="text-sm font-bold hover:opacity-80"
+                          style={{ color: '#A8A4FF' }}
                         >
                           View Feedback
                         </a>

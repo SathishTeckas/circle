@@ -184,35 +184,38 @@ export default function AdminCampaignReferrals() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-white border-b border-slate-100 px-4 py-6">
+      <div className="bg-white border-b px-4 py-6" style={{ borderColor: '#DFE6E9' }}>
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate(createPageUrl('AdminDashboard'))}
-                className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors shrink-0"
+                className="w-9 h-9 rounded-lg border flex items-center justify-center hover:opacity-80 transition-colors shrink-0"
+                style={{ borderColor: '#DFE6E9' }}
               >
-                <ArrowLeft className="w-5 h-5 text-slate-600" />
+                <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
               </button>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Campaign Referral Codes</h1>
-                <p className="text-sm text-slate-600">Track signups from marketing campaigns</p>
+                <h1 className="text-xl sm:text-2xl font-extrabold" style={{ color: '#2D3436' }}>Campaign Referral Codes</h1>
+                <p className="text-sm" style={{ color: '#636E72' }}>Track signups from marketing campaigns</p>
               </div>
             </div>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 onClick={handleExport}
-                className="gap-2"
+                className="gap-2 font-bold"
+                style={{ borderColor: '#DFE6E9', color: '#2D3436' }}
               >
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Export</span>
               </Button>
               <Button
                 onClick={() => navigate(createPageUrl('AdminCreateCampaign'))}
-                className="bg-violet-600 hover:bg-violet-700 gap-2"
+                className="gap-2 font-bold"
+                style={{ background: '#FFD93D', color: '#2D3436' }}
               >
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">New Campaign</span>
@@ -223,47 +226,47 @@ export default function AdminCampaignReferrals() {
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="p-4">
+            <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-violet-100 rounded-lg flex items-center justify-center">
-                  <Users className="w-5 h-5 text-violet-600" />
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#FFF3B8' }}>
+                  <Users className="w-5 h-5" style={{ color: '#2D3436' }} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{totalStats.signups}</p>
-                  <p className="text-xs text-slate-600">Total Signups</p>
+                  <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{totalStats.signups}</p>
+                  <p className="text-xs" style={{ color: '#636E72' }}>Total Signups</p>
                 </div>
               </div>
             </Card>
-            <Card className="p-4">
+            <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Users className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#74B9FF' }}>
+                  <Users className="w-5 h-5" style={{ color: '#2D3436' }} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{totalStats.companions}</p>
-                  <p className="text-xs text-slate-600">Companions</p>
+                  <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{totalStats.companions}</p>
+                  <p className="text-xs" style={{ color: '#636E72' }}>Companions</p>
                 </div>
               </div>
             </Card>
-            <Card className="p-4">
+            <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <Users className="w-5 h-5 text-emerald-600" />
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#4ECDC4' }}>
+                  <Users className="w-5 h-5" style={{ color: '#2D3436' }} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{totalStats.seekers}</p>
-                  <p className="text-xs text-slate-600">Seekers</p>
+                  <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{totalStats.seekers}</p>
+                  <p className="text-xs" style={{ color: '#636E72' }}>Seekers</p>
                 </div>
               </div>
             </Card>
-            <Card className="p-4">
+            <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-amber-600" />
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#FFB347' }}>
+                  <TrendingUp className="w-5 h-5" style={{ color: '#2D3436' }} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{formatCurrency(totalStats.revenue)}</p>
-                  <p className="text-xs text-slate-600">Total Revenue</p>
+                  <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{formatCurrency(totalStats.revenue)}</p>
+                  <p className="text-xs" style={{ color: '#636E72' }}>Total Revenue</p>
                 </div>
               </div>
             </Card>
@@ -280,13 +283,13 @@ export default function AdminCampaignReferrals() {
             ))}
           </div>
         ) : campaigns.length === 0 ? (
-          <Card className="p-12 text-center">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <LinkIcon className="w-8 h-8 text-slate-400" />
+          <Card className="p-12 text-center" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#FFF3B8' }}>
+              <LinkIcon className="w-8 h-8" style={{ color: '#2D3436' }} />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No campaign codes yet</h3>
-            <p className="text-slate-600 mb-4">Create your first campaign referral code to start tracking</p>
-            <Button onClick={() => navigate(createPageUrl('AdminCreateCampaign'))} className="bg-violet-600 hover:bg-violet-700">
+            <h3 className="text-lg font-bold mb-2" style={{ color: '#2D3436' }}>No campaign codes yet</h3>
+            <p className="mb-4" style={{ color: '#636E72' }}>Create your first campaign referral code to start tracking</p>
+            <Button onClick={() => navigate(createPageUrl('AdminCreateCampaign'))} className="font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>
               <Plus className="w-4 h-4 mr-2" />
               Create Campaign
             </Button>
@@ -294,14 +297,18 @@ export default function AdminCampaignReferrals() {
         ) : (
           <div className="space-y-3">
             {campaigns.map(campaign => (
-              <Card key={campaign.id} className="p-3 sm:p-6 hover:shadow-md transition-shadow">
+              <Card key={campaign.id} className="p-3 sm:p-6 hover:shadow-md transition-shadow" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <h3 className="text-base sm:text-lg font-semibold text-slate-900 truncate">{campaign.campaign_name}</h3>
-                      <Badge className={cn(
-                        campaign.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
-                      )}>
+                      <h3 className="text-base sm:text-lg font-bold truncate" style={{ color: '#2D3436' }}>{campaign.campaign_name}</h3>
+                      <Badge 
+                        className="font-bold"
+                        style={{ 
+                          background: campaign.is_active ? '#4ECDC4' : '#DFE6E9', 
+                          color: campaign.is_active ? '#2D3436' : '#636E72' 
+                        }}
+                      >
                         {campaign.is_active ? 'Active' : 'Inactive'}
                       </Badge>
                     </div>
@@ -374,7 +381,7 @@ export default function AdminCampaignReferrals() {
 
                 {/* Reward Badge */}
                 {campaign.referral_reward_amount > 0 && (
-                  <div className="flex items-center gap-2 text-xs text-violet-600 bg-violet-50 px-3 py-1.5 rounded-lg w-fit mb-3">
+                  <div className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg w-fit mb-3 font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
                     <Gift className="w-3.5 h-3.5" />
                     <span>₹{campaign.referral_reward_amount} {campaign.referral_reward_type === 'wallet_credit' ? 'credit' : 'discount'} per signup</span>
                   </div>
@@ -405,26 +412,26 @@ export default function AdminCampaignReferrals() {
                 )}
 
                 {/* Stats Row */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 pt-4 border-t border-slate-100">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 pt-4 border-t" style={{ borderColor: '#DFE6E9' }}>
                   <div>
-                    <p className="text-xs text-slate-600 mb-1">Signups</p>
-                    <p className="text-base sm:text-lg font-semibold text-slate-900">{campaign.total_signups || 0}</p>
+                    <p className="text-xs mb-1" style={{ color: '#636E72' }}>Signups</p>
+                    <p className="text-base sm:text-lg font-bold" style={{ color: '#2D3436' }}>{campaign.total_signups || 0}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-600 mb-1">Companions</p>
-                    <p className="text-base sm:text-lg font-semibold text-blue-600">{campaign.total_companions || 0}</p>
+                    <p className="text-xs mb-1" style={{ color: '#636E72' }}>Companions</p>
+                    <p className="text-base sm:text-lg font-bold" style={{ color: '#74B9FF' }}>{campaign.total_companions || 0}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-600 mb-1">Seekers</p>
-                    <p className="text-base sm:text-lg font-semibold text-emerald-600">{campaign.total_seekers || 0}</p>
+                    <p className="text-xs mb-1" style={{ color: '#636E72' }}>Seekers</p>
+                    <p className="text-base sm:text-lg font-bold" style={{ color: '#4ECDC4' }}>{campaign.total_seekers || 0}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-600 mb-1">Bookings</p>
-                    <p className="text-base sm:text-lg font-semibold text-violet-600">{campaign.total_bookings || 0}</p>
+                    <p className="text-xs mb-1" style={{ color: '#636E72' }}>Bookings</p>
+                    <p className="text-base sm:text-lg font-bold" style={{ color: '#A8A4FF' }}>{campaign.total_bookings || 0}</p>
                   </div>
                   <div className="col-span-2 sm:col-span-1">
-                    <p className="text-xs text-slate-600 mb-1">Revenue</p>
-                    <p className="text-base sm:text-lg font-semibold text-amber-600 truncate">{formatCurrency(campaign.total_revenue || 0)}</p>
+                    <p className="text-xs mb-1" style={{ color: '#636E72' }}>Revenue</p>
+                    <p className="text-base sm:text-lg font-bold truncate" style={{ color: '#FFB347' }}>{formatCurrency(campaign.total_revenue || 0)}</p>
                   </div>
                 </div>
               </Card>

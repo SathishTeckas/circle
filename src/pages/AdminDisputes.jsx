@@ -15,10 +15,10 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 const disputeStatusConfig = {
-  open: { label: 'Open', color: 'bg-red-100 text-red-700', icon: AlertTriangle },
-  under_review: { label: 'Under Review', color: 'bg-blue-100 text-blue-700', icon: Clock },
-  resolved: { label: 'Resolved', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
-  closed: { label: 'Closed', color: 'bg-slate-100 text-slate-700', icon: XCircle },
+  open: { label: 'Open', bgColor: '#FF6B6B', textColor: '#FFFFFF', icon: AlertTriangle },
+  under_review: { label: 'Under Review', bgColor: '#74B9FF', textColor: '#2D3436', icon: Clock },
+  resolved: { label: 'Resolved', bgColor: '#4ECDC4', textColor: '#2D3436', icon: CheckCircle },
+  closed: { label: 'Closed', bgColor: '#DFE6E9', textColor: '#636E72', icon: XCircle },
 };
 
 const reasonLabels = {
@@ -36,49 +36,50 @@ const DisputeCard = React.memo(({ dispute, idx, bookingsMap, onOpenDetails }) =>
 
   return (
     <div>
-      <Card className="p-4 hover:shadow-md transition-shadow">
+      <Card className="p-4 hover:shadow-md transition-shadow" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
         <div className="flex items-start justify-between mb-3">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Badge className={cn(status.color)}>
+              <Badge className="font-bold" style={{ background: status.bgColor, color: status.textColor }}>
                 <StatusIcon className="w-3 h-3 mr-1" />
                 {status.label}
               </Badge>
-              <Badge variant="outline" className="capitalize">
+              <Badge variant="outline" className="capitalize font-bold" style={{ borderColor: '#DFE6E9', color: '#2D3436' }}>
                 {reasonLabels[dispute.reason]}
               </Badge>
             </div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm" style={{ color: '#636E72' }}>
               Booking #{dispute.booking_id.slice(0, 8).toUpperCase()}
             </p>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs mt-1" style={{ color: '#B2BEC3' }}>
               Raised: {format(new Date(dispute.created_date), 'MMM d, yyyy HH:mm')}
             </p>
           </div>
         </div>
 
-        <div className="bg-slate-50 rounded-lg p-3 mb-3 space-y-2">
+        <div className="rounded-lg p-3 mb-3 space-y-2" style={{ background: '#F8F9FA' }}>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-600">Raised by</span>
-            <span className="font-medium text-slate-900 capitalize">
+            <span style={{ color: '#636E72' }}>Raised by</span>
+            <span className="font-bold capitalize" style={{ color: '#2D3436' }}>
               {dispute.raised_by_name} ({dispute.raised_by_role})
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-600">Against</span>
-            <span className="font-medium text-slate-900">{dispute.against_user_name}</span>
+            <span style={{ color: '#636E72' }}>Against</span>
+            <span className="font-bold" style={{ color: '#2D3436' }}>{dispute.against_user_name}</span>
           </div>
           {booking && (
             <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-600">Amount</span>
-              <span className="font-medium text-slate-900">{formatCurrency(booking.total_amount)}</span>
+              <span style={{ color: '#636E72' }}>Amount</span>
+              <span className="font-bold" style={{ color: '#2D3436' }}>{formatCurrency(booking.total_amount)}</span>
             </div>
           )}
         </div>
 
         <Button 
           variant="outline" 
-          className="w-full rounded-xl"
+          className="w-full rounded-xl font-bold"
+          style={{ borderColor: '#DFE6E9', color: '#2D3436' }}
           onClick={() => onOpenDetails(dispute)}
         >
           View Details & Resolve
@@ -218,19 +219,20 @@ export default function AdminDisputes() {
   const isLoading = disputesLoading || bookingsLoading;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-white border-b border-slate-100 sticky top-0 z-10">
+      <div className="bg-white border-b sticky top-0 z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 py-4 max-w-6xl mx-auto flex items-center gap-4">
           <button
             onClick={() => window.history.back()}
-            className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: '#FFF3B8' }}
           >
-            <ArrowLeft className="w-5 h-5 text-slate-700" />
+            <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
           </button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-slate-900">Dispute Management</h1>
-            <p className="text-sm text-slate-500">{openDisputes.length} open disputes</p>
+            <h1 className="text-xl font-extrabold" style={{ color: '#2D3436' }}>Dispute Management</h1>
+            <p className="text-sm" style={{ color: '#636E72' }}>{openDisputes.length} open disputes</p>
           </div>
         </div>
       </div>
@@ -238,7 +240,7 @@ export default function AdminDisputes() {
       <div className="px-4 py-6 max-w-6xl mx-auto space-y-6">
         {isLoading && (
           <div className="flex justify-center py-12">
-            <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
           </div>
         )}
 
@@ -246,38 +248,38 @@ export default function AdminDisputes() {
           <>
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="p-4">
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#FF6B6B' }}>
+                <AlertTriangle className="w-5 h-5" style={{ color: '#FFFFFF' }} />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Open</p>
-                <p className="text-2xl font-bold text-slate-900">{openDisputes.length}</p>
+                <p className="text-sm" style={{ color: '#636E72' }}>Open</p>
+                <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{openDisputes.length}</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4">
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Clock className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#74B9FF' }}>
+                <Clock className="w-5 h-5" style={{ color: '#2D3436' }} />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Under Review</p>
-                <p className="text-2xl font-bold text-slate-900">{reviewDisputes.length}</p>
+                <p className="text-sm" style={{ color: '#636E72' }}>Under Review</p>
+                <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{reviewDisputes.length}</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4">
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-emerald-600" />
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#4ECDC4' }}>
+                <CheckCircle className="w-5 h-5" style={{ color: '#2D3436' }} />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Resolved</p>
-                <p className="text-2xl font-bold text-slate-900">{resolvedDisputes.length}</p>
+                <p className="text-sm" style={{ color: '#636E72' }}>Resolved</p>
+                <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{resolvedDisputes.length}</p>
               </div>
             </div>
           </Card>
