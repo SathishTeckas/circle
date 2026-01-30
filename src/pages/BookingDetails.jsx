@@ -193,13 +193,34 @@ export default function BookingDetails() {
         throw new Error(paymentData.error || 'Failed to create payment order');
       }
 
-      // Step 3: Update booking with payment details
-      await base44.entities.Booking.update(booking.id, {
-        payment_order_id: paymentData.order_id,
-        payment_session_id: paymentData.payment_session_id
-      });
+      // Step 3: Update booking with payment details (with retry)
+      const maxRetries = 3;
+      let updateSuccess = false;
+      let lastError = null;
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          await base44.entities.Booking.update(booking.id, {
+            payment_order_id: paymentData.order_id,
+            payment_session_id: paymentData.payment_session_id
+          });
+          updateSuccess = true;
+          break;
+        } catch (err) {
+          lastError = err;
+          console.log(`Booking update attempt ${attempt} failed:`, err.message);
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Wait 1s, 2s, 3s
+          }
+        }
+      }
+      
+      if (!updateSuccess) {
+        console.error('Failed to update booking after retries, but payment order created:', paymentData.order_id);
+        // Continue anyway - payment can still proceed, we'll update on callback
+      }
 
-      return { booking, paymentData };
+      return { booking: { ...booking, payment_order_id: paymentData.order_id, payment_session_id: paymentData.payment_session_id }, paymentData };
       },
       onSuccess: ({ booking, paymentData }) => {
       // Load Cashfree JS SDK and redirect to checkout
