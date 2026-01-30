@@ -407,18 +407,19 @@ export default function Wallet() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-emerald-500 to-teal-600 px-4 pt-8 pb-12">
+      <div className="px-4 pt-8 pb-12" style={{ background: 'linear-gradient(135deg, #4ECDC4 0%, #74B9FF 100%)' }}>
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-4 mb-6">
             <button
               onClick={() => window.history.back()}
-              className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center"
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(255,255,255,0.3)' }}
             >
               <ArrowLeft className="w-5 h-5 text-white" />
             </button>
-            <h1 className="text-xl font-bold text-white">My Wallet</h1>
+            <h1 className="text-xl font-extrabold text-white">My Wallet</h1>
           </div>
 
           {/* Balance Card */}

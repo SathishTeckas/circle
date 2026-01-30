@@ -85,12 +85,12 @@ export default function ChatList() {
   const completedStatus = bookings.filter(b => b.status === 'completed').length;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-white border-b border-slate-100 px-4 py-4">
+      <div className="bg-white border-b px-4 py-4" style={{ borderColor: '#DFE6E9' }}>
         <div className="max-w-lg mx-auto">
-          <h1 className="text-2xl font-bold text-slate-900">Messages</h1>
-          <p className="text-sm text-slate-600">Chat with your {isCompanion ? 'guests' : 'companions'}</p>
+          <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>Messages</h1>
+          <p className="text-sm" style={{ color: '#636E72' }}>Chat with your {isCompanion ? 'guests' : 'companions'}</p>
         </div>
       </div>
 
@@ -102,10 +102,8 @@ export default function ChatList() {
               variant={filterUnread ? "default" : "outline"}
               size="sm"
               onClick={() => setFilterUnread(!filterUnread)}
-              className={cn(
-                "h-9 rounded-lg text-xs",
-                filterUnread && "bg-violet-600 hover:bg-violet-700"
-              )}
+              className="h-9 rounded-lg text-xs font-bold"
+              style={filterUnread ? { background: '#FFD93D', color: '#2D3436' } : { borderColor: '#DFE6E9', color: '#2D3436' }}
             >
               Unread Only
             </Button>
@@ -114,10 +112,8 @@ export default function ChatList() {
                 variant={filterStatus === 'all' ? "default" : "outline"}
                 size="sm"
                 onClick={() => setFilterStatus('all')}
-                className={cn(
-                  "h-9 rounded-lg text-xs",
-                  filterStatus === 'all' && "bg-violet-600 hover:bg-violet-700"
-                )}
+                className="h-9 rounded-lg text-xs font-bold"
+                style={filterStatus === 'all' ? { background: '#FFD93D', color: '#2D3436' } : { borderColor: '#DFE6E9', color: '#2D3436' }}
               >
                 All
               </Button>
@@ -125,10 +121,8 @@ export default function ChatList() {
                 variant={filterStatus === 'accepted' ? "default" : "outline"}
                 size="sm"
                 onClick={() => setFilterStatus('accepted')}
-                className={cn(
-                  "h-9 rounded-lg text-xs",
-                  filterStatus === 'accepted' && "bg-violet-600 hover:bg-violet-700"
-                )}
+                className="h-9 rounded-lg text-xs font-bold"
+                style={filterStatus === 'accepted' ? { background: '#FFD93D', color: '#2D3436' } : { borderColor: '#DFE6E9', color: '#2D3436' }}
               >
                 Active ({activeStatus})
               </Button>
@@ -136,10 +130,8 @@ export default function ChatList() {
                 variant={filterStatus === 'completed' ? "default" : "outline"}
                 size="sm"
                 onClick={() => setFilterStatus('completed')}
-                className={cn(
-                  "h-9 rounded-lg text-xs",
-                  filterStatus === 'completed' && "bg-violet-600 hover:bg-violet-700"
-                )}
+                className="h-9 rounded-lg text-xs font-bold"
+                style={filterStatus === 'completed' ? { background: '#FFD93D', color: '#2D3436' } : { borderColor: '#DFE6E9', color: '#2D3436' }}
               >
                 Completed ({completedStatus})
               </Button>
@@ -171,13 +163,13 @@ export default function ChatList() {
           </div>
         ) : filteredBookings.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MessageCircle className="w-8 h-8 text-slate-400" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#FFF3B8' }}>
+              <MessageCircle className="w-8 h-8" style={{ color: '#2D3436' }} />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">
+            <h3 className="text-lg font-bold mb-2" style={{ color: '#2D3436' }}>
               {hasActiveFilters ? 'No conversations match filters' : 'No conversations yet'}
             </h3>
-            <p className="text-slate-600">
+            <p style={{ color: '#636E72' }}>
               {hasActiveFilters 
                 ? 'Try adjusting your filters'
                 : isCompanion 
@@ -201,11 +193,11 @@ export default function ChatList() {
           </div>
         ) : bookings.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MessageCircle className="w-8 h-8 text-slate-400" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#FFF3B8' }}>
+              <MessageCircle className="w-8 h-8" style={{ color: '#2D3436' }} />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No conversations yet</h3>
-            <p className="text-slate-600">
+            <h3 className="text-lg font-bold mb-2" style={{ color: '#2D3436' }}>No conversations yet</h3>
+            <p style={{ color: '#636E72' }}>
               {isCompanion 
                 ? 'Accept a booking to start chatting'
                 : 'Book a companion to start chatting'
@@ -228,10 +220,14 @@ export default function ChatList() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
                 >
-                  <Card className={cn(
-                    "p-4 hover:shadow-md transition-all",
-                    unreadCount > 0 && "border-violet-200 bg-violet-50/50"
-                  )}>
+                  <Card 
+                    className="p-4 hover:shadow-md transition-all"
+                    style={{ 
+                      background: unreadCount > 0 ? '#FFF3B8' : '#FFFFFF',
+                      border: unreadCount > 0 ? '1px solid #FFD93D' : '1px solid #DFE6E9',
+                      boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)'
+                    }}
+                  >
                     <Link to={createPageUrl(`ChatView?id=${booking.id}`)}>
                       <div className="flex items-center gap-4">
                         <div className="relative">
@@ -241,7 +237,7 @@ export default function ChatList() {
                             className="w-16 h-16 rounded-xl object-cover ring-2 ring-slate-200"
                           />
                           {unreadCount > 0 && (
-                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-violet-600 text-white text-xs rounded-full flex items-center justify-center">
+                            <span className="absolute -top-1 -right-1 w-5 h-5 text-xs rounded-full flex items-center justify-center font-bold" style={{ background: '#FF6B6B', color: '#FFFFFF' }}>
                               {unreadCount}
                             </span>
                           )}
@@ -249,19 +245,19 @@ export default function ChatList() {
                         
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-semibold text-slate-900 truncate">
+                            <h3 className="font-bold truncate" style={{ color: '#2D3436' }}>
                               {otherName}
                             </h3>
-                            <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                            <ChevronRight className="w-5 h-5 flex-shrink-0" style={{ color: '#B2BEC3' }} />
                           </div>
                           
-                          <p className="text-xs text-slate-500 mb-2">
+                          <p className="text-xs mb-2" style={{ color: '#636E72' }}>
                             Booking ID: {booking?.id?.slice(0, 8).toUpperCase() || 'N/A'}
                           </p>
                           
                           <div className="flex items-center gap-2">
                             {unreadCount > 0 && (
-                              <Badge className="bg-violet-100 text-violet-700 animate-pulse">
+                              <Badge className="animate-pulse font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>
                                 {unreadCount} new
                               </Badge>
                             )}

@@ -249,17 +249,17 @@ export default function CompanionDashboard() {
   }, [groupEventsRaw]);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-violet-600 to-fuchsia-600 px-4 pt-8 pb-12">
+      <div className="px-4 pt-8 pb-12" style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FFB347 100%)' }}>
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-violet-200 text-sm">Welcome back</p>
-              <h1 className="text-2xl font-bold text-white">{user?.display_name || user?.full_name || 'Companion'}</h1>
+              <p className="text-sm" style={{ color: 'rgba(45,52,54,0.7)' }}>Welcome back</p>
+              <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{user?.display_name || user?.full_name || 'Companion'}</h1>
             </div>
             {user && (
-              <div className="text-white">
+              <div style={{ color: '#2D3436' }}>
                 <NotificationBell user={user} />
               </div>
             )}
@@ -267,24 +267,24 @@ export default function CompanionDashboard() {
 
           {/* Stats */}
            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
-              <IndianRupee className="w-5 h-5 mb-1 text-white/80" />
-              <p className="text-2xl font-bold truncate">
+            <Card className="p-3 backdrop-blur" style={{ background: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.5)' }}>
+              <IndianRupee className="w-5 h-5 mb-1" style={{ color: '#2D3436' }} />
+              <p className="text-2xl font-extrabold truncate" style={{ color: '#2D3436' }}>
                 ₹{totalEarnings >= 10000 
                   ? `${Math.round(totalEarnings / 1000)}K` 
                   : Math.round(totalEarnings).toLocaleString('en-IN')}
               </p>
-              <p className="text-xs text-white/70">Total Earned</p>
+              <p className="text-xs" style={{ color: 'rgba(45,52,54,0.7)' }}>Total Earned</p>
             </Card>
-            <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
-              <UsersIcon className="w-5 h-5 mb-1 text-white/80" />
-              <p className="text-2xl font-bold">{completedBookings.length}</p>
-              <p className="text-xs text-white/70">Meetups</p>
+            <Card className="p-3 backdrop-blur" style={{ background: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.5)' }}>
+              <UsersIcon className="w-5 h-5 mb-1" style={{ color: '#2D3436' }} />
+              <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{completedBookings.length}</p>
+              <p className="text-xs" style={{ color: 'rgba(45,52,54,0.7)' }}>Meetups</p>
             </Card>
-            <Card className="p-3 bg-white/10 backdrop-blur border-white/20 text-white">
-              <Star className="w-5 h-5 mb-1 text-white/80" />
-              <p className="text-2xl font-bold">{hasRating ? avgRating.toFixed(1) : 'New'}</p>
-              <p className="text-xs text-white/70">Rating</p>
+            <Card className="p-3 backdrop-blur" style={{ background: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.5)' }}>
+              <Star className="w-5 h-5 mb-1" style={{ color: '#2D3436' }} />
+              <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{hasRating ? avgRating.toFixed(1) : 'New'}</p>
+              <p className="text-xs" style={{ color: 'rgba(45,52,54,0.7)' }}>Rating</p>
             </Card>
           </div>
         </div>
@@ -292,33 +292,33 @@ export default function CompanionDashboard() {
 
       <div className="px-4 -mt-4 max-w-lg mx-auto space-y-4 pb-24">
         {/* Quick Actions */}
-        <Card className="p-4">
+        <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
           <Link 
             to={createPageUrl('ManageAvailability')}
             className="flex items-center justify-between"
           >
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
-                <Plus className="w-6 h-6 text-violet-600" />
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#FFF3B8' }}>
+                <Plus className="w-6 h-6" style={{ color: '#2D3436' }} />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900">Add Availability</h3>
-                <p className="text-sm text-slate-600">
+                <h3 className="font-bold" style={{ color: '#2D3436' }}>Add Availability</h3>
+                <p className="text-sm" style={{ color: '#636E72' }}>
                   {activeAvailabilities.length} active slots
                 </p>
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-slate-400" />
+            <ChevronRight className="w-5 h-5" style={{ color: '#B2BEC3' }} />
           </Link>
         </Card>
 
         {/* Pending Requests */}
         {pendingBookings.length > 0 && (
-          <Card className="p-4 border-amber-200 bg-amber-50">
+          <Card className="p-4" style={{ background: '#FFF3B8', border: '1px solid #FFD93D' }}>
             <div className="flex items-center gap-2 mb-3">
-              <Bell className="w-5 h-5 text-amber-600" />
-              <h3 className="font-semibold text-amber-900">Pending Requests</h3>
-              <Badge className="bg-amber-200 text-amber-800">{pendingBookings.length}</Badge>
+              <Bell className="w-5 h-5" style={{ color: '#E6C235' }} />
+              <h3 className="font-bold" style={{ color: '#2D3436' }}>Pending Requests</h3>
+              <Badge className="font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>{pendingBookings.length}</Badge>
             </div>
             
             <div className="space-y-3">
@@ -349,19 +349,19 @@ export default function CompanionDashboard() {
         )}
 
         {/* Upcoming Bookings */}
-        <Card className="p-4">
+        <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-violet-600" />
+            <h3 className="font-bold flex items-center gap-2" style={{ color: '#2D3436' }}>
+              <Calendar className="w-5 h-5" style={{ color: '#74B9FF' }} />
               Upcoming Meetups
             </h3>
-            <Link to={createPageUrl('CalendarView')} className="text-sm text-violet-600 font-medium">
+            <Link to={createPageUrl('CalendarView')} className="text-sm font-bold" style={{ color: '#FFB347' }}>
               View All
             </Link>
           </div>
 
           {upcomingBookings.length === 0 ? (
-            <p className="text-center text-slate-500 py-6">No upcoming meetups</p>
+            <p className="text-center py-6" style={{ color: '#636E72' }}>No upcoming meetups</p>
           ) : (
             <div className="space-y-3">
               {upcomingBookings.slice(0, 3).map((booking) => (
@@ -388,7 +388,7 @@ export default function CompanionDashboard() {
                           {booking.start_time}
                         </div>
                       </div>
-                      <Badge className="bg-emerald-100 text-emerald-700">
+                      <Badge className="font-bold" style={{ background: '#4ECDC4', color: '#2D3436' }}>
                         <CheckCircle className="w-3.5 h-3.5 mr-1" />
                         Confirmed
                       </Badge>
@@ -398,7 +398,8 @@ export default function CompanionDashboard() {
                     variant="outline"
                     size="sm"
                     onClick={() => setCancelBookingId(booking.id)}
-                    className="w-full mt-2 border-red-200 text-red-600 hover:bg-red-50"
+                    className="w-full mt-2 font-bold"
+                    style={{ borderColor: '#E17055', color: '#E17055' }}
                   >
                     <XCircle className="w-4 h-4 mr-2" />
                     Cancel Booking
@@ -411,13 +412,13 @@ export default function CompanionDashboard() {
 
         {/* Group Events */}
         {groupEvents.length > 0 && (
-          <Card className="p-4">
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-                <UsersIcon className="w-5 h-5 text-violet-600" />
+              <h3 className="font-bold flex items-center gap-2" style={{ color: '#2D3436' }}>
+                <UsersIcon className="w-5 h-5" style={{ color: '#A8A4FF' }} />
                 Group Events
               </h3>
-              <Link to={createPageUrl('GroupEvents')} className="text-sm text-violet-600 font-medium">
+              <Link to={createPageUrl('GroupEvents')} className="text-sm font-bold" style={{ color: '#FFB347' }}>
                 View All
               </Link>
             </div>
@@ -453,13 +454,13 @@ export default function CompanionDashboard() {
         )}
 
         {/* Earnings Summary */}
-        <Card className="p-4">
+        <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-emerald-600" />
+            <h3 className="font-bold flex items-center gap-2" style={{ color: '#2D3436' }}>
+              <TrendingUp className="w-5 h-5" style={{ color: '#4ECDC4' }} />
               Earnings This Month
             </h3>
-            <Link to={createPageUrl('Wallet')} className="text-sm text-violet-600 font-medium">
+            <Link to={createPageUrl('Wallet')} className="text-sm font-bold" style={{ color: '#FFB347' }}>
               Wallet
             </Link>
           </div>
@@ -482,18 +483,18 @@ export default function CompanionDashboard() {
 
         {/* Referral Card */}
         <Link to={createPageUrl('Referrals')} className="block mt-6">
-          <Card className="p-4 bg-gradient-to-br from-violet-50 to-fuchsia-50 border-violet-200 hover:shadow-md transition-all">
+          <Card className="p-4 hover:shadow-md transition-all" style={{ background: 'linear-gradient(135deg, #FFF3B8 0%, #FFE8CC 100%)', border: '1px solid #FFD93D' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
-                  <Gift className="w-6 h-6 text-violet-600" />
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#FFD93D' }}>
+                  <Gift className="w-6 h-6" style={{ color: '#2D3436' }} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-900">Refer & Earn</h3>
-                  <p className="text-sm text-slate-600">Get ₹100 per referral</p>
+                  <h3 className="font-bold" style={{ color: '#2D3436' }}>Refer & Earn</h3>
+                  <p className="text-sm" style={{ color: '#636E72' }}>Get ₹100 per referral</p>
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-slate-400" />
+              <ChevronRight className="w-5 h-5" style={{ color: '#B2BEC3' }} />
             </div>
           </Card>
         </Link>
