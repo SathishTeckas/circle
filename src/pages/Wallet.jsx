@@ -621,6 +621,12 @@ export default function Wallet() {
               <span className="text-slate-600">Total Earnings</span>
               <span className="font-medium text-emerald-600">+{formatCurrency(totalEarnings + referralEarnings + campaignEarnings)}</span>
             </div>
+            {totalWithdrawn > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-600">Total Withdrawn</span>
+                <span className="font-medium text-red-600">-{formatCurrency(totalWithdrawn)}</span>
+              </div>
+            )}
             {approvedPayouts > 0 && (
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-600">Approved Payouts</span>
