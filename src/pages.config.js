@@ -92,7 +92,6 @@ import RoleSelection from './pages/RoleSelection';
 import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
-import Welcome from './pages/Welcome';
 import __Layout from './Layout.jsx';
 
 
@@ -142,11 +141,10 @@ export const PAGES = {
     "TermsAcceptance": TermsAcceptance,
     "UserProfile": UserProfile,
     "Wallet": Wallet,
-    "Welcome": Welcome,
 }
 
 export const pagesConfig = {
-    mainPage: "Welcome",
+    mainPage: "AdminCampaignReferrals",
     Pages: PAGES,
     Layout: __Layout,
 };

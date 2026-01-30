@@ -46,7 +46,7 @@ export default function Layout({ children, currentPageName }) {
   }, [user]);
 
   // Pages that don't need navigation
-  const noNavPages = ['Welcome', 'Onboarding', 'RoleSelection', 'TermsAcceptance', 'KYCVerification'];
+  const noNavPages = ['Onboarding', 'RoleSelection', 'TermsAcceptance', 'KYCVerification'];
   const hideNav = noNavPages.includes(currentPageName);
 
   if (loading) {
