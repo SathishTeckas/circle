@@ -7,8 +7,8 @@ export default function PhotoCarousel({ photos = [], userName = 'User' }) {
   
   if (!photos || photos.length === 0) {
     return (
-      <div className="w-full aspect-[4/5] bg-slate-100 rounded-2xl flex items-center justify-center">
-        <p className="text-slate-400">No photos</p>
+      <div className="w-full aspect-[4/5] rounded-2xl flex items-center justify-center" style={{ background: '#FFF3B8' }}>
+        <p style={{ color: '#636E72' }}>No photos</p>
       </div>
     );
   }
@@ -67,12 +67,11 @@ export default function PhotoCarousel({ photos = [], userName = 'User' }) {
           <button
             key={idx}
             onClick={() => setCurrentIndex(idx)}
-            className={cn(
-              "h-1.5 rounded-full transition-all",
-              idx === currentIndex 
-                ? "w-6 bg-white" 
-                : "w-1.5 bg-white/50"
-            )}
+            className="h-1.5 rounded-full transition-all"
+            style={{
+              width: idx === currentIndex ? '24px' : '6px',
+              background: idx === currentIndex ? '#FFD93D' : 'rgba(255,255,255,0.5)'
+            }}
           />
         ))}
       </div>
