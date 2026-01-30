@@ -184,7 +184,9 @@ export default function Wallet() {
       id: r.id,
       type: 'referral',
       amount: r.reward_amount || 0,
-      description: `Referral bonus - You referred ${r.display_name || r.referee_name || 'a user'}`,
+      description: r.referral_role === 'referrer' 
+        ? `Referral bonus - You referred ${r.display_name || r.referee_name || 'a user'}`
+        : `Welcome bonus - Used code from ${r.display_name || r.referrer_name || 'a user'}`,
       date: r.rewarded_date || r.created_date,
       icon: ArrowDownLeft,
       color: 'violet'
