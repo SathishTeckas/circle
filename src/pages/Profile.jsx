@@ -101,19 +101,19 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8F9FA' }}>
+        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#F8F9FA' }}>
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">Profile Not Found</h2>
-          <p className="text-slate-600">Please log in to view your profile.</p>
-          <Button onClick={() => window.location.href = createPageUrl('Welcome')} className="mt-4">Go to Welcome</Button>
+          <h2 className="text-xl font-bold mb-2" style={{ color: '#2D3436' }}>Profile Not Found</h2>
+          <p style={{ color: '#636E72' }}>Please log in to view your profile.</p>
+          <Button onClick={() => window.location.href = createPageUrl('Welcome')} className="mt-4 font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>Go to Welcome</Button>
         </div>
       </div>
     );
@@ -132,13 +132,13 @@ export default function Profile() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-violet-600 to-fuchsia-600 px-4 pt-8 pb-16">
+      <div className="px-4 pt-8 pb-16" style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FFB347 100%)' }}>
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-xl font-bold text-white">Profile</h1>
-            <div className="text-white">
+            <h1 className="text-xl font-extrabold" style={{ color: '#2D3436' }}>Profile</h1>
+            <div style={{ color: '#2D3436' }}>
               <NotificationBell user={user} />
             </div>
           </div>
@@ -147,9 +147,9 @@ export default function Profile() {
 
       <div className="px-4 -mt-12 max-w-lg mx-auto space-y-4">
         {/* Photo Gallery */}
-        <Card className="p-4">
+        <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-slate-900">Photos</h3>
+            <h3 className="font-bold" style={{ color: '#2D3436' }}>Photos</h3>
             <div className="flex items-center gap-2">
               <input
                 ref={fileInputRef}
@@ -162,10 +162,11 @@ export default function Profile() {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading || ((user?.profile_photos?.length || 0) >= 5)}
                 size="sm"
-                className="h-8 bg-violet-600 hover:bg-violet-700"
+                className="h-8 font-bold"
+                style={{ background: '#FFD93D', color: '#2D3436' }}
               >
                 {uploading ? (
-                  <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  <div className="w-3 h-3 border border-t-transparent rounded-full animate-spin mr-2" style={{ borderColor: '#2D3436', borderTopColor: 'transparent' }} />
                 ) : (
                   <Camera className="w-4 h-4 mr-1" />
                 )}
@@ -177,21 +178,21 @@ export default function Profile() {
             photos={user?.profile_photos || []} 
             userName={user?.full_name || 'User'}
           />
-          <p className="text-xs text-slate-500 text-center mt-2">
+          <p className="text-xs text-center mt-2" style={{ color: '#636E72' }}>
             {(user?.profile_photos?.length || 0)}/5 photos
           </p>
         </Card>
 
         {/* Profile Card */}
-        <Card className="p-6">
+        <Card className="p-6" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
           <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-xl font-bold text-slate-900">{user?.display_name || user?.full_name || 'Guest User'}</h2>
+            <h2 className="text-xl font-extrabold" style={{ color: '#2D3436' }}>{user?.display_name || user?.full_name || 'Guest User'}</h2>
             <SafetyBadge verified={user?.kyc_status === 'verified'} />
           </div>
-          <p className="text-sm text-slate-600 mb-3">{user?.email || 'N/A'}</p>
+          <p className="text-sm mb-3" style={{ color: '#636E72' }}>{user?.email || 'N/A'}</p>
 
           <div className="flex items-center gap-3 mb-4">
-            <Badge className="bg-violet-100 text-violet-700 capitalize">
+            <Badge className="capitalize font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>
               {user?.user_role || 'User'}
             </Badge>
             {reviews.length > 0 && avgRating && (
@@ -200,47 +201,47 @@ export default function Profile() {
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity"
               >
                 <RatingStars rating={avgRating} size="sm" />
-                <span className="text-sm text-violet-600 font-medium">
+                <span className="text-sm font-bold" style={{ color: '#FFB347' }}>
                   {avgRating.toFixed(1)} ({reviews.length})
                 </span>
-                <ChevronRight className="w-4 h-4 text-violet-600" />
+                <ChevronRight className="w-4 h-4" style={{ color: '#FFB347' }} />
               </Link>
             )}
             {reviews.length === 0 && user?.user_role === 'companion' && (
-              <Badge variant="secondary" className="bg-slate-100 text-slate-600">No reviews yet</Badge>
+              <Badge className="font-bold" style={{ background: '#DFE6E9', color: '#636E72' }}>No reviews yet</Badge>
             )}
           </div>
 
           {/* Bio */}
           {user?.bio && (
-            <p className="text-slate-600 text-sm mb-4">{user.bio}</p>
+            <p className="text-sm mb-4" style={{ color: '#636E72' }}>{user.bio}</p>
           )}
 
           {/* Quick Info */}
-          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-100">
+          <div className="grid grid-cols-3 gap-3 pt-4 border-t" style={{ borderColor: '#DFE6E9' }}>
             <div className="text-center">
-              <MapPin className="w-5 h-5 text-violet-600 mx-auto mb-1" />
-              <p className="text-sm font-medium text-slate-900">{user?.city || 'Not set'}</p>
-              <p className="text-xs text-slate-500">Location</p>
+              <MapPin className="w-5 h-5 mx-auto mb-1" style={{ color: '#FF6B6B' }} />
+              <p className="text-sm font-bold" style={{ color: '#2D3436' }}>{user?.city || 'Not set'}</p>
+              <p className="text-xs" style={{ color: '#636E72' }}>Location</p>
             </div>
             <div className="text-center">
-              <Globe className="w-5 h-5 text-violet-600 mx-auto mb-1" />
-              <p className="text-sm font-medium text-slate-900">{user?.languages?.length || 0}</p>
-              <p className="text-xs text-slate-500">Languages</p>
+              <Globe className="w-5 h-5 mx-auto mb-1" style={{ color: '#74B9FF' }} />
+              <p className="text-sm font-bold" style={{ color: '#2D3436' }}>{user?.languages?.length || 0}</p>
+              <p className="text-xs" style={{ color: '#636E72' }}>Languages</p>
             </div>
             <div className="text-center">
-              <Heart className="w-5 h-5 text-violet-600 mx-auto mb-1" />
-              <p className="text-sm font-medium text-slate-900">{user?.interests?.length || 0}</p>
-              <p className="text-xs text-slate-500">Interests</p>
+              <Heart className="w-5 h-5 mx-auto mb-1" style={{ color: '#FF6B6B' }} />
+              <p className="text-sm font-bold" style={{ color: '#2D3436' }}>{user?.interests?.length || 0}</p>
+              <p className="text-xs" style={{ color: '#636E72' }}>Interests</p>
             </div>
           </div>
         </Card>
 
         {/* Video Introduction */}
         {user?.video_intro_url && (
-          <Card className="p-4">
-            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Video className="w-5 h-5 text-violet-600" />
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+            <h3 className="font-bold mb-3 flex items-center gap-2" style={{ color: '#2D3436' }}>
+              <Video className="w-5 h-5" style={{ color: '#A8A4FF' }} />
               Video Introduction
             </h3>
             <div className="aspect-video bg-slate-100 rounded-xl overflow-hidden">
@@ -255,14 +256,14 @@ export default function Profile() {
 
         {/* Interests */}
         {user?.interests?.length > 0 && (
-          <Card className="p-4">
-            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Heart className="w-5 h-5 text-pink-500" />
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+            <h3 className="font-bold mb-3 flex items-center gap-2" style={{ color: '#2D3436' }}>
+              <Heart className="w-5 h-5" style={{ color: '#FF6B6B' }} />
               Interests
             </h3>
             <div className="flex flex-wrap gap-2">
               {user.interests.map((interest, idx) => (
-                <Badge key={idx} variant="secondary" className="bg-violet-100 text-violet-700">
+                <Badge key={idx} className="font-bold" style={{ background: '#A8A4FF', color: '#FFFFFF' }}>
                   {interest}
                 </Badge>
               ))}
@@ -272,14 +273,14 @@ export default function Profile() {
 
         {/* Hobbies */}
         {user?.hobbies?.length > 0 && (
-          <Card className="p-4">
-            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Heart className="w-5 h-5 text-emerald-500" />
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+            <h3 className="font-bold mb-3 flex items-center gap-2" style={{ color: '#2D3436' }}>
+              <Heart className="w-5 h-5" style={{ color: '#4ECDC4' }} />
               Hobbies
             </h3>
             <div className="flex flex-wrap gap-2">
               {user.hobbies.map((hobby, idx) => (
-                <Badge key={idx} variant="secondary" className="bg-emerald-100 text-emerald-700">
+                <Badge key={idx} className="font-bold" style={{ background: '#4ECDC4', color: '#2D3436' }}>
                   {hobby}
                 </Badge>
               ))}
@@ -289,14 +290,14 @@ export default function Profile() {
 
         {/* Personality Traits */}
         {user?.personality_traits?.length > 0 && (
-          <Card className="p-4">
-            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-fuchsia-500" />
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+            <h3 className="font-bold mb-3 flex items-center gap-2" style={{ color: '#2D3436' }}>
+              <Sparkles className="w-5 h-5" style={{ color: '#FFB347' }} />
               Personality
             </h3>
             <div className="flex flex-wrap gap-2">
               {user.personality_traits.map((trait, idx) => (
-                <Badge key={idx} variant="secondary" className="bg-fuchsia-100 text-fuchsia-700">
+                <Badge key={idx} className="font-bold" style={{ background: '#FFB347', color: '#2D3436' }}>
                   {trait}
                 </Badge>
               ))}
@@ -306,14 +307,14 @@ export default function Profile() {
 
         {/* Languages */}
         {user?.languages?.length > 0 && (
-          <Card className="p-4">
-            <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-              <Globe className="w-5 h-5 text-blue-500" />
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+            <h3 className="font-bold mb-3 flex items-center gap-2" style={{ color: '#2D3436' }}>
+              <Globe className="w-5 h-5" style={{ color: '#74B9FF' }} />
               Languages
             </h3>
             <div className="flex flex-wrap gap-2">
               {user.languages.map((lang, idx) => (
-                <Badge key={idx} variant="secondary" className="bg-blue-50 text-blue-700">
+                <Badge key={idx} className="font-bold" style={{ background: '#74B9FF', color: '#2D3436' }}>
                   {lang}
                 </Badge>
               ))}
@@ -329,15 +330,15 @@ export default function Profile() {
         {/* Admin Panel Access */}
         {(user?.user_role === 'admin' || user?.role === 'admin') && (
           <Link to={createPageUrl('AdminDashboard')}>
-            <Card className="p-4 bg-gradient-to-r from-violet-600 to-fuchsia-600">
-              <div className="flex items-center justify-between text-white">
+            <Card className="p-4" style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FFB347 100%)', border: 'none' }}>
+              <div className="flex items-center justify-between" style={{ color: '#2D3436' }}>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Shield className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.3)' }}>
+                    <Shield className="w-6 h-6" style={{ color: '#2D3436' }} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">Admin Panel</h3>
-                    <p className="text-sm text-white/80">Manage platform</p>
+                    <h3 className="font-bold text-lg">Admin Panel</h3>
+                    <p className="text-sm" style={{ color: 'rgba(45,52,54,0.7)' }}>Manage platform</p>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5" />
@@ -347,20 +348,21 @@ export default function Profile() {
         )}
 
         {/* Menu */}
-        <Card className="divide-y divide-slate-100">
-          {menuItems.map((item) => (
+        <Card style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+          {menuItems.map((item, idx) => (
             <Link
               key={item.label}
               to={createPageUrl(item.page)}
-              className="w-full flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors"
+              className="w-full flex items-center gap-4 p-4 transition-colors"
+              style={{ borderBottom: idx < menuItems.length - 1 ? '1px solid #DFE6E9' : 'none' }}
             >
-              <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-                <item.icon className="w-5 h-5 text-slate-600" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#FFF3B8' }}>
+                <item.icon className="w-5 h-5" style={{ color: '#2D3436' }} />
               </div>
-              <span className="flex-1 text-left font-medium text-slate-900">
+              <span className="flex-1 text-left font-bold" style={{ color: '#2D3436' }}>
                 {item.label}
               </span>
-              <ChevronRight className="w-5 h-5 text-slate-400" />
+              <ChevronRight className="w-5 h-5" style={{ color: '#B2BEC3' }} />
             </Link>
           ))}
         </Card>
@@ -369,7 +371,8 @@ export default function Profile() {
         <Button
           variant="outline"
           onClick={handleLogout}
-          className="w-full h-14 rounded-xl border-red-200 text-red-600 hover:bg-red-50"
+          className="w-full h-14 rounded-xl font-bold"
+          style={{ borderColor: '#E17055', color: '#E17055', background: 'transparent' }}
         >
           <LogOut className="w-5 h-5 mr-2" />
           Sign Out
