@@ -322,26 +322,27 @@ export default function MyDisputes() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F8F9FA' }}>
+        <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-white border-b border-slate-100 sticky top-0 z-10">
+      <div className="bg-white border-b sticky top-0 z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 py-4 max-w-3xl mx-auto flex items-center gap-4">
           <button
             onClick={() => window.history.back()}
-            className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: '#FFF3B8' }}
           >
-            <ArrowLeft className="w-5 h-5 text-slate-700" />
+            <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
           </button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-slate-900">My Disputes</h1>
-            <p className="text-sm text-slate-500">Track your dispute status</p>
+            <h1 className="text-xl font-extrabold" style={{ color: '#2D3436' }}>My Disputes</h1>
+            <p className="text-sm" style={{ color: '#636E72' }}>Track your dispute status</p>
           </div>
         </div>
       </div>

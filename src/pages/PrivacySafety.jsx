@@ -5,30 +5,31 @@ import { Button } from '@/components/ui/button';
 
 export default function PrivacySafety() {
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+      <div className="sticky top-0 bg-white border-b z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 py-4 max-w-lg mx-auto flex items-center gap-4">
           <button
             onClick={() => window.history.back()}
-            className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: '#FFF3B8' }}
           >
-            <ArrowLeft className="w-5 h-5 text-slate-700" />
+            <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
           </button>
-          <h1 className="text-xl font-bold text-slate-900">Privacy & Safety</h1>
+          <h1 className="text-xl font-extrabold" style={{ color: '#2D3436' }}>Privacy & Safety</h1>
         </div>
       </div>
 
       <div className="px-4 py-6 max-w-lg mx-auto space-y-6">
         {/* Safety First Banner */}
-        <Card className="p-6 bg-gradient-to-br from-violet-50 to-fuchsia-50 border-violet-200">
+        <Card className="p-6" style={{ background: 'linear-gradient(135deg, #FFF3B8 0%, #FFB347 100%)', border: 'none' }}>
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-violet-600 rounded-xl flex items-center justify-center">
-              <Shield className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#FFD93D' }}>
+              <Shield className="w-6 h-6" style={{ color: '#2D3436' }} />
             </div>
             <div>
-              <h2 className="font-bold text-slate-900">Your Safety Matters</h2>
-              <p className="text-sm text-slate-600">We prioritize your security and privacy</p>
+              <h2 className="font-bold" style={{ color: '#2D3436' }}>Your Safety Matters</h2>
+              <p className="text-sm" style={{ color: 'rgba(45,52,54,0.7)' }}>We prioritize your security and privacy</p>
             </div>
           </div>
         </Card>
