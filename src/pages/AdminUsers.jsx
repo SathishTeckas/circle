@@ -144,9 +144,9 @@ export default function AdminUsers() {
   const displayUsers = getDisplayUsers();
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+      <div className="sticky top-0 bg-white border-b z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 md:px-8 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-4">
             <Button
@@ -154,12 +154,13 @@ export default function AdminUsers() {
               size="icon"
               onClick={() => window.location.href = createPageUrl('AdminDashboard')}
               className="rounded-xl"
+              style={{ color: '#2D3436' }}
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
-              <p className="text-sm text-slate-600">{allUsers.length} total users</p>
+              <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>User Management</h1>
+              <p className="text-sm" style={{ color: '#636E72' }}>{allUsers.length} total users</p>
             </div>
           </div>
 
@@ -208,9 +209,9 @@ export default function AdminUsers() {
           </div>
         ) : displayUsers.length === 0 ? (
           <div className="text-center py-16">
-            <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="font-semibold text-slate-900 mb-2">No users found</h3>
-            <p className="text-slate-600">Try adjusting your search or filters</p>
+            <Users className="w-12 h-12 mx-auto mb-3" style={{ color: '#B2BEC3' }} />
+            <h3 className="font-bold mb-2" style={{ color: '#2D3436' }}>No users found</h3>
+            <p style={{ color: '#636E72' }}>Try adjusting your search or filters</p>
           </div>
         ) : (
           <div className="space-y-3">

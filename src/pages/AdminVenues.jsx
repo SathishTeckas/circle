@@ -138,9 +138,9 @@ export default function AdminVenues() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-slate-100 z-10">
+      <div className="sticky top-0 bg-white border-b z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 md:px-8 py-4 max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -149,18 +149,19 @@ export default function AdminVenues() {
                 size="icon"
                 onClick={() => window.location.href = createPageUrl('AdminDashboard')}
                 className="rounded-xl"
+                style={{ color: '#2D3436' }}
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">Venue Management</h1>
-                <p className="text-sm text-slate-600">{venues.length} registered venues</p>
+                <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>Venue Management</h1>
+                <p className="text-sm" style={{ color: '#636E72' }}>{venues.length} registered venues</p>
               </div>
             </div>
 
             <Sheet open={showForm} onOpenChange={setShowForm}>
               <SheetTrigger asChild>
-                <Button className="bg-violet-600 hover:bg-violet-700 rounded-xl">
+                <Button className="rounded-xl font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Venue
                 </Button>
@@ -334,7 +335,8 @@ export default function AdminVenues() {
                   <Button
                     onClick={() => createMutation.mutate()}
                     disabled={!canSubmit || createMutation.isPending}
-                    className="w-full h-12 bg-violet-600 hover:bg-violet-700 rounded-xl"
+                    className="w-full h-12 rounded-xl font-bold"
+                    style={{ background: '#FFD93D', color: '#2D3436' }}
                   >
                     {createMutation.isPending ? (editingVenue ? 'Updating...' : 'Adding...') : (editingVenue ? 'Update Venue' : 'Add Venue')}
                   </Button>
@@ -354,9 +356,9 @@ export default function AdminVenues() {
           </div>
         ) : venues.length === 0 ? (
           <div className="text-center py-16">
-            <Building className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="font-semibold text-slate-900 mb-2">No venues yet</h3>
-            <p className="text-slate-600">Add verified venues for safe meetups</p>
+            <Building className="w-12 h-12 mx-auto mb-3" style={{ color: '#B2BEC3' }} />
+            <h3 className="font-bold mb-2" style={{ color: '#2D3436' }}>No venues yet</h3>
+            <p style={{ color: '#636E72' }}>Add verified venues for safe meetups</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -367,19 +369,19 @@ export default function AdminVenues() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.02 }}
               >
-                <Card className="p-4">
+                <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-slate-900">{venue.name}</h3>
-                        <Badge variant="outline" className="capitalize">{venue.type}</Badge>
+                        <h3 className="font-bold" style={{ color: '#2D3436' }}>{venue.name}</h3>
+                        <Badge variant="outline" className="capitalize font-bold" style={{ borderColor: '#DFE6E9', color: '#2D3436' }}>{venue.type}</Badge>
                         {venue.verified ? (
-                          <Badge className="bg-emerald-100 text-emerald-700">
+                          <Badge className="font-bold" style={{ background: '#4ECDC4', color: '#2D3436' }}>
                             <CheckCircle className="w-3 h-3 mr-1" />
                             Verified
                           </Badge>
                         ) : (
-                          <Badge className="bg-amber-100 text-amber-700">Pending</Badge>
+                          <Badge className="font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>Pending</Badge>
                         )}
                       </div>
                       

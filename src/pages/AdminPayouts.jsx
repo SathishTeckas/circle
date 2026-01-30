@@ -26,11 +26,11 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 const payoutStatusConfig = {
-  pending: { label: 'Pending Review', color: 'bg-amber-100 text-amber-700', icon: Clock },
-  approved: { label: 'Approved', color: 'bg-blue-100 text-blue-700', icon: CheckCircle },
-  processing: { label: 'Processing', color: 'bg-blue-100 text-blue-700', icon: Clock },
-  completed: { label: 'Completed', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
-  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700', icon: XCircle },
+  pending: { label: 'Pending Review', bgColor: '#FFF3B8', textColor: '#2D3436', icon: Clock },
+  approved: { label: 'Approved', bgColor: '#74B9FF', textColor: '#2D3436', icon: CheckCircle },
+  processing: { label: 'Processing', bgColor: '#74B9FF', textColor: '#2D3436', icon: Clock },
+  completed: { label: 'Completed', bgColor: '#4ECDC4', textColor: '#2D3436', icon: CheckCircle },
+  rejected: { label: 'Rejected', bgColor: '#FF6B6B', textColor: '#FFFFFF', icon: XCircle },
 };
 
 export default function AdminPayouts() {
@@ -187,34 +187,34 @@ export default function AdminPayouts() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: idx * 0.05 }}
       >
-        <Card className="p-4 hover:shadow-md transition-shadow">
+        <Card className="p-4 hover:shadow-md transition-shadow" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-violet-100 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-violet-600" />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: '#FFF3B8' }}>
+                <User className="w-5 h-5" style={{ color: '#2D3436' }} />
               </div>
               <div>
-                <p className="font-semibold text-slate-900">{payout.companion_name}</p>
-                <p className="text-sm text-slate-500">{payout.companion_email}</p>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="font-bold" style={{ color: '#2D3436' }}>{payout.companion_name}</p>
+                <p className="text-sm" style={{ color: '#636E72' }}>{payout.companion_email}</p>
+                <p className="text-xs mt-1" style={{ color: '#B2BEC3' }}>
                   Requested: {format(new Date(payout.created_date), 'MMM d, yyyy HH:mm')}
                 </p>
               </div>
             </div>
-            <Badge className={cn(status.color)}>
+            <Badge className="font-bold" style={{ background: status.bgColor, color: status.textColor }}>
               <StatusIcon className="w-3 h-3 mr-1" />
               {status.label}
             </Badge>
           </div>
 
-          <div className="bg-slate-50 rounded-lg p-3 mb-3">
+          <div className="rounded-lg p-3 mb-3" style={{ background: '#F8F9FA' }}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-600">Amount</span>
-              <span className="text-xl font-bold text-slate-900">{formatCurrency(payout.amount)}</span>
+              <span className="text-sm" style={{ color: '#636E72' }}>Amount</span>
+              <span className="text-xl font-extrabold" style={{ color: '#2D3436' }}>{formatCurrency(payout.amount)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-600">Method</span>
-              <span className="text-slate-900 capitalize">{payout.payment_method.replace('_', ' ')}</span>
+              <span style={{ color: '#636E72' }}>Method</span>
+              <span className="capitalize font-bold" style={{ color: '#2D3436' }}>{payout.payment_method.replace('_', ' ')}</span>
             </div>
           </div>
 
@@ -374,19 +374,20 @@ export default function AdminPayouts() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-white border-b border-slate-100 sticky top-0 z-10">
+      <div className="bg-white border-b sticky top-0 z-10" style={{ borderColor: '#DFE6E9' }}>
         <div className="px-4 py-4 max-w-6xl mx-auto flex items-center gap-4">
           <button
             onClick={() => window.history.back()}
-            className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center"
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: '#FFF3B8' }}
           >
-            <ArrowLeft className="w-5 h-5 text-slate-700" />
+            <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
           </button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-slate-900">Payout Management</h1>
-            <p className="text-sm text-slate-500">{pendingPayouts.length} pending requests</p>
+            <h1 className="text-xl font-extrabold" style={{ color: '#2D3436' }}>Payout Management</h1>
+            <p className="text-sm" style={{ color: '#636E72' }}>{pendingPayouts.length} pending requests</p>
           </div>
         </div>
       </div>
@@ -394,43 +395,43 @@ export default function AdminPayouts() {
       <div className="px-4 py-6 max-w-6xl mx-auto space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="p-4">
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                <Clock className="w-5 h-5 text-amber-600" />
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#FFF3B8' }}>
+                <Clock className="w-5 h-5" style={{ color: '#2D3436' }} />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Pending</p>
-                <p className="text-2xl font-bold text-slate-900">{formatCurrency(totalPending)}</p>
+                <p className="text-sm" style={{ color: '#636E72' }}>Pending</p>
+                <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{formatCurrency(totalPending)}</p>
               </div>
             </div>
-            <p className="text-xs text-slate-500">{pendingPayouts.length} requests</p>
+            <p className="text-xs" style={{ color: '#B2BEC3' }}>{pendingPayouts.length} requests</p>
           </Card>
 
-          <Card className="p-4">
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#74B9FF' }}>
+                <CreditCard className="w-5 h-5" style={{ color: '#2D3436' }} />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Processing</p>
-                <p className="text-2xl font-bold text-slate-900">{approvedPayouts.length}</p>
+                <p className="text-sm" style={{ color: '#636E72' }}>Processing</p>
+                <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{approvedPayouts.length}</p>
               </div>
             </div>
-            <p className="text-xs text-slate-500">In progress</p>
+            <p className="text-xs" style={{ color: '#B2BEC3' }}>In progress</p>
           </Card>
 
-          <Card className="p-4">
+          <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-emerald-600" />
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#4ECDC4' }}>
+                <CheckCircle className="w-5 h-5" style={{ color: '#2D3436' }} />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Completed</p>
-                <p className="text-2xl font-bold text-slate-900">{formatCurrency(totalCompleted)}</p>
+                <p className="text-sm" style={{ color: '#636E72' }}>Completed</p>
+                <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{formatCurrency(totalCompleted)}</p>
               </div>
             </div>
-            <p className="text-xs text-slate-500">{completedPayouts.length} payouts</p>
+            <p className="text-xs" style={{ color: '#B2BEC3' }}>{completedPayouts.length} payouts</p>
           </Card>
         </div>
 

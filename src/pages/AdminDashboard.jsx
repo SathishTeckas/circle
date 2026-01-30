@@ -162,12 +162,12 @@ export default function AdminDashboard() {
   };
 
   const stats = [
-    { label: 'Total Users', value: allUsers?.length || 0, icon: Users, color: 'bg-blue-500' },
-    { label: 'Companions', value: companions?.length || 0, icon: Users, color: 'bg-violet-500' },
-    { label: 'Seekers', value: seekers?.length || 0, icon: Users, color: 'bg-fuchsia-500' },
-    { label: 'Revenue', value: formatCompactCurrency(totalRevenue || 0), icon: IndianRupee, color: 'bg-emerald-500' },
-    { label: 'Total GMV', value: formatCompactCurrency(totalGMV || 0), icon: TrendingUp, color: 'bg-teal-500' },
-    { label: 'Bookings', value: allBookings?.length || 0, icon: Calendar, color: 'bg-amber-500' },
+    { label: 'Total Users', value: allUsers?.length || 0, icon: Users, color: '#74B9FF' },
+    { label: 'Companions', value: companions?.length || 0, icon: Users, color: '#A8A4FF' },
+    { label: 'Seekers', value: seekers?.length || 0, icon: Users, color: '#FFB347' },
+    { label: 'Revenue', value: formatCompactCurrency(totalRevenue || 0), icon: IndianRupee, color: '#4ECDC4' },
+    { label: 'Total GMV', value: formatCompactCurrency(totalGMV || 0), icon: TrendingUp, color: '#FFD93D' },
+    { label: 'Bookings', value: allBookings?.length || 0, icon: Calendar, color: '#FF6B6B' },
   ];
 
   const { data: payouts = [] } = useQuery({
@@ -191,15 +191,15 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
       {/* Header */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 px-4 md:px-8 pt-8 pb-12">
+      <div className="px-4 md:px-8 pt-8 pb-12" style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FFB347 100%)' }}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-2 mb-2">
-            <Shield className="w-6 h-6 text-violet-400" />
-            <span className="text-violet-400 font-medium">Admin Panel</span>
+            <Shield className="w-6 h-6" style={{ color: '#2D3436' }} />
+            <span className="font-bold" style={{ color: '#2D3436' }}>Admin Panel</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Circle Dashboard</h1>
+          <h1 className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>Circle Dashboard</h1>
         </div>
       </div>
 
@@ -213,14 +213,14 @@ export default function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
             >
-              <Card className="p-4">
+              <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 ${stat.color} rounded-xl flex items-center justify-center`}>
-                    <stat.icon className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: stat.color }}>
+                    <stat.icon className="w-5 h-5" style={{ color: '#2D3436' }} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xl md:text-2xl font-bold text-slate-900 truncate">{stat.value}</p>
-                    <p className="text-xs md:text-sm text-slate-500">{stat.label}</p>
+                    <p className="text-xl md:text-2xl font-extrabold truncate" style={{ color: '#2D3436' }}>{stat.value}</p>
+                    <p className="text-xs md:text-sm" style={{ color: '#636E72' }}>{stat.label}</p>
                   </div>
                 </div>
               </Card>
@@ -229,33 +229,33 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Links */}
-        <Card className="divide-y divide-slate-100">
+        <Card className="divide-y" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none', divideColor: '#DFE6E9' }}>
           {quickLinks.map((link) => (
             <Link
               key={link.label}
               to={createPageUrl(link.page)}
-              className="flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors"
+              className="flex items-center gap-4 p-4 hover:opacity-90 transition-colors"
             >
-              <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
-                <link.icon className="w-6 h-6 text-slate-600" />
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#FFF3B8' }}>
+                <link.icon className="w-6 h-6" style={{ color: '#2D3436' }} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-slate-900">{link.label}</h3>
+                  <h3 className="font-bold" style={{ color: '#2D3436' }}>{link.label}</h3>
                   {link.alert && (
-                    <Badge className="bg-red-100 text-red-700">Action needed</Badge>
+                    <Badge className="font-bold" style={{ background: '#FF6B6B', color: '#FFFFFF' }}>Action needed</Badge>
                   )}
                 </div>
-                <p className="text-sm text-slate-600">{link.desc}</p>
+                <p className="text-sm" style={{ color: '#636E72' }}>{link.desc}</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-slate-400" />
+              <ChevronRight className="w-5 h-5" style={{ color: '#B2BEC3' }} />
             </Link>
           ))}
         </Card>
 
         {/* Export Data */}
-        <Card className="p-4">
-          <h3 className="font-semibold text-slate-900 mb-4">Export Data for Analysis</h3>
+        <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+          <h3 className="font-bold mb-4" style={{ color: '#2D3436' }}>Export Data for Analysis</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <Button
               onClick={() => handleExport('users')}
@@ -373,32 +373,35 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Recent Bookings */}
-        <Card className="p-4">
-          <h3 className="font-semibold text-slate-900 mb-4">Recent Bookings</h3>
+        <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
+          <h3 className="font-bold mb-4" style={{ color: '#2D3436' }}>Recent Bookings</h3>
           
           {!allBookings || allBookings.length === 0 ? (
-            <p className="text-slate-500 text-center py-6">No bookings yet</p>
+            <p className="text-center py-6" style={{ color: '#636E72' }}>No bookings yet</p>
           ) : (
             <div className="space-y-3">
               {allBookings.slice(0, 5).map((booking) => (
-                <div key={booking?.id} className="flex items-center gap-4 py-2 border-b border-slate-100 last:border-0">
+                <div key={booking?.id} className="flex items-center gap-4 py-2 border-b last:border-0" style={{ borderColor: '#DFE6E9' }}>
                   <div className="flex-1">
-                    <p className="font-medium text-slate-900">
+                    <p className="font-bold" style={{ color: '#2D3436' }}>
                       {booking?.seeker_name || 'Unknown'} → {booking?.companion_name || 'Unknown'}
                     </p>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm" style={{ color: '#636E72' }}>
                       {booking?.date || 'N/A'} • {booking?.city || 'N/A'}
                     </p>
                   </div>
-                  <Badge className={
-                    booking?.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                    booking?.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                    booking?.status === 'disputed' ? 'bg-red-100 text-red-700' :
-                    'bg-slate-100 text-slate-700'
-                  }>
+                  <Badge 
+                    className="font-bold"
+                    style={{
+                      background: booking?.status === 'completed' ? '#4ECDC4' :
+                        booking?.status === 'pending' ? '#FFF3B8' :
+                        booking?.status === 'disputed' ? '#FF6B6B' : '#DFE6E9',
+                      color: booking?.status === 'completed' || booking?.status === 'disputed' ? '#FFFFFF' : '#2D3436'
+                    }}
+                  >
                     {booking?.status || 'unknown'}
                   </Badge>
-                  <span className="font-semibold text-slate-900">{formatCurrency(booking?.total_amount)}</span>
+                  <span className="font-extrabold" style={{ color: '#2D3436' }}>{formatCurrency(booking?.total_amount)}</span>
                 </div>
               ))}
             </div>
@@ -406,24 +409,24 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Platform Settings */}
-        <Card className="p-4">
+        <Card className="p-4" style={{ background: '#FFFFFF', boxShadow: '0 2px 8px rgba(45, 52, 54, 0.08)', border: 'none' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-slate-900">Platform Settings</h3>
+            <h3 className="font-bold" style={{ color: '#2D3436' }}>Platform Settings</h3>
             <Link to={createPageUrl('AdminSettings')}>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="font-bold" style={{ borderColor: '#DFE6E9', color: '#2D3436' }}>
                 <Settings className="w-4 h-4 mr-2" />
                 Configure
               </Button>
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-slate-50 rounded-xl">
-              <p className="text-sm text-slate-600">Platform Fee</p>
-              <p className="text-2xl font-bold text-slate-900">{appSettings?.platform_fee || 15}%</p>
+            <div className="p-4 rounded-xl" style={{ background: '#FFF3B8' }}>
+              <p className="text-sm" style={{ color: '#636E72' }}>Platform Fee</p>
+              <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{appSettings?.platform_fee || 15}%</p>
             </div>
-            <div className="p-4 bg-slate-50 rounded-xl">
-              <p className="text-sm text-slate-600">No-Show Penalty</p>
-              <p className="text-2xl font-bold text-slate-900">{appSettings?.no_show_penalty_percent || 100}%</p>
+            <div className="p-4 rounded-xl" style={{ background: '#FFB347' }}>
+              <p className="text-sm" style={{ color: '#2D3436' }}>No-Show Penalty</p>
+              <p className="text-2xl font-extrabold" style={{ color: '#2D3436' }}>{appSettings?.no_show_penalty_percent || 100}%</p>
             </div>
           </div>
         </Card>
