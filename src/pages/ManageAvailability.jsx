@@ -142,20 +142,21 @@ export default function ManageAvailability() {
 
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
-      // Check for duplicate: same date + time + city + area (skip if editing)
-      if (!editingSlot) {
-        const existingAvailabilities = await base44.entities.Availability.filter({ 
-          companion_id: user.id,
-          date: dateStr,
-          start_time: formData.start_time,
-          city: formData.city,
-          area: formData.area,
-          status: 'available'
-        });
+      // Check for overlapping time slots on the same date
+      const existingAvailabilities = await base44.entities.Availability.filter({ 
+        companion_id: user.id,
+        date: dateStr,
+        status: 'available'
+      });
 
-        if (existingAvailabilities.length > 0) {
-          throw new Error('You already have an availability for this date, time, city, and area');
-        }
+      const overlappingSlot = existingAvailabilities.find(slot => {
+        // Skip the slot being edited
+        if (editingSlot && slot.id === editingSlot.id) return false;
+        return doTimesOverlap(formData.start_time, formData.end_time, slot.start_time, slot.end_time);
+      });
+
+      if (overlappingSlot) {
+        throw new Error(`This time overlaps with your existing slot (${formatTime12Hour(overlappingSlot.start_time)} - ${formatTime12Hour(overlappingSlot.end_time)})`);
       }
 
       const availabilityData = {
@@ -353,7 +354,7 @@ export default function ManageAvailability() {
                       <SelectValue placeholder={formData.start_time ? "Select" : "Start first"} />
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">
-                      {TIME_SLOTS.filter(t => {
+                      {END_TIME_SLOTS.filter(t => {
                         if (!formData.start_time) return false;
                         const [startHour, startMin] = formData.start_time.split(':').map(Number);
                         const [endHour, endMin] = t.value.split(':').map(Number);
