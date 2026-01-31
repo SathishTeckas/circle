@@ -489,7 +489,7 @@ export default function CompanionDashboard() {
                 </div>
                 <div>
                   <h3 className="font-bold" style={{ color: '#2D3436' }}>Refer & Earn</h3>
-                  <p className="text-sm" style={{ color: '#636E72' }}>Get ₹100 per referral</p>
+                  <p className="text-sm" style={{ color: '#636E72' }}>Get ₹{systemRewardAmount} per referral</p>
                 </div>
               </div>
               <ChevronRight className="w-5 h-5" style={{ color: '#B2BEC3' }} />
