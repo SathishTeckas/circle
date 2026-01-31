@@ -756,51 +756,13 @@ export default function BookingView() {
         )}
 
         {/* Complete Meeting - Companion Only */}
-        {booking.status === 'accepted' && isCompanion && (() => {
-          const [hours, minutes] = (booking?.start_time || '00:00').split(':').map(Number);
-          const meetupDateTime = new Date(booking?.date || new Date());
-          meetupDateTime.setHours(hours, minutes, 0, 0);
-          const canComplete = new Date() >= new Date(meetupDateTime.getTime() + 10 * 60 * 1000);
-          return canComplete;
-        })() && (
-          <Card className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
-            <h3 className="font-semibold text-emerald-900 mb-2 flex items-center gap-2">
-              <CheckCircle className="w-5 h-5" />
-              Complete Meeting
-            </h3>
-            <p className="text-sm text-emerald-700 mb-4">
-              Upload a selfie from your meetup to confirm completion and receive payment.
-            </p>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleSelfieUpload}
-              disabled={uploadingSelfie || completeMeetingMutation.isPending}
-              className="hidden"
-              id="selfie-upload"
-            />
-            <label htmlFor="selfie-upload">
-              <Button 
-                asChild
-                disabled={uploadingSelfie || completeMeetingMutation.isPending}
-                className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 rounded-xl cursor-pointer"
-              >
-                <span>
-                  {uploadingSelfie || completeMeetingMutation.isPending ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-5 h-5 mr-2" />
-                      Upload Selfie & Complete
-                    </>
-                  )}
-                </span>
-              </Button>
-            </label>
-          </Card>
+        {booking.status === 'accepted' && isCompanion && (
+          <CompleteMeetingCard 
+            booking={booking}
+            uploadingSelfie={uploadingSelfie}
+            completeMeetingMutation={completeMeetingMutation}
+            handleSelfieUpload={handleSelfieUpload}
+          />
         )}
 
         {/* Meeting Completed */}
