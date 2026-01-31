@@ -183,6 +183,15 @@ export default function ManageAvailability() {
         if (editingSlot && slot.id === editingSlot.id) return false;
         // Skip cancelled or completed slots
         if (['cancelled', 'completed'].includes(slot.status)) return false;
+        
+        // Check if existing slot's start time has already passed (allow overlap in that case)
+        const slotDate = new Date(slot.date);
+        const [slotStartHour, slotStartMin] = slot.start_time.split(':').map(Number);
+        slotDate.setHours(slotStartHour, slotStartMin, 0, 0);
+        if (slotDate <= now) {
+          return false; // Existing slot already started, allow overlap
+        }
+        
         return doTimesOverlap(formData.start_time, formData.end_time, slot.start_time, slot.end_time);
       });
 
