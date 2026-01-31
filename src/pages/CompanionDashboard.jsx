@@ -160,8 +160,8 @@ export default function CompanionDashboard() {
     staleTime: 10 * 60 * 1000
   });
 
-  const { data: referrals = [] } = useQuery({
-    queryKey: ['referrals', user?.id, systemRewardAmount],
+  const { data: referralsAsReferrer = [] } = useQuery({
+    queryKey: ['referrals-as-referrer', user?.id, systemRewardAmount],
     queryFn: async () => {
       const allReferrals = await base44.entities.Referral.filter({ 
         referrer_id: user.id,
@@ -171,6 +171,36 @@ export default function CompanionDashboard() {
       return allReferrals
         .filter(r => ['completed', 'rewarded'].includes(r.status))
         .map(r => ({ ...r, reward_amount: systemRewardAmount }));
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000
+  });
+
+  const { data: referralsAsReferee = [] } = useQuery({
+    queryKey: ['referrals-as-referee', user?.id, systemRewardAmount],
+    queryFn: async () => {
+      const allReferrals = await base44.entities.Referral.filter({ 
+        referee_id: user.id,
+        referral_type: 'user_referral'
+      }, '-created_date', 100);
+      
+      return allReferrals
+        .filter(r => ['completed', 'rewarded'].includes(r.status))
+        .map(r => ({ ...r, reward_amount: systemRewardAmount }));
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000
+  });
+
+  const referrals = [...referralsAsReferrer, ...referralsAsReferee];
+
+  const { data: campaignBonuses = [] } = useQuery({
+    queryKey: ['campaign-bonuses', user?.id],
+    queryFn: async () => {
+      return await base44.entities.WalletTransaction.filter({
+        user_id: user.id,
+        transaction_type: 'campaign_bonus'
+      }, '-created_date', 100);
     },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000
@@ -216,17 +246,25 @@ export default function CompanionDashboard() {
     staleTime: 2 * 60 * 1000
   });
 
+  // Calculate balance the same way as Wallet page
   const pendingPayouts = payouts
     .filter(p => p.status === 'pending')
-    .reduce((sum, p) => sum + p.amount, 0);
+    .reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
 
   const approvedPayouts = payouts
     .filter(p => ['approved', 'processing'].includes(p.status))
-    .reduce((sum, p) => sum + p.amount, 0);
+    .reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
 
-  // Use wallet_balance from user profile for available balance
-  const availableBalance = Math.max(0, (user?.wallet_balance || 0) - pendingPayouts - approvedPayouts);
   const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
+  const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
+  const campaignEarnings = campaignBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
+  
+  const totalWithdrawn = payouts
+    .filter(p => p.status === 'completed')
+    .reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
+  
+  const calculatedBalance = totalEarnings + referralEarnings + campaignEarnings - totalWithdrawn;
+  const availableBalance = Math.max(0, calculatedBalance - pendingPayouts - approvedPayouts);
 
   const avgRating = user?.average_rating;
   const hasRating = avgRating && user?.total_reviews > 0;
