@@ -67,20 +67,20 @@ export default function TermsAcceptance() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white px-6 py-12">
+    <div className="min-h-screen px-6 py-12" style={{ background: 'linear-gradient(to bottom, #F8F9FA, #FFFFFF)', fontFamily: "'Nunito', sans-serif" }}>
       <div className="max-w-md mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-2xl mb-4">
-            <Shield className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4" style={{ background: '#FFD93D' }}>
+            <Shield className="w-8 h-8" style={{ color: '#2D3436' }} />
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-3">
+          <h1 className="text-3xl font-extrabold mb-3" style={{ color: '#2D3436' }}>
             Safety First
           </h1>
-          <p className="text-slate-600">
+          <p style={{ color: '#636E72' }}>
             Please review and accept our community guidelines
           </p>
         </motion.div>
@@ -95,9 +95,12 @@ export default function TermsAcceptance() {
               className={cn(
                 "p-5 rounded-2xl border-2 transition-all cursor-pointer",
                 accepted[term.id]
-                  ? "border-violet-500 bg-violet-50/50"
-                  : "border-slate-200 bg-white hover:border-violet-200"
+                  ? "bg-white"
+                  : "bg-white hover:border-amber-200"
               )}
+              style={{
+                borderColor: accepted[term.id] ? '#FFD93D' : '#DFE6E9'
+              }}
               onClick={() => setAccepted({ ...accepted, [term.id]: !accepted[term.id] })}
             >
               <div className="flex items-start gap-4">
@@ -119,7 +122,8 @@ export default function TermsAcceptance() {
                     </div>
                     <Checkbox 
                       checked={accepted[term.id]}
-                      className="mt-1 border-2 border-slate-300 data-[state=checked]:bg-violet-600 data-[state=checked]:border-violet-600"
+                      className="mt-1 border-2 data-[state=checked]:bg-[#FFD93D] data-[state=checked]:border-[#FFD93D] data-[state=checked]:text-[#2D3436]"
+                      style={{ borderColor: '#DFE6E9' }}
                     />
                   </div>
                 </div>
@@ -138,10 +142,11 @@ export default function TermsAcceptance() {
         <Button
           onClick={handleContinue}
           disabled={!allAccepted || loading}
-          className="w-full h-14 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white text-lg font-semibold rounded-2xl disabled:opacity-50"
+          className="w-full h-14 text-lg font-bold rounded-2xl disabled:opacity-50"
+          style={{ background: '#FFD93D', color: '#2D3436' }}
         >
           {loading ? (
-            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 rounded-full animate-spin" style={{ borderColor: '#2D3436', borderTopColor: 'transparent' }} />
           ) : (
             <>
               I Agree & Continue

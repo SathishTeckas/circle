@@ -358,7 +358,8 @@ export default function Onboarding() {
                     {!phoneVerified && userData.phone.length === 10 && (
                       <Button
                         onClick={() => setShowOTPDialog(true)}
-                        className="h-14 px-6 rounded-xl bg-violet-600 hover:bg-violet-700 whitespace-nowrap"
+                        className="h-14 px-6 rounded-xl whitespace-nowrap font-bold"
+                        style={{ background: '#FFD93D', color: '#2D3436' }}
                       >
                         Verify
                       </Button>
@@ -483,9 +484,9 @@ export default function Onboarding() {
                 ))}
                 
                 {userData.profile_photos.length < 6 && (
-                  <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:border-violet-400 hover:bg-violet-50 transition-all">
+                  <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-all">
                     {uploading ? (
-                      <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#FFD93D', borderTopColor: 'transparent' }} />
                     ) : (
                       <>
                         <Plus className="w-8 h-8 text-slate-400 mb-1" />
@@ -514,7 +515,7 @@ export default function Onboarding() {
                     At least 1 photo required
                   </p>
                 ) : userData.profile_photos.length < 6 && (
-                  <p className="text-xs text-violet-600 font-medium">
+                  <p className="text-xs font-medium" style={{ color: '#636E72' }}>
                     Add {6 - userData.profile_photos.length} more for a complete profile
                   </p>
                 )}
@@ -571,9 +572,10 @@ export default function Onboarding() {
                         className={cn(
                           "cursor-pointer px-4 py-2 text-sm transition-all",
                           userData.languages.includes(lang)
-                            ? "bg-violet-600 hover:bg-violet-700"
-                            : "hover:border-violet-400"
+                            ? "hover:opacity-90"
+                            : "hover:border-amber-400"
                         )}
+                        style={userData.languages.includes(lang) ? { background: '#FFD93D', color: '#2D3436' } : {}}
                         onClick={() => toggleLanguage(lang)}
                       >
                         {lang}
@@ -607,18 +609,18 @@ export default function Onboarding() {
                      className="h-14 rounded-xl border-slate-200 disabled:opacity-60 disabled:cursor-not-allowed"
                    />
                    {userData.campaign_referral_code ? (
-                     <p className="text-xs text-violet-600 mt-1 font-medium">Referral code not available with campaign</p>
+                     <p className="text-xs mt-1 font-medium" style={{ color: '#636E72' }}>Referral code not available with campaign</p>
                    ) : (
                      <p className="text-xs text-slate-500 mt-1">Get rewards when you enter a friend's code</p>
                    )}
                  </div>
 
                  {userData.campaign_referral_code && (
-                   <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
-                     <p className="text-xs text-violet-600">
+                   <div className="rounded-xl p-4" style={{ background: '#FFF3B8', border: '1px solid #FFD93D' }}>
+                     <p className="text-xs" style={{ color: '#2D3436' }}>
                        ✓ <span className="font-semibold">{userData.campaign_referral_code}</span> campaign applied
                      </p>
-                     <p className="text-xs text-violet-500 mt-1">You'll receive your signup bonus after account verification</p>
+                     <p className="text-xs mt-1" style={{ color: '#636E72' }}>You'll receive your signup bonus after account verification</p>
                    </div>
                  )}
               </div>
@@ -651,9 +653,10 @@ export default function Onboarding() {
                     className={cn(
                       "cursor-pointer px-4 py-2.5 text-sm transition-all",
                       userData.interests.includes(interest)
-                        ? "bg-violet-600 hover:bg-violet-700"
-                        : "hover:border-violet-400"
+                        ? "hover:opacity-90"
+                        : "hover:border-amber-400"
                     )}
+                    style={userData.interests.includes(interest) ? { background: '#FFD93D', color: '#2D3436' } : {}}
                     onClick={() => toggleInterest(interest)}
                   >
                     {interest}
