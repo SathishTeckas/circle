@@ -43,7 +43,7 @@ export default function Onboarding() {
     profile_photos: [],
     interests: [],
     languages: [],
-    referral_code: '',
+    user_referral_code: '',
     campaign_referral_code: ''
   });
 
@@ -74,7 +74,7 @@ export default function Onboarding() {
           profile_photos: user.profile_photos || [],
           interests: user.interests || [],
           languages: user.languages || [],
-          referral_code: savedRefCode || '',
+          user_referral_code: savedRefCode || '',
           campaign_referral_code: campaignCode || user.campaign_referral_code || ''
         }));
         setPhoneVerified(user.phone_verified || false);
@@ -182,10 +182,10 @@ export default function Onboarding() {
       });
 
       // Only process user referral code if no campaign code is present
-      if (userData.referral_code && userData.referral_code.trim() && !userData.campaign_referral_code) {
+      if (userData.user_referral_code && userData.user_referral_code.trim() && !userData.campaign_referral_code) {
         try {
           await base44.functions.invoke('processReferral', {
-            referral_code: userData.referral_code.trim()
+            referral_code: userData.user_referral_code.trim()
           });
           // Clear from localStorage after successful processing
           localStorage.removeItem('referral_code');
@@ -602,16 +602,19 @@ export default function Onboarding() {
                    <Label className="text-slate-700 mb-2 block">Referral Code (Optional)</Label>
                    <Input
                      type="text"
-                     placeholder="Enter friend's referral code"
-                     value={userData.referral_code}
-                     onChange={(e) => setUserData({ ...userData, referral_code: e.target.value })}
+                     placeholder="Enter friend's referral code or campaign code"
+                     value={userData.user_referral_code || userData.campaign_referral_code}
+                     onChange={(e) => {
+                       const code = e.target.value.toUpperCase().trim();
+                       setUserData({ ...userData, user_referral_code: code, campaign_referral_code: '' });
+                     }}
                      disabled={!!userData.campaign_referral_code}
                      className="h-14 rounded-xl border-slate-200 disabled:opacity-60 disabled:cursor-not-allowed"
                    />
                    {userData.campaign_referral_code ? (
-                     <p className="text-xs mt-1 font-medium" style={{ color: '#636E72' }}>Referral code not available with campaign</p>
+                     <p className="text-xs mt-1 font-medium" style={{ color: '#636E72' }}>Campaign code applied</p>
                    ) : (
-                     <p className="text-xs text-slate-500 mt-1">Get rewards when you enter a friend's code</p>
+                     <p className="text-xs text-slate-500 mt-1">Get rewards when you enter a friend's or campaign code</p>
                    )}
                  </div>
 
