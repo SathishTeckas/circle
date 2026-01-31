@@ -14,6 +14,16 @@ import {
   CheckCircle, XCircle, AlertCircle, Shield, IndianRupee, Star
 } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -290,6 +300,8 @@ export default function BookingView() {
   });
 
   const [uploadingSelfie, setUploadingSelfie] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [pendingCancelRefund, setPendingCancelRefund] = useState(null);
 
   const completeMeetingMutation = useMutation({
     mutationFn: async (selfieFile) => {
@@ -628,7 +640,10 @@ export default function BookingView() {
             </div>
             <Button
               variant="outline"
-              onClick={() => cancelMutation.mutate({ refundPercentage: 100 })}
+              onClick={() => {
+                setPendingCancelRefund(100);
+                setShowCancelDialog(true);
+              }}
               disabled={cancelMutation.isPending}
               className="w-full mt-4 h-12 rounded-xl border-amber-300 text-amber-700 hover:bg-amber-100"
             >
@@ -668,7 +683,10 @@ export default function BookingView() {
             </p>
             <Button
               variant="outline"
-              onClick={() => cancelMutation.mutate({ refundPercentage: refundInfo.percentage })}
+              onClick={() => {
+                setPendingCancelRefund(refundInfo.percentage);
+                setShowCancelDialog(true);
+              }}
               disabled={cancelMutation.isPending}
               className="w-full h-12 rounded-xl border-red-300 text-red-700 hover:bg-red-100"
             >
@@ -685,7 +703,10 @@ export default function BookingView() {
             </p>
             <Button
               variant="outline"
-              onClick={() => cancelMutation.mutate({ refundPercentage: 100 })}
+              onClick={() => {
+                setPendingCancelRefund(100);
+                setShowCancelDialog(true);
+              }}
               disabled={cancelMutation.isPending}
               className="w-full h-12 rounded-xl border-red-300 text-red-700 hover:bg-red-100"
             >
@@ -801,6 +822,40 @@ export default function BookingView() {
           </Link>
         )}
       </div>
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent className="rounded-2xl mx-4">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-bold" style={{ color: '#2D3436' }}>
+              Cancel this booking?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm" style={{ color: '#636E72' }}>
+              {pendingCancelRefund === 100 
+                ? "Are you sure you want to cancel? This action cannot be undone."
+                : `Are you sure you want to cancel? You will receive a ${pendingCancelRefund}% refund.`
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex gap-3">
+            <AlertDialogCancel 
+              className="flex-1 h-12 rounded-xl font-bold"
+              style={{ borderColor: '#DFE6E9' }}
+            >
+              No, Keep It
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                cancelMutation.mutate({ refundPercentage: pendingCancelRefund });
+                setShowCancelDialog(false);
+              }}
+              className="flex-1 h-12 rounded-xl font-bold bg-red-600 hover:bg-red-700 text-white"
+            >
+              Yes, Cancel
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
