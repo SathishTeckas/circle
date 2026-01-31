@@ -173,8 +173,10 @@ export default function Wallet() {
     .filter(p => p.status === 'completed')
     .reduce((sum, p) => sum + p.amount, 0);
   
-  // Use wallet_balance from user profile for available balance
-  const availableBalance = Math.max(0, (user?.wallet_balance || 0) - pendingPayouts - approvedPayouts);
+  // Calculate available balance from actual data sources (NOT wallet_balance which may be stale)
+  // Available = Total Earnings + Referral Bonuses + Campaign Bonuses - Withdrawn - Pending Payouts - Approved Payouts
+  const calculatedBalance = totalEarnings + referralEarnings + campaignEarnings - totalWithdrawn;
+  const availableBalance = Math.max(0, calculatedBalance - pendingPayouts - approvedPayouts);
 
   // Create unified transaction statement
   const allTransactions = [
