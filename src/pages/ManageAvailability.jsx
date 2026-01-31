@@ -172,31 +172,59 @@ export default function ManageAvailability() {
 
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
-      // Check for overlapping time slots on the same date (check ALL statuses except cancelled)
+      // Check for overlapping time slots on the same date (check ALL statuses except cancelled/completed)
       const existingAvailabilities = await base44.entities.Availability.filter({ 
         companion_id: user.id,
         date: dateStr
       });
 
+      // Also check bookings for this companion on the same date
+      const existingBookings = await base44.entities.Booking.filter({
+        companion_id: user.id,
+        date: dateStr
+      });
+
+      // Check against existing availability slots
       const overlappingSlot = existingAvailabilities.find(slot => {
         // Skip the slot being edited
         if (editingSlot && slot.id === editingSlot.id) return false;
         // Skip cancelled or completed slots
         if (['cancelled', 'completed'].includes(slot.status)) return false;
         
-        // Check if existing slot's start time has already passed (allow overlap in that case)
+        // Check if existing slot's end time has already passed (allow overlap since it's done)
         const slotDate = new Date(slot.date);
-        const [slotStartHour, slotStartMin] = slot.start_time.split(':').map(Number);
-        slotDate.setHours(slotStartHour, slotStartMin, 0, 0);
+        const [slotEndHour, slotEndMin] = slot.end_time.split(':').map(Number);
+        slotDate.setHours(slotEndHour, slotEndMin, 0, 0);
         if (slotDate <= now) {
-          return false; // Existing slot already started, allow overlap
+          return false; // Existing slot already ended, allow overlap
         }
         
         return doTimesOverlap(formData.start_time, formData.end_time, slot.start_time, slot.end_time);
       });
 
       if (overlappingSlot) {
-        throw new Error(`This time overlaps with your existing slot (${formatTime12Hour(overlappingSlot.start_time)} - ${formatTime12Hour(overlappingSlot.end_time)}). Please choose a different time.`);
+        const slotStatus = overlappingSlot.status === 'booked' ? 'booked' : 'available';
+        throw new Error(`This time overlaps with your ${slotStatus} slot (${formatTime12Hour(overlappingSlot.start_time)} - ${formatTime12Hour(overlappingSlot.end_time)}). Please choose a different time.`);
+      }
+
+      // Check against existing bookings (active ones only)
+      const overlappingBooking = existingBookings.find(booking => {
+        // Skip cancelled, rejected, or completed bookings
+        if (['cancelled', 'rejected', 'completed', 'no_show_companion', 'no_show_seeker'].includes(booking.status)) return false;
+        
+        // Check if booking's end time has already passed
+        const bookingDate = new Date(booking.date);
+        const [bookingEndHour, bookingEndMin] = booking.end_time.split(':').map(Number);
+        bookingDate.setHours(bookingEndHour, bookingEndMin, 0, 0);
+        if (bookingDate <= now) {
+          return false; // Booking already ended, allow overlap
+        }
+        
+        return doTimesOverlap(formData.start_time, formData.end_time, booking.start_time, booking.end_time);
+      });
+
+      if (overlappingBooking) {
+        throw new Error(`This time overlaps with an active booking (${formatTime12Hour(overlappingBooking.start_time)} - ${formatTime12Hour(overlappingBooking.end_time)}). Please choose a different time.`);
       }
 
       const availabilityData = {
