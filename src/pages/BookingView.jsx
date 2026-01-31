@@ -28,6 +28,95 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
+function CompleteMeetingCard({ booking, uploadingSelfie, completeMeetingMutation, handleSelfieUpload }) {
+  const [timeRemaining, setTimeRemaining] = useState(null);
+  const [canComplete, setCanComplete] = useState(false);
+
+  useEffect(() => {
+    const calculateTimeRemaining = () => {
+      const [hours, minutes] = (booking?.start_time || '00:00').split(':').map(Number);
+      const meetupDateTime = new Date(booking?.date || new Date());
+      meetupDateTime.setHours(hours, minutes, 0, 0);
+      const enableTime = new Date(meetupDateTime.getTime() + 10 * 60 * 1000); // 10 mins after start
+      const now = new Date();
+      const diff = enableTime.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setCanComplete(true);
+        setTimeRemaining(null);
+      } else {
+        setCanComplete(false);
+        const mins = Math.floor(diff / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        setTimeRemaining(`${mins}:${secs.toString().padStart(2, '0')}`);
+      }
+    };
+
+    calculateTimeRemaining();
+    const interval = setInterval(calculateTimeRemaining, 1000);
+    return () => clearInterval(interval);
+  }, [booking?.start_time, booking?.date]);
+
+  return (
+    <Card className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+      <h3 className="font-semibold text-emerald-900 mb-2 flex items-center gap-2">
+        <CheckCircle className="w-5 h-5" />
+        Complete Meeting
+      </h3>
+      <p className="text-sm text-emerald-700 mb-4">
+        Upload a selfie from your meetup to confirm completion and receive payment.
+      </p>
+      
+      {!canComplete && timeRemaining && (
+        <div className="bg-amber-100 border border-amber-300 rounded-xl p-3 mb-4 text-center">
+          <p className="text-sm text-amber-800 font-medium">
+            <Clock className="w-4 h-4 inline mr-1" />
+            Available in <span className="font-bold">{timeRemaining}</span>
+          </p>
+          <p className="text-xs text-amber-600 mt-1">
+            You can complete after 10 minutes from meetup start time
+          </p>
+        </div>
+      )}
+
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleSelfieUpload}
+        disabled={!canComplete || uploadingSelfie || completeMeetingMutation.isPending}
+        className="hidden"
+        id="selfie-upload"
+      />
+      <label htmlFor="selfie-upload">
+        <Button 
+          asChild
+          disabled={!canComplete || uploadingSelfie || completeMeetingMutation.isPending}
+          className={cn(
+            "w-full h-14 rounded-xl cursor-pointer",
+            canComplete 
+              ? "bg-emerald-600 hover:bg-emerald-700" 
+              : "bg-slate-300 cursor-not-allowed"
+          )}
+        >
+          <span>
+            {uploadingSelfie || completeMeetingMutation.isPending ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-5 h-5 mr-2" />
+                Upload Selfie & Complete
+              </>
+            )}
+          </span>
+        </Button>
+      </label>
+    </Card>
+  );
+}
+
 const statusConfig = {
   pending_payment: { label: 'Awaiting Payment', color: 'bg-blue-100 text-blue-700', icon: Clock },
   pending: { label: 'Pending Response', color: 'bg-amber-100 text-amber-700', icon: Clock },
