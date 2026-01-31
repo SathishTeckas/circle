@@ -172,7 +172,7 @@ export default function CompanionDashboard() {
       const availabilities = await base44.entities.Availability.filter({ 
         companion_id: user.id, 
         status: 'available' 
-      }, '-created_date', 10);
+      }, '-created_date', 50);
       
       const now = new Date();
       return availabilities.filter(a => {
@@ -181,13 +181,22 @@ export default function CompanionDashboard() {
         const availDate = new Date(a.date);
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         
+        // If date is in the past, it's expired
         if (availDate < todayStart) return false;
         
+        // If date is today, check if there's at least 60 minutes remaining until end time
         if (availDate.toDateString() === now.toDateString()) {
           const [endHour, endMinute] = a.end_time.split(':').map(Number);
           const currentHour = now.getHours();
           const currentMinute = now.getMinutes();
-          return !(endHour < currentHour || (endHour === currentHour && endMinute <= currentMinute));
+          
+          // Calculate minutes remaining until end time
+          const endTimeMinutes = endHour * 60 + endMinute;
+          const currentTimeMinutes = currentHour * 60 + currentMinute;
+          const minutesRemaining = endTimeMinutes - currentTimeMinutes;
+          
+          // Only show if at least 60 minutes remaining (same logic as ManageAvailability)
+          return minutesRemaining >= 60;
         }
         
         return true;
