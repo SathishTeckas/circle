@@ -136,6 +136,26 @@ export default function ManageAvailability() {
 
   const createMutation = useMutation({
     mutationFn: async () => {
+      // Validate all required fields are filled
+      if (!selectedDate) {
+        throw new Error('Please select a date');
+      }
+      if (!formData.start_time) {
+        throw new Error('Please select a start time');
+      }
+      if (!formData.end_time) {
+        throw new Error('Please select an end time');
+      }
+      if (!formData.city) {
+        throw new Error('Please select a city');
+      }
+      if (!formData.area) {
+        throw new Error('Please select an area');
+      }
+      if (!formData.price_per_hour || parseFloat(formData.price_per_hour) <= 0) {
+        throw new Error('Please enter a valid price per hour');
+      }
+
       // Validate not booking past times
       const now = new Date();
       const selectedDateTime = new Date(selectedDate);
@@ -143,7 +163,7 @@ export default function ManageAvailability() {
       selectedDateTime.setHours(startHour, startMin, 0, 0);
       
       if (selectedDateTime <= now) {
-        throw new Error('Cannot create availability for past times');
+        throw new Error('Cannot create availability for past times. Please select a future time slot.');
       }
 
       // Calculate duration in hours (with decimal for minutes)
@@ -152,21 +172,22 @@ export default function ManageAvailability() {
 
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
-      // Check for overlapping time slots on the same date
+      // Check for overlapping time slots on the same date (check ALL statuses except cancelled)
       const existingAvailabilities = await base44.entities.Availability.filter({ 
         companion_id: user.id,
-        date: dateStr,
-        status: 'available'
+        date: dateStr
       });
 
       const overlappingSlot = existingAvailabilities.find(slot => {
         // Skip the slot being edited
         if (editingSlot && slot.id === editingSlot.id) return false;
+        // Skip cancelled or completed slots
+        if (['cancelled', 'completed'].includes(slot.status)) return false;
         return doTimesOverlap(formData.start_time, formData.end_time, slot.start_time, slot.end_time);
       });
 
       if (overlappingSlot) {
-        throw new Error(`This time overlaps with your existing slot (${formatTime12Hour(overlappingSlot.start_time)} - ${formatTime12Hour(overlappingSlot.end_time)})`);
+        throw new Error(`This time overlaps with your existing slot (${formatTime12Hour(overlappingSlot.start_time)} - ${formatTime12Hour(overlappingSlot.end_time)}). Please choose a different time.`);
       }
 
       const availabilityData = {
