@@ -53,6 +53,7 @@ export default function Wallet() {
     upi_id: ''
   });
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showMeetupRequiredDialog, setShowMeetupRequiredDialog] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -263,9 +264,9 @@ export default function Wallet() {
         return;
       }
       
-      // Check if user has at least 1 completed meeting to withdraw referral earnings
-      if (referralEarnings > 0 && completedBookings.length === 0) {
-        toast.error('You must complete at least 1 meetup to withdraw referral earnings');
+      // Check if user only has referral/campaign bonuses but no completed meetups
+      if (completedBookings.length === 0 && (referralEarnings > 0 || campaignEarnings > 0)) {
+        setShowMeetupRequiredDialog(true);
         return;
       }
       
@@ -429,6 +430,30 @@ export default function Wallet() {
 
   return (
     <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
+      {/* Meetup Required Dialog */}
+      <AlertDialog open={showMeetupRequiredDialog} onOpenChange={setShowMeetupRequiredDialog}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader className="text-center">
+            <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+              <Clock className="w-8 h-8 text-amber-600" />
+            </div>
+            <AlertDialogTitle className="text-xl">Complete a Meetup First!</AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
+              At least one meetup should be completed before you can withdraw your referral or campaign bonuses. Start accepting bookings to unlock your earnings!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button 
+              onClick={() => setShowMeetupRequiredDialog(false)}
+              className="w-full"
+              style={{ background: '#FFD93D', color: '#2D3436' }}
+            >
+              Got it!
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Success Dialog */}
       <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <AlertDialogContent className="rounded-2xl">
