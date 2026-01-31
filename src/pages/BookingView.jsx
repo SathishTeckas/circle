@@ -279,8 +279,19 @@ export default function BookingView() {
         action_url: createPageUrl('CalendarView')
       });
 
-      // Notify the cancelling user (companion) about their own cancellation
-      if (!isSeeker) {
+      // Notify the cancelling user about their own cancellation
+      if (isSeeker) {
+        // Seeker cancelled - notify seeker
+        await base44.entities.Notification.create({
+          user_id: booking?.seeker_id,
+          type: 'booking_cancelled',
+          title: '❌ Booking Cancelled',
+          message: `You cancelled your booking with ${booking?.companion_name || 'companion'}.${refundPercentage > 0 ? ` ${refundPercentage}% refund will be processed.` : ''}`,
+          booking_id: bookingId,
+          action_url: createPageUrl('CalendarView')
+        });
+      } else {
+        // Companion cancelled - notify companion
         await base44.entities.Notification.create({
           user_id: booking?.companion_id,
           type: 'booking_cancelled',
