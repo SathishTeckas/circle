@@ -34,11 +34,13 @@ const CITY_AREAS = {
   'Lucknow': ['Alambagh', 'Aliganj', 'Amausi', 'Aminabad', 'Ashiyana', 'Butler Colony', 'Cantonment', 'Charbagh', 'Chowk', 'Dalibagh', 'Faizabad Road', 'Gomti Nagar', 'Gomti Nagar Extension', 'Hazratganj', 'Hussainganj', 'Indira Nagar', 'Jankipuram', 'Jopling Road', 'Kaiserbagh', 'Kapoorthala', 'Krishna Nagar', 'Lalbagh', 'Mahanagar', 'Munshipulia', 'Nakhas', 'Narhi', 'Nirala Nagar', 'Nishatganj', 'Rajajipuram', 'Sapru Marg', 'Sarojini Nagar', 'Shringar Nagar', 'Singar Nagar', 'Sitapur Road', 'Telibagh', 'Thakurganj', 'Triveni Nagar', 'Vikas Nagar', 'Vrindavan Yojana', 'Yahiyaganj'],
   'Kochi': ['Aluva', 'Angamaly', 'Banerjee Road', 'Broadway', 'Bolgatty', 'Chilavannoor', 'Chittoor', 'Edakochi', 'Edappally', 'Elamakkara', 'Elamkulam', 'Ernakulam North', 'Ernakulam South', 'Fort Kochi', 'Giri Nagar', 'High Court Junction', 'Island', 'Kadavanthra', 'Kakkanad', 'Kalamassery', 'Kaloor', 'Marine Drive', 'Mattancherry', 'Maradu', 'Menaka', 'MG Road', 'Mundamveli', 'Nedumbassery', 'Pachalam', 'Palarivattom', 'Palluruthy', 'Panampilly Nagar', 'Paravur', 'Ravipuram', 'Shanmugham Road', 'Thevara', 'Thoppumpady', 'Thripunithura', 'Vaduthala', 'Vypeen', 'Vyttila', 'Willington Island']
 };
-// Generate time slots with 15-minute intervals (9 AM to 9 PM)
-const generateTimeSlots = () => {
+// Generate time slots with 15-minute intervals (9 AM to 10 PM)
+const generateTimeSlots = (includeEndTime = false) => {
   const slots = [];
-  for (let hour = 9; hour <= 21; hour++) {
+  const endHour = includeEndTime ? 22 : 21; // 10 PM for end time, 9 PM for start time
+  for (let hour = 9; hour <= endHour; hour++) {
     for (let minute = 0; minute < 60; minute += 15) {
+      if (hour === endHour && minute > 0) break; // Only include XX:00 for last hour
       const time24 = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
       slots.push({ value: time24, label: formatTime12Hour(time24) });
     }
@@ -46,7 +48,19 @@ const generateTimeSlots = () => {
   return slots;
 };
 
-const TIME_SLOTS = generateTimeSlots();
+// Helper to check if two time ranges overlap
+const doTimesOverlap = (start1, end1, start2, end2) => {
+  const toMinutes = (time) => {
+    const [h, m] = time.split(':').map(Number);
+    return h * 60 + m;
+  };
+  const s1 = toMinutes(start1), e1 = toMinutes(end1);
+  const s2 = toMinutes(start2), e2 = toMinutes(end2);
+  return s1 < e2 && s2 < e1;
+};
+
+const TIME_SLOTS = generateTimeSlots(false);
+const END_TIME_SLOTS = generateTimeSlots(true);
 
 export default function ManageAvailability() {
   const queryClient = useQueryClient();
