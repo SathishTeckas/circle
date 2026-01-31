@@ -232,6 +232,7 @@ export default function BookingView() {
       }
       const isSeeker = user?.id === booking?.seeker_id;
       const otherUserId = isSeeker ? booking?.companion_id : booking?.seeker_id;
+      const cancellerName = user?.display_name || user?.full_name || (isSeeker ? booking?.seeker_name : booking?.companion_name);
       
       // If seeker cancelled and companion gets compensation, update wallet
       if (isSeeker && companionCompensation > 0) {
@@ -269,19 +270,32 @@ export default function BookingView() {
         });
       }
 
-      // Notify the other party about cancellation
-      await base44.entities.Notification.create({
-        user_id: otherUserId,
-        type: 'booking_cancelled',
-        title: '❌ Booking Cancelled',
-        message: `${user?.display_name || user?.full_name} cancelled the booking${!isSeeker ? ' (Full refund issued)' : isSeeker && companionCompensation > 0 ? ` (You received ${formatCurrency(companionCompensation)} compensation)` : ''}`,
-        booking_id: bookingId,
-        action_url: createPageUrl('CalendarView')
-      });
-
-      // Notify the cancelling user about their own cancellation
+      // Notify the OTHER party about cancellation
       if (isSeeker) {
-        // Seeker cancelled - notify seeker
+        // Seeker cancelled - notify companion
+        await base44.entities.Notification.create({
+          user_id: booking?.companion_id,
+          type: 'booking_cancelled',
+          title: '❌ Booking Cancelled',
+          message: `${cancellerName} cancelled their booking with you.${companionCompensation > 0 ? ` You received ${formatCurrency(companionCompensation)} as compensation.` : ''}`,
+          booking_id: bookingId,
+          action_url: createPageUrl('CalendarView')
+        });
+      } else {
+        // Companion cancelled - notify seeker
+        await base44.entities.Notification.create({
+          user_id: booking?.seeker_id,
+          type: 'booking_cancelled',
+          title: '❌ Booking Cancelled',
+          message: `${cancellerName} cancelled the booking. Full refund will be processed.`,
+          booking_id: bookingId,
+          action_url: createPageUrl('CalendarView')
+        });
+      }
+
+      // Notify the CANCELLING user about their own cancellation (confirmation)
+      if (isSeeker) {
+        // Seeker cancelled - confirm to seeker
         await base44.entities.Notification.create({
           user_id: booking?.seeker_id,
           type: 'booking_cancelled',
@@ -291,7 +305,7 @@ export default function BookingView() {
           action_url: createPageUrl('CalendarView')
         });
       } else {
-        // Companion cancelled - notify companion
+        // Companion cancelled - confirm to companion
         await base44.entities.Notification.create({
           user_id: booking?.companion_id,
           type: 'booking_cancelled',
@@ -302,7 +316,7 @@ export default function BookingView() {
         });
       }
 
-      // Send refund notification to seeker
+      // Send refund notification to seeker (regardless of who cancelled)
       if (refundPercentage > 0) {
         await base44.entities.Notification.create({
           user_id: booking?.seeker_id,
