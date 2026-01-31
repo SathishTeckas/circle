@@ -61,7 +61,7 @@ export default function CompanionDashboard() {
         user_id: booking.seeker_id,
         type: 'booking_cancelled',
         title: '❌ Booking Cancelled',
-        message: `${booking.companion_name} cancelled your booking. Full refund processed.`,
+        message: `${booking.companion_name} cancelled your booking. Full refund will be processed.`,
         booking_id: bookingId,
         action_url: createPageUrl('MyBookings')
       });
@@ -73,6 +73,16 @@ export default function CompanionDashboard() {
         message: `${formatCurrency(booking.total_amount)} has been refunded to your account`,
         amount: booking.total_amount,
         action_url: createPageUrl('MyBookings')
+      });
+
+      // Notify companion (self) about their own cancellation
+      await base44.entities.Notification.create({
+        user_id: user.id,
+        type: 'booking_cancelled',
+        title: '❌ Booking Cancelled',
+        message: `You cancelled the booking with ${booking.seeker_name}. Full refund has been issued.`,
+        booking_id: bookingId,
+        action_url: createPageUrl('CalendarView')
       });
     },
     onSuccess: () => {
