@@ -172,47 +172,59 @@ export default function Onboarding() {
       let user = await base44.auth.me();
       const myReferralCode = user.id.substring(0, 8).toUpperCase();
       
+      // Check if the entered code is a campaign code
+      let isCampaignCode = false;
+      let detectedCampaignCode = userData.campaign_referral_code;
+      
+      if (userData.user_referral_code && !userData.campaign_referral_code) {
+        // Check if user_referral_code matches a campaign
+        const campaigns = await base44.entities.CampaignReferral.filter({ 
+          code: userData.user_referral_code.toUpperCase() 
+        });
+        if (campaigns.length > 0 && campaigns[0].is_active) {
+          isCampaignCode = true;
+          detectedCampaignCode = userData.user_referral_code.toUpperCase();
+        }
+      }
+      
       // Save all data including display_name, campaign code, and my_referral_code via updateMe
-      user = await base44.auth.me();
+      const saveData = { ...userData };
+      delete saveData.user_referral_code; // Don't save this field to user
+      
       await base44.auth.updateMe({
-        ...userData,
+        ...saveData,
         my_referral_code: myReferralCode,
-        campaign_referral_code: userData.campaign_referral_code || user.campaign_referral_code,
+        campaign_referral_code: detectedCampaignCode || '',
+        referral_code: isCampaignCode ? '' : userData.user_referral_code, // Store user referral code separately
         onboarding_completed: false // Will be true after KYC
       });
 
-      // Only process user referral code if no campaign code is present
-      if (userData.user_referral_code && userData.user_referral_code.trim() && !userData.campaign_referral_code) {
+      // Process based on code type
+      if (isCampaignCode || detectedCampaignCode) {
+        // Process campaign referral
         try {
-          await base44.functions.invoke('processReferral', {
-            referral_code: userData.user_referral_code.trim()
-          });
-          // Clear from localStorage after successful processing
-          localStorage.removeItem('referral_code');
-        } catch (referralError) {
-          console.error('Referral processing failed:', referralError);
-          // Don't block onboarding if referral fails
-        }
-      }
-
-      // Ensure campaign bonus is processed as fallback
-      if (userData.campaign_referral_code) {
-        try {
-          // Fetch fresh user data with campaign code saved
           user = await base44.auth.me();
-          // Call the function directly with necessary context
           await base44.functions.invoke('updateCampaignReferralStats', {
             entity_id: user.id,
             data: { 
               ...user,
-              user_role: user.user_role || userData.display_name, // Ensure role is included
-              campaign_referral_code: userData.campaign_referral_code
+              user_role: user.user_role,
+              campaign_referral_code: detectedCampaignCode
             },
             event: { type: 'create' }
           });
         } catch (campaignError) {
           console.error('Campaign bonus processing failed:', campaignError);
-          // Don't block onboarding if campaign bonus fails
+        }
+      } else if (userData.user_referral_code && userData.user_referral_code.trim()) {
+        // Process user referral code
+        try {
+          await base44.functions.invoke('processReferral', {
+            referral_code: userData.user_referral_code.trim()
+          });
+          localStorage.removeItem('referral_code');
+        } catch (referralError) {
+          console.error('Referral processing failed:', referralError);
         }
       }
 
