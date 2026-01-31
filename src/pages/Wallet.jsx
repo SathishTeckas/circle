@@ -153,13 +153,15 @@ export default function Wallet() {
    staleTime: 5 * 60 * 1000
   });
 
+  // Use requested_amount (full amount before fee) for balance calculations
+  // Fall back to amount for legacy payouts that don't have requested_amount
   const pendingPayouts = payouts
     .filter(p => p.status === 'pending')
-    .reduce((sum, p) => sum + p.amount, 0);
+    .reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
 
   const approvedPayouts = payouts
     .filter(p => ['approved', 'processing'].includes(p.status))
-    .reduce((sum, p) => sum + p.amount, 0);
+    .reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
 
   const hasPendingPayout = payouts.some(p => ['pending', 'approved', 'processing'].includes(p.status));
 
@@ -168,10 +170,10 @@ export default function Wallet() {
   const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
   const campaignEarnings = campaignBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
   
-  // Calculate total withdrawn from completed payouts
+  // Calculate total withdrawn from completed payouts (use requested_amount - full amount before fee)
   const totalWithdrawn = payouts
     .filter(p => p.status === 'completed')
-    .reduce((sum, p) => sum + p.amount, 0);
+    .reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
   
   // Calculate available balance from actual data sources (NOT wallet_balance which may be stale)
   // Available = Total Earnings + Referral Bonuses + Campaign Bonuses - Withdrawn - Pending Payouts - Approved Payouts
@@ -293,6 +295,8 @@ export default function Wallet() {
         companion_id: user.id,
         companion_name: user.full_name,
         companion_email: user.email,
+        requested_amount: amount,
+        platform_fee: fee,
         amount: netAmount,
         payment_method: paymentMethod,
         payment_details: details,
@@ -374,9 +378,9 @@ export default function Wallet() {
 
       const latestCampaignEarnings = latestCampaignBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
 
-      const latestWithdrawn = latestPayouts.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
-      const latestApproved = latestPayouts.filter(p => ['approved', 'processing'].includes(p.status)).reduce((sum, p) => sum + p.amount, 0);
-      const latestPending = latestPayouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
+      const latestWithdrawn = latestPayouts.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
+      const latestApproved = latestPayouts.filter(p => ['approved', 'processing'].includes(p.status)).reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
+      const latestPending = latestPayouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
 
       const realBalance = latestTotalEarnings + latestReferralEarnings + latestCampaignEarnings - latestWithdrawn - latestApproved - latestPending;
 
@@ -781,6 +785,9 @@ export default function Wallet() {
                   {payouts.map((payout, idx) => {
                     const status = payoutStatusConfig[payout.status];
                     const StatusIcon = status.icon;
+                    const requestedAmt = payout.requested_amount || payout.amount;
+                    const feeAmt = payout.platform_fee || 0;
+                    const netAmt = payout.amount;
                     return (
                       <motion.div
                         key={payout.id}
@@ -791,7 +798,12 @@ export default function Wallet() {
                       >
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <p className="font-semibold text-slate-900">{formatCurrency(payout.amount)}</p>
+                            <p className="font-semibold text-slate-900">{formatCurrency(netAmt)}</p>
+                            {feeAmt > 0 && (
+                              <p className="text-xs text-slate-500">
+                                Requested: {formatCurrency(requestedAmt)} • Fee: {formatCurrency(feeAmt)}
+                              </p>
+                            )}
                             <p className="text-sm text-slate-500 capitalize">
                               {payout.payment_method.replace('_', ' ')}
                             </p>
