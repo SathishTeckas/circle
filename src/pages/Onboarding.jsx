@@ -615,10 +615,12 @@ export default function Onboarding() {
                    <Input
                      type="text"
                      placeholder="Enter friend's referral code or campaign code"
-                     value={userData.user_referral_code || userData.campaign_referral_code}
+                     value={userData.campaign_referral_code || userData.user_referral_code}
                      onChange={(e) => {
-                       const code = e.target.value.toUpperCase().trim();
-                       setUserData({ ...userData, user_referral_code: code, campaign_referral_code: '' });
+                       const code = e.target.value.toUpperCase();
+                       if (!userData.campaign_referral_code) {
+                         setUserData({ ...userData, user_referral_code: code });
+                       }
                      }}
                      disabled={!!userData.campaign_referral_code}
                      className="h-14 rounded-xl border-slate-200 disabled:opacity-60 disabled:cursor-not-allowed"
