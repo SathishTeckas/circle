@@ -269,15 +269,30 @@ export default function BookingView() {
         });
       }
 
+      // Notify the other party about cancellation
       await base44.entities.Notification.create({
         user_id: otherUserId,
         type: 'booking_cancelled',
         title: '❌ Booking Cancelled',
-        message: `${user?.display_name || user?.full_name} cancelled the booking${refundPercentage === 100 ? ' (Full refund issued)' : isSeeker && companionCompensation > 0 ? ` (You received ${formatCurrency(companionCompensation)} compensation)` : ''}`,
+        message: `${user?.display_name || user?.full_name} cancelled the booking${!isSeeker ? ' (Full refund issued)' : isSeeker && companionCompensation > 0 ? ` (You received ${formatCurrency(companionCompensation)} compensation)` : ''}`,
         booking_id: bookingId,
         action_url: createPageUrl('CalendarView')
       });
-      if (refundPercentage > 0 && isSeeker) {
+
+      // Notify the cancelling user (companion) about their own cancellation
+      if (!isSeeker) {
+        await base44.entities.Notification.create({
+          user_id: booking?.companion_id,
+          type: 'booking_cancelled',
+          title: '❌ Booking Cancelled',
+          message: `You cancelled the booking with ${booking?.seeker_name || 'guest'}. Full refund has been issued to the seeker.`,
+          booking_id: bookingId,
+          action_url: createPageUrl('CalendarView')
+        });
+      }
+
+      // Send refund notification to seeker
+      if (refundPercentage > 0) {
         await base44.entities.Notification.create({
           user_id: booking?.seeker_id,
           type: 'payment_refunded',
