@@ -13,12 +13,21 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Badge } from '@/components/ui/badge';
 import { 
   Plus, Calendar as CalendarIcon, Clock, MapPin, DollarSign, 
-  Trash2, Edit, ArrowLeft
+  Trash2, Edit, ArrowLeft, AlertTriangle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const CITY_AREAS = {
   'Mumbai': ['Airoli', 'Andheri', 'Bandra', 'Belapur', 'Bhandup', 'Borivali', 'Byculla', 'Chembur', 'Churchgate', 'Colaba', 'Cuffe Parade', 'Dadar', 'Dahisar', 'Fort', 'Ghatkopar', 'Ghansoli', 'Goregaon', 'Govandi', 'Jogeshwari', 'Juhu', 'Kalbadevi', 'Kandivali', 'Kanjurmarg', 'Khar', 'Kharghar', 'Kurla', 'Lower Parel', 'Mahalaxmi', 'Malabar Hill', 'Malad', 'Mankhurd', 'Marine Lines', 'Matunga', 'Mulund', 'Nariman Point', 'Nerul', 'Panvel', 'Peddar Road', 'Powai', 'Santacruz', 'Sion', 'Tardeo', 'Vashi', 'Versova', 'Vidyavihar', 'Vikhroli', 'Vile Parle', 'Wadala', 'Worli'],
@@ -75,6 +84,7 @@ export default function ManageAvailability() {
     city: '',
     price_per_hour: ''
   });
+  const [errorDialog, setErrorDialog] = useState({ open: false, title: '', message: '' });
 
   const { data: cities = [] } = useQuery({
     queryKey: ['active-cities'],
@@ -196,7 +206,18 @@ export default function ManageAvailability() {
     onError: (error) => {
       queryClient.invalidateQueries({ queryKey: ['my-availabilities'] });
       queryClient.invalidateQueries({ queryKey: ['active-availabilities'] });
-      toast.error(error.message || `Failed to ${editingSlot ? 'update' : 'create'} availability`);
+      
+      // Show error dialog with detailed message
+      let title = 'Unable to Save';
+      let message = error.message || `Failed to ${editingSlot ? 'update' : 'create'} availability`;
+      
+      if (message.includes('overlap')) {
+        title = 'Time Slot Conflict';
+      } else if (message.includes('past')) {
+        title = 'Invalid Time';
+      }
+      
+      setErrorDialog({ open: true, title, message });
     }
   });
 
@@ -566,6 +587,34 @@ export default function ManageAvailability() {
           </div>
         )}
       </div>
+
+      {/* Error Dialog */}
+      <AlertDialog open={errorDialog.open} onOpenChange={(open) => setErrorDialog({ ...errorDialog, open })}>
+        <AlertDialogContent className="rounded-2xl mx-4">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <AlertDialogTitle className="text-lg font-bold" style={{ color: '#2D3436' }}>
+                {errorDialog.title}
+              </AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-sm" style={{ color: '#636E72' }}>
+              {errorDialog.message}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              onClick={() => setErrorDialog({ open: false, title: '', message: '' })}
+              className="w-full h-12 rounded-xl font-bold"
+              style={{ background: '#FFD93D', color: '#2D3436' }}
+            >
+              OK, Got It
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
