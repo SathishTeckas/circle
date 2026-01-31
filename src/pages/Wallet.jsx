@@ -14,8 +14,16 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Wallet as WalletIcon, ArrowDownLeft, ArrowUpRight, 
-  IndianRupee, TrendingUp, ArrowLeft, CreditCard, Clock, CheckCircle, XCircle
+  IndianRupee, TrendingUp, ArrowLeft, CreditCard, Clock, CheckCircle, XCircle, PartyPopper
 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -44,6 +52,7 @@ export default function Wallet() {
     account_holder_name: '',
     upi_id: ''
   });
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -317,17 +326,21 @@ export default function Wallet() {
         }
       }
 
+      // Close the sheet first
+      setShowPayoutSheet(false);
+      setPayoutAmount('');
+      setIsSubmitting(false);
+      toast.dismiss();
+      
+      // Refetch data
       await Promise.all([
-        queryClient.refetchQueries({ queryKey: ['payouts'] }),
-        queryClient.refetchQueries({ queryKey: ['earnings'] })
+        queryClient.invalidateQueries({ queryKey: ['payouts'] }),
+        queryClient.invalidateQueries({ queryKey: ['earnings'] }),
+        queryClient.invalidateQueries({ queryKey: ['pending-earnings'] })
       ]);
       
-      toast.dismiss();
-      toast.success('Payout request submitted successfully!');
-      setPayoutAmount('');
-      setPaymentDetails({ bank_name: '', account_number: '', ifsc_code: '', account_holder_name: '', upi_id: '' });
-      setShowPayoutSheet(false);
-      setIsSubmitting(false);
+      // Show success dialog
+      setShowSuccessDialog(true);
     } catch (error) {
       console.error('Payout error:', error);
       toast.dismiss();
@@ -416,6 +429,32 @@ export default function Wallet() {
 
   return (
     <div className="min-h-screen pb-24" style={{ background: '#F8F9FA', fontFamily: "'Nunito', sans-serif" }}>
+      {/* Success Dialog */}
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader className="text-center">
+            <div className="mx-auto w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
+              <PartyPopper className="w-8 h-8 text-emerald-600" />
+            </div>
+            <AlertDialogTitle className="text-xl">Congratulations! 🎉</AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
+              Your payout request has been submitted successfully! We'll process it shortly and notify you once it's completed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button 
+              onClick={() => {
+                setShowSuccessDialog(false);
+                window.location.reload();
+              }}
+              className="w-full bg-emerald-600 hover:bg-emerald-700"
+            >
+              Got it!
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Header */}
       <div className="px-4 pt-8 pb-12" style={{ background: 'linear-gradient(135deg, #4ECDC4 0%, #74B9FF 100%)' }}>
         <div className="max-w-lg mx-auto">
