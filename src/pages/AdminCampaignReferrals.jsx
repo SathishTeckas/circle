@@ -31,9 +31,24 @@ export default function AdminCampaignReferrals() {
     queryFn: async () => {
       const allCampaigns = await base44.entities.CampaignReferral.list('-created_date', 100);
       
+      // Find all SYSTEM campaigns
+      const systemCampaigns = allCampaigns.filter(c => c.code === 'SYSTEM');
+      
+      // If multiple SYSTEM campaigns exist, delete duplicates (keep the oldest one)
+      if (systemCampaigns.length > 1) {
+        const sortedByDate = [...systemCampaigns].sort((a, b) => 
+          new Date(a.created_date) - new Date(b.created_date)
+        );
+        // Keep the first (oldest), delete the rest
+        for (let i = 1; i < sortedByDate.length; i++) {
+          await base44.entities.CampaignReferral.delete(sortedByDate[i].id);
+        }
+        // Refetch after cleanup
+        return await base44.entities.CampaignReferral.list('-created_date', 100);
+      }
+      
       // Ensure SYSTEM campaign exists
-      const systemCampaign = allCampaigns.find(c => c.code === 'SYSTEM');
-      if (!systemCampaign) {
+      if (systemCampaigns.length === 0) {
         await base44.entities.CampaignReferral.create({
           code: 'SYSTEM',
           campaign_name: 'System Referral Program',
