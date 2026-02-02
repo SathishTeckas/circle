@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
           customer_phone: user.phone_number || '9999999999'
         },
         link_meta: {
-          return_url: callbackUrl.replace('{order_id}', orderId),
+          return_url: callbackUrl,
           notify_url: null
         },
         link_notify: {
