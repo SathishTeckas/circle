@@ -137,8 +137,8 @@ export const closeCapacitorBrowser = async () => {
   if (!isCapacitor()) return;
 
   try {
-    const { Browser } = await import('@capacitor/browser');
-    await Browser.close();
+    const Browser = await getBrowser();
+    if (Browser) await Browser.close();
   } catch (error) {
     console.error('Failed to close Capacitor browser:', error);
   }
