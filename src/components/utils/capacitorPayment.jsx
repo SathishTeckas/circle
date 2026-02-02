@@ -4,6 +4,9 @@
  * This file provides utilities for handling Cashfree payments in a Capacitor mobile app.
  * Uses in-app browser for payment with HTTPS return URLs (Cashfree doesn't support custom schemes).
  * Polls for payment completion and closes browser automatically.
+ * 
+ * NOTE: Capacitor packages are dynamically imported only when running in native environment.
+ * This allows the code to build in web environments without Capacitor installed.
  */
 
 import { isCapacitor } from './capacitorAuth';
@@ -11,6 +14,18 @@ import { base44 } from '@/api/base44Client';
 
 // Your app's web URL for payment callbacks
 const APP_BASE_URL = 'https://circle-eb51a399.base44.app';
+
+// Dynamic import helper for Capacitor Browser
+const getBrowser = async () => {
+  if (!isCapacitor()) return null;
+  try {
+    const module = await import('@capacitor/browser');
+    return module.Browser;
+  } catch (e) {
+    console.warn('Capacitor Browser not available');
+    return null;
+  }
+};
 
 /**
  * Open Cashfree payment in Capacitor browser
