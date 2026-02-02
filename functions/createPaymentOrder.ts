@@ -6,7 +6,7 @@ const CASHFREE_SECRET_KEY = Deno.env.get('CASHFREE_CLIENT_SECRET');
 
 // Use sandbox for testing, production for live
 const CASHFREE_ORDERS_URL = 'https://sandbox.cashfree.com/pg';
-const CASHFREE_LINKS_URL = 'https://sandbox.cashfree.com/links';
+const CASHFREE_LINKS_URL = 'https://sandbox.cashfree.com/pg'; // Payment Links API is under /pg/links
 
 Deno.serve(async (req) => {
   try {
