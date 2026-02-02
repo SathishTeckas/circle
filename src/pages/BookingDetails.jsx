@@ -204,17 +204,36 @@ export default function BookingDetails() {
       return { booking, paymentData };
       },
       onSuccess: ({ booking, paymentData }) => {
-      // Load Cashfree JS SDK and redirect to checkout
-      const script = document.createElement('script');
-      script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
-      script.onload = () => {
-        const cashfree = window.Cashfree({ mode: 'sandbox' });
-        cashfree.checkout({
-          paymentSessionId: paymentData.payment_session_id,
-          redirectTarget: '_self'
-        });
-      };
-      document.head.appendChild(script);
+      // Check if running in Capacitor (mobile app)
+      if (isCapacitor()) {
+        // Mobile: Use in-app browser with polling
+        openCashfreePayment(
+          paymentData.payment_session_id,
+          paymentData.order_id,
+          booking.id,
+          (result) => {
+            // Payment success - navigate to booking view
+            window.location.href = createPageUrl(`BookingView?id=${result.bookingId}`);
+          },
+          (result) => {
+            // Payment failed or cancelled
+            setBooking(false);
+            alert('Payment was not completed. Please try again.');
+          }
+        );
+      } else {
+        // Web: Load Cashfree JS SDK and redirect to checkout
+        const script = document.createElement('script');
+        script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+        script.onload = () => {
+          const cashfree = window.Cashfree({ mode: 'sandbox' });
+          cashfree.checkout({
+            paymentSessionId: paymentData.payment_session_id,
+            redirectTarget: '_self'
+          });
+        };
+        document.head.appendChild(script);
+      }
       },
     onError: (error) => {
       console.error('Booking creation failed:', error);
