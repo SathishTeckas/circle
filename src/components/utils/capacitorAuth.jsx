@@ -3,6 +3,9 @@
  * 
  * This file provides utilities for handling authentication in a Capacitor mobile app.
  * Uses in-app browser with polling to detect when login completes.
+ * 
+ * NOTE: Capacitor packages are dynamically imported only when running in native environment.
+ * This allows the code to build in web environments without Capacitor installed.
  */
 
 import { base44 } from '@/api/base44Client';
@@ -12,6 +15,30 @@ export const isCapacitor = () => {
   return typeof window !== 'undefined' && 
          window.Capacitor && 
          window.Capacitor.isNativePlatform();
+};
+
+// Dynamic import helper for Capacitor Browser
+const getBrowser = async () => {
+  if (!isCapacitor()) return null;
+  try {
+    const module = await import('@capacitor/browser');
+    return module.Browser;
+  } catch (e) {
+    console.warn('Capacitor Browser not available');
+    return null;
+  }
+};
+
+// Dynamic import helper for Capacitor Preferences
+const getPreferences = async () => {
+  if (!isCapacitor()) return null;
+  try {
+    const module = await import('@capacitor/preferences');
+    return module.Preferences;
+  } catch (e) {
+    console.warn('Capacitor Preferences not available');
+    return null;
+  }
 };
 
 // Check if running on iOS
