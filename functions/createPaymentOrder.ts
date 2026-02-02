@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
           'Accept': 'application/json',
           'x-client-id': CASHFREE_APP_ID,
           'x-client-secret': CASHFREE_SECRET_KEY,
-          'x-api-version': '2023-08-01'
+          'x-api-version': '2025-01-01'
         },
         body: JSON.stringify(linkPayload)
       });
@@ -132,7 +132,7 @@ Deno.serve(async (req) => {
         'Accept': 'application/json',
         'x-client-id': CASHFREE_APP_ID,
         'x-client-secret': CASHFREE_SECRET_KEY,
-        'x-api-version': '2023-08-01'
+        'x-api-version': '2025-01-01'
       },
       body: JSON.stringify(orderPayload)
     });
