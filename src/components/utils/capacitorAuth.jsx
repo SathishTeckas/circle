@@ -75,7 +75,11 @@ export const openCapacitorLogin = async (loginUrl, onSuccess, onCancel) => {
   }
 
   try {
-    const { Browser } = await import('@capacitor/browser');
+    const Browser = await getBrowser();
+    if (!Browser) {
+      window.location.href = loginUrl;
+      return;
+    }
     
     let pollInterval = null;
     let browserClosed = false;
