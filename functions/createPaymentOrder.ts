@@ -25,8 +25,8 @@ Deno.serve(async (req) => {
 
     // Generate unique order/link ID
     const orderId = `order_${booking_id}_${Date.now()}`;
-    const APP_URL = 'https://circle-eb51a399.base44.app';
-    const callbackUrl = `${APP_URL}/PaymentCallback?booking_id=${booking_id}&order_id=${orderId}`;
+    const origin = req.headers.get('origin') || 'https://circle-eb51a399.base44.app';
+    const callbackUrl = return_url || `${origin}/PaymentCallback?booking_id=${booking_id}&order_id=${orderId}`;
 
     console.log('Cashfree credentials:', { 
       hasAppId: !!CASHFREE_APP_ID, 
@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
           send_email: false
         },
         link_auto_reminders: false,
-        link_expiry_time: new Date(Date.now() + 30 * 60 * 1000).toISOString().replace('Z', '+05:30') // 30 min expiry, IST timezone format
+        link_expiry_time: new Date(Date.now() + 30 * 60 * 1000).toISOString() // 30 min expiry
       };
 
       console.log('Creating Cashfree payment link:', linkPayload);
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
           'Accept': 'application/json',
           'x-client-id': CASHFREE_APP_ID,
           'x-client-secret': CASHFREE_SECRET_KEY,
-          'x-api-version': '2025-01-01'
+          'x-api-version': '2023-08-01'
         },
         body: JSON.stringify(linkPayload)
       });
@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
         'Accept': 'application/json',
         'x-client-id': CASHFREE_APP_ID,
         'x-client-secret': CASHFREE_SECRET_KEY,
-        'x-api-version': '2025-01-01'
+        'x-api-version': '2023-08-01'
       },
       body: JSON.stringify(orderPayload)
     });
