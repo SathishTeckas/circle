@@ -17,6 +17,8 @@ import SafetyBadge from '@/components/ui/SafetyBadge';
 import RatingStars from '@/components/ui/RatingStars';
 import PhotoCarousel from '@/components/profile/PhotoCarousel';
 import { cn } from '@/lib/utils';
+import { isCapacitor } from '@/components/utils/capacitorAuth';
+import { openCashfreePayment } from '@/components/utils/capacitorPayment';
 
 export default function BookingDetails() {
   const urlParams = new URLSearchParams(window.location.search);
