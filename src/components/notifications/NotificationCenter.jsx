@@ -203,7 +203,7 @@ export default function NotificationCenter() {
                           }}
                         >
                           <div className="flex gap-3">
-                            <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${iconColor}20` }}>
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${iconConfig.iconColor}20` }}>
                               <Icon className="w-5 h-5" style={{ color: iconConfig.iconColor }} />
                             </div>
                             <div className="flex-1 min-w-0">
