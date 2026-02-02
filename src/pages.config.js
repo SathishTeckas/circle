@@ -92,6 +92,7 @@ import RoleSelection from './pages/RoleSelection';
 import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
+import AuthRedirect from './pages/AuthRedirect';
 import __Layout from './Layout.jsx';
 
 
@@ -141,6 +142,7 @@ export const PAGES = {
     "TermsAcceptance": TermsAcceptance,
     "UserProfile": UserProfile,
     "Wallet": Wallet,
+    "AuthRedirect": AuthRedirect,
 }
 
 export const pagesConfig = {
