@@ -63,6 +63,7 @@ import AdminSettings from './pages/AdminSettings';
 import AdminUsers from './pages/AdminUsers';
 import AdminVenues from './pages/AdminVenues';
 import AuthRedirect from './pages/AuthRedirect';
+import BookingDetails from './pages/BookingDetails';
 import BookingView from './pages/BookingView';
 import CalendarView from './pages/CalendarView';
 import ChatList from './pages/ChatList';
@@ -92,7 +93,6 @@ import RoleSelection from './pages/RoleSelection';
 import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
-import BookingDetails from './pages/BookingDetails';
 import __Layout from './Layout.jsx';
 
 
@@ -113,6 +113,7 @@ export const PAGES = {
     "AdminUsers": AdminUsers,
     "AdminVenues": AdminVenues,
     "AuthRedirect": AuthRedirect,
+    "BookingDetails": BookingDetails,
     "BookingView": BookingView,
     "CalendarView": CalendarView,
     "ChatList": ChatList,
@@ -142,7 +143,6 @@ export const PAGES = {
     "TermsAcceptance": TermsAcceptance,
     "UserProfile": UserProfile,
     "Wallet": Wallet,
-    "BookingDetails": BookingDetails,
 }
 
 export const pagesConfig = {

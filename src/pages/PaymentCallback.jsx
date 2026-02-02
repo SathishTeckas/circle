@@ -21,39 +21,10 @@ export default function PaymentCallback() {
       }
 
       try {
-        // Verify payment with Cashfree
+        // Verify payment with Cashfree - this also updates booking on server side
         const { data } = await base44.functions.invoke('verifyPayment', { order_id: orderId });
 
         if (data.is_paid) {
-          // Update booking status
-          const user = await base44.auth.me();
-          const bookings = await base44.entities.Booking.filter({ id: bookingId });
-          const booking = bookings[0];
-
-          if (booking) {
-            await base44.entities.Booking.update(bookingId, {
-              status: 'pending',
-              payment_status: 'paid',
-              escrow_status: 'held'
-            });
-
-            // Update availability
-            if (booking.availability_id) {
-              await base44.entities.Availability.update(booking.availability_id, { status: 'pending' });
-            }
-
-            // Create notification for companion
-            await base44.entities.Notification.create({
-              user_id: booking.companion_id,
-              type: 'booking_request',
-              title: '🔔 New Booking Request!',
-              message: `${booking.seeker_name} wants to book you for ${booking.duration_hours}h`,
-              booking_id: bookingId,
-              amount: booking.base_price,
-              action_url: createPageUrl(`BookingView?id=${bookingId}`)
-            });
-          }
-
           setStatus('success');
           
           // Redirect to booking view after 2 seconds
