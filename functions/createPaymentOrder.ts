@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
           send_email: false
         },
         link_auto_reminders: false,
-        link_expiry_time: new Date(Date.now() + 30 * 60 * 1000).toISOString() // 30 min expiry
+        link_expiry_time: new Date(Date.now() + 30 * 60 * 1000).toISOString().replace('Z', '+05:30') // 30 min expiry, IST timezone format
       };
 
       console.log('Creating Cashfree payment link:', linkPayload);
