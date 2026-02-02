@@ -48,18 +48,39 @@ export default function NotificationCenter() {
     refetchInterval: 3000 // Refetch every 3 seconds for real-time updates
   });
 
-  // Subscribe to real-time updates
+  // Track shown notification IDs to prevent duplicates
+  const [shownNotificationIds, setShownNotificationIds] = useState(new Set());
+
+  // Subscribe to real-time updates and show toast popup
   useEffect(() => {
     if (!user?.id) return;
 
     const unsubscribe = base44.entities.Notification.subscribe((event) => {
       if (event.type === 'create' && event.data?.user_id === user.id) {
         queryClient.invalidateQueries({ queryKey: ['notifications', user.id] });
+        
+        // Show toast popup for new notification (like mobile push)
+        const notification = event.data;
+        if (!shownNotificationIds.has(notification.id)) {
+          setShownNotificationIds(prev => new Set([...prev, notification.id]));
+          
+          const iconConfig = notificationIcons[notification.type] || notificationIcons.payment_received;
+          
+          toast(notification.title, {
+            description: notification.message,
+            duration: 5000,
+            icon: <iconConfig.icon className="w-5 h-5" style={{ color: iconConfig.iconColor }} />,
+            action: notification.action_url ? {
+              label: 'View',
+              onClick: () => window.location.href = notification.action_url
+            } : undefined
+          });
+        }
       }
     });
 
     return unsubscribe;
-  }, [user?.id, queryClient]);
+  }, [user?.id, queryClient, shownNotificationIds]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
