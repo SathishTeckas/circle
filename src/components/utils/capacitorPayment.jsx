@@ -16,10 +16,13 @@ import { base44 } from '@/api/base44Client';
 const APP_BASE_URL = 'https://circle-eb51a399.base44.app';
 
 // Dynamic import helper for Capacitor Browser
+// Using Function constructor to completely hide the import from bundler
 const getBrowser = async () => {
   if (!isCapacitor()) return null;
   try {
-    const module = await import('@capacitor/browser');
+    // Hide from bundler - Capacitor packages only exist in native builds
+    const importFn = new Function('specifier', 'return import(specifier)');
+    const module = await importFn('@capacitor/browser');
     return module.Browser;
   } catch (e) {
     console.warn('Capacitor Browser not available');
