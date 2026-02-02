@@ -25,20 +25,8 @@ Deno.serve(async (req) => {
 
     // Generate unique order/link ID
     const orderId = `order_${booking_id}_${Date.now()}`;
-    
-    // For mobile apps, always use the production app URL (not localhost)
     const APP_URL = 'https://circle-eb51a399.base44.app';
-    const origin = req.headers.get('origin');
-    
-    // Use provided return_url, or construct from origin, but never use localhost
-    let callbackUrl;
-    if (return_url && !return_url.includes('localhost')) {
-      callbackUrl = return_url;
-    } else if (origin && !origin.includes('localhost')) {
-      callbackUrl = `${origin}/PaymentCallback?booking_id=${booking_id}&order_id=${orderId}`;
-    } else {
-      callbackUrl = `${APP_URL}/PaymentCallback?booking_id=${booking_id}&order_id=${orderId}`;
-    }
+    const callbackUrl = `${APP_URL}/PaymentCallback?booking_id=${booking_id}&order_id=${orderId}`;
 
     console.log('Cashfree credentials:', { 
       hasAppId: !!CASHFREE_APP_ID, 
