@@ -51,7 +51,11 @@ export const openCashfreePayment = async (paymentSessionId, orderId, bookingId, 
   }
 
   try {
-    const { Browser } = await import('@capacitor/browser');
+    const Browser = await getBrowser();
+    if (!Browser) {
+      window.location.href = paymentUrl;
+      return;
+    }
     
     let pollInterval = null;
     let browserClosed = false;
