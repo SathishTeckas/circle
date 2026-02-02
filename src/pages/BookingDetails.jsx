@@ -181,12 +181,16 @@ export default function BookingDetails() {
       });
 
       // Step 2: Create Cashfree payment order
+      // For mobile (Capacitor), use Payment Links API which works in any browser
+      // For web, use standard Orders API with JS SDK
+      const isMobile = isCapacitor();
       const returnUrl = `${window.location.origin}${createPageUrl('PaymentCallback')}?booking_id=${booking.id}&order_id={order_id}`;
       
       const { data: paymentData } = await base44.functions.invoke('createPaymentOrder', {
         booking_id: booking.id,
         amount: totalAmount,
-        return_url: returnUrl
+        return_url: returnUrl,
+        use_payment_link: isMobile // Use Payment Links API for mobile
       });
 
       if (!paymentData.success) {
@@ -198,17 +202,18 @@ export default function BookingDetails() {
       // Step 3: Update booking with payment details
       await base44.entities.Booking.update(booking.id, {
         payment_order_id: paymentData.order_id,
-        payment_session_id: paymentData.payment_session_id
+        payment_session_id: paymentData.payment_session_id || paymentData.link_id
       });
 
-      return { booking, paymentData };
+      return { booking, paymentData, isMobile };
       },
-      onSuccess: ({ booking, paymentData }) => {
+      onSuccess: ({ booking, paymentData, isMobile }) => {
       // Check if running in Capacitor (mobile app)
-      if (isCapacitor()) {
-        // Mobile: Use in-app browser with polling
+      if (isMobile && paymentData.link_url) {
+        // Mobile: Use Payment Link URL in in-app browser
+        // This URL works in any browser (no JS SDK compatibility issues)
         openCashfreePayment(
-          paymentData.payment_session_id,
+          null, // No payment_session_id needed for link_url approach
           paymentData.order_id,
           booking.id,
           (result) => {
@@ -219,7 +224,8 @@ export default function BookingDetails() {
             // Payment failed or cancelled
             setBooking(false);
             alert('Payment was not completed. Please try again.');
-          }
+          },
+          paymentData.link_url // Pass the direct payment link URL
         );
       } else {
         // Web: Load Cashfree JS SDK and redirect to checkout
