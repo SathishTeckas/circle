@@ -2,8 +2,10 @@
  * Capacitor Authentication Utilities
  * 
  * This file provides utilities for handling authentication in a Capacitor mobile app.
- * It detects the platform and uses appropriate login methods.
+ * Uses in-app browser with polling to detect when login completes.
  */
+
+import { base44 } from '@/api/base44Client';
 
 // Check if running in Capacitor native environment
 export const isCapacitor = () => {
@@ -25,53 +27,20 @@ export const isAndroid = () => {
 // App URL scheme for deep linking
 export const APP_SCHEME = 'circle';
 
-// Deep link URLs
+// Deep link URLs (for payments)
 export const DEEP_LINKS = {
-  AUTH_CALLBACK: `${APP_SCHEME}://auth/callback`,
   PAYMENT_CALLBACK: `${APP_SCHEME}://payment/callback`,
   PAYMENT_SUCCESS: `${APP_SCHEME}://payment/success`,
   PAYMENT_FAILURE: `${APP_SCHEME}://payment/failure`,
 };
 
 /**
- * Initialize Capacitor auth listener
- * Call this in your app's entry point (e.g., Layout.js or App.js)
- */
-export const initCapacitorAuthListener = async (onAuthCallback) => {
-  if (!isCapacitor()) return null;
-
-  try {
-    const { App } = await import('@capacitor/app');
-    
-    // Listen for deep link events
-    const listener = await App.addListener('appUrlOpen', (event) => {
-      const url = event.url;
-      
-      // Handle auth callback
-      if (url.startsWith(DEEP_LINKS.AUTH_CALLBACK)) {
-        const urlParams = new URL(url.replace(`${APP_SCHEME}://`, 'https://'));
-        const token = urlParams.searchParams.get('token');
-        const error = urlParams.searchParams.get('error');
-        
-        if (onAuthCallback) {
-          onAuthCallback({ token, error });
-        }
-      }
-    });
-
-    return listener;
-  } catch (error) {
-    console.error('Failed to initialize Capacitor auth listener:', error);
-    return null;
-  }
-};
-
-/**
- * Open login page in Capacitor browser
+ * Open login in Capacitor browser and poll for auth completion
  * @param {string} loginUrl - The Base44 login URL
- * @param {string} redirectUrl - The deep link URL to redirect after login
+ * @param {function} onSuccess - Callback when login succeeds
+ * @param {function} onCancel - Callback when browser is closed without login
  */
-export const openCapacitorLogin = async (loginUrl, redirectUrl) => {
+export const openCapacitorLogin = async (loginUrl, onSuccess, onCancel) => {
   if (!isCapacitor()) {
     // Fallback to regular redirect for web
     window.location.href = loginUrl;
@@ -81,14 +50,48 @@ export const openCapacitorLogin = async (loginUrl, redirectUrl) => {
   try {
     const { Browser } = await import('@capacitor/browser');
     
-    // Append redirect URL to login URL
-    const fullLoginUrl = `${loginUrl}?redirect=${encodeURIComponent(redirectUrl)}`;
+    let pollInterval = null;
+    let browserClosed = false;
     
-    await Browser.open({
-      url: fullLoginUrl,
-      presentationStyle: 'popover', // iOS specific
-      windowName: '_blank'
+    // Start polling to check if user logged in
+    pollInterval = setInterval(async () => {
+      try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (isAuth) {
+          clearInterval(pollInterval);
+          browserClosed = true;
+          await Browser.close();
+          if (onSuccess) onSuccess();
+        }
+      } catch (e) {
+        // Ignore polling errors
+      }
+    }, 1500); // Check every 1.5 seconds
+    
+    // Listen for browser close event
+    const closeListener = await Browser.addListener('browserFinished', () => {
+      clearInterval(pollInterval);
+      closeListener.remove();
+      if (!browserClosed && onCancel) {
+        onCancel();
+      }
     });
+    
+    // Open login URL - Base44 will redirect back to the app URL after login
+    // The app URL is already whitelisted in Base44's OAuth
+    await Browser.open({
+      url: loginUrl,
+      presentationStyle: 'fullscreen',
+      toolbarColor: '#FFD93D'
+    });
+    
+    // Timeout after 5 minutes
+    setTimeout(() => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    }, 5 * 60 * 1000);
+    
   } catch (error) {
     console.error('Failed to open Capacitor browser:', error);
     // Fallback to regular redirect
@@ -97,7 +100,7 @@ export const openCapacitorLogin = async (loginUrl, redirectUrl) => {
 };
 
 /**
- * Close Capacitor browser (call after successful auth)
+ * Close Capacitor browser
  */
 export const closeCapacitorBrowser = async () => {
   if (!isCapacitor()) return;
@@ -111,61 +114,68 @@ export const closeCapacitorBrowser = async () => {
 };
 
 /**
- * Store auth token securely in Capacitor
- * @param {string} token - The auth token to store
+ * Store data securely in Capacitor
+ * @param {string} key - Storage key
+ * @param {string} value - Value to store
  */
-export const storeAuthToken = async (token) => {
+export const storeSecure = async (key, value) => {
   if (!isCapacitor()) {
-    // Fallback to localStorage for web
-    localStorage.setItem('auth_token', token);
+    localStorage.setItem(key, value);
     return;
   }
 
   try {
     const { Preferences } = await import('@capacitor/preferences');
-    await Preferences.set({
-      key: 'auth_token',
-      value: token
-    });
+    await Preferences.set({ key, value });
   } catch (error) {
-    console.error('Failed to store auth token:', error);
-    localStorage.setItem('auth_token', token);
+    console.error('Failed to store data:', error);
+    localStorage.setItem(key, value);
   }
 };
 
 /**
- * Retrieve auth token from Capacitor storage
+ * Retrieve data from Capacitor storage
+ * @param {string} key - Storage key
  * @returns {Promise<string|null>}
  */
-export const getAuthToken = async () => {
+export const getSecure = async (key) => {
   if (!isCapacitor()) {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem(key);
   }
 
   try {
     const { Preferences } = await import('@capacitor/preferences');
-    const { value } = await Preferences.get({ key: 'auth_token' });
+    const { value } = await Preferences.get({ key });
     return value;
   } catch (error) {
-    console.error('Failed to get auth token:', error);
-    return localStorage.getItem('auth_token');
+    console.error('Failed to get data:', error);
+    return localStorage.getItem(key);
   }
 };
 
 /**
- * Remove auth token (for logout)
+ * Remove data from storage
+ * @param {string} key - Storage key
  */
-export const removeAuthToken = async () => {
+export const removeSecure = async (key) => {
   if (!isCapacitor()) {
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem(key);
     return;
   }
 
   try {
     const { Preferences } = await import('@capacitor/preferences');
-    await Preferences.remove({ key: 'auth_token' });
+    await Preferences.remove({ key });
   } catch (error) {
-    console.error('Failed to remove auth token:', error);
-    localStorage.removeItem('auth_token');
+    console.error('Failed to remove data:', error);
+    localStorage.removeItem(key);
   }
+};
+
+/**
+ * Capacitor-compatible logout
+ * @param {string} redirectUrl - URL to redirect after logout
+ */
+export const capacitorLogout = async (redirectUrl) => {
+  await base44.auth.logout(redirectUrl);
 };
