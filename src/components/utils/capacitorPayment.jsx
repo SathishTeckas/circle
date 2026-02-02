@@ -28,6 +28,42 @@ const getBrowser = async () => {
 };
 
 /**
+ * Create a payment using Payment Links API (mobile-compatible)
+ * This creates a hosted checkout URL that works in any browser
+ * @param {Object} params - Payment parameters
+ * @param {string} params.bookingId - Booking ID
+ * @param {number} params.amount - Payment amount
+ * @param {function} onSuccess - Success callback
+ * @param {function} onFailure - Failure callback
+ */
+export const createMobilePayment = async ({ bookingId, amount }, onSuccess, onFailure) => {
+  try {
+    // Create payment link (works in any browser including Capacitor WebView)
+    const { data } = await base44.functions.invoke('createPaymentOrder', {
+      booking_id: bookingId,
+      amount: amount,
+      use_payment_link: true, // Use Payment Links API instead of Orders API
+      return_url: `${APP_BASE_URL}/PaymentCallback?booking_id=${bookingId}&order_id={order_id}`
+    });
+
+    if (!data.success || !data.link_url) {
+      if (onFailure) onFailure({ error: data.error || 'Failed to create payment link' });
+      return null;
+    }
+
+    return {
+      orderId: data.order_id,
+      linkUrl: data.link_url, // This is the hosted checkout URL
+      linkId: data.link_id
+    };
+  } catch (error) {
+    console.error('Failed to create mobile payment:', error);
+    if (onFailure) onFailure({ error: error.message });
+    return null;
+  }
+};
+
+/**
  * Open Cashfree payment in Capacitor browser
  * Uses HTTPS return URL and polls for payment completion
  * 
