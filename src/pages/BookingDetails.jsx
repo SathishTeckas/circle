@@ -184,7 +184,11 @@ export default function BookingDetails() {
       // For mobile (Capacitor), use Payment Links API which works in any browser
       // For web, use standard Orders API with JS SDK
       const isMobile = isCapacitor();
-      const returnUrl = `${window.location.origin}${createPageUrl('PaymentCallback')}?booking_id=${booking.id}&order_id={order_id}`;
+      
+      // Always use production app URL for callbacks (never localhost)
+      const APP_URL = 'https://circle-eb51a399.base44.app';
+      const origin = window.location.origin.includes('localhost') ? APP_URL : window.location.origin;
+      const returnUrl = `${origin}${createPageUrl('PaymentCallback')}?booking_id=${booking.id}&order_id={order_id}`;
       
       const { data: paymentData } = await base44.functions.invoke('createPaymentOrder', {
         booking_id: booking.id,
