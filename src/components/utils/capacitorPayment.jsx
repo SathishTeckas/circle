@@ -42,11 +42,12 @@ const getBrowser = async () => {
 export const createMobilePayment = async ({ bookingId, amount }, onSuccess, onFailure) => {
   try {
     // Create payment link (works in any browser including Capacitor WebView)
+    // Note: order_id will be appended by the backend function
     const { data } = await base44.functions.invoke('createPaymentOrder', {
       booking_id: bookingId,
       amount: amount,
       use_payment_link: true, // Use Payment Links API instead of Orders API
-      return_url: `${APP_BASE_URL}/PaymentCallback?booking_id=${bookingId}&order_id={order_id}`
+      return_url: `${APP_BASE_URL}/PaymentCallback?booking_id=${bookingId}`
     });
 
     if (!data.success || !data.link_url) {

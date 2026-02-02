@@ -26,7 +26,17 @@ Deno.serve(async (req) => {
     // Generate unique order/link ID
     const orderId = `order_${booking_id}_${Date.now()}`;
     const origin = req.headers.get('origin') || 'https://circle-eb51a399.base44.app';
-    const callbackUrl = return_url || `${origin}/PaymentCallback?booking_id=${booking_id}&order_id=${orderId}`;
+    
+    // Build callback URL with actual order_id (not placeholder)
+    // If return_url is provided, append order_id to it
+    let callbackUrl;
+    if (return_url) {
+      // Add order_id to the provided return_url
+      const separator = return_url.includes('?') ? '&' : '?';
+      callbackUrl = `${return_url}${separator}order_id=${orderId}`;
+    } else {
+      callbackUrl = `${origin}/PaymentCallback?booking_id=${booking_id}&order_id=${orderId}`;
+    }
 
     console.log('Cashfree credentials:', { 
       hasAppId: !!CASHFREE_APP_ID, 
