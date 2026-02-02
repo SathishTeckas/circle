@@ -44,6 +44,52 @@ Deno.serve(async (req) => {
     // Check if payment is successful
     const isPaid = data.order_status === 'PAID';
 
+    // If paid, update the booking on the server side
+    if (isPaid) {
+      try {
+        // Find booking by payment_order_id
+        const bookings = await base44.asServiceRole.entities.Booking.filter({
+          payment_order_id: order_id
+        });
+
+        if (bookings.length > 0) {
+          const booking = bookings[0];
+          
+          // Only update if not already updated (idempotent)
+          if (booking.payment_status !== 'paid') {
+            await base44.asServiceRole.entities.Booking.update(booking.id, {
+              status: 'pending', // Waiting for companion approval
+              payment_status: 'paid',
+              escrow_status: 'held',
+              chat_enabled: false // Enable after companion accepts
+            });
+
+            // Update availability status
+            if (booking.availability_id) {
+              await base44.asServiceRole.entities.Availability.update(booking.availability_id, {
+                status: 'pending'
+              });
+            }
+
+            // Create notification for companion
+            await base44.asServiceRole.entities.Notification.create({
+              user_id: booking.companion_id,
+              type: 'booking_request',
+              title: '🔔 New Booking Request!',
+              message: `${booking.seeker_name} wants to book you for ${booking.duration_hours}h on ${booking.date}`,
+              booking_id: booking.id,
+              amount: booking.base_price
+            });
+
+            console.log('Booking updated successfully:', booking.id);
+          }
+        }
+      } catch (updateError) {
+        console.error('Failed to update booking:', updateError);
+        // Don't fail the response - payment was still verified
+      }
+    }
+
     return Response.json({
       success: true,
       order_id: data.order_id,
