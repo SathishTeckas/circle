@@ -2,67 +2,32 @@
  * Capacitor Payment Utilities
  * 
  * This file provides utilities for handling Cashfree payments in a Capacitor mobile app.
- * Uses in-app browser for payment with deep link callbacks.
+ * Uses in-app browser for payment with HTTPS return URLs (Cashfree doesn't support custom schemes).
+ * Polls for payment completion and closes browser automatically.
  */
 
-import { isCapacitor, APP_SCHEME, DEEP_LINKS } from './capacitorAuth';
+import { isCapacitor } from './capacitorAuth';
+import { base44 } from '@/api/base44Client';
 
-/**
- * Initialize payment deep link listener
- * Call this in your payment page or app entry point
- */
-export const initPaymentListener = async (onPaymentCallback) => {
-  if (!isCapacitor()) return null;
-
-  try {
-    const { App } = await import('@capacitor/app');
-    
-    const listener = await App.addListener('appUrlOpen', (event) => {
-      const url = event.url;
-      
-      // Handle payment callbacks
-      if (url.startsWith(`${APP_SCHEME}://payment`)) {
-        const urlObj = new URL(url.replace(`${APP_SCHEME}://`, 'https://'));
-        const orderId = urlObj.searchParams.get('order_id');
-        const status = urlObj.searchParams.get('status');
-        const transactionId = urlObj.searchParams.get('transaction_id');
-        
-        if (onPaymentCallback) {
-          onPaymentCallback({
-            orderId,
-            status,
-            transactionId,
-            success: url.includes('/success') || status === 'SUCCESS'
-          });
-        }
-      }
-    });
-
-    return listener;
-  } catch (error) {
-    console.error('Failed to initialize payment listener:', error);
-    return null;
-  }
-};
+// Your app's web URL for payment callbacks
+const APP_BASE_URL = 'https://circle-eb51a399.base44.app';
 
 /**
  * Open Cashfree payment in Capacitor browser
+ * Uses HTTPS return URL and polls for payment completion
+ * 
  * @param {string} paymentSessionId - Cashfree payment session ID
  * @param {string} orderId - Order ID for tracking
- * @param {string} environment - 'sandbox' or 'production'
+ * @param {string} bookingId - Booking ID for callback
+ * @param {function} onSuccess - Callback when payment succeeds
+ * @param {function} onFailure - Callback when payment fails or is cancelled
  */
-export const openCashfreePayment = async (paymentSessionId, orderId, environment = 'production') => {
-  // Cashfree payment link format
-  const baseUrl = environment === 'sandbox' 
-    ? 'https://sandbox.cashfree.com/pg/view/order'
-    : 'https://cashfree.com/pg/view/order';
+export const openCashfreePayment = async (paymentSessionId, orderId, bookingId, onSuccess, onFailure) => {
+  // Return URL points to your web app's PaymentCallback page
+  const returnUrl = `${APP_BASE_URL}/PaymentCallback?order_id=${orderId}&booking_id=${bookingId}`;
   
-  // Return URLs for deep linking
-  const returnUrl = `${DEEP_LINKS.PAYMENT_SUCCESS}?order_id=${orderId}`;
-  const cancelUrl = `${DEEP_LINKS.PAYMENT_FAILURE}?order_id=${orderId}`;
-  
-  // Build payment URL
-  const paymentUrl = `${baseUrl}/${paymentSessionId}?return_url=${encodeURIComponent(returnUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+  // Build Cashfree payment URL
+  const paymentUrl = `https://cashfree.com/pg/view/order/${paymentSessionId}?return_url=${encodeURIComponent(returnUrl)}`;
 
   if (!isCapacitor()) {
     // For web, redirect to payment page
@@ -73,46 +38,52 @@ export const openCashfreePayment = async (paymentSessionId, orderId, environment
   try {
     const { Browser } = await import('@capacitor/browser');
     
-    // Add listener to close browser when returning to app
-    const { App } = await import('@capacitor/app');
+    let pollInterval = null;
+    let browserClosed = false;
+    let paymentVerified = false;
     
-    const closeListener = await App.addListener('appUrlOpen', async (event) => {
-      if (event.url.startsWith(`${APP_SCHEME}://payment`)) {
-        await Browser.close();
-        closeListener.remove();
+    // Start polling to check if payment completed
+    pollInterval = setInterval(async () => {
+      try {
+        const { data } = await base44.functions.invoke('verifyPayment', { order_id: orderId });
+        
+        if (data.is_paid) {
+          paymentVerified = true;
+          clearInterval(pollInterval);
+          browserClosed = true;
+          await Browser.close();
+          if (onSuccess) onSuccess({ orderId, bookingId });
+        } else if (data.status === 'FAILED' || data.status === 'CANCELLED') {
+          clearInterval(pollInterval);
+          browserClosed = true;
+          await Browser.close();
+          if (onFailure) onFailure({ orderId, status: data.status });
+        }
+      } catch (e) {
+        // Ignore polling errors, continue checking
       }
-    });
-
-    await Browser.open({
-      url: paymentUrl,
-      presentationStyle: 'fullscreen',
-      toolbarColor: '#FFD93D' // Match your app theme
-    });
-  } catch (error) {
-    console.error('Failed to open payment browser:', error);
-    window.location.href = paymentUrl;
-  }
-};
-
-/**
- * Alternative: Open payment using Cashfree's hosted payment page
- * Use this if you have a web checkout URL from your backend
- */
-export const openPaymentUrl = async (paymentUrl, orderId) => {
-  if (!isCapacitor()) {
-    window.location.href = paymentUrl;
-    return;
-  }
-
-  try {
-    const { Browser } = await import('@capacitor/browser');
-    const { App } = await import('@capacitor/app');
+    }, 2000); // Check every 2 seconds
     
-    // Close browser when deep link is received
-    const closeListener = await App.addListener('appUrlOpen', async (event) => {
-      if (event.url.startsWith(`${APP_SCHEME}://payment`)) {
-        await Browser.close();
-        closeListener.remove();
+    // Listen for browser close event
+    const closeListener = await Browser.addListener('browserFinished', () => {
+      clearInterval(pollInterval);
+      closeListener.remove();
+      
+      // If browser closed without payment verified, treat as cancelled
+      if (!browserClosed && !paymentVerified) {
+        // Do one final check
+        setTimeout(async () => {
+          try {
+            const { data } = await base44.functions.invoke('verifyPayment', { order_id: orderId });
+            if (data.is_paid) {
+              if (onSuccess) onSuccess({ orderId, bookingId });
+            } else {
+              if (onFailure) onFailure({ orderId, status: 'CANCELLED' });
+            }
+          } catch (e) {
+            if (onFailure) onFailure({ orderId, status: 'UNKNOWN' });
+          }
+        }, 1000);
       }
     });
 
@@ -121,8 +92,17 @@ export const openPaymentUrl = async (paymentUrl, orderId) => {
       presentationStyle: 'fullscreen',
       toolbarColor: '#FFD93D'
     });
+    
+    // Timeout after 10 minutes
+    setTimeout(() => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    }, 10 * 60 * 1000);
+    
   } catch (error) {
-    console.error('Failed to open payment URL:', error);
+    console.error('Failed to open payment browser:', error);
+    // Fallback to regular redirect
     window.location.href = paymentUrl;
   }
 };
