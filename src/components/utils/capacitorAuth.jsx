@@ -156,8 +156,12 @@ export const storeSecure = async (key, value) => {
   }
 
   try {
-    const { Preferences } = await import('@capacitor/preferences');
-    await Preferences.set({ key, value });
+    const Preferences = await getPreferences();
+    if (Preferences) {
+      await Preferences.set({ key, value });
+    } else {
+      localStorage.setItem(key, value);
+    }
   } catch (error) {
     console.error('Failed to store data:', error);
     localStorage.setItem(key, value);
@@ -175,9 +179,12 @@ export const getSecure = async (key) => {
   }
 
   try {
-    const { Preferences } = await import('@capacitor/preferences');
-    const { value } = await Preferences.get({ key });
-    return value;
+    const Preferences = await getPreferences();
+    if (Preferences) {
+      const { value } = await Preferences.get({ key });
+      return value;
+    }
+    return localStorage.getItem(key);
   } catch (error) {
     console.error('Failed to get data:', error);
     return localStorage.getItem(key);
@@ -195,8 +202,12 @@ export const removeSecure = async (key) => {
   }
 
   try {
-    const { Preferences } = await import('@capacitor/preferences');
-    await Preferences.remove({ key });
+    const Preferences = await getPreferences();
+    if (Preferences) {
+      await Preferences.remove({ key });
+    } else {
+      localStorage.removeItem(key);
+    }
   } catch (error) {
     console.error('Failed to remove data:', error);
     localStorage.removeItem(key);
