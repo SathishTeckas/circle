@@ -67,18 +67,25 @@ export const createMobilePayment = async ({ bookingId, amount }, onSuccess, onFa
  * Open Cashfree payment in Capacitor browser
  * Uses HTTPS return URL and polls for payment completion
  * 
- * @param {string} paymentSessionId - Cashfree payment session ID
+ * @param {string} paymentSessionId - Cashfree payment session ID (can be null if using linkUrl)
  * @param {string} orderId - Order ID for tracking
  * @param {string} bookingId - Booking ID for callback
  * @param {function} onSuccess - Callback when payment succeeds
  * @param {function} onFailure - Callback when payment fails or is cancelled
+ * @param {string} linkUrl - Direct payment link URL from Payment Links API (optional)
  */
-export const openCashfreePayment = async (paymentSessionId, orderId, bookingId, onSuccess, onFailure) => {
+export const openCashfreePayment = async (paymentSessionId, orderId, bookingId, onSuccess, onFailure, linkUrl = null) => {
   // Return URL points to your web app's PaymentCallback page
   const returnUrl = `${APP_BASE_URL}/PaymentCallback?order_id=${orderId}&booking_id=${bookingId}`;
   
-  // Build Cashfree payment URL
-  const paymentUrl = `https://cashfree.com/pg/view/order/${paymentSessionId}?return_url=${encodeURIComponent(returnUrl)}`;
+  // If linkUrl is provided (Payment Links API), use it directly - works in any browser
+  // Otherwise, build URL from payment session ID (Orders API) - may have WebView issues
+  let paymentUrl;
+  if (linkUrl) {
+    paymentUrl = linkUrl;
+  } else {
+    paymentUrl = `https://cashfree.com/pg/view/order/${paymentSessionId}?return_url=${encodeURIComponent(returnUrl)}`;
+  }
 
   if (!isCapacitor()) {
     // For web, redirect to payment page
