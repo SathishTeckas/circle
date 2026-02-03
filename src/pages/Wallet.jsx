@@ -253,6 +253,11 @@ export default function Wallet() {
   const platformFeePercent = platformFeeQuery.data || 15;
 
   const submitPayout = async () => {
+    // Prevent duplicate submissions
+    if (isSubmitting) {
+      return;
+    }
+    
     try {
       const amount = parseFloat(payoutAmount);
       if (!amount || isNaN(amount) || amount < 100) {
@@ -263,6 +268,9 @@ export default function Wallet() {
         toast.error('Amount exceeds available balance');
         return;
       }
+      
+      // Set submitting immediately to prevent double-clicks
+      setIsSubmitting(true);
       
       // Check if user only has referral/campaign bonuses but no completed meetups
       if (completedBookings.length === 0 && (referralEarnings > 0 || campaignEarnings > 0)) {
