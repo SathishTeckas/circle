@@ -81,15 +81,15 @@ Deno.serve(async (req) => {
         if (requestedAmount > availableBalance) {
           await base44.asServiceRole.entities.Payout.update(payout.id, {
             status: 'rejected',
-            rejection_reason: `Insufficient balance. Available: ₹${availableBalance.toFixed(2)}, Requested: ₹${payout.amount.toFixed(2)}`,
+            rejection_reason: `Insufficient balance. Available: ₹${availableBalance.toFixed(2)}, Requested: ₹${requestedAmount.toFixed(2)}`,
             processed_date: new Date().toISOString(),
             processed_by: 'system_auto'
           });
 
-          // Refund pending payout amount back to user wallet
+          // Refund pending payout amount back to user wallet (use requested_amount)
           const companion = await base44.asServiceRole.entities.User.get(payout.companion_id);
           const currentBalance = companion.wallet_balance || 0;
-          const refundedBalance = currentBalance + payout.amount;
+          const refundedBalance = currentBalance + requestedAmount;
 
           await base44.asServiceRole.entities.User.update(payout.companion_id, {
             wallet_balance: refundedBalance
