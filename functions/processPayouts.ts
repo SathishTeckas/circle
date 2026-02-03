@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
         }
 
         // Fetch companion's earnings and existing payouts
-        const [completedBookings, allPayouts, referrals] = await Promise.all([
+        const [completedBookings, allPayouts, referralsAsReferrer, referralsAsReferee, campaignBonuses, systemCampaign] = await Promise.all([
           base44.asServiceRole.entities.Booking.filter({
             companion_id: payout.companion_id,
             status: 'completed',
@@ -35,13 +35,32 @@ Deno.serve(async (req) => {
           }),
           base44.asServiceRole.entities.Referral.filter({
             referrer_id: payout.companion_id,
-            status: ['completed', 'rewarded']
-          })
+            referral_type: 'user_referral'
+          }),
+          base44.asServiceRole.entities.Referral.filter({
+            referee_id: payout.companion_id,
+            referral_type: 'user_referral'
+          }),
+          base44.asServiceRole.entities.WalletTransaction.filter({
+            user_id: payout.companion_id,
+            transaction_type: 'campaign_bonus'
+          }),
+          base44.asServiceRole.entities.CampaignReferral.filter({ code: 'SYSTEM' })
         ]);
 
-        // Calculate total earnings (use base_price, not companion_payout after fees)
-        const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.base_price || 0), 0);
-        const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
+        // Get system reward amount
+        const systemRewardAmount = systemCampaign[0]?.referral_reward_amount || 100;
+
+        // Calculate total earnings (use companion_payout - the amount companion receives)
+        const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
+        
+        // Calculate referral earnings (both as referrer and referee)
+        const referralEarnings = [...referralsAsReferrer, ...referralsAsReferee]
+          .filter(r => ['completed', 'rewarded'].includes(r.status))
+          .reduce((sum, r) => sum + systemRewardAmount, 0);
+        
+        // Calculate campaign bonus earnings
+        const campaignEarnings = campaignBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
 
         // Calculate already withdrawn and pending amounts (excluding current payout)
         const totalWithdrawn = allPayouts
