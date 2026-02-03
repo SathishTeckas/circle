@@ -327,21 +327,25 @@ export default function Wallet() {
         }
       }
 
-      // Close the sheet first
-      setShowPayoutSheet(false);
+      toast.dismiss();
+      toast.success('Payout request submitted!');
+      
+      // Reset form state
       setPayoutAmount('');
       setIsSubmitting(false);
-      toast.dismiss();
       
-      // Refetch data
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['payouts'] }),
-        queryClient.invalidateQueries({ queryKey: ['earnings'] }),
-        queryClient.invalidateQueries({ queryKey: ['pending-earnings'] })
-      ]);
+      // Close sheet and show success dialog
+      setShowPayoutSheet(false);
       
-      // Show success dialog
-      setShowSuccessDialog(true);
+      // Small delay to ensure sheet closes before showing dialog
+      setTimeout(() => {
+        setShowSuccessDialog(true);
+      }, 300);
+      
+      // Refetch data in background
+      queryClient.invalidateQueries({ queryKey: ['payouts'] });
+      queryClient.invalidateQueries({ queryKey: ['earnings'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-earnings'] });
     } catch (error) {
       console.error('Payout error:', error);
       toast.dismiss();
