@@ -74,8 +74,11 @@ Deno.serve(async (req) => {
 
         const availableBalance = totalEarnings + referralEarnings + campaignEarnings - totalWithdrawn - otherPendingPayouts;
 
+        // Use requested_amount for balance validation (amount before platform fee)
+        const requestedAmount = payout.requested_amount || payout.amount;
+        
         // Validation: Check if sufficient balance
-        if (payout.amount > availableBalance) {
+        if (requestedAmount > availableBalance) {
           await base44.asServiceRole.entities.Payout.update(payout.id, {
             status: 'rejected',
             rejection_reason: `Insufficient balance. Available: ₹${availableBalance.toFixed(2)}, Requested: ₹${payout.amount.toFixed(2)}`,
