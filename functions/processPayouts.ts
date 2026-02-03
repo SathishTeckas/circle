@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.entities.WalletTransaction.create({
             user_id: payout.companion_id,
             transaction_type: 'refund',
-            amount: payout.amount,
+            amount: requestedAmount,
             balance_before: currentBalance,
             balance_after: refundedBalance,
             reference_id: payout.id,
@@ -113,8 +113,8 @@ Deno.serve(async (req) => {
             user_id: payout.companion_id,
             type: 'payout_processed',
             title: '❌ Payout Request Rejected',
-            message: `Your payout request of ₹${payout.amount} was rejected due to insufficient balance. Amount refunded to your wallet.`,
-            amount: payout.amount
+            message: `Your payout request of ₹${requestedAmount} was rejected due to insufficient balance. Amount refunded to your wallet.`,
+            amount: requestedAmount
           });
 
           results.push({ id: payout.id, status: 'rejected', reason: 'insufficient_balance' });
