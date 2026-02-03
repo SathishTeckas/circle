@@ -342,15 +342,10 @@ export default function Wallet() {
       
       // Reset form state
       setPayoutAmount('');
+      
+      // Show success dialog
+      setShowSuccessDialog(true);
       setIsSubmitting(false);
-      
-      // Close sheet and show success dialog
-      setShowPayoutSheet(false);
-      
-      // Small delay to ensure sheet closes before showing dialog
-      setTimeout(() => {
-        setShowSuccessDialog(true);
-      }, 300);
       
       // Refetch data in background
       queryClient.invalidateQueries({ queryKey: ['payouts'] });
