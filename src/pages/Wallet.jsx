@@ -651,8 +651,6 @@ export default function Wallet() {
           </div>
         </SheetContent>
       </Sheet>
-        </div>
-      </div>
 
       <div className="px-4 -mt-4 max-w-lg mx-auto space-y-4">
         {/* Quick Stats */}
