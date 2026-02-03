@@ -509,15 +509,15 @@ export default function Wallet() {
               Minimum withdrawal: ₹100
             </p>
             
+            <Button 
+              onClick={handleOpenPayoutSheet}
+              className="w-full bg-white text-emerald-600 hover:bg-emerald-50"
+              disabled={availableBalance < 100 || isSubmitting || checkingBalance}
+            >
+              <CreditCard className="w-4 h-4 mr-2" />
+              {checkingBalance ? 'Checking Balance...' : isSubmitting ? 'Processing...' : 'Request Payout'}
+            </Button>
             <Sheet open={showPayoutSheet} onOpenChange={setShowPayoutSheet}>
-              <Button 
-                onClick={handleOpenPayoutSheet}
-                className="w-full bg-white text-emerald-600 hover:bg-emerald-50"
-                disabled={availableBalance < 100 || isSubmitting || checkingBalance}
-              >
-                <CreditCard className="w-4 h-4 mr-2" />
-                {checkingBalance ? 'Checking Balance...' : isSubmitting ? 'Processing...' : 'Request Payout'}
-              </Button>
               <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
                 <SheetHeader className="mb-6">
                   <SheetTitle>Request Payout</SheetTitle>
