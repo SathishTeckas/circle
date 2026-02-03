@@ -287,8 +287,10 @@ export default function Wallet() {
         return;
       }
 
-      setIsSubmitting(true);
       toast.loading('Submitting payout request...');
+      
+      // Close sheet immediately to prevent multiple submissions
+      setShowPayoutSheet(false);
       
       const fee = Math.round((amount * platformFeePercent) / 100);
       const netAmount = amount - fee;
