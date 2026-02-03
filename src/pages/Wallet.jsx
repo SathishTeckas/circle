@@ -517,136 +517,140 @@ export default function Wallet() {
               <CreditCard className="w-4 h-4 mr-2" />
               {checkingBalance ? 'Checking Balance...' : isSubmitting ? 'Processing...' : 'Request Payout'}
             </Button>
-            <Sheet open={showPayoutSheet} onOpenChange={setShowPayoutSheet}>
-              <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
-                <SheetHeader className="mb-6">
-                  <SheetTitle>Request Payout</SheetTitle>
-                </SheetHeader>
-
-                <div className="space-y-6 overflow-y-auto h-[calc(85vh-140px)] pb-6">
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-                   <p className="text-sm text-emerald-800 font-medium">Available: {formatCurrency(availableBalance)}</p>
-                   <p className="text-xs text-emerald-600 mt-1">Platform fee {platformFeePercent}% will be deducted from payout amount</p>
-                   <p className="text-xs text-emerald-600 mt-1">After fees, you'll receive minimum ₹100</p>
-                   {payoutAmount && !isNaN(parseFloat(payoutAmount)) && (
-                     <p className="text-xs font-semibold text-red-600 mt-2">
-                       You'll receive: {formatCurrency(Math.max(0, parseFloat(payoutAmount) - Math.round((parseFloat(payoutAmount) * platformFeePercent) / 100)))}
-                     </p>
-                   )}
-                  </div>
-
-                  <div>
-                    <Label className="mb-2 block">Amount (₹)</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        placeholder="Enter amount"
-                        value={payoutAmount}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value.includes('.')) {
-                            const [whole, decimal] = value.split('.');
-                            setPayoutAmount(decimal.length > 2 ? `${whole}.${decimal.slice(0, 2)}` : value);
-                          } else {
-                            setPayoutAmount(value);
-                          }
-                        }}
-                        className="h-12 rounded-xl flex-1"
-                        max={availableBalance}
-                        min={100}
-                        step="0.01"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setPayoutAmount(availableBalance.toString())}
-                        className="h-12 rounded-xl px-6"
-                      >
-                        Max
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <Label>Payment Method</Label>
-                      {user?.saved_payment_method && (
-                        <span className="text-xs text-emerald-600 font-medium">✓ Saved</span>
-                      )}
-                    </div>
-                    <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                      <SelectTrigger className="h-12 rounded-xl">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                        <SelectItem value="upi">UPI</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {paymentMethod === 'upi' ? (
-                    <div>
-                      <Label className="mb-2 block">UPI ID</Label>
-                      <Input
-                        placeholder="username@upi"
-                        value={paymentDetails.upi_id}
-                        onChange={(e) => setPaymentDetails({ ...paymentDetails, upi_id: e.target.value })}
-                        className="h-12 rounded-xl"
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <div>
-                        <Label className="mb-2 block">Account Holder Name</Label>
-                        <Input
-                          placeholder="Full name as per bank"
-                          value={paymentDetails.account_holder_name}
-                          onChange={(e) => setPaymentDetails({ ...paymentDetails, account_holder_name: e.target.value })}
-                          className="h-12 rounded-xl"
-                        />
-                      </div>
-                      <div>
-                        <Label className="mb-2 block">Bank Name</Label>
-                        <Input
-                          placeholder="e.g., State Bank of India"
-                          value={paymentDetails.bank_name}
-                          onChange={(e) => setPaymentDetails({ ...paymentDetails, bank_name: e.target.value })}
-                          className="h-12 rounded-xl"
-                        />
-                      </div>
-                      <div>
-                        <Label className="mb-2 block">Account Number</Label>
-                        <Input
-                          placeholder="Enter account number"
-                          value={paymentDetails.account_number}
-                          onChange={(e) => setPaymentDetails({ ...paymentDetails, account_number: e.target.value })}
-                          className="h-12 rounded-xl"
-                        />
-                      </div>
-                      <div>
-                        <Label className="mb-2 block">IFSC Code</Label>
-                        <Input
-                          placeholder="e.g., SBIN0001234"
-                          value={paymentDetails.ifsc_code}
-                          onChange={(e) => setPaymentDetails({ ...paymentDetails, ifsc_code: e.target.value })}
-                          className="h-12 rounded-xl"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  <Button
-                    onClick={submitPayout}
-                    disabled={isSubmitting || !canRequestPayout()}
-                    className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
-                  >
-                    {isSubmitting ? 'Submitting...' : 'Submit Request'}
-                  </Button>
-                </div>
-              </SheetContent>
-            </Sheet>
           </Card>
+        </div>
+      </div>
+
+      {/* Payout Sheet - moved outside of Card for proper closing */}
+      <Sheet open={showPayoutSheet} onOpenChange={setShowPayoutSheet}>
+        <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
+          <SheetHeader className="mb-6">
+            <SheetTitle>Request Payout</SheetTitle>
+          </SheetHeader>
+
+          <div className="space-y-6 overflow-y-auto h-[calc(85vh-140px)] pb-6">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+             <p className="text-sm text-emerald-800 font-medium">Available: {formatCurrency(availableBalance)}</p>
+             <p className="text-xs text-emerald-600 mt-1">Platform fee {platformFeePercent}% will be deducted from payout amount</p>
+             <p className="text-xs text-emerald-600 mt-1">After fees, you'll receive minimum ₹100</p>
+             {payoutAmount && !isNaN(parseFloat(payoutAmount)) && (
+               <p className="text-xs font-semibold text-red-600 mt-2">
+                 You'll receive: {formatCurrency(Math.max(0, parseFloat(payoutAmount) - Math.round((parseFloat(payoutAmount) * platformFeePercent) / 100)))}
+               </p>
+             )}
+            </div>
+
+            <div>
+              <Label className="mb-2 block">Amount (₹)</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  placeholder="Enter amount"
+                  value={payoutAmount}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value.includes('.')) {
+                      const [whole, decimal] = value.split('.');
+                      setPayoutAmount(decimal.length > 2 ? `${whole}.${decimal.slice(0, 2)}` : value);
+                    } else {
+                      setPayoutAmount(value);
+                    }
+                  }}
+                  className="h-12 rounded-xl flex-1"
+                  max={availableBalance}
+                  min={100}
+                  step="0.01"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setPayoutAmount(availableBalance.toString())}
+                  className="h-12 rounded-xl px-6"
+                >
+                  Max
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Payment Method</Label>
+                {user?.saved_payment_method && (
+                  <span className="text-xs text-emerald-600 font-medium">✓ Saved</span>
+                )}
+              </div>
+              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                  <SelectItem value="upi">UPI</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {paymentMethod === 'upi' ? (
+              <div>
+                <Label className="mb-2 block">UPI ID</Label>
+                <Input
+                  placeholder="username@upi"
+                  value={paymentDetails.upi_id}
+                  onChange={(e) => setPaymentDetails({ ...paymentDetails, upi_id: e.target.value })}
+                  className="h-12 rounded-xl"
+                />
+              </div>
+            ) : (
+              <>
+                <div>
+                  <Label className="mb-2 block">Account Holder Name</Label>
+                  <Input
+                    placeholder="Full name as per bank"
+                    value={paymentDetails.account_holder_name}
+                    onChange={(e) => setPaymentDetails({ ...paymentDetails, account_holder_name: e.target.value })}
+                    className="h-12 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2 block">Bank Name</Label>
+                  <Input
+                    placeholder="e.g., State Bank of India"
+                    value={paymentDetails.bank_name}
+                    onChange={(e) => setPaymentDetails({ ...paymentDetails, bank_name: e.target.value })}
+                    className="h-12 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2 block">Account Number</Label>
+                  <Input
+                    placeholder="Enter account number"
+                    value={paymentDetails.account_number}
+                    onChange={(e) => setPaymentDetails({ ...paymentDetails, account_number: e.target.value })}
+                    className="h-12 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2 block">IFSC Code</Label>
+                  <Input
+                    placeholder="e.g., SBIN0001234"
+                    value={paymentDetails.ifsc_code}
+                    onChange={(e) => setPaymentDetails({ ...paymentDetails, ifsc_code: e.target.value })}
+                    className="h-12 rounded-xl"
+                  />
+                </div>
+              </>
+            )}
+
+            <Button
+              onClick={submitPayout}
+              disabled={isSubmitting || !canRequestPayout()}
+              className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Request'}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
         </div>
       </div>
 
