@@ -63,15 +63,16 @@ Deno.serve(async (req) => {
         const campaignEarnings = campaignBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
 
         // Calculate already withdrawn and pending amounts (excluding current payout)
+        // Use requested_amount (full amount before fee) for proper balance calculation
         const totalWithdrawn = allPayouts
           .filter(p => p.status === 'completed' && p.id !== payout.id)
-          .reduce((sum, p) => sum + p.amount, 0);
+          .reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
 
         const otherPendingPayouts = allPayouts
           .filter(p => ['approved', 'processing'].includes(p.status) && p.id !== payout.id)
-          .reduce((sum, p) => sum + p.amount, 0);
+          .reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
 
-        const availableBalance = totalEarnings + referralEarnings - totalWithdrawn - otherPendingPayouts;
+        const availableBalance = totalEarnings + referralEarnings + campaignEarnings - totalWithdrawn - otherPendingPayouts;
 
         // Validation: Check if sufficient balance
         if (payout.amount > availableBalance) {
