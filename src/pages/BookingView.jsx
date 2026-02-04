@@ -340,8 +340,6 @@ export default function BookingView() {
           status: 'available'
         });
       }
-      const isSeeker = user?.id === booking?.seeker_id;
-      const otherUserId = isSeeker ? booking?.companion_id : booking?.seeker_id;
       const cancellerName = user?.display_name || user?.full_name || (isSeeker ? booking?.seeker_name : booking?.companion_name);
       
       // If seeker cancelled and companion gets compensation, update wallet
