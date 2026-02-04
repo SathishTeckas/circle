@@ -432,11 +432,20 @@ export default function Wallet() {
 
       const latestCampaignEarnings = latestCampaignBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
 
+      // Also fetch cancellation compensations
+      const latestCancellationCompensations = await base44.entities.WalletTransaction.filter({
+        user_id: user.id,
+        transaction_type: 'booking_earning'
+      }, '-created_date', 100);
+      const latestCancellationEarnings = latestCancellationCompensations
+        .filter(t => t.description?.toLowerCase().includes('cancellation'))
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+
       const latestWithdrawn = latestPayouts.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
       const latestApproved = latestPayouts.filter(p => ['approved', 'processing'].includes(p.status)).reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
       const latestPending = latestPayouts.filter(p => p.status === 'pending').reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
 
-      const realBalance = latestTotalEarnings + latestReferralEarnings + latestCampaignEarnings - latestWithdrawn - latestApproved - latestPending;
+      const realBalance = latestTotalEarnings + latestReferralEarnings + latestCampaignEarnings + latestCancellationEarnings - latestWithdrawn - latestApproved - latestPending;
 
       if (realBalance < 100) {
         toast.error('Insufficient balance. Minimum balance required: ₹100');
