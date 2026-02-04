@@ -345,40 +345,54 @@ export default function BookingView() {
       }
       const cancellerName = user?.display_name || user?.full_name || (isSeeker ? booking?.seeker_name : booking?.companion_name);
       
-      // If seeker cancelled and companion gets compensation, update wallet
-      if (isSeeker && companionCompensation > 0) {
-        const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
-        const companion = companionResponse.data.user;
-        const currentWalletBalance = companion?.wallet_balance || 0;
-        const newWalletBalance = currentWalletBalance + companionCompensation;
-        
-        await base44.entities.User.update(booking.companion_id, {
-          wallet_balance: newWalletBalance
-        });
+      // If seeker cancelled and there's retained amount, split it according to settings
+      if (isSeeker && !fullRefund) {
+        const retainedAmount = basePrice - refundAmount;
 
-        // Create wallet transaction for companion compensation
-        await base44.entities.WalletTransaction.create({
-          user_id: booking.companion_id,
-          transaction_type: 'booking_earning',
-          amount: companionCompensation,
-          balance_before: currentWalletBalance,
-          balance_after: newWalletBalance,
-          reference_id: bookingId,
-          reference_type: 'Booking',
-          description: `Cancellation compensation from ${booking?.seeker_name || 'guest'}`,
-          status: 'completed'
-        });
+        if (retainedAmount > 0) {
+          // Get split percentages from app settings
+          const settingsResponse = await base44.entities.AppSettings.list('', 1);
+          const settings = settingsResponse[0] || { cancellation_platform_split: 30, cancellation_companion_split: 20 };
 
-        // Notify companion about compensation
-        await base44.entities.Notification.create({
-          user_id: booking?.companion_id,
-          type: 'payment_received',
-          title: '💰 Cancellation Compensation',
-          message: `You received ${formatCurrency(companionCompensation)} as compensation for the cancelled booking`,
-          amount: companionCompensation,
-          booking_id: bookingId,
-          action_url: createPageUrl('Wallet')
-        });
+          const platformSplitPercent = settings.cancellation_platform_split || 30;
+          const companionSplitPercent = settings.cancellation_companion_split || 20;
+
+          // Calculate companion's share of retained amount
+          companionCompensation = Math.round(retainedAmount * companionSplitPercent / 100);
+
+          const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
+          const companion = companionResponse.data.user;
+          const currentWalletBalance = companion?.wallet_balance || 0;
+          const newWalletBalance = currentWalletBalance + companionCompensation;
+
+          await base44.entities.User.update(booking.companion_id, {
+            wallet_balance: newWalletBalance
+          });
+
+          // Create wallet transaction for companion compensation
+          await base44.entities.WalletTransaction.create({
+            user_id: booking.companion_id,
+            transaction_type: 'booking_earning',
+            amount: companionCompensation,
+            balance_before: currentWalletBalance,
+            balance_after: newWalletBalance,
+            reference_id: bookingId,
+            reference_type: 'Booking',
+            description: `Cancellation compensation (${companionSplitPercent}% of retained ₹${retainedAmount})`,
+            status: 'completed'
+          });
+
+          // Notify companion about compensation
+          await base44.entities.Notification.create({
+            user_id: booking?.companion_id,
+            type: 'payment_received',
+            title: '💰 Cancellation Compensation',
+            message: `You received ${formatCurrency(companionCompensation)} (${companionSplitPercent}% of retained amount) as compensation for the cancelled booking`,
+            amount: companionCompensation,
+            booking_id: bookingId,
+            action_url: createPageUrl('Wallet')
+          });
+        }
       }
 
       // Notify the OTHER party about cancellation
