@@ -24,7 +24,9 @@ export default function AdminSettings() {
     max_booking_hours: 4,
     require_cctv_venues: false,
     auto_refund_on_rejection: true,
-    review_delay_hours: 3
+    review_delay_hours: 3,
+    cancellation_platform_split: 30,
+    cancellation_companion_split: 20
   });
 
   useEffect(() => {
@@ -139,6 +141,60 @@ export default function AdminSettings() {
               <p className="text-xs text-slate-500 mt-1">
                 Percentage of booking amount charged for no-shows
               </p>
+            </div>
+
+            {/* Cancellation Split Settings */}
+            <div className="pt-4 border-t border-slate-200">
+              <h3 className="font-medium text-slate-900 mb-3">Cancellation Split (Non-Refunded Amount)</h3>
+              <p className="text-sm text-slate-600 mb-4">
+                When a booking is cancelled and only partial refund is given, configure how the non-refunded amount is split.
+              </p>
+              
+              <div className="grid grid-cols-2 gap-4 max-w-md">
+                <div>
+                  <Label>Platform Share (%)</Label>
+                  <Input
+                    type="number"
+                    value={settings.cancellation_platform_split}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value);
+                      startTransition(() => {
+                        setSettings({ ...settings, cancellation_platform_split: value });
+                      });
+                    }}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">
+                    Platform's share of retained amount
+                  </p>
+                </div>
+                <div>
+                  <Label>Companion Share (%)</Label>
+                  <Input
+                    type="number"
+                    value={settings.cancellation_companion_split}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value);
+                      startTransition(() => {
+                        setSettings({ ...settings, cancellation_companion_split: value });
+                      });
+                    }}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">
+                    Companion's share of retained amount
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                <p className="text-xs text-blue-700">
+                  <strong>Example:</strong> If base price is ₹1000, seeker paid ₹1070 (with 7% fee), and 50% refund (₹500) is given:
+                  <br />• Retained amount: ₹500
+                  <br />• Platform gets: {settings.cancellation_platform_split}% = ₹{Math.round(500 * (settings.cancellation_platform_split || 30) / 100)} + platform fee (₹70)
+                  <br />• Companion gets: {settings.cancellation_companion_split}% = ₹{Math.round(500 * (settings.cancellation_companion_split || 20) / 100)}
+                </p>
+              </div>
             </div>
           </div>
         </Card>
