@@ -78,10 +78,11 @@ export default function Wallet() {
         companion_id: user.id, 
         status: 'completed',
         escrow_status: 'released'
-      }, '-created_date', 50);
+      }, '-created_date', 200);
     },
     enabled: !!user?.id,
-    staleTime: 2 * 60 * 1000
+    staleTime: 30 * 1000,
+    refetchOnMount: 'always'
   });
 
   const { data: pendingBookings = [] } = useQuery({
