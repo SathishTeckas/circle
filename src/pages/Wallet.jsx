@@ -208,8 +208,8 @@ export default function Wallet() {
     .reduce((sum, p) => sum + (p.requested_amount || p.amount), 0);
   
   // Calculate available balance from actual data sources (NOT wallet_balance which may be stale)
-  // Available = Total Earnings + Referral Bonuses + Campaign Bonuses - Withdrawn - Pending Payouts - Approved Payouts
-  const calculatedBalance = totalEarnings + referralEarnings + campaignEarnings - totalWithdrawn;
+  // Available = Total Earnings + Referral Bonuses + Campaign Bonuses + Cancellation Compensation - Withdrawn - Pending Payouts - Approved Payouts
+  const calculatedBalance = totalEarnings + referralEarnings + campaignEarnings + cancellationEarnings - totalWithdrawn;
   const availableBalance = Math.max(0, calculatedBalance - pendingPayouts - approvedPayouts);
 
   // Create unified transaction statement
