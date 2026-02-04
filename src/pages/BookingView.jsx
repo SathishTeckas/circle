@@ -447,12 +447,17 @@ export default function BookingView() {
       }
 
       // Send refund notification to seeker (regardless of who cancelled)
-      if (refundPercentage > 0) {
+      if (refundAmount > 0) {
+        const refundMessage = companionCancelled
+          ? `${formatCurrency(refundAmount)} (full amount including platform fee) has been refunded to your account`
+          : fullRefund
+            ? `${formatCurrency(refundAmount)} (full amount) has been refunded to your account`
+            : `${formatCurrency(refundAmount)} (${refundPercentage}% of base price) has been refunded to your account`;
         await base44.entities.Notification.create({
           user_id: booking?.seeker_id,
           type: 'payment_refunded',
           title: '💰 Refund Processed',
-          message: `${formatCurrency(refundAmount)} (${refundPercentage}%) has been refunded to your account`,
+          message: refundMessage,
           amount: refundAmount,
           action_url: createPageUrl('MyBookings')
         });
