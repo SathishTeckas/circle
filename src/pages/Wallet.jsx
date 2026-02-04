@@ -507,7 +507,7 @@ export default function Wallet() {
           {/* Balance Card */}
           <Card className="p-6 bg-white/10 backdrop-blur border-white/20 text-white">
             <p className="text-emerald-100 text-sm mb-1">Available Balance</p>
-            <p className="text-4xl font-bold mb-1">{formatCurrency(availableBalance)}</p>
+            <p className="text-4xl font-bold mb-1">{formatCurrency(availableBalance || 0)}</p>
             <p className="text-emerald-100 text-xs mb-1">
               Pending Earnings: {formatCurrency(pendingEarnings)} • Requested Payouts: {formatCurrency(pendingPayouts + approvedPayouts)}
             </p>
