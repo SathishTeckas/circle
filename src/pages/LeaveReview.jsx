@@ -52,6 +52,16 @@ export default function LeaveReview() {
       const isSeeker = user.id === booking.seeker_id;
       const revieweeId = isSeeker ? booking.companion_id : booking.seeker_id;
       
+      // Check for existing review to prevent duplicates
+      const existingReviews = await base44.entities.Review.filter({
+        booking_id: bookingId,
+        reviewer_id: user.id
+      });
+      
+      if (existingReviews.length > 0) {
+        throw new Error('You have already submitted a review for this booking.');
+      }
+      
       await base44.entities.Review.create({
         booking_id: bookingId,
         reviewer_id: user.id,
