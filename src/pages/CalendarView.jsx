@@ -29,11 +29,12 @@ export default function CalendarView() {
       const query = isCompanion 
         ? { companion_id: user.id }
         : { seeker_id: user.id };
-      return await base44.entities.Booking.filter(query, '-created_date', 100);
+      return await base44.entities.Booking.filter(query, '-date', 200);
     },
     enabled: !!user?.id,
-    staleTime: 60 * 1000,
-    refetchOnWindowFocus: true
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: 'always'
   });
 
   const { data: availabilities = [] } = useQuery({
