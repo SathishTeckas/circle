@@ -96,7 +96,7 @@ export default function Profile() {
   });
 
   const handleLogout = async () => {
-    await base44.auth.logout(createPageUrl('Welcome'));
+    await base44.auth.logout(createPageUrl('Discover'));
   };
 
   if (isLoading) {
@@ -113,7 +113,7 @@ export default function Profile() {
         <div className="text-center">
           <h2 className="text-xl font-bold mb-2" style={{ color: '#2D3436' }}>Profile Not Found</h2>
           <p style={{ color: '#636E72' }}>Please log in to view your profile.</p>
-          <Button onClick={() => window.location.href = createPageUrl('Welcome')} className="mt-4 font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>Go to Welcome</Button>
+          <Button onClick={() => base44.auth.redirectToLogin(createPageUrl('Discover'))} className="mt-4 font-bold" style={{ background: '#FFD93D', color: '#2D3436' }}>Sign In</Button>
         </div>
       </div>
     );
