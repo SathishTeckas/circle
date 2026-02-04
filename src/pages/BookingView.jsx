@@ -291,7 +291,7 @@ export default function BookingView() {
   });
 
   const cancelMutation = useMutation({
-    mutationFn: async ({ refundPercentage, refundAmount: passedRefundAmount, fullRefund }) => {
+    mutationFn: async ({ refundPercentage, refundAmount: passedRefundAmount, fullRefund, companionCancelled }) => {
       // Platform fee is NEVER refunded for accepted bookings
       // But for pending bookings (before acceptance), full refund including platform fee
       const basePrice = booking?.base_price || 0;
@@ -301,8 +301,11 @@ export default function BookingView() {
       // Use passed refundAmount if available, otherwise calculate from percentage
       let refundAmount;
       if (fullRefund) {
-        // Full refund (pending booking cancellation or companion cancellation) - include platform fee
+        // Full refund (pending booking cancellation) - include platform fee
         refundAmount = totalAmount;
+      } else if (companionCancelled) {
+        // Companion cancelled - refund base_price only, platform fee NOT refunded
+        refundAmount = basePrice;
       } else {
         refundAmount = passedRefundAmount !== undefined ? passedRefundAmount : Math.round(basePrice * refundPercentage / 100);
       }
@@ -310,7 +313,7 @@ export default function BookingView() {
       // Companion gets the non-refunded portion of base_price (only for seeker cancelling accepted bookings)
       // For 0% refund (< 3 hours), companion gets the FULL base_price
       let companionCompensation = 0;
-      if (!fullRefund && isSeeker) {
+      if (!fullRefund && !companionCancelled && isSeeker) {
         // Seeker cancelled an accepted booking - companion gets non-refunded portion
         const actualRefundFromBasePrice = passedRefundAmount !== undefined ? passedRefundAmount : Math.round(basePrice * refundPercentage / 100);
         companionCompensation = Math.round(basePrice - actualRefundFromBasePrice);
