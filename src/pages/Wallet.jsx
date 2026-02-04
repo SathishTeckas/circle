@@ -801,14 +801,16 @@ export default function Wallet() {
                           transaction.color === 'emerald' && "bg-emerald-100",
                           transaction.color === 'violet' && "bg-violet-100",
                           transaction.color === 'blue' && "bg-blue-100",
-                          transaction.color === 'red' && "bg-red-100"
+                          transaction.color === 'red' && "bg-red-100",
+                          transaction.color === 'amber' && "bg-amber-100"
                         )}>
                           <Icon className={cn(
                             "w-5 h-5",
                             transaction.color === 'emerald' && "text-emerald-600",
                             transaction.color === 'violet' && "text-violet-600",
                             transaction.color === 'blue' && "text-blue-600",
-                            transaction.color === 'red' && "text-red-600"
+                            transaction.color === 'red' && "text-red-600",
+                            transaction.color === 'amber' && "text-amber-600"
                           )} />
                         </div>
                         <div className="flex-1">
