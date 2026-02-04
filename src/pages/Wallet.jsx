@@ -243,6 +243,15 @@ export default function Wallet() {
       icon: ArrowDownLeft,
       color: 'blue'
     })),
+    ...cancellationCompensations.map(c => ({
+      id: c.id,
+      type: 'cancellation',
+      amount: c.amount || 0,
+      description: c.description || 'Cancellation compensation',
+      date: c.created_date,
+      icon: ArrowDownLeft,
+      color: 'amber'
+    })),
     ...payouts.filter(p => p.status === 'completed').map(p => ({
       id: p.id,
       type: 'payout',
