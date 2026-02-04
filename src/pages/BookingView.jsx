@@ -322,10 +322,15 @@ export default function BookingView() {
       // Process refund via Cashfree if payment was made and refund amount > 0
       let refundResult = null;
       if (booking?.payment_order_id && booking?.payment_status === 'paid' && refundAmount > 0) {
+        const refundReason = companionCancelled 
+          ? 'Booking cancelled by companion - full refund'
+          : fullRefund 
+            ? 'Booking cancelled before acceptance - full refund'
+            : `Booking cancelled (${refundPercentage}% refund)`;
         const { data } = await base44.functions.invoke('processRefund', {
           order_id: booking.payment_order_id,
           refund_amount: refundAmount,
-          refund_reason: `Booking cancelled (${refundPercentage}% refund)`,
+          refund_reason: refundReason,
           booking_id: bookingId
         });
         refundResult = data;
