@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export default function CalendarView() {
-  const [statusFilter, setStatusFilter] = useState(['pending', 'pending_payment', 'accepted', 'in_progress', 'completed', 'rejected', 'cancelled']);
+  const [statusFilter, setStatusFilter] = useState(['pending', 'accepted', 'in_progress', 'completed', 'rejected', 'cancelled']);
 
   const { data: user = null } = useQuery({
     queryKey: ['current-user'],
@@ -54,7 +54,6 @@ export default function CalendarView() {
   const filteredBookings = bookings.filter(b => statusFilter.includes(b.status));
 
   const allStatuses = [
-    { value: 'pending_payment', label: 'Awaiting Payment', color: 'bg-orange-100 text-orange-700' },
     { value: 'pending', label: 'Pending', color: 'bg-amber-100 text-amber-700' },
     { value: 'accepted', label: 'Accepted', color: 'bg-emerald-100 text-emerald-700' },
     { value: 'in_progress', label: 'In Progress', color: 'bg-blue-100 text-blue-700' },

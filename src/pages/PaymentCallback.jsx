@@ -27,6 +27,9 @@ export default function PaymentCallback() {
         if (data.is_paid) {
           setStatus('success');
           
+          // Invalidate queries to refresh data
+          await base44.queryClient?.invalidateQueries({ queryKey: ['calendar-bookings'] });
+          
           // Redirect to booking view after 2 seconds
           setTimeout(() => {
             window.location.href = createPageUrl(`BookingView?id=${bookingId}`);
