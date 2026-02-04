@@ -190,9 +190,10 @@ export default function AdminSettings() {
               <div className="mt-3 p-3 bg-blue-50 rounded-lg">
                 <p className="text-xs text-blue-700">
                   <strong>Example:</strong> If base price is ₹1000, seeker paid ₹1070 (with 7% fee), and 50% refund (₹500) is given:
-                  <br />• Retained amount: ₹500
-                  <br />• Platform gets: {settings.cancellation_platform_split}% = ₹{Math.round(500 * (settings.cancellation_platform_split || 30) / 100)} + platform fee (₹70)
-                  <br />• Companion gets: {settings.cancellation_companion_split}% = ₹{Math.round(500 * (settings.cancellation_companion_split || 20) / 100)}
+                  <br />• Retained amount: ₹500 + Platform fee: ₹70 = ₹570
+                  <br />• Platform gets: {settings.cancellation_platform_split}% of ₹500 = ₹{Math.round(500 * (settings.cancellation_platform_split || 30) / 100)} + platform fee ₹70 = ₹{Math.round(500 * (settings.cancellation_platform_split || 30) / 100) + 70}
+                  <br />• Companion gets: {settings.cancellation_companion_split}% of ₹500 = ₹{Math.round(500 * (settings.cancellation_companion_split || 20) / 100)}
+                  <br />• Remaining {100 - (settings.cancellation_platform_split || 30) - (settings.cancellation_companion_split || 20)}% = ₹{Math.round(500 * (100 - (settings.cancellation_platform_split || 30) - (settings.cancellation_companion_split || 20)) / 100)} (buffer/reserve)
                 </p>
               </div>
             </div>
