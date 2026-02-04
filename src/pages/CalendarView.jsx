@@ -21,7 +21,8 @@ export default function CalendarView() {
     staleTime: 5 * 60 * 1000
   });
 
-  const isCompanion = user?.active_role === 'companion' || (user?.user_role === 'companion' && !user?.active_role);
+  const activeRole = user?.active_role || user?.user_role;
+  const isCompanion = activeRole === 'companion';
 
   const { data: bookings = [] } = useQuery({
     queryKey: ['calendar-bookings', user?.id, isCompanion],
