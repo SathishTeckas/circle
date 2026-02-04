@@ -235,13 +235,15 @@ Pune,Koregaon Park,Kalyani Nagar,Viman Nagar,Hinjewadi,Kothrud,Deccan,Baner,Waka
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => navigate(createPageUrl('AdminDashboard'))}
-              className="w-9 h-9 rounded-lg border flex items-center justify-center hover:opacity-80 transition-colors shrink-0"
-              style={{ borderColor: '#DFE6E9' }}
+              className="rounded-xl shrink-0"
+              style={{ color: '#2D3436' }}
             >
-              <ArrowLeft className="w-5 h-5" style={{ color: '#2D3436' }} />
-            </button>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl sm:text-3xl font-extrabold break-words" style={{ color: '#2D3436' }}>City & Area Management</h1>
               <p className="text-sm sm:text-base mt-1" style={{ color: '#636E72' }}>Manage cities and their areas across the entire app</p>
