@@ -57,15 +57,19 @@ export default function Wallet() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const userData = await base44.auth.me();
-      setUser(userData);
-      
-      // Load saved payment details if available
-      if (userData.saved_payment_method) {
-        setPaymentMethod(userData.saved_payment_method);
-      }
-      if (userData.saved_payment_details) {
-        setPaymentDetails(userData.saved_payment_details);
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+        
+        // Load saved payment details if available
+        if (userData?.saved_payment_method) {
+          setPaymentMethod(userData.saved_payment_method);
+        }
+        if (userData?.saved_payment_details) {
+          setPaymentDetails(userData.saved_payment_details);
+        }
+      } catch (error) {
+        console.error('Error loading user:', error);
       }
     };
     loadUser();
