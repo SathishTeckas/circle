@@ -898,7 +898,7 @@ export default function BookingView() {
             <Card className="p-4 border-red-200 bg-red-50">
               <h3 className="font-semibold text-red-900 mb-2">Cancel Booking</h3>
               <p className="text-sm text-red-700 mb-3">
-                The seeker will receive a full base price refund ({formatCurrency(companionRefundInfo.amount)}). Platform fee is non-refundable. Cancelling confirmed bookings may affect your reliability score.
+                The seeker will receive a full refund of {formatCurrency(companionRefundInfo.amount)} (including platform fee). Cancelling confirmed bookings may affect your reliability score.
               </p>
               <Button
                 variant="outline"
