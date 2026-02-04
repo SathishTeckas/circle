@@ -859,26 +859,60 @@ export default function BookingView() {
           </Card>
         )}
 
-        {booking.status === 'accepted' && isCompanion && (
-          <Card className="p-4 border-red-200 bg-red-50">
-            <h3 className="font-semibold text-red-900 mb-2">Cancel Booking</h3>
-            <p className="text-sm text-red-700 mb-3">
-              The seeker will receive a full base price refund. Platform fee is non-refundable. Cancelling confirmed bookings may affect your reliability score and future bookings.
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => {
-                // Companion cancellation = full base_price refund to seeker, platform fee NOT refunded
-                setPendingCancelRefund({ percentage: 100, amount: booking?.base_price || 0, companionCancelled: true });
-                setShowCancelDialog(true);
-              }}
-              disabled={cancelMutation.isPending}
-              className="w-full h-12 rounded-xl border-red-300 text-red-700 hover:bg-red-100"
-            >
-              {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Booking'}
-            </Button>
-          </Card>
-        )}
+        {booking.status === 'accepted' && isCompanion && (() => {
+          // Calculate companion cancellation refund based on time
+          const calculateCompanionCancelRefund = () => {
+            if (!booking?.date || !booking?.start_time) return { percentage: 0, amount: 0 };
+            
+            const [hours, minutes] = booking.start_time.split(':').map(Number);
+            const meetupDateTime = new Date(booking.date);
+            meetupDateTime.setHours(hours, minutes, 0, 0);
+            
+            const now = new Date();
+            const hoursUntilMeetup = (meetupDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+            const basePrice = booking?.base_price || 0;
+            
+            // Companion cancellation: refund based on time, platform fee NEVER refunded
+            if (hoursUntilMeetup >= 24) {
+              return { percentage: 100, amount: basePrice };
+            } else if (hoursUntilMeetup >= 6) {
+              return { percentage: 100, amount: basePrice };
+            } else if (hoursUntilMeetup >= 3) {
+              return { percentage: 100, amount: basePrice };
+            } else {
+              // Less than 3 hours - NO refund as penalty
+              return { percentage: 0, amount: 0 };
+            }
+          };
+          
+          const companionRefundInfo = calculateCompanionCancelRefund();
+          
+          return (
+            <Card className="p-4 border-red-200 bg-red-50">
+              <h3 className="font-semibold text-red-900 mb-2">Cancel Booking</h3>
+              {companionRefundInfo.percentage === 0 ? (
+                <p className="text-sm text-red-700 mb-3">
+                  <strong>Warning:</strong> Cancelling with less than 3 hours notice means no refund will be issued to the seeker. This is a penalty for late cancellation and may affect your reliability score.
+                </p>
+              ) : (
+                <p className="text-sm text-red-700 mb-3">
+                  The seeker will receive a full base price refund ({formatCurrency(companionRefundInfo.amount)}). Platform fee is non-refundable. Cancelling confirmed bookings may affect your reliability score.
+                </p>
+              )}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setPendingCancelRefund({ percentage: companionRefundInfo.percentage, amount: companionRefundInfo.amount, companionCancelled: true });
+                  setShowCancelDialog(true);
+                }}
+                disabled={cancelMutation.isPending}
+                className="w-full h-12 rounded-xl border-red-300 text-red-700 hover:bg-red-100"
+              >
+                {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Booking'}
+              </Button>
+            </Card>
+          );
+        })()}
 
         {/* Complete Meeting - Companion Only */}
         {booking.status === 'accepted' && isCompanion && (
