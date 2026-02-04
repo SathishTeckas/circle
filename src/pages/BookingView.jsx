@@ -561,13 +561,16 @@ export default function BookingView() {
     // Platform fee is NEVER refunded - only base_price is refundable
     const basePrice = booking?.base_price || 0;
     
+    // Platform fee is NEVER refunded in any scenario
     if (hoursUntilMeetup >= 24) {
       // 100% of base_price refunded, platform fee NOT refunded
       return { percentage: 100, amount: basePrice, message: 'Full base price refund (24+ hours notice)' };
     } else if (hoursUntilMeetup >= 6) {
-      return { percentage: 50, amount: basePrice * 0.5, message: '50% refund (6-24 hours notice)' };
+      // 50% of base_price only, platform fee NOT refunded
+      return { percentage: 50, amount: basePrice * 0.5, message: '50% of base price refund (6-24 hours notice)' };
     } else if (hoursUntilMeetup >= 3) {
-      return { percentage: 25, amount: basePrice * 0.25, message: '25% refund (3-6 hours notice)' };
+      // 25% of base_price only, platform fee NOT refunded
+      return { percentage: 25, amount: basePrice * 0.25, message: '25% of base price refund (3-6 hours notice)' };
     } else {
       return { percentage: 0, amount: 0, message: 'No refund (less than 3 hours notice)' };
     }
