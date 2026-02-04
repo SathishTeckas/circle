@@ -22,7 +22,8 @@ export default function AdminCampaignReferrals() {
   const [showAnalyticsDialog, setShowAnalyticsDialog] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
-  const [, startTransition] = useTransition();
+  const [systemRewardInput, setSystemRewardInput] = useState('');
+  const debounceRef = useRef(null);
 
   const queryClient = useQueryClient();
 
