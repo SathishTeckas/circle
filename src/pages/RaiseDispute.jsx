@@ -127,7 +127,7 @@ export default function RaiseDispute() {
     },
     onError: (error) => {
       console.error('Dispute submission error:', error);
-      alert('Failed to submit dispute. Please try again.');
+      alert(error.message || 'Failed to submit dispute. Please try again.');
     }
   });
 
