@@ -117,7 +117,7 @@ export default function AdminUsers() {
     }
   };
 
-  const pendingUsers = allUsers.filter(u => u.kyc_status === 'pending');
+  const pendingUsers = allUsers.filter(u => !u.kyc_status || u.kyc_status === 'pending');
   const verifiedUsers = allUsers.filter(u => u.kyc_status === 'verified');
   const companions = allUsers.filter(u => u.user_role === 'companion');
   const seekers = allUsers.filter(u => u.user_role === 'seeker');
