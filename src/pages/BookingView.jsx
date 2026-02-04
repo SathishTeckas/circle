@@ -349,17 +349,22 @@ export default function BookingView() {
       // retainedAmount = basePrice - refundAmount (what's left from base price after refund)
       if (isSeeker && !fullRefund && !companionCancelled) {
         const retainedAmount = basePrice - refundAmount;
+        const platformFee = booking?.platform_fee || 0;
 
         if (retainedAmount > 0) {
           // Get split percentages from app settings
           const settingsResponse = await base44.entities.AppSettings.list('', 1);
           const settings = settingsResponse[0] || { cancellation_platform_split: 30, cancellation_companion_split: 20 };
 
-          const platformSplitPercent = settings.cancellation_platform_split || 30;
           const companionSplitPercent = settings.cancellation_companion_split || 20;
 
-          // Calculate companion's share of retained amount
-          companionCompensation = Math.round(retainedAmount * companionSplitPercent / 100);
+          // First deduct platform fee from retained amount, then calculate companion's share
+          // Platform gets: platform_fee + their split % of (retained - platform_fee)
+          // Companion gets: their split % of (retained - platform_fee)
+          const retainedAfterPlatformFee = Math.max(0, retainedAmount - platformFee);
+          
+          // Calculate companion's share of retained amount AFTER platform fee is deducted
+          companionCompensation = Math.round(retainedAfterPlatformFee * companionSplitPercent / 100);
 
           const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
           const companion = companionResponse.data.user;
