@@ -886,17 +886,9 @@ export default function BookingView() {
             const hoursUntilMeetup = (meetupDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
             const basePrice = booking?.base_price || 0;
             
-            // Companion cancellation: refund based on time, platform fee NEVER refunded
-            if (hoursUntilMeetup >= 24) {
-              return { percentage: 100, amount: basePrice };
-            } else if (hoursUntilMeetup >= 6) {
-              return { percentage: 100, amount: basePrice };
-            } else if (hoursUntilMeetup >= 3) {
-              return { percentage: 100, amount: basePrice };
-            } else {
-              // Less than 3 hours - NO refund as penalty
-              return { percentage: 0, amount: 0 };
-            }
+            // Companion cancellation: seeker ALWAYS gets full base price refund regardless of time
+            // Platform fee is never refunded, but seeker shouldn't be penalized for companion's cancellation
+            return { percentage: 100, amount: basePrice };
           };
           
           const companionRefundInfo = calculateCompanionCancelRefund();
