@@ -296,22 +296,29 @@ export default function BookingView() {
       // But for pending bookings (before acceptance), full refund including platform fee
       const basePrice = booking?.base_price || 0;
       const totalAmount = booking?.total_amount || 0;
+      const isSeeker = user?.id === booking?.seeker_id;
       
       // Use passed refundAmount if available, otherwise calculate from percentage
       let refundAmount;
       if (fullRefund) {
-        // Full refund (pending booking cancellation) - include platform fee
+        // Full refund (pending booking cancellation or companion cancellation) - include platform fee
         refundAmount = totalAmount;
       } else {
         refundAmount = passedRefundAmount !== undefined ? passedRefundAmount : Math.round(basePrice * refundPercentage / 100);
       }
       
-      // Companion gets the non-refunded portion of base_price (only for accepted bookings)
-      const companionCompensation = fullRefund ? 0 : Math.round(basePrice - (passedRefundAmount !== undefined ? passedRefundAmount : Math.round(basePrice * refundPercentage / 100)));
+      // Companion gets the non-refunded portion of base_price (only for seeker cancelling accepted bookings)
+      // For 0% refund (< 3 hours), companion gets the FULL base_price
+      let companionCompensation = 0;
+      if (!fullRefund && isSeeker) {
+        // Seeker cancelled an accepted booking - companion gets non-refunded portion
+        const actualRefundFromBasePrice = passedRefundAmount !== undefined ? passedRefundAmount : Math.round(basePrice * refundPercentage / 100);
+        companionCompensation = Math.round(basePrice - actualRefundFromBasePrice);
+      }
       
-      // Process refund via Cashfree if payment was made and refund percentage > 0
+      // Process refund via Cashfree if payment was made and refund amount > 0
       let refundResult = null;
-      if (booking?.payment_order_id && booking?.payment_status === 'paid' && refundPercentage > 0) {
+      if (booking?.payment_order_id && booking?.payment_status === 'paid' && refundAmount > 0) {
         const { data } = await base44.functions.invoke('processRefund', {
           order_id: booking.payment_order_id,
           refund_amount: refundAmount,
