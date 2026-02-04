@@ -972,7 +972,7 @@ export default function BookingView() {
               onClick={() => {
                 setShowCancelDialog(false);
                 const refundData = typeof pendingCancelRefund === 'object' 
-                  ? { refundPercentage: pendingCancelRefund.percentage, refundAmount: pendingCancelRefund.amount }
+                  ? { refundPercentage: pendingCancelRefund.percentage, refundAmount: pendingCancelRefund.amount, fullRefund: pendingCancelRefund.fullRefund }
                   : { refundPercentage: pendingCancelRefund };
                 cancelMutation.mutate(refundData);
               }}
