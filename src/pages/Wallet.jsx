@@ -732,9 +732,15 @@ export default function Wallet() {
                 <span className="font-medium text-blue-600">+{formatCurrency(campaignEarnings)}</span>
               </div>
             )}
+            {cancellationEarnings > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-600">Cancellation Compensation</span>
+                <span className="font-medium text-amber-600">+{formatCurrency(cancellationEarnings)}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Total Earnings</span>
-              <span className="font-medium text-emerald-600">+{formatCurrency(totalEarnings + referralEarnings + campaignEarnings)}</span>
+              <span className="font-medium text-emerald-600">+{formatCurrency(totalEarnings + referralEarnings + campaignEarnings + cancellationEarnings)}</span>
             </div>
             {totalWithdrawn > 0 && (
               <div className="flex items-center justify-between text-sm">
