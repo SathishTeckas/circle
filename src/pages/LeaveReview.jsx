@@ -96,6 +96,9 @@ export default function LeaveReview() {
       setTimeout(() => {
         window.location.href = createPageUrl(user.user_role === 'companion' ? 'CompanionDashboard' : 'MyBookings');
       }, 1000);
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to submit review');
     }
   });
 
