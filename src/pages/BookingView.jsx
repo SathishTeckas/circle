@@ -860,13 +860,13 @@ export default function BookingView() {
           <Card className="p-4 border-red-200 bg-red-50">
             <h3 className="font-semibold text-red-900 mb-2">Cancel Booking</h3>
             <p className="text-sm text-red-700 mb-3">
-              The seeker will receive a full refund including platform fee. Cancelling confirmed bookings may affect your reliability score and future bookings.
+              The seeker will receive a full base price refund. Platform fee is non-refundable. Cancelling confirmed bookings may affect your reliability score and future bookings.
             </p>
             <Button
               variant="outline"
               onClick={() => {
-                // Companion cancellation = full refund to seeker including platform fee
-                setPendingCancelRefund({ percentage: 100, amount: booking?.total_amount || 0, fullRefund: true });
+                // Companion cancellation = full base_price refund to seeker, platform fee NOT refunded
+                setPendingCancelRefund({ percentage: 100, amount: booking?.base_price || 0, companionCancelled: true });
                 setShowCancelDialog(true);
               }}
               disabled={cancelMutation.isPending}
