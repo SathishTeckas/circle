@@ -93,9 +93,7 @@ export default function LeaveReview() {
     },
     onSuccess: () => {
       toast.success('Review submitted successfully!');
-      setTimeout(() => {
-        window.location.href = createPageUrl(`BookingView?id=${bookingId}`);
-      }, 1000);
+      window.location.href = createPageUrl(`BookingView?id=${bookingId}`);
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to submit review');
