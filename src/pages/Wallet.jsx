@@ -200,6 +200,7 @@ export default function Wallet() {
   const pendingEarnings = pendingBookings.reduce((sum, b) => sum + (b.companion_payout || 0), 0);
   const referralEarnings = referrals.reduce((sum, r) => sum + (r.reward_amount || 0), 0);
   const campaignEarnings = campaignBonuses.reduce((sum, t) => sum + (t.amount || 0), 0);
+  const cancellationEarnings = cancellationCompensations.reduce((sum, t) => sum + (t.amount || 0), 0);
   
   // Calculate total withdrawn from completed payouts (use requested_amount - full amount before fee)
   const totalWithdrawn = payouts
