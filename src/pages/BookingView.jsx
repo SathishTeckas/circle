@@ -886,9 +886,10 @@ export default function BookingView() {
             const hoursUntilMeetup = (meetupDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
             const basePrice = booking?.base_price || 0;
             
-            // Companion cancellation: seeker ALWAYS gets full base price refund regardless of time
-            // Platform fee is never refunded, but seeker shouldn't be penalized for companion's cancellation
-            return { percentage: 100, amount: basePrice };
+            // Companion cancellation: seeker ALWAYS gets full refund INCLUDING platform fee
+            // Seeker shouldn't be penalized for companion's cancellation
+            const totalAmount = booking?.total_amount || 0;
+            return { percentage: 100, amount: totalAmount };
           };
           
           const companionRefundInfo = calculateCompanionCancelRefund();
