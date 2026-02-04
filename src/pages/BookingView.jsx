@@ -291,13 +291,23 @@ export default function BookingView() {
   });
 
   const cancelMutation = useMutation({
-    mutationFn: async ({ refundPercentage, refundAmount: passedRefundAmount }) => {
-      // Platform fee is NEVER refunded - refund is based on base_price only
+    mutationFn: async ({ refundPercentage, refundAmount: passedRefundAmount, fullRefund }) => {
+      // Platform fee is NEVER refunded for accepted bookings
+      // But for pending bookings (before acceptance), full refund including platform fee
       const basePrice = booking?.base_price || 0;
+      const totalAmount = booking?.total_amount || 0;
+      
       // Use passed refundAmount if available, otherwise calculate from percentage
-      const refundAmount = passedRefundAmount !== undefined ? passedRefundAmount : Math.round(basePrice * refundPercentage / 100);
-      // Companion gets the non-refunded portion of base_price
-      const companionCompensation = Math.round(basePrice - refundAmount);
+      let refundAmount;
+      if (fullRefund) {
+        // Full refund (pending booking cancellation) - include platform fee
+        refundAmount = totalAmount;
+      } else {
+        refundAmount = passedRefundAmount !== undefined ? passedRefundAmount : Math.round(basePrice * refundPercentage / 100);
+      }
+      
+      // Companion gets the non-refunded portion of base_price (only for accepted bookings)
+      const companionCompensation = fullRefund ? 0 : Math.round(basePrice - (passedRefundAmount !== undefined ? passedRefundAmount : Math.round(basePrice * refundPercentage / 100)));
       
       // Process refund via Cashfree if payment was made and refund percentage > 0
       let refundResult = null;
