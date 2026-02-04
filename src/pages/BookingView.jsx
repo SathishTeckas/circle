@@ -781,7 +781,8 @@ export default function BookingView() {
             <Button
               variant="outline"
               onClick={() => {
-                setPendingCancelRefund(100);
+                // For pending bookings, full refund including platform fee
+                setPendingCancelRefund({ percentage: 100, amount: booking?.total_amount || 0, fullRefund: true });
                 setShowCancelDialog(true);
               }}
               disabled={cancelMutation.isPending}
