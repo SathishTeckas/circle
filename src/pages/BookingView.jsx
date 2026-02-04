@@ -294,8 +294,10 @@ export default function BookingView() {
     mutationFn: async ({ refundPercentage, refundAmount: passedRefundAmount }) => {
       // Platform fee is NEVER refunded - refund is based on base_price only
       const basePrice = booking?.base_price || 0;
-      const refundAmount = passedRefundAmount !== undefined ? passedRefundAmount : (basePrice * refundPercentage / 100);
-      const companionCompensation = basePrice - (basePrice * refundPercentage / 100);
+      // Use passed refundAmount if available, otherwise calculate from percentage
+      const refundAmount = passedRefundAmount !== undefined ? passedRefundAmount : Math.round(basePrice * refundPercentage / 100);
+      // Companion gets the non-refunded portion of base_price
+      const companionCompensation = Math.round(basePrice - refundAmount);
       
       // Process refund via Cashfree if payment was made and refund percentage > 0
       let refundResult = null;
