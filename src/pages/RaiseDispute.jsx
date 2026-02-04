@@ -64,6 +64,16 @@ export default function RaiseDispute() {
     mutationFn: async () => {
       const isSeeker = user.id === booking.seeker_id;
       
+      // Check for existing dispute on this booking by this user
+      const existingDisputes = await base44.entities.Dispute.filter({
+        booking_id: bookingId,
+        raised_by: user.id
+      });
+      
+      if (existingDisputes.length > 0) {
+        throw new Error('You have already raised a dispute for this booking.');
+      }
+      
       // Create dispute
       await base44.entities.Dispute.create({
         booking_id: bookingId,
