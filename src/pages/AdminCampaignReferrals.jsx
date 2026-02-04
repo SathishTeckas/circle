@@ -17,6 +17,64 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
+// Separate component for system reward input to avoid re-renders
+function SystemRewardInput({ campaign, queryClient }) {
+  const [localValue, setLocalValue] = useState(campaign.referral_reward_amount?.toString() || '100');
+  const [isSaving, setIsSaving] = useState(false);
+  const debounceRef = useRef(null);
+
+  // Sync local value when campaign data changes (only if not currently editing)
+  useEffect(() => {
+    if (!isSaving) {
+      setLocalValue(campaign.referral_reward_amount?.toString() || '100');
+    }
+  }, [campaign.referral_reward_amount, isSaving]);
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setLocalValue(value);
+    
+    // Clear existing debounce
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    // Debounce the save operation
+    debounceRef.current = setTimeout(async () => {
+      const newAmount = Number(value);
+      if (!isNaN(newAmount) && newAmount >= 0) {
+        setIsSaving(true);
+        try {
+          await base44.entities.CampaignReferral.update(campaign.id, {
+            referral_reward_amount: newAmount
+          });
+          queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
+          toast.success('Reward amount updated');
+        } catch (error) {
+          toast.error('Failed to update reward');
+        } finally {
+          setIsSaving(false);
+        }
+      }
+    }, 500);
+  };
+
+  return (
+    <div className="flex items-center gap-2 mb-3">
+      <Input
+        type="number"
+        value={localValue}
+        onChange={handleChange}
+        className="w-24 h-9"
+        min={0}
+      />
+      <span className="text-sm text-slate-600">
+        System reward per user {isSaving && <span className="text-xs text-amber-600">(saving...)</span>}
+      </span>
+    </div>
+  );
+}
+
 export default function AdminCampaignReferrals() {
   const navigate = useNavigate();
   const [showAnalyticsDialog, setShowAnalyticsDialog] = useState(false);
