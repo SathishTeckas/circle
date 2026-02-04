@@ -17,7 +17,7 @@ export default function SignInModal({ isOpen, onClose }) {
     setLoading(true);
     try {
       // In production, this would handle actual authentication
-      await base44.auth.redirectToLogin();
+      await base44.auth.redirectToLogin(createPageUrl('Discover'));
     } catch (error) {
       console.error(error);
     }
@@ -126,7 +126,7 @@ export default function SignInModal({ isOpen, onClose }) {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => base44.auth.redirectToLogin()}
+                  onClick={() => base44.auth.redirectToLogin(createPageUrl('Discover'))}
                   className="w-full h-14 bg-white hover:bg-slate-50 border-slate-200 text-slate-900 text-base font-medium rounded-full flex items-center justify-center gap-2"
                 >
                   <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -138,7 +138,7 @@ export default function SignInModal({ isOpen, onClose }) {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => base44.auth.redirectToLogin()}
+                  onClick={() => base44.auth.redirectToLogin(createPageUrl('Discover'))}
                   className="w-full h-14 bg-white hover:bg-slate-50 border-slate-200 text-slate-900 text-base font-medium rounded-full flex items-center justify-center gap-2"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
