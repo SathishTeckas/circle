@@ -168,6 +168,22 @@ export default function Wallet() {
    staleTime: 5 * 60 * 1000
   });
 
+  // Fetch cancellation compensation (booking_earning from WalletTransaction that aren't from completed bookings)
+  const { data: cancellationCompensations = [] } = useQuery({
+   queryKey: ['cancellation-compensations', user?.id],
+   queryFn: async () => {
+     const transactions = await base44.entities.WalletTransaction.filter({
+       user_id: user.id,
+       transaction_type: 'booking_earning'
+     }, '-created_date', 100);
+     // Filter to only cancellation compensations (description contains "Cancellation")
+     return transactions.filter(t => t.description?.toLowerCase().includes('cancellation'));
+   },
+   enabled: !!user?.id,
+   staleTime: 30 * 1000,
+   refetchOnMount: 'always'
+  });
+
   // Use requested_amount (full amount before fee) for balance calculations
   // Fall back to amount for legacy payouts that don't have requested_amount
   const pendingPayouts = payouts
