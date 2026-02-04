@@ -338,8 +338,8 @@ export default function BookingView() {
       
       await base44.entities.Booking.update(bookingId, { 
         status: 'cancelled',
-        escrow_status: refundPercentage > 0 ? 'refunded' : 'held',
-        payment_status: refundPercentage > 0 ? 'refunded' : booking?.payment_status,
+        escrow_status: refundAmount > 0 ? 'refunded' : 'held',
+        payment_status: refundAmount > 0 ? 'refunded' : booking?.payment_status,
         refund_id: refundResult?.refund_id,
         refund_amount: refundAmount
       });
