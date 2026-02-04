@@ -78,7 +78,7 @@ export default function RaiseDispute() {
       await base44.entities.Dispute.create({
         booking_id: bookingId,
         raised_by: user.id,
-        raised_by_name: user.full_name,
+        raised_by_name: user.display_name || user.full_name,
         raised_by_role: isSeeker ? 'seeker' : 'companion',
         against_user_id: isSeeker ? booking.companion_id : booking.seeker_id,
         against_user_name: isSeeker ? booking.companion_name : booking.seeker_name,
@@ -93,20 +93,7 @@ export default function RaiseDispute() {
         status: 'disputed'
       });
 
-      // Notify admin
-      const admins = await base44.entities.User.filter({ user_role: 'admin' });
-      for (const admin of admins) {
-        await base44.entities.Notification.create({
-          user_id: admin.id,
-          type: 'booking_reminder',
-          title: '⚠️ New Dispute',
-          message: `${user.full_name} raised a dispute for booking ${bookingId.slice(0, 8)}`,
-          booking_id: bookingId,
-          action_url: createPageUrl('AdminDisputes')
-        });
-      }
-
-      // Notify other party
+      // Notify other party (companion or seeker)
       const otherUserId = isSeeker ? booking.companion_id : booking.seeker_id;
       await base44.entities.Notification.create({
         user_id: otherUserId,
@@ -120,10 +107,7 @@ export default function RaiseDispute() {
       return true;
     },
     onSuccess: () => {
-      // Use setTimeout to ensure state updates complete before redirect
-      setTimeout(() => {
-        window.location.href = createPageUrl(`BookingView?id=${bookingId}`);
-      }, 100);
+      window.location.href = createPageUrl(`BookingView?id=${bookingId}`);
     },
     onError: (error) => {
       console.error('Dispute submission error:', error);
