@@ -178,6 +178,17 @@ export default function ManageAvailability() {
         date: dateStr
       });
 
+      // Check for exact same time slot first (this is a stricter check)
+      const exactDuplicateSlot = existingAvailabilities.find(slot => {
+        if (editingSlot && slot.id === editingSlot.id) return false;
+        if (['cancelled', 'completed'].includes(slot.status)) return false;
+        return slot.start_time === formData.start_time && slot.end_time === formData.end_time;
+      });
+
+      if (exactDuplicateSlot) {
+        throw new Error(`You already have an availability slot for ${formatTime12Hour(formData.start_time)} - ${formatTime12Hour(formData.end_time)} on this date. Please choose a different time.`);
+      }
+
       // Also check bookings for this companion on the same date
       const existingBookings = await base44.entities.Booking.filter({
         companion_id: user.id,
