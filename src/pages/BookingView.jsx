@@ -304,8 +304,8 @@ export default function BookingView() {
         // Full refund (pending booking cancellation) - include platform fee
         refundAmount = totalAmount;
       } else if (companionCancelled) {
-        // Companion cancelled - refund base_price only, platform fee NOT refunded
-        refundAmount = basePrice;
+        // Companion cancelled - use the passed refundAmount (base_price for 6+ hours, 0 for <3 hours)
+        refundAmount = passedRefundAmount !== undefined ? passedRefundAmount : basePrice;
       } else {
         refundAmount = passedRefundAmount !== undefined ? passedRefundAmount : Math.round(basePrice * refundPercentage / 100);
       }
