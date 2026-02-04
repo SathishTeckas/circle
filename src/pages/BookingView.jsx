@@ -824,7 +824,7 @@ export default function BookingView() {
             <Button
               variant="outline"
               onClick={() => {
-                setPendingCancelRefund(refundInfo.percentage);
+                setPendingCancelRefund({ percentage: refundInfo.percentage, amount: refundInfo.amount });
                 setShowCancelDialog(true);
               }}
               disabled={cancelMutation.isPending}
