@@ -291,9 +291,11 @@ export default function BookingView() {
   });
 
   const cancelMutation = useMutation({
-    mutationFn: async ({ refundPercentage }) => {
-      const refundAmount = ((booking?.total_amount || 0) * refundPercentage) / 100;
-      const companionCompensation = (booking?.base_price || 0) - ((booking?.base_price || 0) * refundPercentage / 100);
+    mutationFn: async ({ refundPercentage, refundAmount: passedRefundAmount }) => {
+      // Platform fee is NEVER refunded - refund is based on base_price only
+      const basePrice = booking?.base_price || 0;
+      const refundAmount = passedRefundAmount !== undefined ? passedRefundAmount : (basePrice * refundPercentage / 100);
+      const companionCompensation = basePrice - (basePrice * refundPercentage / 100);
       
       // Process refund via Cashfree if payment was made and refund percentage > 0
       let refundResult = null;
