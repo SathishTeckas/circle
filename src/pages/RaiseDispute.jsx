@@ -106,9 +106,18 @@ export default function RaiseDispute() {
         booking_id: bookingId,
         action_url: createPageUrl(`BookingView?id=${bookingId}`)
       });
+      
+      return true;
     },
     onSuccess: () => {
-      window.location.href = createPageUrl(`BookingView?id=${bookingId}`);
+      // Use setTimeout to ensure state updates complete before redirect
+      setTimeout(() => {
+        window.location.href = createPageUrl(`BookingView?id=${bookingId}`);
+      }, 100);
+    },
+    onError: (error) => {
+      console.error('Dispute submission error:', error);
+      alert('Failed to submit dispute. Please try again.');
     }
   });
 
