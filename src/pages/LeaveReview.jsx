@@ -94,7 +94,7 @@ export default function LeaveReview() {
     onSuccess: () => {
       toast.success('Review submitted successfully!');
       setTimeout(() => {
-        window.location.href = createPageUrl(user.user_role === 'companion' ? 'CompanionDashboard' : 'MyBookings');
+        window.location.href = createPageUrl(`BookingView?id=${bookingId}`);
       }, 1000);
     },
     onError: (error) => {
