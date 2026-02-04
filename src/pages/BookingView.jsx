@@ -1006,7 +1006,7 @@ export default function BookingView() {
               Cancel this booking?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm" style={{ color: '#636E72' }}>
-              {typeof pendingCancelRefund === 'object' 
+              {pendingCancelRefund && typeof pendingCancelRefund === 'object' 
                 ? (pendingCancelRefund.fullRefund
                     ? `Are you sure? The seeker will receive a full refund of ${formatCurrency(pendingCancelRefund.amount)}.`
                     : pendingCancelRefund.companionCancelled
@@ -1016,7 +1016,7 @@ export default function BookingView() {
                         : `Are you sure? You'll receive ${formatCurrency(pendingCancelRefund.amount)} (${pendingCancelRefund.percentage}% of base price refunded).`)
                 : pendingCancelRefund === 100 
                   ? "Are you sure you want to cancel? This action cannot be undone."
-                  : `Are you sure you want to cancel? You will receive a ${pendingCancelRefund}% refund.`
+                  : `Are you sure you want to cancel? You will receive a ${pendingCancelRefund || 0}% refund.`
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
