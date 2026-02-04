@@ -178,6 +178,9 @@ export default function GroupEvents() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['group-events'] });
       queryClient.invalidateQueries({ queryKey: ['my-participations'] });
+    },
+    onError: (error) => {
+      alert(error.message || 'Failed to join event');
     }
   });
 
