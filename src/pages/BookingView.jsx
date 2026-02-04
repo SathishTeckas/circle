@@ -937,8 +937,8 @@ export default function BookingView() {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                cancelMutation.mutate({ refundPercentage: pendingCancelRefund });
                 setShowCancelDialog(false);
+                cancelMutation.mutate({ refundPercentage: pendingCancelRefund });
               }}
               className="flex-1 h-12 rounded-xl font-bold bg-red-600 hover:bg-red-700 text-white"
             >
