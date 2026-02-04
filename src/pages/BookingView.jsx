@@ -896,15 +896,9 @@ export default function BookingView() {
           return (
             <Card className="p-4 border-red-200 bg-red-50">
               <h3 className="font-semibold text-red-900 mb-2">Cancel Booking</h3>
-              {companionRefundInfo.percentage === 0 ? (
-                <p className="text-sm text-red-700 mb-3">
-                  <strong>Warning:</strong> Cancelling with less than 3 hours notice means no refund will be issued to the seeker. This is a penalty for late cancellation and may affect your reliability score.
-                </p>
-              ) : (
-                <p className="text-sm text-red-700 mb-3">
-                  The seeker will receive a full base price refund ({formatCurrency(companionRefundInfo.amount)}). Platform fee is non-refundable. Cancelling confirmed bookings may affect your reliability score.
-                </p>
-              )}
+              <p className="text-sm text-red-700 mb-3">
+                The seeker will receive a full base price refund ({formatCurrency(companionRefundInfo.amount)}). Platform fee is non-refundable. Cancelling confirmed bookings may affect your reliability score.
+              </p>
               <Button
                 variant="outline"
                 onClick={() => {
