@@ -805,15 +805,20 @@ export default function BookingView() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-600">Refund Amount</span>
                 <span className="text-lg font-bold text-slate-900">
-                  {formatCurrency(((booking?.total_amount || 0) * refundInfo.percentage) / 100)}
+                  {formatCurrency(refundInfo.amount)}
                 </span>
               </div>
+              {refundInfo.percentage === 100 && (
+                <p className="text-xs text-slate-500 mt-1">
+                  (Platform fee of {formatCurrency(booking?.platform_fee || 0)} is non-refundable)
+                </p>
+              )}
             </div>
             <p className="text-sm text-red-700 mb-3">
               {refundInfo.percentage === 0 
                 ? "No refund will be issued as it's less than 3 hours until meetup."
                 : refundInfo.percentage === 100
-                ? "You'll receive a full refund to your original payment method."
+                ? "You'll receive a full base price refund. Platform fee is non-refundable."
                 : "A partial refund will be processed to your original payment method."}
             </p>
             <Button
