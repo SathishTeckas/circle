@@ -547,7 +547,7 @@ export default function BookingView() {
   const StatusIcon = status.icon;
 
   const calculateRefund = () => {
-    if (!booking?.date || !booking?.start_time) return { percentage: 0, message: 'Booking data incomplete - no refund possible' };
+    if (!booking?.date || !booking?.start_time) return { percentage: 0, amount: 0, message: 'Booking data incomplete - no refund possible' };
     
     const [hours, minutes] = booking.start_time.split(':').map(Number);
     const meetupDateTime = new Date(booking.date);
@@ -556,14 +556,18 @@ export default function BookingView() {
     const now = new Date();
     const hoursUntilMeetup = (meetupDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
     
+    // Platform fee is NEVER refunded - only base_price is refundable
+    const basePrice = booking?.base_price || 0;
+    
     if (hoursUntilMeetup >= 24) {
-      return { percentage: 100, message: 'Full refund (24+ hours notice)' };
+      // 100% of base_price refunded, platform fee NOT refunded
+      return { percentage: 100, amount: basePrice, message: 'Full base price refund (24+ hours notice)' };
     } else if (hoursUntilMeetup >= 6) {
-      return { percentage: 50, message: '50% refund (6-24 hours notice)' };
+      return { percentage: 50, amount: basePrice * 0.5, message: '50% refund (6-24 hours notice)' };
     } else if (hoursUntilMeetup >= 3) {
-      return { percentage: 25, message: '25% refund (3-6 hours notice)' };
+      return { percentage: 25, amount: basePrice * 0.25, message: '25% refund (3-6 hours notice)' };
     } else {
-      return { percentage: 0, message: 'No refund (less than 3 hours notice)' };
+      return { percentage: 0, amount: 0, message: 'No refund (less than 3 hours notice)' };
     }
   };
 
