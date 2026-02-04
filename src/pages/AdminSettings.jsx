@@ -189,11 +189,14 @@ export default function AdminSettings() {
               
               <div className="mt-3 p-3 bg-blue-50 rounded-lg">
                 <p className="text-xs text-blue-700">
-                  <strong>Example:</strong> If base price is ₹1000, seeker paid ₹1070 (with 7% fee), and 50% refund (₹500) is given:
-                  <br />• Retained amount: ₹500 + Platform fee: ₹70 = ₹570
-                  <br />• Platform gets: {settings.cancellation_platform_split}% of ₹500 = ₹{Math.round(500 * (settings.cancellation_platform_split || 30) / 100)} + platform fee ₹70 = ₹{Math.round(500 * (settings.cancellation_platform_split || 30) / 100) + 70}
-                  <br />• Companion gets: {settings.cancellation_companion_split}% of ₹500 = ₹{Math.round(500 * (settings.cancellation_companion_split || 20) / 100)}
-                  <br />• Remaining {100 - (settings.cancellation_platform_split || 30) - (settings.cancellation_companion_split || 20)}% = ₹{Math.round(500 * (100 - (settings.cancellation_platform_split || 30) - (settings.cancellation_companion_split || 20)) / 100)} (buffer/reserve)
+                  <strong>Example:</strong> Base price ₹1000, platform fee 7% (₹70), seeker paid ₹1070 total.
+                  <br />Seeker cancels 6-24 hours before → 50% of base price refunded.
+                  <br />
+                  <br />• <strong>Refund to seeker:</strong> 50% of ₹1000 = ₹500 (platform fee ₹70 never refunded)
+                  <br />• <strong>Retained from base price:</strong> ₹1000 - ₹500 = ₹500
+                  <br />• <strong>Platform gets:</strong> ₹70 (fee) + {settings.cancellation_platform_split}% of ₹500 = ₹70 + ₹{Math.round(500 * (settings.cancellation_platform_split || 30) / 100)} = ₹{70 + Math.round(500 * (settings.cancellation_platform_split || 30) / 100)}
+                  <br />• <strong>Companion gets:</strong> {settings.cancellation_companion_split}% of ₹500 = ₹{Math.round(500 * (settings.cancellation_companion_split || 20) / 100)}
+                  <br />• <strong>Buffer/reserve:</strong> {100 - (settings.cancellation_platform_split || 30) - (settings.cancellation_companion_split || 20)}% of ₹500 = ₹{Math.round(500 * (100 - (settings.cancellation_platform_split || 30) - (settings.cancellation_companion_split || 20)) / 100)}
                 </p>
               </div>
             </div>
