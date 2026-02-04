@@ -119,8 +119,9 @@ export default function AdminUsers() {
 
   const pendingUsers = allUsers.filter(u => !u.kyc_status || u.kyc_status === 'pending');
   const verifiedUsers = allUsers.filter(u => u.kyc_status === 'verified');
-  const companions = allUsers.filter(u => u.user_role === 'companion');
-  const seekers = allUsers.filter(u => u.user_role === 'seeker');
+  // Exclude pending users from companions and seekers tabs since they have their own Pending tab
+  const companions = allUsers.filter(u => u.user_role === 'companion' && u.kyc_status && u.kyc_status !== 'pending');
+  const seekers = allUsers.filter(u => u.user_role === 'seeker' && u.kyc_status && u.kyc_status !== 'pending');
 
   const filteredUsers = (users) => {
     if (!searchQuery) return users;
