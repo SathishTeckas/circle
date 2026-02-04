@@ -346,7 +346,8 @@ export default function BookingView() {
       const cancellerName = user?.display_name || user?.full_name || (isSeeker ? booking?.seeker_name : booking?.companion_name);
       
       // If seeker cancelled and there's retained amount, split it according to settings
-      if (isSeeker && !fullRefund) {
+      // retainedAmount = basePrice - refundAmount (what's left from base price after refund)
+      if (isSeeker && !fullRefund && !companionCancelled) {
         const retainedAmount = basePrice - refundAmount;
 
         if (retainedAmount > 0) {
