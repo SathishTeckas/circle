@@ -396,26 +396,10 @@ export default function AdminCampaignReferrals() {
 
                 {/* Edit Reward for SYSTEM */}
                 {campaign.code === 'SYSTEM' && (
-                  <div className="flex items-center gap-2 mb-3">
-                    <Input
-                      type="number"
-                      value={campaign.referral_reward_amount}
-                      onChange={(e) => {
-                        const newAmount = Number(e.target.value);
-                        if (newAmount >= 0) {
-                          startTransition(async () => {
-                            await base44.entities.CampaignReferral.update(campaign.id, {
-                              referral_reward_amount: newAmount
-                            });
-                            queryClient.invalidateQueries({ queryKey: ['campaign-referrals'] });
-                            toast.success('Reward amount updated');
-                          });
-                        }
-                      }}
-                      className="w-24 h-9"
-                    />
-                    <span className="text-sm text-slate-600">System reward per user</span>
-                  </div>
+                  <SystemRewardInput 
+                    campaign={campaign} 
+                    queryClient={queryClient}
+                  />
                 )}
 
                 {/* Stats Row */}
