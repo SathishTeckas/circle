@@ -46,10 +46,7 @@ Deno.serve(async (req) => {
         }
 
         // Update user's phone verification status if successful
-        // Cashfree returns status: "SUCCESS" for successful OTP verification
-        const isVerified = data.status === 'SUCCESS' || data.status === 'VALID' || data.verified === true;
-        
-        if (isVerified) {
+        if (data.status === 'VALID' || data.verified === true) {
             await base44.auth.updateMe({
                 phone_verified: true,
                 phone_verified_at: new Date().toISOString()
@@ -58,8 +55,8 @@ Deno.serve(async (req) => {
 
         return Response.json({
             success: true,
-            verified: isVerified,
-            message: isVerified ? 'Mobile number verified successfully' : 'OTP verification failed',
+            verified: data.status === 'VALID' || data.verified === true,
+            message: data.status === 'VALID' ? 'Mobile number verified successfully' : 'OTP verification failed',
             data: data
         });
 
