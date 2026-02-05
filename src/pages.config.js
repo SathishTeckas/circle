@@ -76,6 +76,7 @@ import EventAnalytics from './pages/EventAnalytics';
 import EventFeedback from './pages/EventFeedback';
 import GroupEvents from './pages/GroupEvents';
 import HelpSupport from './pages/HelpSupport';
+import KYCVerification from './pages/KYCVerification';
 import LeaveReview from './pages/LeaveReview';
 import ManageAvailability from './pages/ManageAvailability';
 import MyBookings from './pages/MyBookings';
@@ -92,7 +93,6 @@ import RoleSelection from './pages/RoleSelection';
 import TermsAcceptance from './pages/TermsAcceptance';
 import UserProfile from './pages/UserProfile';
 import Wallet from './pages/Wallet';
-import KYCVerification from './pages/KYCVerification';
 import __Layout from './Layout.jsx';
 
 
@@ -126,6 +126,7 @@ export const PAGES = {
     "EventFeedback": EventFeedback,
     "GroupEvents": GroupEvents,
     "HelpSupport": HelpSupport,
+    "KYCVerification": KYCVerification,
     "LeaveReview": LeaveReview,
     "ManageAvailability": ManageAvailability,
     "MyBookings": MyBookings,
@@ -142,7 +143,6 @@ export const PAGES = {
     "TermsAcceptance": TermsAcceptance,
     "UserProfile": UserProfile,
     "Wallet": Wallet,
-    "KYCVerification": KYCVerification,
 }
 
 export const pagesConfig = {

@@ -354,49 +354,59 @@ export default function BookingView() {
       // retainedAmount = basePrice - refundAmount (what's left from base price after refund)
       if (isSeeker && !fullRefund && !companionCancelled) {
         const retainedAmount = basePrice - refundAmount;
+        console.log('Seeker cancelled - calculating companion compensation:', { basePrice, refundAmount, retainedAmount });
 
         if (retainedAmount > 0) {
-          // Get split percentages from app settings
-          const settingsResponse = await base44.entities.AppSettings.list('', 1);
-          const settings = settingsResponse[0] || { cancellation_platform_split: 30, cancellation_companion_split: 20 };
+          try {
+            // Get split percentages from app settings
+            const settingsResponse = await base44.entities.AppSettings.list('', 1);
+            const settings = settingsResponse[0] || { cancellation_platform_split: 30, cancellation_companion_split: 20 };
 
-          const companionSplitPercent = settings.cancellation_companion_split || 40;
+            const companionSplitPercent = settings.cancellation_companion_split || 40;
 
-          // Calculate companion's share directly from retained amount (no platform fee deduction)
-          companionCompensation = Math.round(retainedAmount * companionSplitPercent / 100);
+            // Calculate companion's share directly from retained amount (no platform fee deduction)
+            companionCompensation = Math.round(retainedAmount * companionSplitPercent / 100);
+            console.log('Companion compensation calculated:', { companionSplitPercent, companionCompensation });
 
-          const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
-          const companion = companionResponse.data.user;
-          const currentWalletBalance = companion?.wallet_balance || 0;
-          const newWalletBalance = currentWalletBalance + companionCompensation;
+            const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
+            const companion = companionResponse.data.user;
+            const currentWalletBalance = companion?.wallet_balance || 0;
+            const newWalletBalance = currentWalletBalance + companionCompensation;
+            console.log('Wallet update:', { currentWalletBalance, newWalletBalance, companionId: booking.companion_id });
 
-          await base44.entities.User.update(booking.companion_id, {
-            wallet_balance: newWalletBalance
-          });
+            await base44.entities.User.update(booking.companion_id, {
+              wallet_balance: newWalletBalance
+            });
+            console.log('Wallet balance updated successfully');
 
-          // Create wallet transaction for companion compensation
-          await base44.entities.WalletTransaction.create({
-            user_id: booking.companion_id,
-            transaction_type: 'booking_earning',
-            amount: companionCompensation,
-            balance_before: currentWalletBalance,
-            balance_after: newWalletBalance,
-            reference_id: bookingId,
-            reference_type: 'Booking',
-            description: `Cancellation compensation (${companionSplitPercent}% of retained ₹${retainedAmount})`,
-            status: 'completed'
-          });
+            // Create wallet transaction for companion compensation
+            await base44.entities.WalletTransaction.create({
+              user_id: booking.companion_id,
+              transaction_type: 'booking_earning',
+              amount: companionCompensation,
+              balance_before: currentWalletBalance,
+              balance_after: newWalletBalance,
+              reference_id: bookingId,
+              reference_type: 'Booking',
+              description: `Cancellation compensation (${companionSplitPercent}% of retained ₹${retainedAmount})`,
+              status: 'completed'
+            });
+            console.log('Wallet transaction created successfully');
 
-          // Notify companion about compensation
-          await base44.entities.Notification.create({
-            user_id: booking?.companion_id,
-            type: 'payment_received',
-            title: '💰 Cancellation Compensation',
-            message: `You received ${formatCurrency(companionCompensation)} (${companionSplitPercent}% of retained amount) as compensation for the cancelled booking`,
-            amount: companionCompensation,
-            booking_id: bookingId,
-            action_url: createPageUrl('Wallet')
-          });
+            // Notify companion about compensation
+            await base44.entities.Notification.create({
+              user_id: booking?.companion_id,
+              type: 'payment_received',
+              title: '💰 Cancellation Compensation',
+              message: `You received ${formatCurrency(companionCompensation)} (${companionSplitPercent}% of retained amount) as compensation for the cancelled booking`,
+              amount: companionCompensation,
+              booking_id: bookingId,
+              action_url: createPageUrl('Wallet')
+            });
+            console.log('Compensation notification created successfully');
+          } catch (compensationError) {
+            console.error('Error processing companion compensation:', compensationError);
+          }
         }
       }
 
