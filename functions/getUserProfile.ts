@@ -46,7 +46,8 @@ Deno.serve(async (req) => {
         user_role: user.user_role,
         average_rating: user.average_rating,
         total_reviews: user.total_reviews,
-        gender: user.gender
+        gender: user.gender,
+        wallet_balance: user.wallet_balance || 0
       }
     });
   } catch (error) {
