@@ -50,26 +50,29 @@ export default function KYCVerification() {
   const handleStartKYC = async () => {
     setVerifying(true);
     try {
-      // Skip Cashfree verification for now - directly mark as verified
-      toast.success('KYC verification successful!');
-      setVerifying(false);
-      setStep('permissions');
-
-      // Original Cashfree code - kept for future use
-      /*
+      // Get current page URL for redirect after KYC completion
+      const redirectUrl = window.location.href;
+      
       console.log('Starting KYC verification...');
-      const response = await base44.functions.invoke('generateKYCLink', {});
+      const response = await base44.functions.invoke('generateKYCLink', {
+        phone: user?.phone_number || user?.phone,
+        name: user?.display_name || user?.full_name,
+        email: user?.email,
+        redirect_url: redirectUrl
+      });
       console.log('KYC Link Response:', response.data);
 
-      if (response.data.success && response.data.form_url) {
+      if (response.data.success && (response.data.form_url || response.data.form_link)) {
         const verificationId = response.data.verification_id;
+        const referenceId = response.data.reference_id;
         setKycFormId(verificationId);
 
-        console.log('Opening KYC form:', response.data.form_url);
+        const formUrl = response.data.form_url || response.data.form_link;
+        console.log('Opening KYC form:', formUrl);
         console.log('Verification ID:', verificationId);
 
         // Open KYC form in new tab
-        const kycWindow = window.open(response.data.form_url, '_blank');
+        const kycWindow = window.open(formUrl, '_blank');
 
         if (!kycWindow) {
           toast.error('Please allow popups for this site');
@@ -77,22 +80,21 @@ export default function KYCVerification() {
           return;
         }
 
-        // Start polling for status using verification_id
-        pollKYCStatus(verificationId, kycWindow);
+        // Start polling for status
+        pollKYCStatus(verificationId, referenceId, kycWindow);
       } else {
         console.error('Invalid response from generateKYCLink:', response.data);
         toast.error(response.data.error || 'Failed to generate KYC link');
         setVerifying(false);
       }
-      */
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Something went wrong');
+      toast.error(error.response?.data?.error || 'Something went wrong');
       setVerifying(false);
     }
   };
 
-  const pollKYCStatus = async (formId, windowRef) => {
+  const pollKYCStatus = async (verificationId, referenceId, windowRef) => {
     const maxAttempts = 120; // Poll for 10 minutes max (every 5 seconds)
     let attempts = 0;
 
@@ -106,17 +108,39 @@ export default function KYCVerification() {
         return;
       }
 
-      // Check if window is closed
+      // Check if window is closed - do one final check
       if (windowRef && windowRef.closed) {
-        toast('Verification window closed. Please try again if not completed.');
+        // Do a final status check before giving up
+        try {
+          const { data } = await base44.functions.invoke('checkKYCStatus', { 
+            verification_id: verificationId,
+            reference_id: referenceId
+          });
+          
+          if (data.verified || data.kyc_status === 'verified') {
+            toast.success('KYC verification successful!');
+            setVerifying(false);
+            setStep('permissions');
+            return;
+          }
+        } catch (e) {
+          console.error('Final check error:', e);
+        }
+        
+        toast('Verification window closed. Click "Start Verification" to try again.');
         setVerifying(false);
         return;
       }
 
       try {
-        const { data } = await base44.functions.invoke('checkKYCStatus', { form_id: formId, verification_id: formId });
+        const { data } = await base44.functions.invoke('checkKYCStatus', { 
+          verification_id: verificationId,
+          reference_id: referenceId
+        });
         
-        if (data.verified) {
+        console.log('KYC status check:', data);
+        
+        if (data.verified || data.kyc_status === 'verified') {
           toast.success('KYC verification successful!');
           setVerifying(false);
           if (windowRef && !windowRef.closed) {
@@ -125,6 +149,15 @@ export default function KYCVerification() {
           
           // Move to permissions step
           setStep('permissions');
+          return;
+        }
+        
+        if (data.kyc_status === 'failed' || data.kyc_status === 'expired') {
+          toast.error('KYC verification failed. Please try again.');
+          setVerifying(false);
+          if (windowRef && !windowRef.closed) {
+            windowRef.close();
+          }
           return;
         }
 
