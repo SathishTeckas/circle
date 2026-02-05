@@ -15,8 +15,8 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Verification ID and OTP are required' }, { status: 400 });
         }
 
-        const clientId = Deno.env.get("CASHFREE_CLIENT_ID");
-        const clientSecret = Deno.env.get("CASHFREE_CLIENT_SECRET");
+        const clientId = Deno.env.get("CASHFREE_SECUREID_CLIENT_ID");
+        const clientSecret = Deno.env.get("CASHFREE_SECUREID_CLIENT_SECRET");
 
         if (!clientId || !clientSecret) {
             return Response.json({ error: 'Cashfree credentials not configured' }, { status: 500 });
