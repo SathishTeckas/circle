@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
-import { Shield, FileCheck, Camera, Clock, CheckCircle, ArrowRight, Bell, MapPin, Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Shield, FileCheck, Camera, Clock, CheckCircle, ArrowRight, Bell, MapPin, Loader2, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-// Custom styled switch override
 const switchStyles = `
   .switch-custom[data-state="checked"] {
     background-color: rgb(139 92 246) !important;
@@ -20,14 +20,21 @@ const switchStyles = `
 
 export default function KYCVerification() {
   const [user, setUser] = useState(null);
-  const [step, setStep] = useState('intro'); // intro, permissions, pending, verified
+  const [step, setStep] = useState('mobile'); // mobile, otp, intro, permissions, verified
   const [permissions, setPermissions] = useState({
     location: false,
     notifications: false
   });
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
-  const [kycFormId, setKycFormId] = useState(null);
+  
+  // Mobile OTP states
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [otp, setOtp] = useState('');
+  const [verificationId, setVerificationId] = useState(null);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -35,10 +42,13 @@ export default function KYCVerification() {
         const userData = await base44.auth.me();
         setUser(userData);
         
-        // Removed auto-redirect on onboarding_completed to allow KYC flow
-        
-        if (userData.kyc_status === 'verified' || userData.kyc_verified) {
-          setStep('verified');
+        // Check if phone is already verified
+        if (userData.phone_verified) {
+          if (userData.kyc_status === 'verified' || userData.kyc_verified) {
+            setStep('verified');
+          } else {
+            setStep('intro');
+          }
         }
       } catch (e) {
         console.error(e);
@@ -47,29 +57,94 @@ export default function KYCVerification() {
     loadUser();
   }, []);
 
+  // Resend timer countdown
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
+
+  const handleSendOtp = async () => {
+    if (!mobileNumber || mobileNumber.length < 10) {
+      toast.error('Please enter a valid 10-digit mobile number');
+      return;
+    }
+
+    setSendingOtp(true);
+    try {
+      const { data } = await base44.functions.invoke('sendMobileOTP', {
+        mobile_number: mobileNumber,
+        name: user?.display_name || user?.full_name || 'User'
+      });
+
+      if (data.success) {
+        setVerificationId(data.verification_id);
+        setStep('otp');
+        setResendTimer(30);
+        toast.success('OTP sent to your mobile number');
+      } else {
+        toast.error(data.error || 'Failed to send OTP');
+      }
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      toast.error('Failed to send OTP. Please try again.');
+    }
+    setSendingOtp(false);
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp || otp.length < 4) {
+      toast.error('Please enter a valid OTP');
+      return;
+    }
+
+    setVerifyingOtp(true);
+    try {
+      const { data } = await base44.functions.invoke('verifyMobileOTP', {
+        verification_id: verificationId,
+        otp: otp
+      });
+
+      if (data.success && data.verified) {
+        toast.success('Mobile number verified successfully!');
+        // Update user phone number
+        await base44.auth.updateMe({
+          phone_number: mobileNumber,
+          phone_verified: true
+        });
+        setStep('intro');
+      } else {
+        toast.error(data.error || 'Invalid OTP. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      toast.error('Verification failed. Please try again.');
+    }
+    setVerifyingOtp(false);
+  };
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0) return;
+    await handleSendOtp();
+  };
+
   const handleStartKYC = async () => {
     setVerifying(true);
     try {
-      // Skip Cashfree verification for now - directly mark as verified
-      toast.success('KYC verification successful!');
-      setVerifying(false);
-      setStep('permissions');
+      // Get redirect URL for after KYC completion
+      const currentUrl = window.location.href;
+      
+      const { data } = await base44.functions.invoke('generateKYCLink', {
+        phone: mobileNumber || user?.phone_number,
+        name: user?.display_name || user?.full_name,
+        email: user?.email,
+        redirect_url: currentUrl
+      });
 
-      // Original Cashfree code - kept for future use
-      /*
-      console.log('Starting KYC verification...');
-      const response = await base44.functions.invoke('generateKYCLink', {});
-      console.log('KYC Link Response:', response.data);
-
-      if (response.data.success && response.data.form_url) {
-        const verificationId = response.data.verification_id;
-        setKycFormId(verificationId);
-
-        console.log('Opening KYC form:', response.data.form_url);
-        console.log('Verification ID:', verificationId);
-
+      if (data.success && data.form_link) {
         // Open KYC form in new tab
-        const kycWindow = window.open(response.data.form_url, '_blank');
+        const kycWindow = window.open(data.form_link, '_blank');
 
         if (!kycWindow) {
           toast.error('Please allow popups for this site');
@@ -77,14 +152,12 @@ export default function KYCVerification() {
           return;
         }
 
-        // Start polling for status using verification_id
-        pollKYCStatus(verificationId, kycWindow);
+        // Start polling for status
+        pollKYCStatus(data.verification_id, data.reference_id, kycWindow);
       } else {
-        console.error('Invalid response from generateKYCLink:', response.data);
-        toast.error(response.data.error || 'Failed to generate KYC link');
+        toast.error(data.error || 'Failed to generate KYC link');
         setVerifying(false);
       }
-      */
     } catch (error) {
       console.error('Error:', error);
       toast.error('Something went wrong');
@@ -92,8 +165,8 @@ export default function KYCVerification() {
     }
   };
 
-  const pollKYCStatus = async (formId, windowRef) => {
-    const maxAttempts = 120; // Poll for 10 minutes max (every 5 seconds)
+  const pollKYCStatus = async (verId, refId, windowRef) => {
+    const maxAttempts = 120;
     let attempts = 0;
 
     const checkStatus = async () => {
@@ -106,30 +179,47 @@ export default function KYCVerification() {
         return;
       }
 
-      // Check if window is closed
       if (windowRef && windowRef.closed) {
+        // Window closed, check status one more time
+        try {
+          const { data } = await base44.functions.invoke('checkKYCStatus', { 
+            verification_id: verId, 
+            reference_id: refId 
+          });
+          
+          if (data.verified || data.kyc_status === 'verified') {
+            toast.success('KYC verification successful!');
+            setVerifying(false);
+            setStep('permissions');
+            return;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+        
         toast('Verification window closed. Please try again if not completed.');
         setVerifying(false);
         return;
       }
 
       try {
-        const { data } = await base44.functions.invoke('checkKYCStatus', { form_id: formId, verification_id: formId });
+        const { data } = await base44.functions.invoke('checkKYCStatus', { 
+          verification_id: verId, 
+          reference_id: refId 
+        });
         
-        if (data.verified) {
+        if (data.verified || data.kyc_status === 'verified') {
           toast.success('KYC verification successful!');
           setVerifying(false);
           if (windowRef && !windowRef.closed) {
             windowRef.close();
           }
-          
-          // Move to permissions step
           setStep('permissions');
           return;
         }
 
         attempts++;
-        setTimeout(checkStatus, 5000); // Check every 5 seconds
+        setTimeout(checkStatus, 5000);
       } catch (error) {
         console.error('Error checking KYC status:', error);
         attempts++;
@@ -144,8 +234,6 @@ export default function KYCVerification() {
     setLoading(true);
     try {
       await base44.auth.updateMe({
-        kyc_status: 'verified', // Simulating verification
-        kyc_verified: true,
         onboarding_completed: true,
         location_enabled: permissions.location,
         notifications_enabled: permissions.notifications
@@ -167,7 +255,149 @@ export default function KYCVerification() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white px-6 py-12">
       <style>{switchStyles}</style>
       <div className="max-w-md mx-auto">
-        {/* Intro Step */}
+        
+        {/* Mobile Number Step */}
+        {step === 'mobile' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl mb-6 shadow-xl shadow-blue-500/30">
+                <Phone className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold text-slate-900 mb-3">
+                Verify Mobile Number
+              </h1>
+              <p className="text-slate-600">
+                We'll send you an OTP to verify your mobile number
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Mobile Number
+                </label>
+                <div className="flex gap-2">
+                  <div className="flex items-center px-4 bg-slate-100 rounded-xl border border-slate-200">
+                    <span className="text-slate-600 font-medium">+91</span>
+                  </div>
+                  <Input
+                    type="tel"
+                    placeholder="Enter 10-digit mobile number"
+                    value={mobileNumber}
+                    onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    className="flex-1 h-14 text-lg rounded-xl border-slate-200"
+                    maxLength={10}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleSendOtp}
+              disabled={sendingOtp || mobileNumber.length < 10}
+              className="w-full h-14 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-lg font-semibold rounded-2xl disabled:opacity-50"
+            >
+              {sendingOtp ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Sending OTP...
+                </>
+              ) : (
+                <>
+                  Send OTP
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </>
+              )}
+            </Button>
+
+            <p className="text-center text-xs text-slate-500 mt-4">
+              OTP will be sent via SMS and WhatsApp
+            </p>
+          </motion.div>
+        )}
+
+        {/* OTP Verification Step */}
+        {step === 'otp' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl mb-6 shadow-xl shadow-blue-500/30">
+                <Phone className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold text-slate-900 mb-3">
+                Enter OTP
+              </h1>
+              <p className="text-slate-600">
+                OTP sent to +91 {mobileNumber}
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Enter 6-digit OTP
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Enter OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  className="h-14 text-2xl text-center tracking-[0.5em] rounded-xl border-slate-200"
+                  maxLength={6}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Button
+                onClick={handleVerifyOtp}
+                disabled={verifyingOtp || otp.length < 4}
+                className="w-full h-14 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-lg font-semibold rounded-2xl disabled:opacity-50"
+              >
+                {verifyingOtp ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  <>
+                    Verify OTP
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </>
+                )}
+              </Button>
+
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    setStep('mobile');
+                    setOtp('');
+                  }}
+                  className="text-sm text-slate-600 hover:text-slate-900"
+                >
+                  Change Number
+                </button>
+                <button
+                  onClick={handleResendOtp}
+                  disabled={resendTimer > 0 || sendingOtp}
+                  className={cn(
+                    "text-sm font-medium",
+                    resendTimer > 0 ? "text-slate-400" : "text-blue-600 hover:text-blue-700"
+                  )}
+                >
+                  {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend OTP'}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Intro Step - Aadhaar KYC */}
         {step === 'intro' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -187,8 +417,8 @@ export default function KYCVerification() {
 
             <div className="space-y-4 mb-10">
               {[
-                { icon: FileCheck, title: 'Government ID', desc: 'Upload a valid government-issued ID' },
-                { icon: Camera, title: 'Selfie Verification', desc: 'Take a quick selfie for face matching' },
+                { icon: FileCheck, title: 'Aadhaar Verification', desc: 'Quick and secure Aadhaar-based verification' },
+                { icon: Camera, title: 'Face Verification', desc: 'Take a quick selfie for identity confirmation' },
                 { icon: Clock, title: 'Quick Process', desc: 'Verification takes just a few minutes' },
               ].map((item, idx) => (
                 <motion.div
@@ -246,7 +476,6 @@ export default function KYCVerification() {
                   setLoading(true);
                   await base44.auth.updateMe({ 
                     kyc_status: 'skipped',
-                    kyc_verified: true,
                     onboarding_completed: true 
                   });
                   const userData = await base44.auth.me();
@@ -367,7 +596,6 @@ export default function KYCVerification() {
             </p>
             <Button
               onClick={async () => {
-                // Make sure onboarding_completed is set to true
                 await base44.auth.updateMe({ 
                   onboarding_completed: true 
                 });
