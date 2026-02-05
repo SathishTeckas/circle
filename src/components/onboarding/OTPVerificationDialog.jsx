@@ -2,24 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-
+import { base44 } from '@/api/base44Client';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function OTPVerificationDialog({ open, onOpenChange, phone, onVerified }) {
+export default function OTPVerificationDialog({ open, onOpenChange, phone, name, onVerified }) {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
-  const [referenceId, setReferenceId] = useState('');
+  const [verificationId, setVerificationId] = useState('');
   const [countdown, setCountdown] = useState(0);
 
   useEffect(() => {
-    if (open && !referenceId) {
-      // Dummy: auto-send OTP on open
+    if (open && phone && !verificationId) {
       sendOTP();
     }
-  }, [open]);
+  }, [open, phone]);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -29,12 +28,31 @@ export default function OTPVerificationDialog({ open, onOpenChange, phone, onVer
   }, [countdown]);
 
   const sendOTP = async () => {
+    if (!phone || phone.length !== 10) {
+      setError('Invalid phone number');
+      return;
+    }
+
     setSending(true);
     setError('');
-    // Dummy: simulate network delay and OTP sent
-    await new Promise((r) => setTimeout(r, 800));
-    setReferenceId('dummy_verification');
-    setCountdown(30);
+    
+    try {
+      const response = await base44.functions.invoke('sendMobileOTP', {
+        mobile_number: phone,
+        name: name || 'User'
+      });
+
+      if (response.data.success) {
+        setVerificationId(response.data.verification_id);
+        setCountdown(30);
+      } else {
+        setError(response.data.error || 'Failed to send OTP');
+      }
+    } catch (err) {
+      console.error('Send OTP error:', err);
+      setError(err.response?.data?.error || 'Failed to send OTP. Please try again.');
+    }
+    
     setSending(false);
   };
 
@@ -44,17 +62,52 @@ export default function OTPVerificationDialog({ open, onOpenChange, phone, onVer
       return;
     }
 
+    if (!verificationId) {
+      setError('Please request a new OTP');
+      return;
+    }
+
     setLoading(true);
     setError('');
-    // Dummy: simulate verification delay and always succeed
-    await new Promise((r) => setTimeout(r, 800));
-    onVerified();
-    onOpenChange(false);
+    
+    try {
+      const response = await base44.functions.invoke('verifyMobileOTP', {
+        verification_id: verificationId,
+        otp: otp
+      });
+
+      if (response.data.success && response.data.verified) {
+        onVerified();
+        onOpenChange(false);
+        // Reset state
+        setOtp('');
+        setVerificationId('');
+      } else {
+        setError(response.data.error || 'Invalid OTP. Please try again.');
+      }
+    } catch (err) {
+      console.error('Verify OTP error:', err);
+      setError(err.response?.data?.error || 'Verification failed. Please try again.');
+    }
+    
     setLoading(false);
   };
 
+  const handleResend = () => {
+    setOtp('');
+    setVerificationId('');
+    setError('');
+    sendOTP();
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) {
+        setOtp('');
+        setError('');
+      }
+      onOpenChange(isOpen);
+    }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-slate-900">
@@ -94,8 +147,9 @@ export default function OTPVerificationDialog({ open, onOpenChange, phone, onVer
 
           <Button
             onClick={verifyOTP}
-            disabled={otp.length !== 6 || loading}
-            className="w-full h-12 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl"
+            disabled={otp.length !== 6 || loading || !verificationId}
+            className="w-full h-12 font-semibold rounded-xl"
+            style={{ background: '#FFD93D', color: '#2D3436' }}
           >
             {loading ? (
               <>
@@ -111,25 +165,23 @@ export default function OTPVerificationDialog({ open, onOpenChange, phone, onVer
           </Button>
 
           <div className="text-center">
-            {countdown > 0 ? (
+            {sending ? (
+              <p className="text-sm text-slate-500 flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Sending OTP...
+              </p>
+            ) : countdown > 0 ? (
               <p className="text-sm text-slate-500">
                 Resend OTP in {countdown}s
               </p>
             ) : (
               <Button
                 variant="ghost"
-                onClick={sendOTP}
+                onClick={handleResend}
                 disabled={sending}
-                className="text-violet-600 hover:text-violet-700 hover:bg-violet-50"
+                className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
               >
-                {sending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Sending...
-                  </>
-                ) : (
-                  'Resend OTP'
-                )}
+                Resend OTP
               </Button>
             )}
           </div>
