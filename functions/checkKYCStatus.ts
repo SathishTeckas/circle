@@ -9,32 +9,34 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { form_id, verification_id } = await req.json();
+    const { verification_id, reference_id } = await req.json();
 
-    if (!form_id && !verification_id) {
-      return Response.json({ error: 'form_id or verification_id is required' }, { status: 400 });
-    }
-    
-    const referenceId = verification_id || form_id;
+    const verificationId = verification_id || user.kyc_verification_id;
+    const referenceId = reference_id || user.kyc_reference_id;
 
-    const clientId = Deno.env.get('CASHFREE_CLIENT_ID');
-    const clientSecret = Deno.env.get('CASHFREE_CLIENT_SECRET');
-    const cfSignature = Deno.env.get('CASHFREE_SIGNATURE');
-    const baseUrl = 'https://sandbox.cashfree.com/verification';
-
-    if (!clientId || !clientSecret || !cfSignature) {
-      return Response.json({ error: 'Cashfree credentials not configured' }, { status: 500 });
+    if (!verificationId || !referenceId) {
+      return Response.json({ 
+        error: 'No KYC verification found',
+        kyc_status: user.kyc_status || 'not_started'
+      }, { status: 400 });
     }
 
-    // Check KYC form status using verificationID query param (as per Cashfree API)
-    const url = `${baseUrl}/form?verificationID=${encodeURIComponent(referenceId)}`;
+    const clientId = Deno.env.get('CASHFREE_SECUREID_CLIENT_ID');
+    const clientSecret = Deno.env.get('CASHFREE_SECUREID_CLIENT_SECRET');
+
+    if (!clientId || !clientSecret) {
+      return Response.json({ error: 'Cashfree SecureID credentials not configured' }, { status: 500 });
+    }
+
+    const url = `https://api.cashfree.com/verification/form?verificationID=${encodeURIComponent(verificationId)}&referenceID=${encodeURIComponent(referenceId)}`;
     
+    console.log('Checking KYC status:', { verificationId, referenceId });
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'x-client-id': clientId,
-        'x-client-secret': clientSecret,
-        'x-cf-signature': cfSignature
+        'x-client-secret': clientSecret
       }
     });
 
@@ -43,11 +45,12 @@ Deno.serve(async (req) => {
     console.log('Cashfree status response:', { status: response.status, data });
 
     if (!response.ok) {
-      // If not found, it means user hasn't completed verification yet - return pending status
+      // If not found, it means user hasn't completed verification yet
       if (response.status === 404 || data.code === 'Resource not found') {
         return Response.json({
           success: true,
-          status: 'PENDING',
+          kyc_status: 'pending',
+          form_status: 'PENDING',
           verified: false,
           message: 'Verification in progress'
         });
@@ -59,22 +62,38 @@ Deno.serve(async (req) => {
       }, { status: response.status });
     }
 
-    // Check if verification is successful based on form_status
-    const isVerified = data.form_status === 'VERIFIED' || data.form_status === 'SUCCESS' || data.form_status === 'COMPLETED';
+    // Map Cashfree status to our status
+    let kycStatus = 'pending';
+    const isVerified = data.form_status === 'SUCCESS';
     
-    if (isVerified) {
-      await base44.auth.updateMe({
-        kyc_verified: true,
-        kyc_status: 'verified',
-        onboarding_completed: true
-      });
+    if (data.form_status === 'SUCCESS') {
+      kycStatus = 'verified';
+    } else if (data.form_status === 'FAILED' || data.form_status === 'REJECTED') {
+      kycStatus = 'failed';
+    } else if (data.form_status === 'EXPIRED') {
+      kycStatus = 'expired';
+    }
+
+    // Update user's KYC status
+    if (user.kyc_status !== kycStatus) {
+      const updateData = { kyc_status: kycStatus };
+      if (kycStatus === 'verified') {
+        updateData.kyc_verified = true;
+        updateData.kyc_verified_at = new Date().toISOString();
+        updateData.onboarding_completed = true;
+      }
+      await base44.auth.updateMe(updateData);
     }
 
     return Response.json({
       success: true,
-      status: data.form_status,
+      kyc_status: kycStatus,
+      form_status: data.form_status,
       verified: isVerified,
-      data: data
+      verification_details: data.verification_details || [],
+      name: data.name,
+      phone: data.phone,
+      email: data.email
     });
 
   } catch (error) {

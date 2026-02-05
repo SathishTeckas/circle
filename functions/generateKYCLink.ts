@@ -9,37 +9,45 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const clientId = Deno.env.get('CASHFREE_CLIENT_ID');
-    const clientSecret = Deno.env.get('CASHFREE_CLIENT_SECRET');
-    const cfSignature = Deno.env.get('CASHFREE_SIGNATURE');
-    const baseUrl = 'https://sandbox.cashfree.com/verification';
+    const { phone, name, email, redirect_url } = await req.json();
 
-    if (!clientId || !clientSecret || !cfSignature) {
-      return Response.json({ error: 'Cashfree credentials not configured' }, { status: 500 });
+    const clientId = Deno.env.get('CASHFREE_SECUREID_CLIENT_ID');
+    const clientSecret = Deno.env.get('CASHFREE_SECUREID_CLIENT_SECRET');
+
+    if (!clientId || !clientSecret) {
+      return Response.json({ error: 'Cashfree SecureID credentials not configured' }, { status: 500 });
     }
 
-    const verificationId = `kyc_${user.id}_${Date.now()}`;
+    const verificationId = `KYC_${user.id}_${Date.now()}`;
     
-    // Generate KYC form link using the correct endpoint
+    // Calculate link expiry (7 days from now)
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 7);
+    const linkExpiry = expiryDate.toISOString().split('T')[0];
+
     const requestBody = {
-      verification_id: verificationId,
-      phone: user.phone_number || '9999999999',
+      phone: phone || user.phone_number || user.phone,
       template_name: 'Aadhaar_verification',
-      name: user.display_name || user.full_name || 'User',
-      email: user.email,
+      verification_id: verificationId,
+      name: name || user.display_name || user.full_name || 'User',
+      email: email || user.email,
+      link_expiry: linkExpiry,
       notification_types: ['sms']
     };
 
+    // Add redirect_url if provided
+    if (redirect_url) {
+      requestBody.redirect_url = redirect_url;
+    }
+
     console.log('Generating KYC link with:', requestBody);
 
-    const response = await fetch(`${baseUrl}/form`, {
+    const response = await fetch('https://api.cashfree.com/verification/form', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-client-id': clientId,
-        'x-client-secret': clientSecret,
-        'x-cf-signature': cfSignature,
-        'x-api-version': '2024-12-01'
+        'x-client-secret': clientSecret
       },
       body: JSON.stringify(requestBody)
     });
@@ -58,22 +66,21 @@ Deno.serve(async (req) => {
 
     // Store verification_id and reference_id in user data for tracking
     await base44.auth.updateMe({
-      kyc_verification_id: data.verification_id,
-      kyc_reference_id: data.reference_id
+      kyc_verification_id: verificationId,
+      kyc_reference_id: data.reference_id,
+      kyc_status: 'pending',
+      kyc_link: data.form_link
     });
 
     return Response.json({
       success: true,
       form_url: data.form_link,
-      form_id: data.reference_id,
-      verification_id: data.verification_id,
+      form_link: data.form_link,
+      verification_id: verificationId,
       reference_id: data.reference_id,
       short_code: data.short_code,
-      link_expiry: data.link_expiry,
-      form_status: data.form_status,
-      name: data.name,
-      phone: data.phone,
-      email: data.email
+      link_expiry: linkExpiry,
+      form_status: data.form_status
     });
 
   } catch (error) {
