@@ -726,6 +726,7 @@ export default function Onboarding() {
         open={showOTPDialog}
         onOpenChange={setShowOTPDialog}
         phone={userData.phone}
+        name={userData.display_name}
         onVerified={() => setPhoneVerified(true)}
       />
     </div>
