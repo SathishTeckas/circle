@@ -127,7 +127,7 @@ export default function Layout({ children, currentPageName }) {
             {/* Logo */}
             <div className="flex items-center justify-between h-16 px-6 border-b" style={{ borderColor: '#DFE6E9' }}>
               <h1 className="text-xl font-extrabold" style={{ color: '#2D3436' }}>
-                Circle Admin
+                Bethere Admin
               </h1>
               <NotificationCenter />
             </div>
