@@ -214,7 +214,7 @@ export default function KYCVerification() {
                 Verify Your Identity
               </h1>
               <p className="text-slate-600">
-                Help us keep Circle safe by verifying your identity
+                Help us keep Bethere safe by verifying your identity
               </p>
             </div>
 
@@ -374,7 +374,7 @@ export default function KYCVerification() {
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  Start Using Circle
+                  Start Using Bethere
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </>
               )}
