@@ -146,7 +146,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "AdminCampaignReferrals",
+    mainPage: "Profile",
     Pages: PAGES,
     Layout: __Layout,
 };
