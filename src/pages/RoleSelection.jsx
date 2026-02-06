@@ -65,7 +65,7 @@ export default function RoleSelection() {
           className="text-center mb-10"
         >
           <h1 className="text-3xl font-extrabold mb-3" style={{ color: '#2D3436' }}>
-            How would you like to use Bethere?
+            How would you like to use BeThere?
           </h1>
           <p style={{ color: '#636E72' }}>
             Choose your primary role. You can always switch later.
