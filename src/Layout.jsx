@@ -16,7 +16,8 @@ import {
   Menu,
   X,
   AlertCircle,
-  MapPin
+  MapPin,
+  Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GlobalErrorBoundary from '@/components/utils/GlobalErrorBoundary';
@@ -83,12 +84,25 @@ export default function Layout({ children, currentPageName }) {
   const isAdmin = user?.user_role === 'admin';
   const isSeeker = activeRole === 'seeker';
 
+  // Query for unread notifications
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['unread-notifications', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const notifications = await base44.entities.Notification.filter({ user_id: user.id, read: false }, '-created_date', 100);
+      return notifications.length;
+    },
+    enabled: !!user?.id,
+    staleTime: 30 * 1000, // 30 seconds
+    refetchInterval: 60 * 1000 // Refetch every minute
+  });
+
   const seekerNav = [
     { name: 'Discover', icon: Search, page: 'Discover' },
     { name: 'Meetups', icon: Calendar, page: 'CalendarView' },
     { name: 'Groups', icon: Users, page: 'GroupEvents' },
     { name: 'Chat', icon: MessageCircle, page: 'ChatList' },
-    { name: 'Profile', icon: User, page: 'Profile' },
+    { name: 'Profile', icon: User, page: 'Profile', showBadge: unreadCount > 0 },
   ];
 
   const companionNav = [
@@ -96,7 +110,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Meetups', icon: Calendar, page: 'CalendarView' },
     { name: 'Chat', icon: MessageCircle, page: 'ChatList' },
     { name: 'Wallet', icon: Wallet, page: 'Wallet' },
-    { name: 'Profile', icon: User, page: 'Profile' },
+    { name: 'Profile', icon: User, page: 'Profile', showBadge: unreadCount > 0 },
   ];
 
   const adminNav = [
@@ -239,7 +253,12 @@ export default function Layout({ children, currentPageName }) {
                     className="flex flex-col items-center justify-center w-full h-full transition-all relative"
                     style={{ color: isActive ? '#2D3436' : '#B2BEC3' }}
                   >
-                    <item.icon className="w-5 h-5 mb-1" style={isActive ? { transform: 'scale(1.1)' } : {}} />
+                    <div className="relative">
+                      <item.icon className="w-5 h-5 mb-1" style={isActive ? { transform: 'scale(1.1)' } : {}} />
+                      {item.showBadge && (
+                        <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full" style={{ background: '#FF6B6B' }} />
+                      )}
+                    </div>
                     <span className="text-[10px] font-bold">{item.name}</span>
                     {isActive && (
                       <div className="absolute top-0 w-12 h-0.5 rounded-full" style={{ background: '#FFD93D' }} />
