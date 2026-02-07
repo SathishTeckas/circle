@@ -32,7 +32,9 @@ export default function EditProfile() {
     languages: [],
     hobbies: [],
     personality_traits: [],
-    profile_photos: []
+    profile_photos: [],
+    instagram_username: '',
+    snapchat_username: ''
   });
 
   useEffect(() => {
@@ -48,7 +50,9 @@ export default function EditProfile() {
           languages: userData.languages || [],
           hobbies: userData.hobbies || [],
           personality_traits: userData.personality_traits || [],
-          profile_photos: userData.profile_photos || []
+          profile_photos: userData.profile_photos || [],
+          instagram_username: userData.instagram_username || '',
+          snapchat_username: userData.snapchat_username || ''
         });
       } catch (error) {
         console.error('Error loading user in EditProfile:', error);
@@ -250,6 +254,41 @@ export default function EditProfile() {
                 <option key={city} value={city}>{city}</option>
               ))}
             </select>
+          </div>
+        </Card>
+
+        {/* Social Links */}
+        <Card className="p-4 space-y-4">
+          <Label className="text-base font-bold" style={{ color: '#2D3436' }}>Social Links</Label>
+          <div>
+            <Label className="flex items-center gap-2">
+              <span className="w-5 h-5 rounded" style={{ background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)' }} />
+              Instagram
+            </Label>
+            <div className="flex items-center mt-1">
+              <span className="h-10 px-3 flex items-center bg-slate-100 border border-r-0 border-slate-200 rounded-l-lg text-slate-500 text-sm">@</span>
+              <Input
+                value={formData.instagram_username}
+                onChange={(e) => setFormData({ ...formData, instagram_username: e.target.value.replace('@', '') })}
+                className="rounded-l-none"
+                placeholder="your_username"
+              />
+            </div>
+          </div>
+          <div>
+            <Label className="flex items-center gap-2">
+              <span className="w-5 h-5 rounded" style={{ background: '#FFFC00' }} />
+              Snapchat
+            </Label>
+            <div className="flex items-center mt-1">
+              <span className="h-10 px-3 flex items-center bg-slate-100 border border-r-0 border-slate-200 rounded-l-lg text-slate-500 text-sm">@</span>
+              <Input
+                value={formData.snapchat_username}
+                onChange={(e) => setFormData({ ...formData, snapchat_username: e.target.value.replace('@', '') })}
+                className="rounded-l-none"
+                placeholder="your_username"
+              />
+            </div>
           </div>
         </Card>
 
