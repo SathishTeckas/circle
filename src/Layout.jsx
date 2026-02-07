@@ -102,7 +102,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Meetups', icon: Calendar, page: 'CalendarView' },
     { name: 'Groups', icon: Users, page: 'GroupEvents' },
     { name: 'Chat', icon: MessageCircle, page: 'ChatList' },
-    { name: 'Profile', icon: User, page: 'Profile', showBadge: unreadCount > 0 },
+    { name: 'Profile', icon: User, page: 'Profile', badgeCount: unreadCount },
   ];
 
   const companionNav = [
@@ -110,7 +110,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Meetups', icon: Calendar, page: 'CalendarView' },
     { name: 'Chat', icon: MessageCircle, page: 'ChatList' },
     { name: 'Wallet', icon: Wallet, page: 'Wallet' },
-    { name: 'Profile', icon: User, page: 'Profile', showBadge: unreadCount > 0 },
+    { name: 'Profile', icon: User, page: 'Profile', badgeCount: unreadCount },
   ];
 
   const adminNav = [
@@ -255,8 +255,10 @@ export default function Layout({ children, currentPageName }) {
                   >
                     <div className="relative">
                       <item.icon className="w-5 h-5 mb-1" style={isActive ? { transform: 'scale(1.1)' } : {}} />
-                      {item.showBadge && (
-                        <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full" style={{ background: '#FF6B6B' }} />
+                      {item.badgeCount > 0 && (
+                        <div className="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style={{ background: '#FF6B6B' }}>
+                          {item.badgeCount > 99 ? '99+' : item.badgeCount}
+                        </div>
                       )}
                     </div>
                     <span className="text-[10px] font-bold">{item.name}</span>
