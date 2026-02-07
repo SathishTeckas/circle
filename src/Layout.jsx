@@ -40,6 +40,19 @@ export default function Layout({ children, currentPageName }) {
     gcTime: 10 * 60 * 1000
   });
 
+  // Query for unread notifications - must be before any conditional returns
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['unread-notifications', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const notifications = await base44.entities.Notification.filter({ user_id: user.id, read: false }, '-created_date', 100);
+      return notifications.length;
+    },
+    enabled: !!user?.id,
+    staleTime: 30 * 1000, // 30 seconds
+    refetchInterval: 60 * 1000 // Refetch every minute
+  });
+
   useEffect(() => {
     if (user !== undefined) {
       setLoading(false);
@@ -83,19 +96,6 @@ export default function Layout({ children, currentPageName }) {
   const isCompanion = activeRole === 'companion';
   const isAdmin = user?.user_role === 'admin';
   const isSeeker = activeRole === 'seeker';
-
-  // Query for unread notifications
-  const { data: unreadCount = 0 } = useQuery({
-    queryKey: ['unread-notifications', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return 0;
-      const notifications = await base44.entities.Notification.filter({ user_id: user.id, read: false }, '-created_date', 100);
-      return notifications.length;
-    },
-    enabled: !!user?.id,
-    staleTime: 30 * 1000, // 30 seconds
-    refetchInterval: 60 * 1000 // Refetch every minute
-  });
 
   const seekerNav = [
     { name: 'Discover', icon: Search, page: 'Discover' },
