@@ -7,10 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Camera, ArrowRight, ArrowLeft, Plus, X, User, Phone, Globe, Heart, MapPin, CheckCircle, AlertCircle } from 'lucide-react';
+import { Camera, ArrowRight, ArrowLeft, Plus, X, User, Globe, Heart, MapPin, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import OTPVerificationDialog from '@/components/onboarding/OTPVerificationDialog';
+
 
 const INTERESTS = ['Movies', 'Music', 'Travel', 'Food', 'Sports', 'Art', 'Reading', 'Gaming', 'Photography', 'Fitness', 'Dancing', 'Theater', 'Comedy', 'Fashion', 'Technology', 'Science', 'Nature', 'Yoga', 'Meditation', 'Cooking', 'Wine & Dining', 'Coffee Culture', 'Nightlife', 'Adventure Sports', 'Spirituality', 'Politics', 'History', 'Architecture', 'Astronomy', 'Volunteering', 'Pets & Animals', 'Shopping', 'Cars & Bikes', 'Startups', 'Investing', 'Psychology', 'Podcasts', 'Blogging', 'Social Media', 'Board Games'];
 
@@ -28,8 +28,6 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
-  const [showOTPDialog, setShowOTPDialog] = useState(false);
   const [ageError, setAgeError] = useState('');
   const [nameError, setNameError] = useState('');
   const [userData, setUserData] = useState({
@@ -77,7 +75,7 @@ export default function Onboarding() {
           user_referral_code: savedRefCode || '',
           campaign_referral_code: campaignCode || user.campaign_referral_code || ''
         }));
-        setPhoneVerified(user.phone_verified || false);
+
       } catch (e) {
         console.error(e);
       }
@@ -238,7 +236,7 @@ export default function Onboarding() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return userData.display_name && !nameError && phoneVerified && userData.phone && userData.date_of_birth && !ageError && userData.gender;
+        return userData.display_name && !nameError && userData.date_of_birth && !ageError && userData.gender;
       case 2:
         return userData.profile_photos.length >= 1;
       case 3:
@@ -338,50 +336,6 @@ export default function Onboarding() {
                     </div>
                   ) : (
                     <p className="text-xs text-slate-500 mt-1">This is how others will see you on the platform</p>
-                  )}
-                </div>
-
-                <div>
-                  <Label className="text-slate-700 mb-2 flex items-center gap-2">
-                    Phone Number
-                    {phoneVerified && (
-                      <CheckCircle className="w-4 h-4 text-emerald-600" />
-                    )}
-                  </Label>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <div className="absolute left-12 top-1/2 -translate-y-1/2 text-slate-600 font-medium">
-                        +91
-                      </div>
-                      <Input
-                        type="tel"
-                        placeholder="10 digit number"
-                        value={userData.phone}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                          setUserData({ ...userData, phone: value });
-                        }}
-                        disabled={phoneVerified}
-                        className="h-14 pl-20 rounded-xl border-slate-200 disabled:opacity-60 disabled:cursor-not-allowed"
-                        maxLength={10}
-                      />
-                    </div>
-                    {!phoneVerified && userData.phone.length === 10 && (
-                      <Button
-                        onClick={() => setShowOTPDialog(true)}
-                        className="h-14 px-6 rounded-xl whitespace-nowrap font-bold"
-                        style={{ background: '#FFD93D', color: '#2D3436' }}
-                      >
-                        Verify
-                      </Button>
-                    )}
-                  </div>
-                  {phoneVerified && (
-                    <p className="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" />
-                      Phone number verified successfully
-                    </p>
                   )}
                 </div>
 
@@ -722,13 +676,6 @@ export default function Onboarding() {
         </div>
       </div>
 
-      <OTPVerificationDialog
-        open={showOTPDialog}
-        onOpenChange={setShowOTPDialog}
-        phone={userData.phone}
-        name={userData.display_name}
-        onVerified={() => setPhoneVerified(true)}
-      />
     </div>
   );
 }
