@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Camera, ArrowRight, ArrowLeft, Plus, X, User, Globe, Heart, MapPin, AlertCircle } from 'lucide-react';
+import { Camera, ArrowRight, ArrowLeft, Plus, X, User, Phone, Globe, Heart, MapPin, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -236,7 +236,7 @@ export default function Onboarding() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return userData.display_name && !nameError && userData.date_of_birth && !ageError && userData.gender;
+        return userData.display_name && !nameError && userData.phone && userData.phone.length === 10 && userData.date_of_birth && !ageError && userData.gender;
       case 2:
         return userData.profile_photos.length >= 1;
       case 3:
@@ -337,6 +337,28 @@ export default function Onboarding() {
                   ) : (
                     <p className="text-xs text-slate-500 mt-1">This is how others will see you on the platform</p>
                   )}
+                </div>
+
+                <div>
+                  <Label className="text-slate-700 mb-2 block">Phone Number</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <div className="absolute left-12 top-1/2 -translate-y-1/2 text-slate-600 font-medium">
+                      +91
+                    </div>
+                    <Input
+                      type="tel"
+                      placeholder="10 digit number"
+                      value={userData.phone}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setUserData({ ...userData, phone: value });
+                      }}
+                      className="h-14 pl-20 rounded-xl border-slate-200"
+                      maxLength={10}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">We'll use this to contact you about bookings</p>
                 </div>
 
                 <div>
