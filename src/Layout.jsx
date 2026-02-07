@@ -49,8 +49,35 @@ export default function Layout({ children, currentPageName }) {
       return notifications.length;
     },
     enabled: !!user?.id,
-    staleTime: 30 * 1000, // 30 seconds
-    refetchInterval: 60 * 1000 // Refetch every minute
+    staleTime: 30 * 1000,
+    refetchInterval: 60 * 1000
+  });
+
+  // Query for unread messages
+  const { data: unreadMessages = 0 } = useQuery({
+    queryKey: ['unread-messages', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const messages = await base44.entities.Message.filter({ read: false }, '-created_date', 100);
+      // Filter messages not sent by current user
+      return messages.filter(m => m.sender_id !== user.id).length;
+    },
+    enabled: !!user?.id,
+    staleTime: 30 * 1000,
+    refetchInterval: 30 * 1000
+  });
+
+  // Query for pending booking requests (for companions)
+  const { data: pendingBookings = 0 } = useQuery({
+    queryKey: ['pending-bookings', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const bookings = await base44.entities.Booking.filter({ companion_id: user.id, status: 'pending' }, '-created_date', 50);
+      return bookings.length;
+    },
+    enabled: !!user?.id,
+    staleTime: 30 * 1000,
+    refetchInterval: 60 * 1000
   });
 
   useEffect(() => {
@@ -101,14 +128,14 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Discover', icon: Search, page: 'Discover' },
     { name: 'Meetups', icon: Calendar, page: 'CalendarView' },
     { name: 'Groups', icon: Users, page: 'GroupEvents' },
-    { name: 'Chat', icon: MessageCircle, page: 'ChatList' },
+    { name: 'Chat', icon: MessageCircle, page: 'ChatList', badgeCount: unreadMessages },
     { name: 'Profile', icon: User, page: 'Profile', badgeCount: unreadCount },
   ];
 
   const companionNav = [
     { name: 'Dashboard', icon: Home, page: 'CompanionDashboard' },
-    { name: 'Meetups', icon: Calendar, page: 'CalendarView' },
-    { name: 'Chat', icon: MessageCircle, page: 'ChatList' },
+    { name: 'Meetups', icon: Calendar, page: 'CalendarView', badgeCount: pendingBookings },
+    { name: 'Chat', icon: MessageCircle, page: 'ChatList', badgeCount: unreadMessages },
     { name: 'Wallet', icon: Wallet, page: 'Wallet' },
     { name: 'Profile', icon: User, page: 'Profile', badgeCount: unreadCount },
   ];
