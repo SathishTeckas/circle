@@ -29,6 +29,10 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [ageError, setAgeError] = useState('');
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
   const [nameError, setNameError] = useState('');
   const [userData, setUserData] = useState({
     display_name: '',
@@ -233,10 +237,21 @@ export default function Onboarding() {
     setLoading(false);
   };
 
+  const handleVerifyOTP = () => {
+    if (otp.length === 6) {
+      // Dummy verification - any 6 digit OTP works
+      setPhoneVerified(true);
+      setShowOTP(false);
+      setOtpError('');
+    } else {
+      setOtpError('Please enter a valid 6-digit OTP');
+    }
+  };
+
   const canProceed = () => {
     switch (step) {
       case 1:
-        return userData.display_name && !nameError && userData.phone && userData.phone.length === 10 && userData.date_of_birth && !ageError && userData.gender;
+        return userData.display_name && !nameError && userData.phone && userData.phone.length === 10 && phoneVerified && userData.date_of_birth && !ageError && userData.gender;
       case 2:
         return userData.profile_photos.length >= 1;
       case 3:
@@ -340,25 +355,93 @@ export default function Onboarding() {
                 </div>
 
                 <div>
-                  <Label className="text-slate-700 mb-2 block">Phone Number</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                    <div className="absolute left-12 top-1/2 -translate-y-1/2 text-slate-600 font-medium">
-                      +91
+                  <Label className="text-slate-700 mb-2 block flex items-center gap-2">
+                    Phone Number
+                    {phoneVerified && (
+                      <span className="text-emerald-600 text-xs font-medium flex items-center gap-1">
+                        ✓ Verified
+                      </span>
+                    )}
+                  </Label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <div className="absolute left-12 top-1/2 -translate-y-1/2 text-slate-600 font-medium">
+                        +91
+                      </div>
+                      <Input
+                        type="tel"
+                        placeholder="10 digit number"
+                        value={userData.phone}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          setUserData({ ...userData, phone: value });
+                          if (phoneVerified) {
+                            setPhoneVerified(false);
+                            setShowOTP(false);
+                            setOtp('');
+                          }
+                        }}
+                        disabled={phoneVerified}
+                        className="h-14 pl-20 rounded-xl border-slate-200 disabled:opacity-60"
+                        maxLength={10}
+                      />
                     </div>
-                    <Input
-                      type="tel"
-                      placeholder="10 digit number"
-                      value={userData.phone}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                        setUserData({ ...userData, phone: value });
-                      }}
-                      className="h-14 pl-20 rounded-xl border-slate-200"
-                      maxLength={10}
-                    />
+                    {!phoneVerified && userData.phone.length === 10 && !showOTP && (
+                      <Button
+                        type="button"
+                        onClick={() => setShowOTP(true)}
+                        className="h-14 px-6 rounded-xl whitespace-nowrap font-bold"
+                        style={{ background: '#FFD93D', color: '#2D3436' }}
+                      >
+                        Verify
+                      </Button>
+                    )}
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">We'll use this to contact you about bookings</p>
+                  
+                  {/* OTP Input */}
+                  {showOTP && !phoneVerified && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200"
+                    >
+                      <p className="text-sm text-slate-600 mb-3">Enter the 6-digit OTP sent to +91 {userData.phone}</p>
+                      <div className="flex gap-2">
+                        <Input
+                          type="text"
+                          placeholder="Enter OTP"
+                          value={otp}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                            setOtp(value);
+                            setOtpError('');
+                          }}
+                          className="h-12 rounded-xl text-center text-lg tracking-widest font-semibold"
+                          maxLength={6}
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleVerifyOTP}
+                          disabled={otp.length !== 6}
+                          className="h-12 px-6 rounded-xl font-bold disabled:opacity-50"
+                          style={{ background: '#FFD93D', color: '#2D3436' }}
+                        >
+                          Submit
+                        </Button>
+                      </div>
+                      {otpError && (
+                        <p className="text-xs text-red-500 mt-2">{otpError}</p>
+                      )}
+                      <p className="text-xs text-slate-500 mt-2">
+                        Didn't receive? <button type="button" onClick={() => setShowOTP(true)} className="text-violet-600 font-medium">Resend OTP</button>
+                      </p>
+                    </motion.div>
+                  )}
+                  
+                  {!showOTP && !phoneVerified && (
+                    <p className="text-xs text-slate-500 mt-1">We'll use this to contact you about bookings</p>
+                  )}
                 </div>
 
                 <div>
