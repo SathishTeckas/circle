@@ -9,8 +9,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { 
-  ArrowLeft, Camera, X, Upload, Loader2, Save
+  ArrowLeft, Camera, X, Upload, Loader2, Save, Briefcase, GraduationCap, Users
 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -19,6 +20,16 @@ const LANGUAGES = ['English', 'Hindi', 'Tamil', 'Telugu', 'Bengali', 'Marathi', 
 const CITIES = ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata', 'Ahmedabad'];
 const HOBBIES = ['Reading', 'Writing', 'Painting', 'Drawing', 'Photography', 'Cooking', 'Baking', 'Gardening', 'Hiking', 'Cycling'];
 const PERSONALITY_TRAITS = ['Outgoing', 'Introverted', 'Adventurous', 'Calm', 'Spontaneous', 'Organized', 'Creative', 'Logical', 'Empathetic', 'Confident'];
+
+const SERVICE_TYPES = [
+  { value: 'companionship', label: 'Social Companion', description: 'Hangout, explore the city, attend events together' },
+  { value: 'mentorship', label: 'Career Mentor', description: 'Career guidance, resume review, interview prep' },
+  { value: 'study_partner', label: 'Study Partner', description: 'Exam prep, project collaboration, tutoring' },
+  { value: 'all', label: 'All Services', description: 'Offer all types of companionship' }
+];
+
+const MENTORSHIP_AREAS = ['Career Guidance', 'Resume Review', 'Interview Prep', 'LinkedIn Optimization', 'Industry Insights', 'Internship Advice', 'Startup Mentoring', 'Leadership Skills', 'Communication', 'Networking'];
+const STUDY_SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Programming', 'Data Science', 'Economics', 'Accounting', 'English', 'History', 'Political Science', 'Psychology', 'MBA Prep', 'UPSC', 'CAT', 'GRE/GMAT', 'IELTS/TOEFL'];
 
 export default function EditProfile() {
   const [user, setUser] = useState(null);
@@ -34,7 +45,12 @@ export default function EditProfile() {
     personality_traits: [],
     profile_photos: [],
     instagram_username: '',
-    snapchat_username: ''
+    snapchat_username: '',
+    service_type: 'companionship',
+    mentorship_expertise: [],
+    study_subjects: [],
+    professional_background: '',
+    education: ''
   });
 
   useEffect(() => {
@@ -52,7 +68,12 @@ export default function EditProfile() {
           personality_traits: userData.personality_traits || [],
           profile_photos: userData.profile_photos || [],
           instagram_username: userData.instagram_username || '',
-          snapchat_username: userData.snapchat_username || ''
+          snapchat_username: userData.snapchat_username || '',
+          service_type: userData.service_type || 'companionship',
+          mentorship_expertise: userData.mentorship_expertise || [],
+          study_subjects: userData.study_subjects || [],
+          professional_background: userData.professional_background || '',
+          education: userData.education || ''
         });
       } catch (error) {
         console.error('Error loading user in EditProfile:', error);
@@ -256,6 +277,111 @@ export default function EditProfile() {
             </select>
           </div>
         </Card>
+
+        {/* Service Type - Only show for companions */}
+        {user?.user_role === 'companion' && (
+          <Card className="p-4 space-y-4">
+            <Label className="text-base font-bold" style={{ color: '#2D3436' }}>Service Type</Label>
+            <p className="text-sm text-slate-500 -mt-2">What type of companionship do you offer?</p>
+            
+            <div className="grid grid-cols-2 gap-3">
+              {SERVICE_TYPES.map((type) => (
+                <div
+                  key={type.value}
+                  onClick={() => setFormData({ ...formData, service_type: type.value })}
+                  className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                    formData.service_type === type.value 
+                      ? 'border-violet-500 bg-violet-50' 
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    {type.value === 'companionship' && <Users className="w-4 h-4 text-violet-600" />}
+                    {type.value === 'mentorship' && <Briefcase className="w-4 h-4 text-violet-600" />}
+                    {type.value === 'study_partner' && <GraduationCap className="w-4 h-4 text-violet-600" />}
+                    {type.value === 'all' && <span className="text-violet-600">✨</span>}
+                    <span className="font-semibold text-sm">{type.label}</span>
+                  </div>
+                  <p className="text-xs text-slate-500">{type.description}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Mentorship Expertise - Show when mentorship or all selected */}
+            {(formData.service_type === 'mentorship' || formData.service_type === 'all') && (
+              <div className="space-y-3 pt-2">
+                <Label>Mentorship Expertise</Label>
+                <div className="flex flex-wrap gap-2">
+                  {MENTORSHIP_AREAS.map((area) => (
+                    <Badge
+                      key={area}
+                      onClick={() => setFormData({
+                        ...formData,
+                        mentorship_expertise: formData.mentorship_expertise.includes(area)
+                          ? formData.mentorship_expertise.filter(a => a !== area)
+                          : [...formData.mentorship_expertise, area]
+                      })}
+                      className={
+                        formData.mentorship_expertise.includes(area)
+                          ? 'bg-orange-500 text-white cursor-pointer'
+                          : 'bg-slate-100 text-slate-700 cursor-pointer hover:bg-slate-200'
+                      }
+                    >
+                      {area}
+                    </Badge>
+                  ))}
+                </div>
+                <div>
+                  <Label className="mb-2 block">Professional Background</Label>
+                  <Textarea
+                    placeholder="Brief description of your professional experience..."
+                    value={formData.professional_background}
+                    onChange={(e) => setFormData({ ...formData, professional_background: e.target.value })}
+                    className="h-20"
+                    maxLength={300}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Study Subjects - Show when study_partner or all selected */}
+            {(formData.service_type === 'study_partner' || formData.service_type === 'all') && (
+              <div className="space-y-3 pt-2">
+                <Label>Subjects You Can Help With</Label>
+                <div className="flex flex-wrap gap-2">
+                  {STUDY_SUBJECTS.map((subject) => (
+                    <Badge
+                      key={subject}
+                      onClick={() => setFormData({
+                        ...formData,
+                        study_subjects: formData.study_subjects.includes(subject)
+                          ? formData.study_subjects.filter(s => s !== subject)
+                          : [...formData.study_subjects, subject]
+                      })}
+                      className={
+                        formData.study_subjects.includes(subject)
+                          ? 'bg-teal-500 text-white cursor-pointer'
+                          : 'bg-slate-100 text-slate-700 cursor-pointer hover:bg-slate-200'
+                      }
+                    >
+                      {subject}
+                    </Badge>
+                  ))}
+                </div>
+                <div>
+                  <Label className="mb-2 block">Education</Label>
+                  <Textarea
+                    placeholder="Your educational background (e.g., B.Tech from IIT, MBA from ISB)..."
+                    value={formData.education}
+                    onChange={(e) => setFormData({ ...formData, education: e.target.value })}
+                    className="h-20"
+                    maxLength={200}
+                  />
+                </div>
+              </div>
+            )}
+          </Card>
+        )}
 
         {/* Social Links */}
         <Card className="p-4 space-y-4">

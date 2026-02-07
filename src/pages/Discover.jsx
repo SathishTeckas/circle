@@ -36,6 +36,15 @@ const LANGUAGES = ['English', 'Hindi', 'Bengali', 'Telugu', 'Marathi', 'Tamil', 
 const TIME_SLOTS_24H = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
 const TIME_SLOTS = TIME_SLOTS_24H.map(time => ({ value: time, label: formatTime12Hour(time) }));
 
+const SERVICE_TYPES = [
+  { value: 'companionship', label: 'Social Companion', icon: '👥' },
+  { value: 'mentorship', label: 'Career Mentor', icon: '💼' },
+  { value: 'study_partner', label: 'Study Partner', icon: '📚' }
+];
+
+const MENTORSHIP_AREAS = ['Career Guidance', 'Resume Review', 'Interview Prep', 'LinkedIn Optimization', 'Industry Insights', 'Internship Advice', 'Startup Mentoring', 'Leadership Skills', 'Communication', 'Networking'];
+const STUDY_SUBJECTS = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Programming', 'Data Science', 'Economics', 'Accounting', 'English', 'History', 'Political Science', 'Psychology', 'MBA Prep', 'UPSC', 'CAT', 'GRE/GMAT', 'IELTS/TOEFL'];
+
 export default function Discover() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
@@ -47,7 +56,10 @@ export default function Discover() {
     priceMin: '',
     priceMax: '',
     language: '',
-    minRating: ''
+    minRating: '',
+    serviceType: '',
+    mentorshipArea: '',
+    studySubject: ''
   });
   const [showFilters, setShowFilters] = useState(false);
 
@@ -161,6 +173,23 @@ export default function Discover() {
       const companionUser = companionUsers.find(u => u.id === a.companion_id);
       if (!companionUser || companionUser.average_rating == null || companionUser.average_rating < Number(filters.minRating)) return false;
     }
+    // Service type filter
+    if (filters.serviceType) {
+      const companionUser = companionUsers.find(u => u.id === a.companion_id);
+      if (!companionUser) return false;
+      const userServiceType = companionUser.service_type || 'companionship';
+      if (userServiceType !== 'all' && userServiceType !== filters.serviceType) return false;
+    }
+    // Mentorship area filter
+    if (filters.mentorshipArea) {
+      const companionUser = companionUsers.find(u => u.id === a.companion_id);
+      if (!companionUser?.mentorship_expertise?.includes(filters.mentorshipArea)) return false;
+    }
+    // Study subject filter
+    if (filters.studySubject) {
+      const companionUser = companionUsers.find(u => u.id === a.companion_id);
+      if (!companionUser?.study_subjects?.includes(filters.studySubject)) return false;
+    }
     return true;
   });
 
@@ -187,7 +216,7 @@ export default function Discover() {
   const companionsList = Object.values(groupedCompanions || {});
 
   const clearFilters = () => {
-    setFilters({ city: '', area: '', gender: '', priceMin: '', priceMax: '', language: '', minRating: '' });
+    setFilters({ city: '', area: '', gender: '', priceMin: '', priceMax: '', language: '', minRating: '', serviceType: '', mentorshipArea: '', studySubject: '' });
     setSelectedDate(null);
     setSelectedTime('');
     setSearchQuery('');
@@ -243,6 +272,58 @@ export default function Discover() {
                 
                 <div className="flex-1 overflow-y-auto px-1 pb-4">
                   <div className="space-y-4 sm:space-y-6">
+                  {/* Service Type */}
+                  <div>
+                    <label className="text-sm font-medium text-slate-700 mb-2 block">What are you looking for?</label>
+                    <Select value={filters.serviceType} onValueChange={(v) => setFilters({ ...filters, serviceType: v, mentorshipArea: '', studySubject: '' })}>
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue placeholder="All services" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={null}>All services</SelectItem>
+                        {SERVICE_TYPES.map(type => (
+                          <SelectItem key={type.value} value={type.value}>{type.icon} {type.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Mentorship Area - show only when mentorship selected */}
+                  {filters.serviceType === 'mentorship' && (
+                    <div>
+                      <label className="text-sm font-medium text-slate-700 mb-2 block">Mentorship Area</label>
+                      <Select value={filters.mentorshipArea} onValueChange={(v) => setFilters({ ...filters, mentorshipArea: v })}>
+                        <SelectTrigger className="h-12 rounded-xl">
+                          <SelectValue placeholder="Any area" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={null}>Any area</SelectItem>
+                          {MENTORSHIP_AREAS.map(area => (
+                            <SelectItem key={area} value={area}>{area}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {/* Study Subject - show only when study partner selected */}
+                  {filters.serviceType === 'study_partner' && (
+                    <div>
+                      <label className="text-sm font-medium text-slate-700 mb-2 block">Subject</label>
+                      <Select value={filters.studySubject} onValueChange={(v) => setFilters({ ...filters, studySubject: v })}>
+                        <SelectTrigger className="h-12 rounded-xl">
+                          <SelectValue placeholder="Any subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={null}>Any subject</SelectItem>
+                          {STUDY_SUBJECTS.map(subject => (
+                            <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
                   {/* Date */}
                   <div>
                     <label className="text-sm font-medium text-slate-700 mb-2 block">Date</label>
@@ -460,6 +541,24 @@ export default function Discover() {
                 <Badge className="flex items-center gap-1 whitespace-nowrap font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
                   {filters.minRating}+ ⭐
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, minRating: '' })} />
+                </Badge>
+              )}
+              {filters.serviceType && (
+                <Badge className="flex items-center gap-1 whitespace-nowrap font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
+                  {SERVICE_TYPES.find(t => t.value === filters.serviceType)?.label}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, serviceType: '', mentorshipArea: '', studySubject: '' })} />
+                </Badge>
+              )}
+              {filters.mentorshipArea && (
+                <Badge className="flex items-center gap-1 whitespace-nowrap font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
+                  {filters.mentorshipArea}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, mentorshipArea: '' })} />
+                </Badge>
+              )}
+              {filters.studySubject && (
+                <Badge className="flex items-center gap-1 whitespace-nowrap font-bold" style={{ background: '#FFF3B8', color: '#2D3436' }}>
+                  {filters.studySubject}
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({ ...filters, studySubject: '' })} />
                 </Badge>
               )}
             </div>
