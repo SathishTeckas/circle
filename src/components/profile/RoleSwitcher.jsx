@@ -78,15 +78,15 @@ export default function RoleSwitcher({ user, onRoleChanged }) {
         <div className="space-y-4">
           <p className="text-sm" style={{ color: '#636E72' }}>Switch between seeker and companion modes</p>
           
-          <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: 'linear-gradient(to right, #FFF3B8, #FFB347)' }}>
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-4 rounded-xl" style={{ background: 'linear-gradient(to right, #FFF3B8, #FFB347)' }}>
+            <div className="flex items-center gap-2 sm:gap-3">
               <div 
-                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
                 style={{ background: activeRole === 'seeker' ? '#2D3436' : '#DFE6E9' }}
               >
-                <User className="w-5 h-5" style={{ color: activeRole === 'seeker' ? '#FFFFFF' : '#B2BEC3' }} />
+                <User className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: activeRole === 'seeker' ? '#FFFFFF' : '#B2BEC3' }} />
               </div>
-              <span className="font-bold" style={{ color: '#2D3436' }}>Seeker</span>
+              <span className="font-bold text-sm sm:text-base" style={{ color: '#2D3436' }}>Seeker</span>
             </div>
 
             <Switch
@@ -96,13 +96,13 @@ export default function RoleSwitcher({ user, onRoleChanged }) {
               className="data-[state=checked]:bg-fuchsia-600 data-[state=unchecked]:bg-violet-400"
             />
 
-            <div className="flex items-center gap-3">
-              <span className="font-bold" style={{ color: '#2D3436' }}>Companion</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="font-bold text-sm sm:text-base" style={{ color: '#2D3436' }}>Companion</span>
               <div 
-                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
                 style={{ background: activeRole === 'companion' ? '#2D3436' : '#DFE6E9' }}
               >
-                <Users className="w-5 h-5" style={{ color: activeRole === 'companion' ? '#FFFFFF' : '#B2BEC3' }} />
+                <Users className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: activeRole === 'companion' ? '#FFFFFF' : '#B2BEC3' }} />
               </div>
             </div>
           </div>
