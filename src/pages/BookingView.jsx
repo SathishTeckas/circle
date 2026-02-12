@@ -362,7 +362,8 @@ export default function BookingView() {
             const settingsResponse = await base44.entities.AppSettings.list('', 1);
             const settings = settingsResponse[0] || { cancellation_platform_split: 30, cancellation_companion_split: 20 };
 
-            const companionSplitPercent = settings.cancellation_companion_split || 20;
+            // Default to 20% for companion if not set in settings
+            const companionSplitPercent = settings.cancellation_companion_split !== undefined ? settings.cancellation_companion_split : 20;
 
             // Calculate companion's share directly from retained amount (no platform fee deduction)
             companionCompensation = Math.round(retainedAmount * companionSplitPercent / 100);
