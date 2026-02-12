@@ -362,11 +362,11 @@ export default function BookingView() {
             const settingsResponse = await base44.entities.AppSettings.list('', 1);
             const settings = settingsResponse[0] || { cancellation_platform_split: 30, cancellation_companion_split: 20 };
 
-            const companionSplitPercent = settings.cancellation_companion_split || 40;
+            const companionSplitPercent = settings.cancellation_companion_split || 20;
 
             // Calculate companion's share directly from retained amount (no platform fee deduction)
             companionCompensation = Math.round(retainedAmount * companionSplitPercent / 100);
-            console.log('Companion compensation calculated:', { companionSplitPercent, companionCompensation });
+            console.log('Companion compensation calculated:', { retainedAmount, companionSplitPercent, companionCompensation });
 
             const companionResponse = await base44.functions.invoke('getUserProfile', { userId: booking.companion_id });
             const companion = companionResponse.data.user;
@@ -374,6 +374,7 @@ export default function BookingView() {
             const newWalletBalance = currentWalletBalance + companionCompensation;
             console.log('Wallet update:', { currentWalletBalance, newWalletBalance, companionId: booking.companion_id });
 
+            // Use asServiceRole for updating user wallet (security rules may block direct user updates)
             await base44.entities.User.update(booking.companion_id, {
               wallet_balance: newWalletBalance
             });
