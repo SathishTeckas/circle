@@ -464,7 +464,7 @@ export default function BookingView() {
           ? `${formatCurrency(refundAmount)} (full amount including platform fee) has been refunded to your account`
           : fullRefund
             ? `${formatCurrency(refundAmount)} (full amount) has been refunded to your account`
-            : `${formatCurrency(refundAmount)} (${refundPercentage}% of base price) has been refunded to your account`;
+            : `${formatCurrency(refundAmount)} (${refundPercentage}% of base price ₹${basePrice}) has been refunded to your account`;
         await base44.entities.Notification.create({
           user_id: booking?.seeker_id,
           type: 'payment_refunded',
